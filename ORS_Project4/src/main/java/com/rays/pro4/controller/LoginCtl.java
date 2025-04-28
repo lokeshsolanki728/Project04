@@ -24,7 +24,7 @@ import com.rays.pro4.Util.ServletUtility;
 /**
  * Servlet implementation class LoginCtl
  * 
- * @author NIKHIL KHANDAIT
+ * @author Lokesh SOlanki
  */
 @WebServlet(name = "LoginCtl", urlPatterns = { "/LoginCtl" })
 public class LoginCtl extends BaseCtl {

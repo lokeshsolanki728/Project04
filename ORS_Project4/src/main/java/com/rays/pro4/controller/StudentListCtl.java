@@ -26,7 +26,7 @@ import com.rays.pro4.Util.ServletUtility;
 * Student List functionality Controller. Performs operation for list, search
 * and delete operations of Student
 * 
-*  @author NIKHIL KHANDAIT
+*  @author Lokesh SOlanki
 */
 @WebServlet (name = "StudentListCtl" , urlPatterns = {"/ctl/StudentListCtl"})
 public class StudentListCtl extends BaseCtl{

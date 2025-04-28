@@ -13,7 +13,7 @@ import com.rays.pro4.Exception.ApplicationException;
 /**
  * JDBC DataSource is a Data Connection Pool.
  * 
- * @author NIKHIL KHANDAIT
+ * @author Lokesh SOlanki
  *
  */
 public class JDBCDataSource {
@@ -39,7 +39,7 @@ public class JDBCDataSource {
         if (datasource == null) {
 
             ResourceBundle rb = ResourceBundle
-                    .getBundle("com.rays.proj4.resourcesB.System");
+                    .getBundle("com.rays.pro4.resources.System");
 
             datasource = new JDBCDataSource();
             datasource.cpds = new ComboPooledDataSource();

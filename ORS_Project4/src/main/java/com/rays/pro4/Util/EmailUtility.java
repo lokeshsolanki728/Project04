@@ -15,7 +15,7 @@ import com.rays.pro4.Exception.ApplicationException;
 /**
  * Email Utility provides Email Services.
  * 
- * @author NIKHIL KHANDAIT
+ * @author Lokesh SOlanki
  *
  */
 public class EmailUtility {

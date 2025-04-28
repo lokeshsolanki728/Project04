@@ -3,7 +3,7 @@ package com.rays.pro4.Exception;
  * ApplicationException is propogated from Service classes when an business
  * logic exception occurered.
  * 
- * @author NIKHIL KHANDAIT
+ * @author Lokesh SOlanki
  *
  */
 public class ApplicationException extends Exception {

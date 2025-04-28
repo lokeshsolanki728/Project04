@@ -18,7 +18,7 @@ import com.rays.pro4.Util.JDBCDataSource;
 /**
  * JDBC Implementation of Subject Model.
  * 
- * @author NIKHIL KHANDAIT
+ * @author Lokesh SOlanki
  *
  */
 public class SubjectModel {

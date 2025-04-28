@@ -4,7 +4,7 @@ package com.rays.pro4.Util;
 /**
  * Contains Email Message.
  * 
- * @author NIKHIL KHANDAIT
+ * @author Lokesh SOlanki
  *
  */
 

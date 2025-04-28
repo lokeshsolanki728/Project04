@@ -3,7 +3,7 @@ package com.rays.pro4.Bean;
 /**
  * Course JavaBean encapsulates Course attributes.
  * 
- * @author NIKHIL KHANDAIT
+ * @author Lokesh SOlanki
  *
  */
 public class CourseBean extends BaseBean{

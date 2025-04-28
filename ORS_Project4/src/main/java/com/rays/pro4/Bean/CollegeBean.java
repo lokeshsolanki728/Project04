@@ -2,7 +2,7 @@ package com.rays.pro4.Bean;
 
 /**
  * College JavaBean encapsulates College attributes.
- * @author NIKHIL KHANDAIT
+ * @author Lokesh SOlanki
  *
  */
 public class CollegeBean extends BaseBean{

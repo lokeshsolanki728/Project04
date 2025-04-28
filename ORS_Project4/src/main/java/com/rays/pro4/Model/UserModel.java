@@ -26,7 +26,7 @@ import com.rays.pro4.Util.JDBCDataSource;
 /**
  * JDBC Implementation of UserModel.
  * 
- * @author NIKHIL KHANDAIT
+ * @author Lokesh SOlanki
  *
  */
 

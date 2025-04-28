@@ -3,7 +3,7 @@ package com.rays.pro4.Bean;
 /**
  * Subject JavaBean encapsulates Subject attributes.
  * 
- * @author NIKHIL KHANDAIT
+ * @author Lokesh SOlanki
  *
  */
 public class SubjectBean extends BaseBean{

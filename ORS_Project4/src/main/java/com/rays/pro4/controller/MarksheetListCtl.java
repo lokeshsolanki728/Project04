@@ -31,7 +31,7 @@ import com.rays.pro4.Util.ServletUtility;
 
 /**
 * Servlet implementation class MarksheetlistCtl
-*  @author  NIKHIL KHANDAIT
+*  @author  Lokesh SOlanki
 */
 @WebServlet(name = "MarksheetListCtl", urlPatterns = { "/ctl/MarksheetListCtl" })
 public class MarksheetListCtl extends BaseCtl {

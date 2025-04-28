@@ -27,7 +27,7 @@ import com.rays.pro4.Util.ServletUtility;
 //TODO: Auto-generated Javadoc
 /**
 * The Class TimeTableCtl.
-**  @author NIKHIL KHANDAIT
+**  @author Lokesh SOlanki
 */
 @WebServlet(name = "TimeTableCtl", urlPatterns = {"/ctl/TimeTableCtl"})
 public class TimetableCtl extends BaseCtl{

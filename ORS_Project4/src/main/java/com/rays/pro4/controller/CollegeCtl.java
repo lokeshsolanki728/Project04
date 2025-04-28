@@ -24,7 +24,7 @@ import com.rays.pro4.Util.ServletUtility;
 * College functionality Controller. Performs operation for add, update, delete
 * and get College
 * 
-* @author NIKHIL KHANDAIT
+* @author Lokesh SOlanki
 * 
 */
 

@@ -23,7 +23,7 @@ import com.rays.pro4.Util.ServletUtility;
 * College List functionality Controller. Performs operation for list, search
 * and delete operations of College
 * 
-* @author NIKHIL KHANDAIT
+* @author Lokesh SOlanki
 * 
 */
 @WebServlet(name="CollegeListCtl",urlPatterns={"/ctl/CollegeListCtl"})
