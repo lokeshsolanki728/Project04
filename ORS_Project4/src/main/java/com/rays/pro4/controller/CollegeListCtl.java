@@ -1,6 +1,7 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -105,7 +106,7 @@ private static Logger log = Logger.getLogger(CollegeListCtl.class);
         ServletUtility.setList(list, request);
         ServletUtility.setPageNo(pageNo, request);
         ServletUtility.setPageSize(pageSize, request);
-        ServletUtility.forward(getView(), request, response);
+        ServletUtility.forward(getView(), request);
     }
         catch (ApplicationException e) {
             log.error(e);
@@ -204,7 +205,13 @@ private static Logger log = Logger.getLogger(CollegeListCtl.class);
             ServletUtility.setBean(bean, request);
             ServletUtility.setPageNo(pageNo, request);
             ServletUtility.setPageSize(pageSize, request);
-            ServletUtility.forward(getView(), request, response);
+            
+            HashMap<String, Object> map = new HashMap<>();
+    		map.put("list", list);
+    		map.put("bean", bean);
+    		map.put("pageNo", pageNo);
+    		map.put("pageSize", pageSize);
+            ServletUtility.forward(getView(), request);
             log.debug("CollegeListCtl doPost End");
     }
     

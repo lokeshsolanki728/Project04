@@ -1,6 +1,8 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -35,7 +37,10 @@ public class ErrorCtl extends BaseCtl {
 			throws ServletException, IOException {
 		log.debug("Do get Method of Error Ctl started");
 		// System.out.println("_______________error ctl-_-------->" );
-		ServletUtility.forward(getView(), request, response);
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		
+		ServletUtility.forward(getView(), map, request);
 
 		log.debug("Do get Method of Error Ctl End");
 

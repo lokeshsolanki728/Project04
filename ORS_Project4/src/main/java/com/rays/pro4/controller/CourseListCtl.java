@@ -1,6 +1,7 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -116,7 +117,13 @@ public class CourseListCtl extends BaseCtl {
 			ServletUtility.setList(list, request);
 			ServletUtility.setPageNo(pageNo, request);
 			ServletUtility.setPageSize(pageSize, request);
-			ServletUtility.forward(getView(), request, response);
+			HashMap<String, Object> map=new HashMap<String,Object>();
+			map.put("list",list);
+			map.put("nextlist",nextList.size());
+			map.put("bean",bean);
+			map.put("pageNo",pageNo);
+			map.put("pageSize",pageSize);
+			ServletUtility.forward(getView(),map,request, response);
 		} catch (ApplicationException e) {
 			log.error(e);
 			ServletUtility.handleException(e, request, response);
@@ -224,7 +231,12 @@ public class CourseListCtl extends BaseCtl {
 		ServletUtility.setBean(bean, request);
 		ServletUtility.setPageNo(pageNo, request);
 		ServletUtility.setPageSize(pageSize, request);
-		ServletUtility.forward(getView(), request, response);
+		HashMap<String, Object> map=new HashMap<String,Object>();
+		map.put("list",list);
+		map.put("bean",bean);
+		map.put("pageNo",pageNo);
+		map.put("pageSize",pageSize);
+		ServletUtility.forward(getView(),map,request, response);
 	}
 
 	/*

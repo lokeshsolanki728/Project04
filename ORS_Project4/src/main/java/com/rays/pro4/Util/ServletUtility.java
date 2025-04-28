@@ -1,6 +1,7 @@
 package com.rays.pro4.Util;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -12,7 +13,6 @@ import javax.servlet.http.HttpServletResponse;
 import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Model.BaseModel;
 import com.rays.pro4.controller.BaseCtl;
-import com.rays.pro4.controller.ORSView;
 
 /**
  * This class provides utility operation for Servlet container like forward,
@@ -25,34 +25,27 @@ import com.rays.pro4.controller.ORSView;
 public class ServletUtility {
 
 	/**
-	 * Forward to given JSP/Servlet.
+	 * Forward to given JSP/Servlet with request and response.
 	 *
 	 * @param page     the page
 	 * @param request  the request
 	 * @param response the response
-	 * @throws IOException      Signals that an I/O exception has occurred.
-	 * @throws ServletException the servlet exception
+	 * @param map 
+	 * @throws IOException
+	 * @throws ServletException
 	 */
-	public static void forward(String page, HttpServletRequest request, HttpServletResponse response)
+	public static void forward(String page, HashMap<String, Object> map, HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
+		
+		if(map != null)
+		{
+			for(String key : map.keySet())
+			{
+				request.setAttribute(key, map.get(key));
+			}
+		}
+		
 		RequestDispatcher rd = request.getRequestDispatcher(page);
-		rd.forward(request, response);
-	}
-
-	/*    *//**
-			 * Forward to Layout View.
-			 *
-			 * @param page     the page
-			 * @param request  the request
-			 * @param response the response
-			 * @throws IOException      Signals that an I/O exception has occurred.
-			 * @throws ServletException the servlet exception
-			 */
-	public static void forwardView(String page, HttpServletRequest request, HttpServletResponse response)
-			throws IOException, ServletException {
-
-		request.setAttribute("bodyPage", page);
-		RequestDispatcher rd = request.getRequestDispatcher(ORSView.LAYOUT_VIEW);
 		rd.forward(request, response);
 	}
 
@@ -71,15 +64,15 @@ public class ServletUtility {
 	}
 
 	/**
-	 * Redirect to Application Error Handler Page.
+	 * Handle Exception.
 	 *
-	 * @param e        the e
-	 * @param request  the request
-	 * @param response the response
-	 * @throws IOException      Signals that an I/O exception has occurred.
-	 * @throws ServletException the servlet exception
+	 * @param e
+	 * @param request
+	 * @param response
+	 * @throws IOException
+	 * @throws ServletException
 	 */
-	public static void handleException(Exception e, HttpServletRequest request, HttpServletResponse response)
+	public static void handleException(Exception e,  HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
 		// System.out.println("servlet ulitity error ctl------------>");
 		request.setAttribute("exception", e);
@@ -104,17 +97,6 @@ public class ServletUtility {
 		}
 	}
 
-	/*    *//**
-			 * returns all input error messages.
-			 *
-			 * @param msg     the msg
-			 * @param request the request
-			 * @deprecated Use HTMLUtil method instead
-			 */
-	public static String getErrorMessageHtml(HttpServletRequest request) {
-
-		Enumeration<String> e = request.getAttributeNames();
-
 		StringBuffer sb = new StringBuffer("<UL>");
 		String name = null;
 
@@ -127,7 +109,6 @@ public class ServletUtility {
 		sb.append("</UL>");
 		return sb.toString();
 	}
-
 	/*    */
 	/**
 	 * Gets a message from request
@@ -330,6 +311,5 @@ public class ServletUtility {
 	public static int getPageSize(HttpServletRequest request) {
 		return (Integer) request.getAttribute("pageSize");
 	}
-
 }
 

@@ -1,6 +1,8 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -132,44 +134,32 @@ public class CourseCtl extends BaseCtl{
 	
 		if(OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)){
 			CourseBean bean =(CourseBean) populateBean(request);
-		try{
-			if(id>0){		
+			try{
+				if(id>0){		
 					model.update(bean);
-					ServletUtility.setBean(bean, request);
-					ServletUtility.setSuccessMessage("Course is Successfully Updated", request);
-				
-			}else{
-				 long pk = model.add(bean);
-				 ServletUtility.setBean(bean, request);
+					ServletUtility.setSuccessMessage("Course is Successfully Updated", request);		
+				}else{
+					model.add(bean);
 					ServletUtility.setSuccessMessage("Course is Successfully Added", request);
-				
-			//		bean.setId(pk);
-			}
-				ServletUtility.setBean(bean, request);
-			//ServletUtility.setSuccessMessage("Course is Successfully Added", request);
-		
-		}catch(ApplicationException e ){
-			e.printStackTrace();
-			log.error(e);
-			ServletUtility.handleException(e, request, response);
-			return;
-		} catch (DuplicateRecordException e) {
-			ServletUtility.setBean(bean, request);
-			ServletUtility.setErrorMessage("Course Name Already Exist", request);
-			
-		}		
-		}/*else if (OP_DELETE.equalsIgnoreCase(op)) {
-			CourseBean bean =(CourseBean) populateBean(request);
-			try {
-				model.delete(bean);;
-				ServletUtility.redirect(ORSView.COURSE_CTL, request, response);
-				return;
-			} catch (ApplicationException e) {
+				}
+				Map<String,Object> map = new HashMap<String, Object>();
+				map.put("bean", bean);
+				ServletUtility.forward(getView(), map, request, response);
+				return;		
+			}catch(ApplicationException e ){
+				e.printStackTrace();
 				log.error(e);
 				ServletUtility.handleException(e, request, response);
-				return ;
+				return;
+			} catch (DuplicateRecordException e) {
+				ServletUtility.setErrorMessage("Course Name Already Exist", request);
+				Map<String,Object> map = new HashMap<String, Object>();
+				map.put("bean", bean);
+				ServletUtility.forward(getView(), map, request, response);
+				return;
 			}
-		}*/
+		}
+		
 		else if (OP_CANCEL.equalsIgnoreCase(op)) {
 			ServletUtility.redirect(ORSView.COURSE_LIST_CTL, request, response);
 			return;
@@ -178,7 +168,8 @@ public class CourseCtl extends BaseCtl{
 			ServletUtility.redirect(ORSView.COURSE_CTL, request, response);
 			return;
 		}
-		ServletUtility.forward(getView(), request, response);
+		
+		ServletUtility.forward(getView(), request, response );
 		log.debug("Do Post method CourseCtl Ended");
 	
 	}

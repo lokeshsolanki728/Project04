@@ -1,6 +1,8 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -151,7 +153,7 @@ System.out.println("do get in");
 		long id = DataUtility.getLong(request.getParameter("id"));
 		
 		CollegeModel model = new CollegeModel();
-		if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
+		if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op) ) {
 			CollegeBean bean = (CollegeBean) populateBean(request);
 			try {
 				if (id > 0) {
@@ -166,21 +168,23 @@ System.out.println("do get in");
 			
 			//		bean.setId(pk);
 				}
-				ServletUtility.setBean(bean, request);
-				//ServletUtility.setSuccessMessage("College is successfully Saved ", request);
+				Map<String, Object> map = new HashMap<>();
+				map.put("bean", bean);
+				map.put("success", "College is successfully Saved ");
+				ServletUtility.forward(getView(), map, request, response);
+				return;
 			} catch (ApplicationException e) {
-				e.printStackTrace();
 				log.error(e);
 				ServletUtility.handleException(e, request, response);
 				return;
 			} catch (DuplicateRecordException e) {
-				ServletUtility.setBean(bean, request);
-				ServletUtility.setErrorMessage("College Name already exists", request);
+				Map<String, Object> map = new HashMap<>();
+				map.put("bean", bean);
+				map.put("error", "College Name already exists");
+				ServletUtility.forward(getView(), map, request, response);
+				return;
 			}
-		} 
-		else if ( OP_RESET.equalsIgnoreCase(op)) {
-
-			ServletUtility.redirect(ORSView.COLLEGE_CTL, request, response);
+		} else if ( OP_RESET.equalsIgnoreCase(op)) {
 			return;
 		}		else if (OP_CANCEL.equalsIgnoreCase(op) ) {
 
@@ -203,9 +207,8 @@ System.out.println("do get in");
 
 		} */
 
-		System.out.println("dopost out");
-		ServletUtility.forward(getView(), request, response);
-		log.debug("CollegeCtl Method doGet Ended");
+		ServletUtility.redirect(getView(), request, response);
+		log.debug("CollegeCtl Method doPost Ended");
 	}
 
 	/* (non-Javadoc)

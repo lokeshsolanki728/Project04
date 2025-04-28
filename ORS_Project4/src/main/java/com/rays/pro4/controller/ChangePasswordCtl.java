@@ -1,6 +1,8 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -152,6 +154,7 @@ public class ChangePasswordCtl extends BaseCtl{
 		
 		HttpSession session = request.getSession(true);
 
+		Map<String, Object> params = new HashMap<>();
 		log.debug("ChangePasswordCtl Method doGet Started");
 
 		String op = DataUtility.getString(request.getParameter("operation"));
@@ -173,19 +176,21 @@ public class ChangePasswordCtl extends BaseCtl{
 				if (flag == true) {
 					bean = model.findByLogin(UserBean.getLogin());
 					session.setAttribute("user", bean);
-					ServletUtility.setBean(bean, request);
-					ServletUtility.setSuccessMessage("Password has been changed Successfully.", request);
+					params.put("bean", bean);
+					params.put("success", "Password has been changed Successfully.");
 				}
 			} catch (ApplicationException e) {
 				log.error(e);
 				ServletUtility.handleException(e, request, response);
 				return;
 
-			} catch (RecordNotFoundException e) {
-				ServletUtility.setErrorMessage(e.getMessage(), request);
+			} catch (RecordNotFoundException ex) {
+				params.put("error", ex.getMessage());
 			}
 		} else if (OP_CHANGE_MY_PROFILE.equalsIgnoreCase(op)) {
 			ServletUtility.redirect(ORSView.MY_PROFILE_CTL, request, response);
+
+
 			return;
 
 		}
@@ -200,5 +205,6 @@ public class ChangePasswordCtl extends BaseCtl{
 	protected String getView() {
 		return ORSView.CHANGE_PASSWORD_VIEW;
 	}
-	
+	protected String setView() {return ORSView.CHANGE_PASSWORD_CTL; }
+
 }

@@ -1,6 +1,8 @@
 package com.rays.pro4.Util;
 
+import java.time.LocalDate;
 import java.util.Date;
+
 /**
  * This class validates input data.
  * 
@@ -48,7 +50,7 @@ public class DataValidator {
 
 	  public static boolean isEmail(String val) {
 		  
-	        String emailreg = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+	        String emailreg = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
                                     
 	        if (isNotNull(val)) {
 	            try {
@@ -87,7 +89,7 @@ public class DataValidator {
 	}
 	public static boolean isPassword(String val) {
 
-		String passreg = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,12}";
+		String passreg = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\\s).{8,15}$";
 
 		if (isNotNull(val)) {
 			try {
@@ -104,28 +106,6 @@ public class DataValidator {
 
 		if (isNotNull(val) && val.length() >= 8 && val.length() <= 12) {
 			return true;
-		} else {
-			return false;
-		}
-	}
-
-	/**
-	 * Checks if value is valid Phone No.
-	 * 
-	 * @param val
-	 * @return
-	 */
-	public static boolean isPhoneNo(String val) {
-
-		String phonereg = "^[6-9][0-9]{9}$";
-
-		if (isNotNull(val)) {
-			try {
-				return val.matches(phonereg);
-			} catch (NumberFormatException e) {
-				return false;
-			}
-
 		} else {
 			return false;
 		}
@@ -162,7 +142,7 @@ public class DataValidator {
 	
 	public static boolean isRollNo(String val) {
 
-		String rollreg = "[a-zA-Z]{2}[0-9]{3}";
+		String rollreg = "^[a-zA-Z]{2}[0-9]{3,5}$";
 
 		if (isNotNull(val)) {
 			try {
@@ -176,14 +156,15 @@ public class DataValidator {
 		}
 	}
 	public static boolean isAge(String val){
-	    
-    	Date today = new Date();
-    	Date enterDate = DataUtility.getDate(val);
-    	
-    	int age = today.getYear() - enterDate.getYear();
-
-    	if(age > 18 && isNotNull(val)){
-    		return true;
+		if (isNotNull(val)) {
+        LocalDate today = LocalDate.now();
+        LocalDate birthDate = DataUtility.getLocalDate(val);
+        int age = today.getYear() - birthDate.getYear();
+        if (today.getMonthValue() < birthDate.getMonthValue() || (today.getMonthValue() == birthDate.getMonthValue() && today.getDayOfMonth() < birthDate.getDayOfMonth())) {
+            age--;
+        }
+        if (age >= 18) {
+            return true;
     	}else{
     		return false;							
     	}

@@ -3,6 +3,7 @@ package com.rays.pro4.controller;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -246,6 +247,7 @@ public class FacultyCtl extends BaseCtl{
 			throws ServletException, IOException {
 		log.debug("Do post of  faculty ctl Started");
 		System.out.println("Do post of  faculty ctl Started ");
+        HashMap<String,Object> map=new HashMap<String,Object>();
 
 		String op = DataUtility.getString(request.getParameter("operation"));
 		long id = DataUtility.getLong(request.getParameter("id"));
@@ -258,16 +260,16 @@ public class FacultyCtl extends BaseCtl{
 			try {
 				if (id > 0) {
 					model.update(bean);
-					ServletUtility.setBean(bean, request);
-					ServletUtility.setSuccessMessage("Faculty Successfully Updated", request);
+                    map.put("bean",bean);
+                    map.put("success","Faculty Successfully Updated");
 
 				} else {
 					long pk = model.add(bean);
-					ServletUtility.setBean(bean, request);
-					ServletUtility.setSuccessMessage("Faculty Successfully Added", request);
+                    map.put("bean",bean);
+                    map.put("success","Faculty Successfully Added");
 
 					// bean.setId(pk);
-				}
+                }
 				ServletUtility.setBean(bean, request);
 				
 			} catch (ApplicationException e) {
@@ -295,7 +297,7 @@ public class FacultyCtl extends BaseCtl{
 			return;
 		}
 		// System.out.println(" do post out ");
-		ServletUtility.forward(getView(), request, response);
+		ServletUtility.forward(getView(),map, request, response);
 		log.debug("Do post of  faculty ctl Ended");
 		System.out.println(" Do post of  faculty ctl Ended ");
 	}

@@ -50,7 +50,7 @@ public class UserModel {
 			rs.close();
 		} catch (Exception e) {
 
-			throw new DatabaseException("Exception : Exception in getting PK");
+			throw new DatabaseException("Exception: Error while getting the next primary key.");
 		} finally {
 			JDBCDataSource.closeConnection(conn);
 		}
@@ -69,7 +69,7 @@ public class UserModel {
 
 		UserBean existbean = findByLogin(bean.getLogin());                               
 		if (existbean != null) {
-			throw new DuplicateRecordException("login Id already exists");
+			throw new DuplicateRecordException("Error: User with this login already exists.");
 
 		}
 
@@ -107,14 +107,12 @@ public class UserModel {
 
 		} catch (Exception e) {
 			log.error("Database Exception ...", e);
+            e.printStackTrace();
 			try {
-				e.printStackTrace();
 				conn.rollback();
-
-			} catch (Exception e2) {
-				e2.printStackTrace();
-				// application exception
-				throw new ApplicationException("Exception : add rollback exceptionn" + e2.getMessage());
+                throw new ApplicationException("Exception: Error while rolling back in add method. " + e.getMessage());
+			} catch (Exception ex) {
+				throw new ApplicationException("Exception: Error while rolling back in add method. " + ex.getMessage());
 			}
 		}
 
@@ -141,10 +139,12 @@ public class UserModel {
 			
 		} catch (Exception e) {
 			log.error("DataBase Exception", e);
+            e.printStackTrace();
 			try {
 				conn.rollback();
-			} catch (Exception e2) {
-				throw new ApplicationException("Exception: Delete rollback Exception" + e2.getMessage());
+                throw new ApplicationException("Exception: Error while rolling back in delete method. " + e.getMessage());
+			} catch (Exception e2){
+				throw new ApplicationException("Exception: Error while rolling back in delete method." + e2.getMessage());
 			}
 		} finally {
 			JDBCDataSource.closeConnection(conn);
@@ -188,7 +188,7 @@ public class UserModel {
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.error("DataBase Exception .", e);
-			throw new ApplicationException("Exception: Exception in getting user by Login");
+			throw new ApplicationException("Exception: Error while finding user by login.");
 		} finally {
 			JDBCDataSource.closeConnection(conn);
 		}
@@ -232,7 +232,7 @@ public class UserModel {
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.error("DataBase Exception ", e);
-			throw new ApplicationException("Exception : Exception in getting User by pk");
+			throw new ApplicationException("Exception: Error while finding user by primary key.");
 		} finally {
 			JDBCDataSource.closeConnection(conn);
 		}
@@ -246,7 +246,7 @@ public class UserModel {
 		Connection conn = null;
 		UserBean existBean = findByLogin(bean.getLogin());
 		if (existBean != null && !(existBean.getId() == bean.getId())) {
-			throw new DuplicateRecordException("LoginId is Already Exist");
+			throw new DuplicateRecordException("Error: Cannot update user. User with this login already exists.");
 		}
 		try {
 			conn = JDBCDataSource.getConnection();
@@ -276,11 +276,12 @@ public class UserModel {
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.error("DataBase Exception", e);
+            
 			try {
 				conn.rollback();
-			} catch (Exception e2) {
-				e2.printStackTrace();
-				throw new ApplicationException("Exception : Update Rollback Exception " + e2.getMessage());
+                throw new ApplicationException("Exception: Error while rolling back in update method. " + e.getMessage());
+			} catch (Exception ex) {
+				throw new ApplicationException("Exception: Error while rolling back in update method. " + ex.getMessage());
 			}
 		} finally {
 			JDBCDataSource.closeConnection(conn);
@@ -295,46 +296,58 @@ public class UserModel {
 	public List search(UserBean bean, int pageNo, int pageSize) throws ApplicationException {
 		log.debug("Model Search Start");
 		StringBuffer sql = new StringBuffer("SELECT * FROM ST_USER WHERE 1=1");
+		ArrayList<Object> params = new ArrayList<>();
+        int paramIndex = 1;
 		if (bean != null) {
 			if (bean.getFirstName() != null && bean.getFirstName().length() > 0) {
-				sql.append(" AND FIRST_NAME like '" + bean.getFirstName() + "%'");
+				sql.append(" AND FIRST_NAME like ?");
+                params.add(bean.getFirstName() + "%");
 			}
 			if (bean.getLogin() != null && bean.getLogin().length() > 0) {
-				sql.append(" AND LOGIN like '" + bean.getLogin() + "%'");
+				sql.append(" AND LOGIN like ?");
+                params.add(bean.getLogin() + "%");
 			}
 			if (bean.getRoleId() > 0) {
-				sql.append(" AND ROLE_ID = " + bean.getRoleId());
+				sql.append(" AND ROLE_ID = ?");
+                params.add(bean.getRoleId());
 			}
 			if (bean.getLastName() != null && bean.getLastName().length() > 0) {
-				sql.append(" AND LAST_NAME like '" + bean.getLastName() + "%'");
+				sql.append(" AND LAST_NAME like ?");
+                params.add(bean.getLastName() + "%");
 			}
 			if (bean.getId() > 0) {
-				sql.append(" AND id = " + bean.getId());
+				sql.append(" AND id = ?");
+                params.add(bean.getId());
 			}
 
 			if (bean.getPassword() != null && bean.getPassword().length() > 0) {
-				sql.append(" AND PASSWORD like '" + bean.getPassword() + "%'");
+				sql.append(" AND PASSWORD like ?");
+                params.add(bean.getPassword() + "%");
 			}
-			if (bean.getDob() != null && bean.getDob().getDate() > 0) {
-				Date d = new Date(bean.getDob().getDate());
-				sql.append(" AND DOB = " + DataUtility.getDateString(d));
-			}
+			if (bean.getDob() != null) {
+                sql.append(" AND DOB = ?");
+                params.add(DataUtility.getDateString(bean.getDob()));
+                
+            }
 			if (bean.getMobileNo() != null && bean.getMobileNo().length() > 0) {
-				sql.append(" AND MOBILE_NO = " + bean.getMobileNo());
+				sql.append(" AND MOBILE_NO = ?");
+                params.add(bean.getMobileNo());
 			}
 			if (bean.getUnSuccessfulLogin() > 0) {
-				sql.append(" AND UNSUCCESSFUL_LOGIN = " + bean.getUnSuccessfulLogin());
+				sql.append(" AND UNSUCCESSFUL_LOGIN = ?");
+                params.add(bean.getUnSuccessfulLogin());
 			}
 			if (bean.getGender() != null && bean.getGender().length() > 0) {
-				sql.append(" AND GENDER like '" + bean.getGender() + "%'");
+				sql.append(" AND GENDER like ?");
+                params.add(bean.getGender() + "%");
 			}
+        }       
+       System.out.println(sql);
+        
 
-			/*
-			 * if (bean.getDob() != null && bean.getDob().getTime() > 0) { Date d = new
-			 * Date(bean.getDob().getTime()); sql.append("AND DOB = '" +
-			 * DataUtility.getDateString(d) + "'"); }
-			 */
-		}
+
+        
+        
 		// if page size is greater than zero then apply pagination
 		if (pageSize > 0) {
 			// Calculate start record index
@@ -344,11 +357,18 @@ public class UserModel {
 			// sql.append(" limit " + pageNo + "," + pageSize);
 		}
 
-		System.out.println(sql);
+		
 		List list = new ArrayList();
 		Connection conn = null;
 		try {
 			conn = JDBCDataSource.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql.toString());
+
+            for (int i = 0; i < params.size(); i++) {
+
+                pstmt.setObject(i + 1, params.get(i));            }
+
+			
 			PreparedStatement pstmt = conn.prepareStatement(sql.toString());
 			ResultSet rs = pstmt.executeQuery();
 			while (rs.next()) {
@@ -378,7 +398,7 @@ public class UserModel {
 			rs.close();
 		} catch (Exception e) {
 			log.error("Database Exception", e);
-			throw new ApplicationException("Exception: Exception in Search User");
+			throw new ApplicationException("Exception: Error while searching for users.");
 		} finally {
 			JDBCDataSource.closeConnection(conn);
 		}
@@ -423,7 +443,7 @@ public class UserModel {
 			rs.close();
 		} catch (Exception e) {
 			log.error("DateBase Exception ", e);
-			throw new ApplicationException("Exception: Exceptin in Get Roles");
+			throw new ApplicationException("Exception: Error while getting users by role.");
 		} finally {
 			JDBCDataSource.closeConnection(conn);
 		}
@@ -467,7 +487,7 @@ public class UserModel {
 			}
 		} catch (Exception e) {
 			log.error("Database Exception...", e);
-			throw new ApplicationException("Exception : Exception in get roles");
+			throw new ApplicationException("Exception: Error while authenticating user.");
 
 		} finally {
 			JDBCDataSource.closeConnection(conn);
@@ -524,7 +544,7 @@ public class UserModel {
 			rs.close();
 		} catch (Exception e) {
 			log.error("Database Exception...", e);
-			throw new ApplicationException("Exception : Exception in getting list of users");
+			throw new ApplicationException("Exception: Error while getting the list of users.");
 		} finally {
 			JDBCDataSource.closeConnection(conn);
 		}
@@ -548,11 +568,11 @@ public class UserModel {
 				update(beanexist);
 			} catch (DuplicateRecordException e) {
 				log.error(e);
-				throw new ApplicationException("LoninId is already exist");
+				throw new ApplicationException("Error: The user exist with this login.");
 			}
 			flag = true;
 		} else {
-			throw new RecordNotFoundException("Login not exist");
+			throw new RecordNotFoundException("Error: User does not exist.");
 		}
 
 		HashMap<String, String> map = new HashMap<String, String>();
@@ -570,6 +590,7 @@ public class UserModel {
 		msg.setMessageType(EmailMessage.HTML_MSG);
 
 		EmailUtility.sendMail(msg);
+		log.info("Email sent for password change to: " + beanexist.getLogin());
 
 		log.debug("Model changePassword End");
 		return flag;
@@ -592,6 +613,7 @@ public class UserModel {
 		msg.setMessageType(EmailMessage.HTML_MSG);
 
 		EmailUtility.sendMail(msg);
+		log.info("Email sent for registration to: " + bean.getLogin());
 		return pk;
 	}
 
@@ -600,7 +622,7 @@ public class UserModel {
 		boolean flag = false;
 
 		if (userData == null) {
-			throw new RecordNotFoundException("Email Id does not exist !");
+			throw new RecordNotFoundException("Error: User with this email does not exist.");
 		}
 
 		HashMap<String, String> map = new HashMap<String, String>();
@@ -618,6 +640,7 @@ public class UserModel {
 		msg.setMessageType(EmailMessage.HTML_MSG);
 
 		EmailUtility.sendMail(msg);
+		log.info("Email sent for forgot password to: " + login);
 		flag = true;
 		return flag;
 	}

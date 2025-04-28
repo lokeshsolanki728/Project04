@@ -88,18 +88,18 @@ public abstract class BaseCtl extends HttpServlet {
 	protected BaseBean populateDTO(BaseBean dto, HttpServletRequest request) {
 		
 		ResourceBundle rb = ResourceBundle.getBundle("com.rays.pro4.resources.System");
-		
+
 		String defaultUser = rb.getString("DEFAULT_USER");
 		
 		String createdBy = request.getParameter("createdBy");
 		String modifiedBy = null;
 
-		UserBean userbean = (UserBean) request.getSession().getAttribute("user");	
+		UserBean userbean = (UserBean) request.getSession().getAttribute("user");
 
 		if (userbean == null) {
 			// If record is created without login
-			createdBy = "root";
-			modifiedBy = "root";
+			createdBy = defaultUser;
+			modifiedBy = defaultUser;
 		} else {
 
 			modifiedBy = userbean.getLogin();
