@@ -64,7 +64,7 @@ public class StudentBean extends BaseBean {
 	}
 	@Override
 	public String getkey() {
-		return id+"";
+		return String.valueOf(id);
 	}
 	public String getValue() {
 		return firstName + " "+lastName;

@@ -121,12 +121,10 @@ public class UserBean extends BaseBean {
 		return INACTIVE;
 	}
 	public String getkey() {
-		// TODO Auto-generated method stub
-		return id+"";
+		return String.valueOf(id);
 	}
 	public String getValue() {
-		// TODO Auto-generated method stub
-		 return firstName + " " + lastName;
+		return firstName + " " + lastName;
 	}
 
 	@Override

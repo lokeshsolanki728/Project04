@@ -31,7 +31,7 @@ public class CourseBean extends BaseBean{
 	}
 	@Override
 	public String getkey() {
-		return id+"";
+		return String.valueOf(id);
 	}
 	public String getValue() {
 		return name;

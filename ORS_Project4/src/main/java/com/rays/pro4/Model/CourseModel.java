@@ -45,7 +45,7 @@ public class CourseModel {
 			JDBCDataSource.closeConnection(conn);
 		}
 		log.debug("Model next pk End");
-		return pk = pk + 1;
+		return pk + 1;
 	}
 
 	public long add(CourseBean bean) throws ApplicationException, DuplicateRecordException {
@@ -53,11 +53,10 @@ public class CourseModel {
 		Connection conn = null;
 		int pk = 0;
 
-		/*
-		 * CourseBean duplicatecourseName = findByName(bean.getName());
-		 * if(duplicatecourseName != null) { throw new
-		 * DuplicateRecordException("course already exist"); }
-		 */
+		CourseBean duplicatecourseName = findByName(bean.getName());
+		if (duplicatecourseName != null) {
+			throw new DuplicateRecordException("course already exist");
+		}
 
 		try {
 			conn = JDBCDataSource.getConnection();
@@ -81,11 +80,9 @@ public class CourseModel {
 			try {
 				conn.rollback();
 			} catch (Exception ex) {
-				ex.printStackTrace();
-				// throw new ApplicationException("Excetion : add rollback Exception "
-				// +ex.getMessage());
+				throw new ApplicationException("Excetion : add rollback Exception " + ex.getMessage());
 			}
-			// throw new ApplicationException("Exception : Exception in add course" );
+			throw new ApplicationException("Exception : Exception in add course");
 		} finally {
 			JDBCDataSource.closeConnection(conn);
 		}
@@ -135,7 +132,7 @@ public class CourseModel {
 
 			while (rs.next()) {
 				bean = new CourseBean();
-				bean.setId(1);
+				bean.setId(rs.getLong(1));
 				bean.setName(rs.getString(2));
 				bean.setDescription(rs.getString(3));
 				bean.setDuration(rs.getString(4));
@@ -148,7 +145,7 @@ public class CourseModel {
 			rs.close();
 		} catch (Exception e) {
 			log.error("Database Exception...", e);
-//				 throw new ApplicationException("Exception in getting course by name");
+				 throw new ApplicationException("Exception in getting course by name");
 		} finally {
 			JDBCDataSource.closeConnection(conn);
 			log.debug("Model findByName End");
@@ -170,7 +167,7 @@ public class CourseModel {
 
 			while (rs.next()) {
 				bean = new CourseBean();
-				bean.setId(1);
+				bean.setId(rs.getLong(1));
 				bean.setName(rs.getString(2));
 				bean.setDescription(rs.getString(3));
 				bean.setDuration(rs.getString(4));
@@ -218,14 +215,13 @@ public class CourseModel {
 			pstmt.close();
 
 		} catch (Exception e) {
-			e.printStackTrace();
 			log.error("Database Exception..", e);
 			try {
 				conn.rollback();
 			} catch (Exception ex) {
 				throw new ApplicationException("Exception : update rollback Exception " + ex.getMessage());
 			}
-//				 throw new ApplicationException("Exception in updatingcourse" );
+				 throw new ApplicationException("Exception in updatingcourse" );
 		} finally {
 			JDBCDataSource.closeConnection(conn);
 		}
@@ -263,7 +259,6 @@ public class CourseModel {
 		try {
 			conn = JDBCDataSource.getConnection();
 			PreparedStatement pstmt = conn.prepareStatement(sql.toString());
-			System.out.println(sql);
 			ResultSet rs = pstmt.executeQuery();
 			while (rs.next()) {
 				bean = new CourseBean();
@@ -331,7 +326,6 @@ public class CourseModel {
 			pstmt.close();
 			conn.close();
 		} catch (Exception e) {
-			e.printStackTrace();
 			log.error("Database Exception...", e);
 			throw new ApplicationException("Exception : Exception in getting lidt " + e.getMessage());
 

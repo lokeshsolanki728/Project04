@@ -71,12 +71,10 @@ public class TimeTableBean extends BaseBean{
 	}
 	@Override
 	public String getkey() {
-		// TODO Auto-generated method stub
-		return id+"";
+		return String.valueOf(id);
 	}
 
 	public String getValue() {
-		// TODO Auto-generated method stub
 		return subjectName;
 	}
 

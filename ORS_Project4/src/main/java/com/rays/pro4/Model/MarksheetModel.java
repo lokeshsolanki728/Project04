@@ -31,7 +31,6 @@ public class MarksheetModel {
 		int pk = 0;
 		try {
 			conn = JDBCDataSource.getConnection();
-			System.out.println("Connection Succesfully Establidh");
 
 			PreparedStatement pstmt = conn.prepareStatement("select max(ID) from ST_MARKSHEET");
 
@@ -114,7 +113,6 @@ public class MarksheetModel {
 			PreparedStatement pstmt = conn.prepareStatement("DELETE FROM ST_MARKSHEET WHERE ID=?");
 
 			pstmt.setLong(1, bean.getId());
-			System.out.println("Delete Marksheet");
 			pstmt.executeUpdate();
 			conn.commit();
 			pstmt.close();
@@ -151,7 +149,6 @@ public class MarksheetModel {
 				bean.setRollNo(rs.getString(2));
 				bean.setStudentld(rs.getLong(3));
 				bean.setName(rs.getString(4));
-				// System.out.println(bean.getName());
 				bean.setPhysics(rs.getInt(5));
 				bean.setChemistry(rs.getInt(6));
 				bean.setMaths(rs.getInt(7));
@@ -272,7 +269,6 @@ public class MarksheetModel {
 
 		if (bean != null) {
 			
-			System.out.println("service" + bean.getName());
 			if (bean.getId() > 0) {
 				sql.append(" AND id = " + bean.getId());
 			}
@@ -417,12 +413,10 @@ public class MarksheetModel {
 			}
 			rs.close();
 		} catch (Exception e) {
-			e.printStackTrace();
 			log.error(e);
-			// throw new ApplicationException("Exception is getting meritList of
-			// Marksheet");
+			throw new ApplicationException("Exception is getting meritList of Marksheet");
 		} finally {
-			JDBCDataSource.closeConnection(conn);
+			JDBCDataSource.closeConnection(conn);	
 		}
 		log.debug("Model meritList End");
 		return list;

@@ -54,7 +54,6 @@ public class StudentModel {
 
 	public long add(StudentBean bean) throws ApplicationException, DuplicateRecordException {
 		log.debug("Model add Started");
-		System.out.println("add started");
 
 		Connection conn = null;
 
@@ -73,7 +72,6 @@ public class StudentModel {
 			conn = JDBCDataSource.getConnection();
 			pk = nextPK();
 
-			System.out.println(pk + " in ModelJDBC");
 			conn.setAutoCommit(false); // Begin transaction
 			PreparedStatement pstmt = conn.prepareStatement("INSERT INTO ST_STUDENT VALUES(?,?,?,?,?,?,?,?,?,?,?,?)");
 			pstmt.setInt(1, pk);
@@ -165,8 +163,7 @@ public class StudentModel {
 			rs.close();
 		} catch (Exception e) {
 			log.error("Database Exception..", e);
-			// throw new ApplicationException("Exception : Exception in getting User by
-			// Email");
+			throw new ApplicationException("Exception : Exception in getting User by Email");
 		} finally {
 			JDBCDataSource.closeConnection(conn);
 		}
@@ -251,10 +248,8 @@ public class StudentModel {
 			try {
 				conn.rollback();
 			} catch (Exception ex) {
-				// throw new ApplicationException("Exception : Delete rollback
-				// exception"+ex.getMessage());
+				throw new ApplicationException("Exception : Delete rollback exception"+ex.getMessage());
 			}
-			// throw new ApplicationException("Exception in updating Student");
 		} finally {
 			JDBCDataSource.closeConnection(conn);
 		}

@@ -60,7 +60,7 @@ public class SubjectModel {
 	        CourseBean CourseBean = cModel.FindByPK(bean.getCourseId());
 	        bean.setCourseName(CourseBean.getName());
 
-	        SubjectBean duplicateName = findByName(bean.getCourseName());
+	        SubjectBean duplicateName = findByName(bean.getSubjectName());
 	        int pk = 0;
 
 	        if (duplicateName != null) {
@@ -92,7 +92,6 @@ public class SubjectModel {
 			   try {
 				   conn.rollback();
 			   }catch(Exception ex) {
-				   //ex.printStackTrace();
 				   throw new ApplicationException("Excetion : add rollback Exception " +ex.getMessage());
 			   }
 			 
@@ -133,14 +132,6 @@ public class SubjectModel {
 	 public void update(SubjectBean bean) throws ApplicationException, DuplicateRecordException {
 		 log.debug("model update Started");
 		 Connection conn=null;
-		/*
-		 * SubjectBean beanexist = findByName(bean.getSubjectName()); if(beanexist !=
-		 * null && beanexist.getId() != bean.getId()) { throw new
-		 * DuplicateRecordException("subject is already exist");
-		 * 
-		 * }
-		 */
-
 		 CourseModel cModel = new CourseModel();
 		 CourseBean CourseBean = cModel.FindByPK(bean.getCourseId());
 		 bean.setCourseName(CourseBean.getName());
@@ -188,12 +179,10 @@ public class SubjectModel {
 			 conn=JDBCDataSource.getConnection();
 			 PreparedStatement pstmt = conn.prepareStatement(sql.toString());
 			 pstmt.setString(1,name);
-			 System.out.println(name+"jhdsfuhf");
 			 ResultSet rs=pstmt.executeQuery();
-			 System.out.println("query working");
 			 while(rs.next()) {
 				 bean=new SubjectBean();
-				 bean.setId(1);
+				 bean.setId(rs.getLong(1));
 				 bean.setSubjectName(rs.getString(2));
 				 bean.setDescription(rs.getString(3));
 				 bean.setCourseId(rs.getLong(4));
@@ -206,7 +195,7 @@ public class SubjectModel {
 			 rs.close();
 		 }catch(Exception e) {
 			 log.error("Database Exception...",e);
-//			 throw new ApplicationException("Exception in getting subject by name");
+			 throw new ApplicationException("Exception in getting subject by name");
 		 }finally {
 			 JDBCDataSource.closeConnection(conn);
 			 log.debug("Model findByName End");
@@ -227,7 +216,7 @@ public class SubjectModel {
 			 
 			 while(rs.next()) {
 				 bean = new SubjectBean();
-				 bean.setId(1);
+				 bean.setId(rs.getLong(1));
 				 bean.setSubjectName(rs.getString(2));
 				 bean.setDescription(rs.getString(3));
 				 bean.setCourseId(rs.getLong(4));
@@ -262,7 +251,6 @@ public class SubjectModel {
 		 if(bean !=null) {
 			 if(bean.getId() > 0) {
 				 sql.append(" AND ID = " + bean.getId());
-				 System.out.println("NOT null");
 			 }
 			 if(bean.getSubjectName() != null && bean.getSubjectName().length() > 0) {
 				 sql.append(" AND Subject_Name like '" + bean.getSubjectName() + "%'");
@@ -289,7 +277,6 @@ public class SubjectModel {
 		 try {
 			 conn=JDBCDataSource.getConnection();
 			 PreparedStatement pstmt = conn.prepareStatement(sql.toString());
-			 System.out.println(sql);
 			 ResultSet rs = pstmt.executeQuery();
 			 while(rs.next()) {
 				 bean=new SubjectBean();

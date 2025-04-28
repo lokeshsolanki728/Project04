@@ -1,1 +1,0 @@
-packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"com.rays.pro4.Bean"},{"l":"com.rays.pro4.controller"},{"l":"com.rays.pro4.Exception"},{"l":"com.rays.pro4.Model"},{"l":"com.rays.pro4.Util"},{"l":"com.rays.proj4.Test"}]

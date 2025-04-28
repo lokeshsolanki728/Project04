@@ -57,17 +57,10 @@ private static Logger log=Logger.getLogger(RoleModel.class);
 		Connection conn=null;
 		int pk=0;
 		
-//		RoleBean duplicateRole=findByName(bean.getName());
-//		
-//		if(duplicateRole !=null){
-//			throw new DuplicateRecordException("Role already exists");
-//			
-//		}
+
 		try{
 			conn=JDBCDataSource.getConnection();
 			pk=nextPK();
-			
-			System.out.println(pk+"in ModelJDBC");
 			conn.setAutoCommit(false);
 			PreparedStatement pstmt=conn.prepareStatement("INSERT INTO ST_ROLE VALUES(?,?,?,?,?,?,?)");
 			
@@ -82,14 +75,14 @@ private static Logger log=Logger.getLogger(RoleModel.class);
 			conn.commit();
 			pstmt.close();		
 		}catch(Exception e){
-			e.printStackTrace();
-		//	log.error("Database Exception...",e);
+			
+			log.error("Database Exception...",e);
 			try{
 				conn.rollback();
 			}catch(Exception ex){
-			//	throw new ApplicationException("Exception : add rollback exception"+ex.getMessage());
+				throw new ApplicationException("Exception : add rollback exception"+ex.getMessage());
 			}
-		//	throw new ApplicationException("Exception :Exception in add Role");
+			throw new ApplicationException("Exception :Exception in add Role");
 			}finally{
 				JDBCDataSource.closeConnection(conn);
 				
@@ -117,13 +110,13 @@ private static Logger log=Logger.getLogger(RoleModel.class);
 			try{
 				conn.rollback();
 			}catch(Exception ex){
-			//	throw new ApplicationException("Exception : Delete rollback exception"+ex.getMessage());
+				throw new ApplicationException("Exception : Delete rollback exception"+ex.getMessage());
 			}
-			//throw new ApplicationException("Exception : Exception in delete Role");
+			throw new ApplicationException("Exception : Exception in delete Role");
 		}finally{
 			JDBCDataSource.closeConnection(conn);
 		}
-		
+		log.debug("Modal delete End");
 		log.debug("Modal delete Started");
 	}
 	
@@ -154,7 +147,7 @@ private static Logger log=Logger.getLogger(RoleModel.class);
 			
 		}catch(Exception e){
 			log.error("Database Exception..",e);
-		//	throw new ApplicationException("Exception : Exception in geting User by emailId");
+			throw new ApplicationException("Exception : Exception in geting User by emailId");
 		}finally{
 			JDBCDataSource.closeConnection(conn);
 		}
@@ -205,13 +198,7 @@ private static Logger log=Logger.getLogger(RoleModel.class);
 	 public void update(RoleBean bean) throws ApplicationException,
      DuplicateRecordException {
  log.debug("Model update Started");
- Connection conn = null;
-
-		/*
-		 * RoleBean duplicataRole = findByName(bean.getName()); // Check if updated Role
-		 * already exist if (duplicataRole != null && duplicataRole.getId() !=
-		 * bean.getId()) { throw new DuplicateRecordException("Role already exists"); }
-		 */
+        Connection conn = null;
  try {
      conn = JDBCDataSource.getConnection();
 
@@ -291,9 +278,9 @@ private static Logger log=Logger.getLogger(RoleModel.class);
 			}
 			rs.close();
 		}catch(Exception e){
-			//log.error("DatabaseException.....", e);
-			//throw new ApplicationException("Exception : Exception in search Role");
-		}finally{
+			log.error("DatabaseException.....", e);
+			throw new ApplicationException("Exception : Exception in search Role");
+		}finally {
 			JDBCDataSource.closeConnection(conn);
 		}
 		log.debug("Model search End");
@@ -337,8 +324,8 @@ private static Logger log=Logger.getLogger(RoleModel.class);
 			rs.close();
 		}catch(Exception e){
 			log.error(" Database Exception....",e);
-			//throw new ApplicationException("Exception : Exception Geting list of Role");
-		}finally{
+			throw new ApplicationException("Exception : Exception Geting list of Role");
+		}finally {
 			JDBCDataSource.closeConnection(conn);
 		}
 		log.debug("Model list End");
