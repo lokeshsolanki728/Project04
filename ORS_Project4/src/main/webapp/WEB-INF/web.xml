@@ -1,21 +1,47 @@
-<!DOCTYPE web-app PUBLIC
- "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
- "http://java.sun.com/dtd/web-app_2_3.dtd" >
+## Character '#' is used for one line comment in properties file
 
-<web-app>
-	<display-name>Online Result System</display-name>
-	<welcome-file-list>
-		<welcome-file>index.jsp</welcome-file>
-	</welcome-file-list>
+#Organization
+org=SunilOS
 
-	<error-page>
-		<error-code>404</error-code>
+#Generic error messages
+error.require={0} is required
+error.integer={0} must be an integer
+error.date={0} is invalid date
+error.email={0} is invalid Email Id
+error.name={0} must contains alphabet only
+ 
+#Database connection Parameters
+url=jdbc:mysql://localhost:3306/proj4
+driver=com.mysql.cj.jdbc.Driver
+username=root
+password=root
+DATABASE=JDBC
+service=javaBean
+acquireIncrement = 10
+initialPoolSize = 10
+maxPoolSize = 100
+minPoolSize = 10
+timeout = 10
 
-		<location>/jsp/ErrorView404.jsp</location>
-	</error-page>
-	<error-page>
-		<error-code>500</error-code>
+DEFAULT_USER=root
 
-		<location>/jsp/ErrorView.jsp</location>
-	</error-page>
-</web-app>
+#Email Server Parameters
+smtp.server=smtp.gmail.com
+smtp.port=465
+email.login=rajputsourabh737@gmail.com
+email.pwd=newPassword
+LOG_FILE=ORS.log  
+LOG_FILE_SIZE=10MB
+LOG_MAX_BACKUPS=10
+LOG_ROOT_LEVEL=DEBUG
+ERROR_404_PAGE=/jsp/ErrorView404.jsp
+ERROR_500_PAGE=/jsp/ErrorView.jsp
+WELCOME_FILE=index.jsp
+
+
+
+
+#Pagination
+page.size=10
+ 
+

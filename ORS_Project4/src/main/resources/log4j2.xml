@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN">
     <Appenders>
-         <RollingFile name="File" fileName="${sys:catalina.home}/logs/${sys:LOG_FILE}"
+        <RollingFile name="File" fileName="${sys:catalina.home}/logs/${sys:LOG_FILE}"
                      filePattern="${sys:catalina.home}/logs/$${date:yyyy-MM}/${sys:LOG_FILE}-%d{yyyy-MM-dd}-%i.log.gz">
-           <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n"/>
-           <Policies>
-                <SizeBasedTriggeringPolicy size="10MB"/>
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="${sys:LOG_FILE_SIZE}"/>
             </Policies>
-            <DefaultRolloverStrategy max="10"/>
+            <DefaultRolloverStrategy max="${sys:LOG_MAX_BACKUPS}"/>
         </RollingFile>
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n"/>
         </Console>
     </Appenders>
     <Loggers>
-         <Root level="DEBUG">
+        <Root level="${sys:LOG_ROOT_LEVEL}">
             <AppenderRef ref="File"/>
             <AppenderRef ref="Console"/>
         </Root>

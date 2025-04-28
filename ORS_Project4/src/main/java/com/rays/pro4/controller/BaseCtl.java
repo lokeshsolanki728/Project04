@@ -1,6 +1,7 @@
  package com.rays.pro4.controller;
 
 import java.io.IOException;
+import java.util.ResourceBundle;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -8,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.rays.pro4.Bean.BaseBean;
+import com.rays.pro4.Bean.RoleBean;
 import com.rays.pro4.Bean.UserBean;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.DataValidator;
@@ -84,11 +86,15 @@ public abstract class BaseCtl extends HttpServlet {
 	 * @return
 	 */
 	protected BaseBean populateDTO(BaseBean dto, HttpServletRequest request) {
-
+		
+		ResourceBundle rb = ResourceBundle.getBundle("com.rays.pro4.resources.System");
+		
+		String defaultUser = rb.getString("DEFAULT_USER");
+		
 		String createdBy = request.getParameter("createdBy");
 		String modifiedBy = null;
 
-		UserBean userbean = (UserBean) request.getSession().getAttribute("user");
+		UserBean userbean = (UserBean) request.getSession().getAttribute("user");	
 
 		if (userbean == null) {
 			// If record is created without login
@@ -99,7 +105,7 @@ public abstract class BaseCtl extends HttpServlet {
 			modifiedBy = userbean.getLogin();
 
 			// If record is created first time
-			if ("null".equalsIgnoreCase(createdBy) || DataValidator.isNull(createdBy)) {
+			if (DataValidator.isNull(createdBy)) {
 				createdBy = modifiedBy;
 			}
 

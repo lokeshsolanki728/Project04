@@ -5,6 +5,7 @@
 <%@ page import ="com.rays.pro4.controller.LoginCtl" %>
 <%@page import="com.rays.pro4.controller.ORSView"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+<%@page import="com.rays.pro4.Util.PropertyReader"%>
     pageEncoding="ISO-8859-1"%>
 <html>
 
@@ -12,14 +13,15 @@
 <body > 
 	<%
     UserBean userBean = (UserBean)session.getAttribute("user");
-    boolean userLoggedIn = userBean != null;
-    String welcomeMsg = "Hi, ";
+    boolean userLoggedIn = userBean != null;   
+    String welcomeMsg = PropertyReader.getValue("WELCOME_MESSAGE");
     if (userLoggedIn) {
         String role = (String)session.getAttribute("role");
         welcomeMsg += userBean.getFirstName() + "  "+ userBean.getLastName()+ " (" + role + ")";
     } else {
-        welcomeMsg += "Guest";
-    }
+    	 welcomeMsg += PropertyReader.getValue("GUEST_MESSAGE");
+    }  
+
 	%>
 
 <table >
@@ -43,7 +45,7 @@
  		</td>
         <td rowspan="2" >
             <h1 align="right" >
-                <img src= "<%=ORSView.APP_CONTEXT %>/img/customLogo.jpg"  width="175" height="50">
+                <img src= "<%=ORSView.APP_CONTEXT %><%=PropertyReader.getValue("LOGO_PATH")%>"  width="<%=PropertyReader.getValue("LOGO_WIDTH")%>" height="<%=PropertyReader.getValue("LOGO_HEIGHT")%>">
             </h1>
         </td>
     </tr>

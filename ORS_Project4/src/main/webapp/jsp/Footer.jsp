@@ -1,4 +1,5 @@
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"%><%@page import="com.rays.pro4.Util.PropertyReader"%><%@ page
+	import="com.rays.pro4.controller.ORSView"%>
     pageEncoding="ISO-8859-1"%>
 <html>
 <head>
@@ -22,7 +23,7 @@
 <body>
 <div id ="footer">
 <CENTER><hr>
-    <H3>&copy; Copyrights RAYS Technologies</H3>
+    <H3><%=PropertyReader.getValue("COPYRIGHT_MESSAGE") %></H3>
 </CENTER>
 </div>
 
