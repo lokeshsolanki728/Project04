@@ -1,6 +1,7 @@
 package com.rays.pro4.Model;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -28,23 +29,30 @@ private static Logger log=Logger.getLogger(RoleModel.class);
 		log.debug("Model nextPK Started");
 		Connection conn=null;
 		int pk=0;
-		try{
-			conn=JDBCDataSource.getConnection();
-			PreparedStatement pstmt=conn.prepareStatement("SELECT MAX(ID) FROM ST_ROLE");
-			
-			ResultSet rs=pstmt.executeQuery();
-			while(rs.next()){
-				pk=rs.getInt(1);
-			
-			}	
-			rs.close();
-		}catch(Exception e){
-				log.error("Database Exception..",e);
-				throw new DatabaseException("Exception : Exception in getting PK");
-				
-		}finally{
-			JDBCDataSource.closeConnection(conn);
-		}
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+	    try {
+	        conn = JDBCDataSource.getConnection();
+	        conn.setAutoCommit(false);
+	        pstmt = conn.prepareStatement("SELECT MAX(ID) FROM ST_ROLE");
+	        rs = pstmt.executeQuery();
+	        conn.commit();
+	        while (rs.next()) {
+	            pk = rs.getInt(1);
+	        }
+	        pk++;
+	    } catch (SQLException e) {
+	        log.error("Database Exception in nextPK", e);
+	        try {
+				conn.rollback();
+			} catch (SQLException e1) {
+				throw new DatabaseException("Error rolling back transaction: " + e1.getMessage());
+			}
+	        throw new DatabaseException("Unable to get next primary key: " + e.getMessage());
+	    } finally {
+	        JDBCDataSource.closeConnection(conn,pstmt,rs);
+	    }
+	    
 		log.debug("Modal nextPK End");
 		return pk+1;
 	}

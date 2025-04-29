@@ -1,6 +1,7 @@
 package com.rays.proj4.Test;
 
 import java.sql.Timestamp;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.List;
 
 import com.rays.pro4.Bean.StudentBean;
 import com.rays.pro4.Exception.ApplicationException;
+import com.rays.pro4.Exception.DatabaseException;
 import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Model.StudentModel;
 
@@ -25,119 +27,109 @@ public class StudentTest {
 	
 	
 	public static void main(String[] args) throws ParseException {
-		//testAdd();
-		//testDelete();
-		//testUpdate();
-		//testFindByPK();
-		//testFindByEmailId();
+		testAdd();
+		testDelete();
+		testUpdate();
+		testFindByPK();
+		testFindByEmailId();
 		testSearch();
-		//testList();
+		testList();
 		
 	}
 
 
-	public static void testAdd() throws ParseException {
+	public static void testAdd() throws ParseException, DuplicateRecordException, DatabaseException {
 		
 		try{
 			StudentBean bean=new StudentBean();
 			SimpleDateFormat sdf=new SimpleDateFormat("dd/MM/yyyy");
-			
-			//bean.setId(3L);
-			bean.setFirstName("Kapil");
-			bean.setLastName("Malviya");
-			bean.setDob(sdf.parse("22/09/1997"));
-			bean.setMobileNo("9407411301");
-			bean.setEmail("kmalviya30@gmail.com");
-			bean.setCollegeId(1L);
+            long id = new Date().getTime();
+            bean.setFirstName("FirstName" + id);
+			bean.setLastName("LastName" + id);
+            bean.setDob(sdf.parse("22/09/2000"));
+            bean.setMobileNo("99999999" + id);
+            bean.setEmail("test" + id + "@gmail.com");
+			bean.setCollegeId(1l);
 			bean.setCreatedBy("admin");
 			bean.setModifiedBy("admin");
 			bean.setCreatedDatetime(new Timestamp(new Date().getTime()));
 			bean.setModifiedDatetime(new Timestamp(new Date().getTime()));
 			long pk = model.add(bean);
-			
 			StudentBean addbean = model.findByPK(pk);
-			if(addbean==null){
-				System.out.println("Test add fail");
-			}
+            org.junit.Assert.assertNotNull(addbean);
+            org.junit.Assert.assertEquals(bean.getFirstName(), addbean.getFirstName());
+            org.junit.Assert.assertEquals(bean.getLastName(), addbean.getLastName());
+
 		}catch(ApplicationException e){
-			e.printStackTrace();
+			org.junit.Assert.fail("Test add fail" + e.getMessage());
 		}catch(DuplicateRecordException e){
-			e.printStackTrace();
+			org.junit.Assert.fail("Test add fail" + e.getMessage());
 		}
 	}
 	
-	public static void testDelete(){
+	public static void testDelete() throws ApplicationException, DatabaseException{
 		
 		try{
-			StudentBean bean = new StudentBean();
-			long pk=20L;
-			
-			bean.setId(pk);
-			model.delete(bean);
-			StudentBean deletebean = model.findByPK(pk);
-			if(deletebean != null){
-				System.out.println("Test Delete fail");
-			}
+			  StudentBean bean = new StudentBean();
+	            long pk = new Date().getTime();
+	            bean.setId(pk);
+	            model.delete(bean);
+	            StudentBean deletebean = model.findByPK(pk);
+	            org.junit.Assert.assertNull(deletebean);
 		}catch(ApplicationException e){
-			e.printStackTrace();
+			org.junit.Assert.fail("Test Delete fail" + e.getMessage());
 		}
 	}
-	public static void testUpdate() {
+	public static void testUpdate() throws ApplicationException, DuplicateRecordException, ParseException, DatabaseException {
 
         try {
-            StudentBean bean = model.findByPK(19L);
-           
-            bean.setFirstName("ram");
-            bean.setLastName("sharma");
-            bean.setCollegeId(5L);
+             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            StudentBean bean = model.findByPK(1L);
+            bean.setFirstName("Update name");
+            bean.setLastName("Update last");
+             bean.setDob(sdf.parse("01/01/2001"));
+            bean.setCollegeId(1L);
             model.Update(bean);
-            System.out.println("Test Update succ");
-           
+            StudentBean updateBean = model.findByPK(1L);
+            org.junit.Assert.assertNotNull(updateBean);
+            org.junit.Assert.assertEquals("Update name", updateBean.getFirstName());
+            org.junit.Assert.assertEquals("Update last", updateBean.getLastName());
+
             
         } catch (ApplicationException e) {
-            e.printStackTrace();
+          org.junit.Assert.fail("Test Update fail" + e.getMessage());
         } catch (DuplicateRecordException e) {
-            e.printStackTrace();
+           org.junit.Assert.fail("Test Update fail" + e.getMessage());
         }
     }
-	public static void testFindByPK(){
+	public static void testFindByPK() throws ApplicationException, DatabaseException{
 		try{
 			StudentBean bean = new StudentBean();
-			Long pk=21L;
+			Long pk=1L;
 			bean=model.findByPK(pk);
-			if(bean == null){
-				System.out.println("Test Find By PK fail");
-			}
-			System.out.println(bean.getId());
-			System.out.println(bean.getFirstName());
-			System.out.println(bean.getLastName());
-			System.out.println(bean.getDob());
-			System.out.println(bean.getMobileNo());
-			System.out.println(bean.getEmail());
-			System.out.println(bean.getCollegeId());
+             org.junit.Assert.assertNotNull(bean);
+            org.junit.Assert.assertEquals(pk, bean.getId());
 		}catch(ApplicationException e){
-			e.printStackTrace();
+			 org.junit.Assert.fail("Test Find By PK fail" + e.getMessage());
 		}
 	}
-	 public static void testFindByEmailId() {
+	 public static void testFindByEmailId() throws ApplicationException, DatabaseException {
 	        try {
-	            StudentBean bean = new StudentBean();
-	            bean = model.findByEmailId("ankit@gmail.com");
-	            if (bean == null) {
-	                System.out.println("Test Find By EmailId fail");
-	            }
-	            System.out.println(bean.getId());
-	            System.out.println(bean.getFirstName());
-	            System.out.println(bean.getLastName());
-	            System.out.println(bean.getDob());
-	            System.out.println(bean.getMobileNo());
-	            System.out.println(bean.getEmail());
-	            System.out.println(bean.getCollegeId());
+	            StudentBean bean = model.findByEmailId("test1699373289895@gmail.com");
+	             org.junit.Assert.assertNull(bean);
+               StudentBean notnullbean = new StudentBean();
+            notnullbean.setEmail("test1699373289895@gmail.com");
+            notnullbean.setCollegeId(1l);
+              model.add(notnullbean);
+             StudentBean bean2 = model.findByEmailId("test1699373289895@gmail.com");
+              org.junit.Assert.assertNotNull(bean2);
 	        } catch (ApplicationException e) {
-	            e.printStackTrace();
+	          org.junit.Assert.fail("Test Find By EmailId fail" + e.getMessage());
+	        } catch (DuplicateRecordException e) {
+            org.junit.Assert.fail("Test Find By EmailId fail" + e.getMessage());
 	        }
 	    }
-	 public static void testSearch(){
+	 public static void testSearch() throws ApplicationException, DatabaseException{
 		 try{
 			 StudentBean bean= new StudentBean();
 			 List list=new ArrayList();
@@ -145,53 +137,34 @@ public class StudentTest {
 			// bean.setEmail("kmalviya30@gmail.com");
 			// bean.setCollegeName("RML Maheshwari");
 			 bean.setCollegeId(1L);
-			 list=model.search(bean,0,0);
-			 if(list.size() > 0){
-				 System.out.println("Test search fail");
-			 }
+			 list=model.search(bean,1,10);
+               org.junit.Assert.assertNotNull(list);
+            org.junit.Assert.assertTrue(list.size() > 0);
 			 Iterator it=list.iterator();
 			 while(it.hasNext()){
 				 bean=(StudentBean)it.next();
-				 System.out.println(bean.getId());
-				 System.out.println(bean.getFirstName());
-				 System.out.println(bean.getLastName());
-				 System.out.println(bean.getDob());
-				 System.out.println(bean.getMobileNo());
-				 System.out.println(bean.getEmail());
-				 System.out.println(bean.getCollegeId()); 
-				 
+				  org.junit.Assert.assertNotNull(bean.getId());
+                 
 			 }
 		 }catch(ApplicationException e){
-			 e.printStackTrace();
+			 org.junit.Assert.fail("Test Search fail" + e.getMessage());
 		 }
 	 }
-	 public static void testList(){
+	 public static void testList() throws ApplicationException, DatabaseException{
 		 try{
 			 StudentBean bean=new StudentBean();
 			 List list=new ArrayList();
 			 list=model.list(1,10);
-			 
-			 if(list.size() < 0){  
-				 System.out.println("Test list fail");
-			 }
+            org.junit.Assert.assertNotNull(list);
+             org.junit.Assert.assertTrue(list.size() > 0);
 			 Iterator it = list.iterator();
 			 while(it.hasNext()){
 				 bean=(StudentBean)it.next();
-				 System.out.println(bean.getId());
-				 System.out.println(bean.getFirstName());
-				 System.out.println(bean.getLastName());
-				 System.out.println(bean.getDob());
-				 System.out.println(bean.getMobileNo());
-				 System.out.println(bean.getEmail());
-				 System.out.println(bean.getCollegeId());
-				 System.out.println(bean.getCreatedBy());
-				 System.out.println(bean.getModifiedBy());
-				 System.out.println(bean.getCreatedDatetime());
-				 System.out.println(bean.getModifiedDatetime());
-				 
+				 org.junit.Assert.assertNotNull(bean.getId());
+                 
 			 }
 		 }catch(ApplicationException e){
-			 e.printStackTrace();
+			  org.junit.Assert.fail("Test List fail" + e.getMessage());
 		 }
 		 
 	 }

@@ -1,5 +1,6 @@
 package com.rays.proj4.Test;
 
+import static org.junit.Assert.assertEquals;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -7,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.rays.pro4.Bean.SubjectBean;
+import com.rays.pro4.Bean.CourseBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DatabaseException;
 import com.rays.pro4.Exception.DuplicateRecordException;
@@ -24,11 +26,11 @@ public class SubjectTest {
 	public static SubjectModel model = new SubjectModel();
 
 	public static void main(String[] args) throws Exception {
-		//testadd();
-		// testDelete();
-		// testFindByName();
-		// testUpdate();
-		// testFindByPk();
+		testadd();
+		testDelete();
+		testFindByName();
+		testUpdate();
+		testFindByPk();
 		 testsearch();
 		// testlist();
 
@@ -38,34 +40,39 @@ public class SubjectTest {
 
 		try {
 			SubjectBean bean = new SubjectBean();
-			// bean.setId(1);
-			bean.setSubjectName("css");
-			bean.setDescription("programingL");
-			bean.setCourseId(3);
-			bean.setCourseName("ccssn");
+			bean.setSubjectName("Subject-" + new Date().getTime());
+			bean.setDescription("Description-" + new Date().getTime());
+			bean.setCourseId(1L);
+			bean.setCourseName("Course-" + new Date().getTime());
 			bean.setCreatedBy("admin");
 			bean.setModifiedBy("admin");
 			bean.setCreatedDatetime(new Timestamp(new Date().getTime()));
 			bean.setModifiedDatetime(new Timestamp(new Date().getTime()));
 
 			long pk = model.add(bean);
+            SubjectBean addedBean = model.FindByPK(pk);
+            assertEquals(bean.getSubjectName(), addedBean.getSubjectName());
 
-		} catch (Exception e) {
+		} catch (ApplicationException | DuplicateRecordException e) {
 			e.printStackTrace();
+            throw e;
 		}
 	}
 
-	public static void testDelete() {
+	public static void testDelete() throws ApplicationException {
 		try {
+            List<SubjectBean> list = model.list(1,10);
+            if(list.size() == 0){
+                testadd();
+                list = model.list(1,10);
+            }
+            SubjectBean temp = list.get(0);
 			SubjectBean bean = new SubjectBean();
-			long pk = 1L;
-			bean.setId(1);
-			model.Delete(bean);
-			System.out.println("Test Deleted");
-			/*
-			 * SubjectBean deleteBean=model.findByPK(pk); if(deleteBean == null) {
-			 * System.out.println("Test Delete fail"); }
-			 */
+			bean.setId(temp.getId());
+			model.Delete(bean);			
+            SubjectBean deleteBean = model.FindByPK(temp.getId());
+            assertEquals(null, deleteBean);
+
 
 		} catch (ApplicationException e) {
 			e.printStackTrace();
@@ -75,10 +82,11 @@ public class SubjectTest {
 	public static void testFindByName() {
 		try {
 			SubjectBean bean = new SubjectBean();
-			bean = model.findByName("css");
-			if (bean == null) {
-				System.out.println("test findBy Name fail");
-			}
+            List<SubjectBean> list = model.list(1,10);
+            if(list.size() == 0){
+                testadd();
+                list = model.list(1,10);
+            }
 
 			System.out.println(bean.getId());
 			System.out.println(bean.getSubjectName());
@@ -89,52 +97,59 @@ public class SubjectTest {
 			System.out.println(bean.getCreatedDatetime());
 			System.out.println(bean.getModifiedBy());
 			System.out.println(bean.getModifiedDatetime());
-
+            bean = model.findByName(list.get(0).getSubjectName());
+            assertEquals(bean.getSubjectName(),list.get(0).getSubjectName());
 		} catch (ApplicationException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public static void testUpdate() {
+	public static void testUpdate() throws ApplicationException, DuplicateRecordException {
 		try {
-			SubjectBean bean = model.FindByPK(2L);
-			bean.setSubjectName("java");
-			// bean.setDescription("commerce");
+            List<SubjectBean> list = model.list(1,10);
+            if(list.size() == 0){
+                testadd();
+                list = model.list(1,10);
+            }
+			SubjectBean bean = model.FindByPK(list.get(0).getId());
+            String oldSubjectName = bean.getSubjectName();
+			bean.setSubjectName("New-"+new Date().getTime());
 			model.update(bean);
-			System.out.println("update succ");
-
-			/*
-			 * SubjectBean updateBean=model.testFindByPK(2L); if(!
-			 * "ram".equals(updateBean.getSubjectName())){
-			 * System.out.println("test update fail"); }
-			 */
+            SubjectBean updated = model.FindByPK(bean.getId());
+            assertEquals(updated.getSubjectName(),bean.getSubjectName());
+            
 
 		} catch (ApplicationException e) {
 			e.printStackTrace();
+            throw e;
 		} catch (DuplicateRecordException e) {
 			e.printStackTrace();
+            throw e;
 		}
 	}
 
-	public static void testFindByPk() {
+	public static void testFindByPk() throws ApplicationException {
 		try {
+            List<SubjectBean> list = model.list(1,10);
+            if(list.size() == 0){
+                testadd();
+                list = model.list(1,10);
+            }
 			SubjectBean bean = new SubjectBean();
-			long pk = 2L;
-			bean = model.FindByPK(pk);
-			if (bean == null) {
-				System.out.println("test findbypk fail");
-			}
+			
+			bean = model.FindByPK(list.get(0).getId());
+			
 			System.out.println(bean.getId());
 			System.out.println(bean.getSubjectName());
 			System.out.println(bean.getDescription());
 			System.out.println(bean.getCourseId());
 			System.out.println(bean.getCourseName());
 			System.out.println(bean.getCreatedBy());
-			System.out.println(bean.getModifiedBy());
-			System.out.println(bean.getCreatedDatetime());
-			System.out.println(bean.getModifiedDatetime());
+            assertEquals(bean.getId(), list.get(0).getId());
+
 		} catch (ApplicationException e) {
 			e.printStackTrace();
+            throw e;
 		}
 	}
 
@@ -142,20 +157,25 @@ public class SubjectTest {
 		try {
 			SubjectBean bean = new SubjectBean();
 			//bean.setSubjectName("Java");
-		    // bean.setId(2L);
+		    
 			//bean.setCourseId(2L);
-			bean.setCourseName("Computers Commarce");
+            bean.setCourseName("Course-");
+            
 			List list = new ArrayList();
 			list = model.search(bean,1,10);
-
+            boolean empty = true;
 			Iterator it = list.iterator();
 			while (it.hasNext()) {
+                empty = false;
 				bean = (SubjectBean) it.next();
 				System.out.println(bean.getSubjectName());
 				System.out.println(bean.getDescription());
 			}
+            assertEquals(false,empty);
+
 		} catch (ApplicationException e) {
 			e.printStackTrace();
+            throw e;
 		}
 	}
 
@@ -164,9 +184,7 @@ public class SubjectTest {
 			SubjectBean bean = new SubjectBean();
 			List list = new ArrayList();
 			list = model.list(1, 10);
-			if (list.size() < 0) {
-				System.out.println("test list fail");
-			}
+            assertEquals(true,list.size()>=0);
 			Iterator it = list.iterator();
 			while (it.hasNext()) {
 				bean = (SubjectBean) it.next();
@@ -184,6 +202,7 @@ public class SubjectTest {
 
 		} catch (ApplicationException e) {
 			e.printStackTrace();
+            throw e;
 		}
 	}
 

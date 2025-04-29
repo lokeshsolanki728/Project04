@@ -1,4 +1,4 @@
-package com.rays.proj4.Test;
+package com.rays.pro4.Test;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -11,170 +11,159 @@ import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DatabaseException;
 import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Model.CourseModel;
-
+import org.junit.Assert;
 
 /**
  * Course Model Test classes.
- * @author Lokesh SOlanki
  *
+ * @author Lokesh SOlanki
  */
-public class Coursetest {
+public class Coursetest  {
 
-	
-	public static CourseModel model= new CourseModel();
-	
-	
+	public static CourseModel model = new CourseModel();
+
+
 	public static void main(String[] args) throws Exception {
-		//testadd();
-		//testDelete();
-		//testFindByName();
-		//testFindByPk();
-		//testUpdate();
-		//testsearch();
+		testadd();
+		testDelete();
+        testFindByName();
+        testFindByPk();
+        testUpdate();
+		testsearch();
 		testlist();
-		
+
 	}
-	
-	
-	
-	
-	public static void testadd() throws DuplicateRecordException {
-		
-		try {
-			CourseBean bean= new CourseBean();
-			bean.setId(1);
-			bean.setName("B.com");
-			bean.setDescription("commerce");
-			bean.setDuration("4 Year");
-			bean.setCreatedBy("admin");
-			bean.setModifiedBy("admin");
-			bean.setCreatedDatetime(new Timestamp(new Date().getTime()));
-			bean.setModifiedDatetime(new Timestamp(new Date().getTime()));
-			
-			long pk=model.add(bean);
-			
-		}catch(Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	
+
+
+    public static void testadd() {
+        try {
+            CourseBean bean = new CourseBean();
+            bean.setName("B.Tech");
+            bean.setDescription("Engineering");
+            bean.setDuration("4 Years");
+            bean.setCreatedBy("admin");
+            bean.setModifiedBy("admin");
+            bean.setCreatedDatetime(new Timestamp(new Date().getTime()));
+            bean.setModifiedDatetime(new Timestamp(new Date().getTime()));
+
+            long pk = model.add(bean);
+            CourseBean addedBean = model.FindByPK(pk);
+            Assert.assertNotNull(addedBean);
+            Assert.assertEquals("B.Tech", addedBean.getName());
+            Assert.assertEquals("Engineering", addedBean.getDescription());
+            Assert.assertEquals("4 Years", addedBean.getDuration());
+
+        } catch (DuplicateRecordException e) {
+            Assert.fail("Duplicate Record Exception: " + e.getMessage());
+        } catch (ApplicationException e) {
+            Assert.fail("Application Exception: " + e.getMessage());
+        }
+    }
+
 	public static void testDelete() {
+		CourseBean bean = new CourseBean();
+		bean.setName("BCA");
+		bean.setDescription("Computer Application");
+		bean.setDuration("3 Year");
+		bean.setCreatedBy("admin");
+		bean.setModifiedBy("admin");
+		bean.setCreatedDatetime(new Timestamp(new Date().getTime()));
+		bean.setModifiedDatetime(new Timestamp(new Date().getTime()));
 		try {
-			CourseBean bean = new CourseBean();
-			long pk=3L;
-			bean.setId(1);
+            long pk = model.add(bean);
+            bean.setId(pk);
 			model.Delete(bean);
-			System.out.println("Test Deleted");
-			/*
-			 * CourseBean deleteBean=model.findByPK(pk); if(deleteBean == null) {
-			 * System.out.println("Test Delete fail"); }
-			 */
-		}catch(ApplicationException e) {
-			e.printStackTrace();
+			CourseBean deletedBean = model.FindByPK(pk);
+			Assert.assertNull(deletedBean);
+		} catch (ApplicationException | DuplicateRecordException e) {
+			Assert.fail("Application Exception: " + e.getMessage());
 		}
-	}
+	} 
+
 	public static void testFindByName() {
-		try {
-			CourseBean bean=new CourseBean();
-			bean=model.findByName("B.com");
-			if(bean==null) {
-				System.out.println("test findBy Name fail");
-			}
-		
-			System.out.println(bean.getId());
-			System.out.println(bean.getName());
-			System.out.println(bean.getDescription());
-			System.out.println(bean.getDuration());
-			System.out.println(bean.getCreatedBy());
-			System.out.println(bean.getCreatedDatetime());
-			System.out.println(bean.getModifiedBy());
-			System.out.println(bean.getModifiedDatetime());
-			
-		}catch(ApplicationException e) {
-			e.printStackTrace();
-		}
+        try {
+            CourseBean bean = new CourseBean();
+            bean.setName("MBA");
+            bean.setDescription("Master of Business Administration");
+            bean.setDuration("2 Years");
+            bean.setCreatedBy("admin");
+            bean.setModifiedBy("admin");
+            bean.setCreatedDatetime(new Timestamp(new Date().getTime()));
+            bean.setModifiedDatetime(new Timestamp(new Date().getTime()));
+                model.add(bean);
+                CourseBean foundBean = model.findByName("MBA");
+                Assert.assertNotNull(foundBean);
+                Assert.assertEquals("MBA", foundBean.getName());
+            
+        } catch (ApplicationException | DuplicateRecordException e) {
+            Assert.fail("Exception: " + e.getMessage());
+        }
 	}
-	
+
 	public static void testFindByPk() {
+		CourseBean bean = new CourseBean();
+		bean.setName("MCA");
+		bean.setDescription("Master of Computer Application");
+		bean.setDuration("2 Years");
+		bean.setCreatedBy("admin");
+		bean.setModifiedBy("admin");
+		bean.setCreatedDatetime(new Timestamp(new Date().getTime()));
+		bean.setModifiedDatetime(new Timestamp(new Date().getTime()));
 		try {
-			CourseBean bean=new CourseBean();
-			long pk=1L;
-			bean=model.FindByPK(pk);
-			if(bean==null) {
-				System.out.println("test findbypk fail");
-			}
-			System.out.println(bean.getId());
-			System.out.println(bean.getName());
-			System.out.println(bean.getDescription());
-			System.out.println(bean.getDuration());
-			System.out.println(bean.getCreatedBy());
-			System.out.println(bean.getModifiedBy());
-			System.out.println(bean.getCreatedDatetime());
-			System.out.println(bean.getModifiedDatetime());
-		}catch(ApplicationException e) {
-			e.printStackTrace();
+			long pk = model.add(bean);
+			CourseBean foundBean = model.FindByPK(pk);
+			Assert.assertNotNull(foundBean);
+			Assert.assertEquals("MCA", foundBean.getName());
+			Assert.assertEquals(pk, foundBean.getId());
+		} catch (ApplicationException | DuplicateRecordException e) {
+			Assert.fail("Exception: " + e.getMessage());
 		}
 	}
 	
 	public static void testUpdate() {
+		CourseBean bean = new CourseBean();
+		bean.setName("BBA");
+		bean.setDescription("Bachelor of Business Administration");
+		bean.setDuration("3 Years");
+		bean.setCreatedBy("admin");
+		bean.setModifiedBy("admin");
+		bean.setCreatedDatetime(new Timestamp(new Date().getTime()));
+		bean.setModifiedDatetime(new Timestamp(new Date().getTime()));
 		try {
-			CourseBean bean = model.FindByPK(1L);
-			bean.setName("Mca");
-			//bean.setDescription("commerce");
+			long pk = model.add(bean);
+			bean.setId(pk);
+			bean.setName("BBA (Updated)");
 			model.update(bean);
-			System.out.println("update succ");
-			/*
-			 * CourseBean updateBean=model.testFindByPK(2L); if(!
-			 * "ram".equals(updateBean.getName())){ System.out.println("test update fail");
-			 * }
-			 */
-			 
-		}catch(ApplicationException e) {
-			e.printStackTrace();
-		}catch(DuplicateRecordException e) {
-			e.printStackTrace();
+			CourseBean updatedBean = model.FindByPK(pk);
+			Assert.assertEquals("BBA (Updated)", updatedBean.getName());
+		} catch (ApplicationException | DuplicateRecordException e) {
+			Assert.fail("Exception: " + e.getMessage());
 		}
 	}
-	public static void testsearch() throws DatabaseException {
+
+	public static void testsearch() {
 		try {
-			CourseBean bean = new CourseBean();
-			List list = new ArrayList();
-			list=model.search(bean);
-			
-			Iterator it=list.iterator();
-			while(it.hasNext()) {
-				bean = (CourseBean) it.next();
-				System.out.println(bean.getName());
-				System.out.println(bean.getDescription());
-				System.out.println(bean.getDuration());
-			}
-		}catch(ApplicationException e) {
-			e.printStackTrace();
+            CourseBean bean = new CourseBean();
+            List<CourseBean> list = model.search(bean);
+            Assert.assertNotNull(list);
+            Assert.assertTrue(list.size() > 0);
+
+            for (CourseBean course : list) {
+                Assert.assertNotNull(course.getName());
+                Assert.assertNotNull(course.getDescription());
+                Assert.assertNotNull(course.getDuration());
+            }
+        } catch (ApplicationException e) {
+            Assert.fail("Application Exception: " + e.getMessage());
+        }
+	}
+	public static void testlist() {
+		try {
+			List list = model.list(1, 10);
+			Assert.assertTrue(list.size() > 0);
+		} catch (ApplicationException e) {
+			Assert.fail("Application Exception: " + e.getMessage());
 		}
 	}
-	
-	
-	  public static void testlist() throws Exception { try { 
-		  CourseBean bean = new CourseBean();
-		  List list = new ArrayList();
-		  list =model.list(1,10);
-	  if(list.size() < 0) { 
-		  System.out.println("test list fail");
-		  } 
-	  Iterator it=list.iterator();
-	  while(it.hasNext()) {
-		  bean=(CourseBean) it.next();
-	  System.out.println(bean.getName());
-	  System.out.println(bean.getDescription());
-	  System.out.println(bean.getDuration());
-	  
-	  }
-	  
-	  }catch(ApplicationException e) {
-		  e.printStackTrace(); 
-		  } 
-	  }
-	 
-	
+
 }

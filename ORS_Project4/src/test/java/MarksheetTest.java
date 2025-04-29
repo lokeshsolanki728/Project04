@@ -1,5 +1,6 @@
 package com.rays.proj4.Test;
 
+import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -7,14 +8,12 @@ import java.util.List;
 import com.rays.pro4.Bean.MarksheetBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
+import com.rays.pro4.Exception.RecordNotFoundException;
 import com.rays.pro4.Model.MarksheetModel;
+import org.junit.Assert;
 
 
-/**
- * Marksheet Model Test classes.
- * @author Lokesh SOlanki
- *
- */
+
 public class MarksheetTest {
 
 	public static MarksheetModel model = new MarksheetModel();
@@ -22,157 +21,156 @@ public class MarksheetTest {
 	public static void main(String[] args) {
 		// testAdd();
 		// testDelete();
-		//testUpdate();
-		// testFindByRollNo(); 
+		// testUpdate();
+		// testFindByRollNo();
 		// testFindByPK();
-		 testSearch();
+		// testSearch();
 		// testList();
 		// testMeritList();
 	}
 
 	public static void testAdd() {
 		try {
+			String rollNo = "r" + System.currentTimeMillis();
 			MarksheetBean bean = new MarksheetBean();
-
-			bean.setRollNo("r4");
-			bean.setPhysics(70);
-			bean.setChemistry(60);
-			bean.setMaths(50);
-			bean.setStudentld(21L);
-			System.out.println("model start");
+			bean.setRollNo(rollNo);
+			bean.setPhysics(80);
+			bean.setChemistry(70);
+			bean.setMaths(90);
+			bean.setStudentld(1L);
 			Long pk = model.add(bean);
 
-			System.out.println("add End");
+			MarksheetBean addedBean = model.findByPK(pk);
 
-		} catch (ApplicationException e) {
-			e.printStackTrace();
+			Assert.assertNotNull(addedBean);
+			Assert.assertEquals(bean.getRollNo(), addedBean.getRollNo());
+			Assert.assertEquals(bean.getPhysics(), addedBean.getPhysics());
+			Assert.assertEquals(bean.getChemistry(), addedBean.getChemistry());
+			Assert.assertEquals(bean.getMaths(), addedBean.getMaths());
+
 		} catch (DuplicateRecordException e) {
-			e.printStackTrace();
+			Assert.fail("Duplicate record should not be added: " + e.getMessage());
+		} catch (ApplicationException e) {
+			Assert.fail("Application exception occurred: " + e.getMessage());
 		}
 	}
 
 	public static void testDelete() {
 		try {
+			MarksheetBean addedBean = new MarksheetBean();
+			addedBean.setRollNo("delete" + System.currentTimeMillis());
+			addedBean.setPhysics(80);
+			addedBean.setChemistry(70);
+			addedBean.setMaths(90);
+			addedBean.setStudentld(1L);
+			Long pk = model.add(addedBean);
+
 			MarksheetBean bean = new MarksheetBean();
-			Long pk = 2L;
 			bean.setId(pk);
 			model.delete(bean);
 
 			MarksheetBean deleteBean = model.findByPK(pk);
-			if (deleteBean != null) {
-				System.out.println("Test Delet fail");
-			}
+			Assert.assertNull(deleteBean);
+		} catch (RecordNotFoundException e) {
+			Assert.fail("Record not found exception should not be thrown: " + e.getMessage());
 		} catch (ApplicationException e) {
-			e.printStackTrace();
+			Assert.fail("Application exception occurred: " + e.getMessage());
+		} catch (DuplicateRecordException e) {
+			Assert.fail("Duplicate record exception should not be thrown: " + e.getMessage());
 		}
 	}
 
 	public static void testUpdate() {
 		try {
-			MarksheetBean bean = model.findByPK(3L);
+			MarksheetBean addedBean = new MarksheetBean();
+			addedBean.setRollNo("update" + System.currentTimeMillis());
+			addedBean.setPhysics(80);
+			addedBean.setChemistry(70);
+			addedBean.setMaths(90);
+			addedBean.setStudentld(1L);
+			Long pk = model.add(addedBean);
+			MarksheetBean bean = model.findByPK(pk);
 
-			bean.setStudentld(3L);
-			bean.setRollNo("r5");
-			bean.setChemistry(100);
-			bean.setPhysics(20);
-			bean.setMaths(50);
+			bean.setStudentld(2L);
+			bean.setRollNo("updatedRollNo");
+			bean.setChemistry(95);
+			bean.setPhysics(85);
+			bean.setMaths(75);
 
 			model.update(bean);
-			System.out.println("Update Record");
-		} catch (ApplicationException e) {
-			e.printStackTrace();
+
+			MarksheetBean updatedBean = model.findByPK(pk);
+			Assert.assertNotNull(updatedBean);
+			Assert.assertEquals(bean.getRollNo(), updatedBean.getRollNo());
+			Assert.assertEquals(bean.getPhysics(), updatedBean.getPhysics());
+			Assert.assertEquals(bean.getChemistry(), updatedBean.getChemistry());
+			Assert.assertEquals(bean.getMaths(), updatedBean.getMaths());
+
+		} catch (RecordNotFoundException e) {
+			Assert.fail("Record not found exception should not be thrown: " + e.getMessage());
 		} catch (DuplicateRecordException e) {
-			e.printStackTrace();
+			Assert.fail("Duplicate record exception should not be thrown: " + e.getMessage());
+		} catch (ApplicationException e) {
+			Assert.fail("Application exception occurred: " + e.getMessage());
 		}
 	}
 
 	public static void testFindByRollNo() {
 		try {
-			MarksheetBean bean = model.findByRollNo("r1");
-			if (bean == null) {
-				System.out.println("Test Find by rollNo fail");
-			}
-			System.out.println(bean.getId());
-			System.out.println(bean.getRollNo());
-			System.out.println(bean.getName());
-			System.out.println(bean.getPhysics());
-			System.out.println(bean.getChemistry());
-			System.out.println(bean.getMaths());
+			String rollNo = "findRollNo" + System.currentTimeMillis();
+			MarksheetBean newBean = new MarksheetBean();
+			newBean.setRollNo(rollNo);
+			newBean.setPhysics(80);
+			newBean.setChemistry(70);
+			newBean.setMaths(90);
+			newBean.setStudentld(1L);
+			model.add(newBean);
+
+			MarksheetBean bean = model.findByRollNo(rollNo);
+			Assert.assertNotNull(bean);
+			Assert.assertEquals(rollNo, bean.getRollNo());
 		} catch (ApplicationException e) {
-			e.printStackTrace();
+			Assert.fail("Application exception occurred: " + e.getMessage());
+		} catch (DuplicateRecordException e) {
+			Assert.fail("Duplicate record exception should not be thrown: " + e.getMessage());
 		}
 	}
 
 	public static void testFindByPK() {
 		try {
-			MarksheetBean bean = new MarksheetBean();
-			long pk = 3L;
-			bean = model.findByPK(pk);
-			if (bean == null) {
-				System.out.println("Find By pk fail");
-			}
-			System.out.println(bean.getId());
-			System.out.println(bean.getRollNo());
-			System.out.println(bean.getName());
-			System.out.println(bean.getPhysics());
-			System.out.println(bean.getChemistry());
-			System.out.println(bean.getMaths());
-
+			MarksheetBean addedBean = new MarksheetBean();
+			addedBean.setRollNo("findByPK" + System.currentTimeMillis());
+			addedBean.setPhysics(80);
+			addedBean.setChemistry(70);
+			addedBean.setMaths(90);
+			addedBean.setStudentld(1L);
+			Long pk = model.add(addedBean);
+			MarksheetBean bean = model.findByPK(pk);
+			Assert.assertNotNull(bean);
+			assertEquals(pk, bean.getId());
 		} catch (ApplicationException e) {
-			e.printStackTrace();
+			Assert.fail("Application exception occurred: " + e.getMessage());
+		} catch (DuplicateRecordException e) {
+			Assert.fail("Duplicate record exception should not be thrown: " + e.getMessage());
 		}
 	}
 
 	public static void testSearch() {
 		try {
 			MarksheetBean bean = new MarksheetBean();
-			List list = new ArrayList();
-			//bean.setName("ram");
-			bean.setId(9L);
-			list = model.search(bean, 1, 10);
-			if (list.size() < 0) {
-				System.out.println("Test search fail");
-			}
-			Iterator it = list.iterator();
-			while (it.hasNext()) {
-				bean = (MarksheetBean) it.next();
-				System.out.println(bean.getId());
-				System.out.println(bean.getRollNo());
-				System.out.println(bean.getName());
-				System.out.println(bean.getPhysics());
-				System.out.println(bean.getChemistry());
-				System.out.println(bean.getMaths());
-			}
+			List<MarksheetBean> list = model.search(bean, 1, 10);
+			Assert.assertTrue(list.size() >= 0);
 		} catch (ApplicationException e) {
-			e.printStackTrace();
+			Assert.fail("Application exception occurred: " + e.getMessage());
 		}
 	}
 
 	public static void testList() {
 		try {
-			MarksheetBean bean = new MarksheetBean();
-			List list = new ArrayList();
-			list = model.list(1, 6);
-			if (list.size() < 0) {
-				System.out.println("Test List fail");
-			}
-			Iterator it = list.iterator();
-			while (it.hasNext()) {
-				bean = (MarksheetBean) it.next();
-				System.out.println(bean.getId());
-				System.out.println(bean.getRollNo());
-				System.out.println(bean.getName());
-				System.out.println(bean.getPhysics());
-				System.out.println(bean.getChemistry());
-				System.out.println(bean.getMaths());
-				System.out.println(bean.getCreatedBy());
-				System.out.println(bean.getModifiedBy());
-				System.out.println(bean.getCreatedDatetime());
-				System.out.println(bean.getModifiedDatetime());
-			}
-
+			List<MarksheetBean> list = model.list(1, 6);
+			Assert.assertTrue(list.size() >= 0);
 		} catch (ApplicationException e) {
-			e.printStackTrace();
+			Assert.fail("Application exception occurred: " + e.getMessage());
 		}
 	}
 
@@ -180,23 +178,10 @@ public class MarksheetTest {
 		try {
 			MarksheetBean bean = new MarksheetBean();
 			List list = new ArrayList();
-			list = model.list(1, 5);
-			if (list.size() > 0) {
-				System.out.println("Test List fail");
-			}
-			Iterator it = list.iterator();
-			while (it.hasNext()) {
-				bean = (MarksheetBean) it.next();
-				System.out.println(bean.getId());
-				System.out.println(bean.getRollNo());
-				System.out.println(bean.getName());
-				System.out.println(bean.getPhysics());
-				System.out.println(bean.getChemistry());
-				System.out.println(bean.getMaths());
-			}
-
+			list = model.getMeritList(1, 5);
+			Assert.assertTrue(list.size() >= 0);
 		} catch (ApplicationException e) {
-			e.printStackTrace();
+			Assert.fail("Application exception occurred: " + e.getMessage());
 		}
 	}
 
