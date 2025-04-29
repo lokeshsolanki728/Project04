@@ -1,8 +1,6 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.HashMap;
 
 import javax.servlet.ServletException;
@@ -14,10 +12,7 @@ import org.apache.log4j.Logger;
 
 import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Bean.CollegeBean;
-import com.rays.pro4.Bean.CourseBean;
 import com.rays.pro4.Bean.FacultyBean;
-import com.rays.pro4.Bean.SubjectBean;
-import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Model.CollegeModel;
 import com.rays.pro4.Model.CourseModel;
@@ -26,9 +21,11 @@ import com.rays.pro4.Model.SubjectModel;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.DataValidator;
 import com.rays.pro4.Util.PropertyReader;
+import com.rays.pro4.Exception.ApplicationException;
+
 import com.rays.pro4.Util.ServletUtility;
 
-//TODO: Auto-generated Javadoc
+
 /**
 * The Class FacultyCtl.
 *  @author Lokesh SOlanki
@@ -43,57 +40,34 @@ public class FacultyCtl extends BaseCtl{
 	/** The log. */
 	private static Logger log = Logger.getLogger(FacultyCtl.class);
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see in.co.rays.ors.controller.BaseCtl#preload(javax.servlet.http.
-	 * HttpServletRequest)
-	 */
 	protected void preload(HttpServletRequest request) {
-
-		System.out.println("preload  in ");
 
 		CourseModel cmodel = new CourseModel();
 		CollegeModel comodel = new CollegeModel();
 		SubjectModel smodel = new SubjectModel();
 
-		List<CourseBean> clist = new ArrayList<CourseBean>();
-		List<CollegeBean> colist = new ArrayList<CollegeBean>();
-		List<SubjectBean> slist = new ArrayList<SubjectBean>();
-
-		try {
-			clist = cmodel.list();
+        try {
+			List clist = cmodel.list();			
 			request.setAttribute("CourseList", clist);
-		}catch(Exception e) {
-			e.printStackTrace();
-		}
-		
-		try {
-			colist = comodel.list();
+            List colist = comodel.list();
 			request.setAttribute("CollegeList", colist);
-		}catch(Exception e) {
-			e.printStackTrace();
+            List slist = smodel.list();
+			request.setAttribute("SubjectList", slist);
+		} catch (ApplicationException e) {
+            log.error(e);
+            ServletUtility.handleException(e, request, response);
 		}
 		try {
-			
-			slist = smodel.list();
+
+			List slist = smodel.list();
 			request.setAttribute("SubjectList", slist);
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see in.co.rays.ors.controller.BaseCtl#validate(javax.servlet.http.
-	 * HttpServletRequest)
-	 */
+	}	
 	protected boolean validate(HttpServletRequest request) {
-
-		System.out.println("validate  in ");
-
 		log.debug("Validate Method of Faculty Ctl Started");
 		boolean pass = true;
 		if (DataValidator.isNull(request.getParameter("firstname"))) {
@@ -115,7 +89,7 @@ public class FacultyCtl extends BaseCtl{
 			request.setAttribute("gender", PropertyReader.getValue("error.require", "Gender"));
 			pass = false;
 		}
-		
+
 		if (DataValidator.isNull(request.getParameter("loginid"))) {
 			request.setAttribute("loginid", PropertyReader.getValue("error.require", "LoginId"));
 			pass = false;
@@ -126,11 +100,11 @@ public class FacultyCtl extends BaseCtl{
 		if (DataValidator.isNull(request.getParameter("mobileno"))) {
 			request.setAttribute("mobileno", PropertyReader.getValue("error.require", "MobileNo"));
 			pass = false;
-		} else if (!DataValidator.isMobileNo(request.getParameter("mobileno"))) {
-			request.setAttribute("mobileno", "Mobile No. must be 10 Digit and No. Series start with 6-9");
+		} else if (!DataValidator.isMobileNo(request.getParameter("mobileno"))) {	
+			request.setAttribute("mobileno", PropertyReader.getValue("error.mobileNo"));
 			pass = false;
 		}
-		
+
 		if (DataValidator.isNull(request.getParameter("dob"))) {
 			request.setAttribute("dob", PropertyReader.getValue("error.require", "Date Of Birth"));
 			pass = false;
@@ -151,20 +125,12 @@ public class FacultyCtl extends BaseCtl{
 			pass = false;
 		}
 
-		System.out.println("validate out ");
 		log.debug("validate Ended");
 		return pass;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see in.co.rays.ors.controller.BaseCtl#populateBean(javax.servlet.http.
-	 * HttpServletRequest)
+	}	
 	 */
 	protected BaseBean populateBean(HttpServletRequest request) {
 		log.debug("populate bean faculty ctl started");
-		System.out.println(" populate bean ctl  in ");
 		FacultyBean bean = new FacultyBean();
 
 		bean.setId(DataUtility.getLong(request.getParameter("id")));
@@ -172,20 +138,15 @@ public class FacultyCtl extends BaseCtl{
 		bean.setLastName(DataUtility.getString(request.getParameter("lastname")));
 		bean.setGender(DataUtility.getString(request.getParameter("gender")));
 		bean.setEmailId(DataUtility.getString(request.getParameter("loginid")));
-		bean.setMobileNo(DataUtility.getString(request.getParameter("mobileno")));
-        bean.setDob(DataUtility.getDate(request.getParameter("dob")));
+		bean.setMobileNo(DataUtility.getString(request.getParameter("mobileno")));		
+		bean.setDob(DataUtility.getDate(request.getParameter("dob")));
 		bean.setCollegeId(DataUtility.getLong(request.getParameter("collegeid")));
-		//bean.setCollegeName(DataUtility.getString(request.getParameter("collegeName")));
 		bean.setCourseId(DataUtility.getLong(request.getParameter("courseid")));
-		//bean.setCourseName(DataUtility.getString(request.getParameter("courseName")));
 		bean.setSubjectId(DataUtility.getLong(request.getParameter("subjectid")));
-		//bean.setSubjectName(DataUtility.getString(request.getParameter("subjectName")));
 
-		// bean.setCourseName(DataUtility.getString(request.getParameter("courseid")));
-		// bean.setSubjectName(DataUtility.getString(request.getParameter("subjectid")));
+
 		populateDTO(bean, request);
 		log.debug("populate bean faculty ctl Ended");
-		System.out.println(" populate bean ctl out ");
 		return bean;
 	}
 
@@ -204,16 +165,13 @@ public class FacultyCtl extends BaseCtl{
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-
 		log.debug("Do get of faculty ctl Started");
 		String op = DataUtility.getString(request.getParameter("operation"));
 
-		// Get Model
 		FacultyModel model = new FacultyModel();
 		Long id = DataUtility.getLong(request.getParameter("id"));
 
 		if (id > 0 || op != null) {
-			FacultyBean bean;
 			try {
 				bean = model.findByPK(id);
 				ServletUtility.setBean(bean, request);
@@ -225,8 +183,7 @@ public class FacultyCtl extends BaseCtl{
 				return;
 			}
 		}
-		System.out.println(" do get out ");
-		log.debug("Do get of  faculty ctl Ended");
+        log.debug("Do get of  faculty ctl Ended");
 		ServletUtility.forward(getView(), request, response);
 	}
 
@@ -246,62 +203,47 @@ public class FacultyCtl extends BaseCtl{
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		log.debug("Do post of  faculty ctl Started");
-		System.out.println("Do post of  faculty ctl Started ");
-        HashMap<String,Object> map=new HashMap<String,Object>();
 
 		String op = DataUtility.getString(request.getParameter("operation"));
-		long id = DataUtility.getLong(request.getParameter("id"));
-
-		// Get Model
+		long id = DataUtility.getLong(request.getParameter("id"));		
 		FacultyModel model = new FacultyModel();
-		if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
-			FacultyBean bean = (FacultyBean) populateBean(request);
-
+        FacultyBean bean = (FacultyBean) populateBean(request);
+		if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {	
 			try {
-				if (id > 0) {
+				if (id > 0) {	
 					model.update(bean);
-                    map.put("bean",bean);
-                    map.put("success","Faculty Successfully Updated");
-
+					ServletUtility.setSuccessMessage(PropertyReader.getValue("success.faculty.update"), request);
 				} else {
-					long pk = model.add(bean);
-                    map.put("bean",bean);
-                    map.put("success","Faculty Successfully Added");
-
-					// bean.setId(pk);
-                }
-				ServletUtility.setBean(bean, request);
-				
+					model.add(bean);
+					ServletUtility.setSuccessMessage(PropertyReader.getValue("success.faculty.add"), request);
+				}
+			} catch (DuplicateRecordException e) {
+				ServletUtility.setErrorMessage(PropertyReader.getValue("error.faculty.duplicate"), request);				
 			} catch (ApplicationException e) {
 				log.error(e);
 				ServletUtility.handleException(e, request, response);
 				return;
+
 			} catch (DuplicateRecordException e) {
+				log.error(e);
 				ServletUtility.setBean(bean, request);
-				ServletUtility.setErrorMessage("Faculty already Exist", request);
+				ServletUtility.setErrorMessage(PropertyReader.getValue("error.faculty.duplicate"), request);
+				ServletUtility.forward(getView(), request, response);
+				return;
 			}
-		} /*
-			 * else if (OP_DELETE.equalsIgnoreCase(op)) { FacultyBean bean
-			 * =(FacultyBean) populateBean(request);
-			 * 
-			 * try { model.delete(bean);
-			 * ServletUtility.redirect(ORSView.FACULTY_CTL, request, response);
-			 * } catch (ApplicationException e) { log.error(e);
-			 * ServletUtility.handleException(e, request, response); return; } }
-			 */
+		}
 		else if (OP_RESET.equalsIgnoreCase(op)) {
 			ServletUtility.redirect(ORSView.FACULTY_CTL, request, response);
 			return;
 		} else if (OP_CANCEL.equalsIgnoreCase(op)) {
-			ServletUtility.redirect(ORSView.FACULTY_LIST_CTL, request, response);
+			ServletUtility.redirect(ORSView.FACULTY_LIST_CTL, request, response);		
 			return;
 		}
-		// System.out.println(" do post out ");
-		ServletUtility.forward(getView(),map, request, response);
+		ServletUtility.setBean(bean, request);
+		ServletUtility.forward(getView(), request, response);
 		log.debug("Do post of  faculty ctl Ended");
-		System.out.println(" Do post of  faculty ctl Ended ");
-	}
-
+	
+	}	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -311,6 +253,4 @@ public class FacultyCtl extends BaseCtl{
 	protected String getView() {
 		return ORSView.FACULTY_VIEW;
 	}
-
-	
 }

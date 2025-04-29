@@ -1,6 +1,5 @@
 package com.rays.pro4.controller;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
@@ -19,7 +18,7 @@ import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;
 
-//TODO: Auto-generated Javadoc
+import java.io.IOException;
 /**
 * College List functionality Controller. Performs operation for list, search
 * and delete operations of College
@@ -29,23 +28,18 @@ import com.rays.pro4.Util.ServletUtility;
 */
 @WebServlet(name="CollegeListCtl",urlPatterns={"/ctl/CollegeListCtl"})
 public class CollegeListCtl extends BaseCtl{
-
-private static Logger log = Logger.getLogger(CollegeListCtl.class);
+	private static final long serialVersionUID = 1L;
+	private static Logger log = Logger.getLogger(CollegeListCtl.class);
     
-    /* (non-Javadoc)
-     * @see in.co.rays.ors.controller.BaseCtl#preload(javax.servlet.http.HttpServletRequest)
-     */
     @Override
-    protected void preload(HttpServletRequest request){
-    	CollegeModel cmodel=new CollegeModel();
-    	try{
-    		List clist=cmodel.list();
-    		
-    		request.setAttribute("CollegeList", clist);
-    	}
-    	catch(ApplicationException e){
-    		e.printStackTrace();
-    	}
+    protected void preload(HttpServletRequest request) {
+        CollegeModel cmodel = new CollegeModel();
+        try {
+            List clist = cmodel.list();
+            request.setAttribute("CollegeList", clist);
+        } catch (ApplicationException e) {
+            ServletUtility.handleException(e, request, response);
+        }
     }
     
     
@@ -58,10 +52,8 @@ private static Logger log = Logger.getLogger(CollegeListCtl.class);
         CollegeBean bean = new CollegeBean();
 
        // bean.setName(DataUtility.getString(request.getParameter("name")));
-        bean.setCity(DataUtility.getString(request.getParameter("city")));
+        bean.setCity(DataUtility.getString(request.getParameter("city")));        
         bean.setPhoneNo(DataUtility.getString(request.getParameter("phoneno")));
-
-        
         bean.setId(DataUtility.getLong(request.getParameter("collegeid")));
        
 
@@ -99,15 +91,16 @@ private static Logger log = Logger.getLogger(CollegeListCtl.class);
             
             request.setAttribute("nextlist", nextList.size());
         
-        if (list == null || list.size() == 0) {
-            ServletUtility.setErrorMessage("No record found ", request);
+        } catch (ApplicationException e) {
+            log.error(e);
+            ServletUtility.handleException(e, request, response);
+            return;
         }
 
-        ServletUtility.setList(list, request);
-        ServletUtility.setPageNo(pageNo, request);
-        ServletUtility.setPageSize(pageSize, request);
-        ServletUtility.forward(getView(), request);
-    }
+        if (list == null || list.size() == 0) {
+            ServletUtility.setErrorMessage(PropertyReader.getValue("error.record.notfound"), request);
+        }
+        setListAndPagination(list, request, pageNo, pageSize);
         catch (ApplicationException e) {
             log.error(e);
             ServletUtility.handleException(e, request, response);
@@ -131,8 +124,6 @@ private static Logger log = Logger.getLogger(CollegeListCtl.class);
         log.debug("CollegeListCtl doPost Start");
 
         List list = null;
-        
-        List  nextList=null;
 
         int pageNo = DataUtility.getInt(request.getParameter("pageNo"));
         int pageSize = DataUtility.getInt(request.getParameter("pageSize"));
@@ -171,23 +162,25 @@ private static Logger log = Logger.getLogger(CollegeListCtl.class);
                     for (String id : ids) {
                         deletebean.setId(DataUtility.getInt(id));
                         try {
-							model.delete(deletebean);
-						} catch (ApplicationException e) {
-							ServletUtility.handleException(e, request, response);
-							return;
-						}ServletUtility.setSuccessMessage("College Data Successfully Deleted", request);
+                            model.delete(deletebean);
+                        } catch (ApplicationException e) {
+                            ServletUtility.handleException(e, request, response);
+                            return;
+                        }
                     }
+                    ServletUtility.setSuccessMessage(PropertyReader.getValue("success.college.delete"), request);
                 } 
                 else {
                     ServletUtility.setErrorMessage(
-                            "Select at least one record", request);
+                            PropertyReader.getValue("error.select.one"), request);
                 }
             }
             try {
 				
             	list = model.search(bean, pageNo, pageSize);
+                List nextList = model.search(bean, pageNo + 1, pageSize);
 				
-            	nextList=model.search(bean,pageNo+1,pageSize);
+            	//nextList=model.search(bean,pageNo+1,pageSize);
 				
             	request.setAttribute("nextlist", nextList.size());
 				
@@ -196,21 +189,13 @@ private static Logger log = Logger.getLogger(CollegeListCtl.class);
 				ServletUtility.handleException(e, request, response);
 				return;
 			}
-         //   ServletUtility.setList(list, request);
             
             if (list == null || list.size() == 0 && !OP_DELETE.equalsIgnoreCase(op)) {
-                ServletUtility.setErrorMessage("No record found ", request);
+                ServletUtility.setErrorMessage(PropertyReader.getValue("error.record.notfound"), request);
             }
-            ServletUtility.setList(list, request);
-            ServletUtility.setBean(bean, request);
-            ServletUtility.setPageNo(pageNo, request);
-            ServletUtility.setPageSize(pageSize, request);
+            setListAndPagination(list, request, pageNo, pageSize);
+            ServletUtility.setBean(bean, request);            
             
-            HashMap<String, Object> map = new HashMap<>();
-    		map.put("list", list);
-    		map.put("bean", bean);
-    		map.put("pageNo", pageNo);
-    		map.put("pageSize", pageSize);
             ServletUtility.forward(getView(), request);
             log.debug("CollegeListCtl doPost End");
     }
@@ -223,4 +208,10 @@ private static Logger log = Logger.getLogger(CollegeListCtl.class);
         return ORSView.COLLEGE_LIST_VIEW;
 	
 }
+    private void setListAndPagination(List list, HttpServletRequest request, int pageNo, int pageSize) {
+        ServletUtility.setList(list, request);
+        ServletUtility.setPageNo(pageNo, request);
+        ServletUtility.setPageSize(pageSize, request);
+        ServletUtility.forward(getView(), request);
+    }
 }

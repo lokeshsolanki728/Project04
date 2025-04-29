@@ -1,7 +1,6 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -21,7 +20,7 @@ import com.rays.pro4.Util.DataValidator;
 import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;
 
-//TODO: Auto-generated Javadoc
+
 /**
 * College functionality Controller. Performs operation for add, update, delete
 * and get College
@@ -37,14 +36,12 @@ private static final long serialVersionUID = 1L;
 	
 	/** The log. */
 	private static Logger log = Logger.getLogger(CollegeCtl.class);
-
-	/* (non-Javadoc)
-	 * @see in.co.rays.ors.controller.BaseCtl#validate(javax.servlet.http.HttpServletRequest)
-	 */
+	
 	protected boolean validate(HttpServletRequest request) {
 		log.debug("CollegeCtl Method validate Started");
 		boolean pass = true;
-
+		String op=DataUtility.getString(request.getParameter("operation"));
+		if(OP_CANCEL.equalsIgnoreCase(op) || OP_RESET.equalsIgnoreCase(op)){return pass;}
 		if (DataValidator.isNull(request.getParameter("name"))) {
 			request.setAttribute("name", PropertyReader.getValue("error.require", "Name"));
 			pass = false;
@@ -71,13 +68,10 @@ private static final long serialVersionUID = 1L;
 			request.setAttribute("city", PropertyReader.getValue("error.name", "City"));
 			pass = false;
 		}
-		else if (!DataValidator.isName(request.getParameter("city"))) {
-	      	  request.setAttribute("city",PropertyReader.getValue("error.name", "Invalid City"));
-	            pass = false;
-			}
+		
 		if (DataValidator.isNull(request.getParameter("phoneNo"))) {
 			request.setAttribute("phoneNo", PropertyReader.getValue("error.require", "Mobile No"));
-			pass = false;
+			pass = false;	
 		}else if (!DataValidator.isMobileNo(request.getParameter("phoneNo"))) {
 			request.setAttribute("phoneNo", "Mobile No. must be 10 Digit and No. Series start with 6-9");
 			pass = false;
@@ -87,9 +81,6 @@ private static final long serialVersionUID = 1L;
 		return pass;
 	}
 
-	/* (non-Javadoc)
-	 * @see in.co.rays.ors.controller.BaseCtl#populateBean(javax.servlet.http.HttpServletRequest)
-	 */
 	protected BaseBean populateBean(HttpServletRequest request) {
 
 		log.debug("CollegeCtl Method populatebean Started");
@@ -117,7 +108,7 @@ private static final long serialVersionUID = 1L;
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-System.out.println("do get in");
+
 		String op = DataUtility.getString(request.getParameter("operation"));
 		long id = DataUtility.getLong(request.getParameter("id"));
 		
@@ -153,38 +144,32 @@ System.out.println("do get in");
 		long id = DataUtility.getLong(request.getParameter("id"));
 		
 		CollegeModel model = new CollegeModel();
+		CollegeBean bean = (CollegeBean) populateBean(request);
 		if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op) ) {
-			CollegeBean bean = (CollegeBean) populateBean(request);
+			
 			try {
 				if (id > 0) {
 					model.update(bean);
-					ServletUtility.setBean(bean, request);
-					ServletUtility.setSuccessMessage("College is successfully Updated ", request);
-			
+					ServletUtility.setSuccessMessage(PropertyReader.getValue("success.college.update"), request);
 				} else {
 					long pk = model.add(bean);
-					ServletUtility.setBean(bean, request);
-					ServletUtility.setSuccessMessage("College is successfully Added ", request);
-			
-			//		bean.setId(pk);
+					ServletUtility.setSuccessMessage(PropertyReader.getValue("success.college.add"), request);
+					bean.setId(pk);
 				}
-				Map<String, Object> map = new HashMap<>();
-				map.put("bean", bean);
-				map.put("success", "College is successfully Saved ");
-				ServletUtility.forward(getView(), map, request, response);
+				ServletUtility.setBean(bean, request);
+				ServletUtility.forward(getView(), request, response);
 				return;
 			} catch (ApplicationException e) {
 				log.error(e);
 				ServletUtility.handleException(e, request, response);
 				return;
 			} catch (DuplicateRecordException e) {
-				Map<String, Object> map = new HashMap<>();
-				map.put("bean", bean);
-				map.put("error", "College Name already exists");
-				ServletUtility.forward(getView(), map, request, response);
-				return;
+					ServletUtility.setBean(bean, request);
+					ServletUtility.setErrorMessage(PropertyReader.getValue("error.college.exist"), request);
+					ServletUtility.forward(getView(), request, response);
+					return;
 			}
-		} else if ( OP_RESET.equalsIgnoreCase(op)) {
+		} else if (OP_RESET.equalsIgnoreCase(op)) {
 			return;
 		}		else if (OP_CANCEL.equalsIgnoreCase(op) ) {
 
@@ -192,28 +177,12 @@ System.out.println("do get in");
 			return;
 		}
 		/*else if (OP_DELETE.equalsIgnoreCase(op)) {
-
-			CollegeBean bean = (CollegeBean) populateBean(request);
-			try {
-				model.delete(bean);
-				ServletUtility.redirect(ORSView.COLLEGE_CTL, request, response);
-				return;
-
-			} catch (ApplicationException e) {
-				log.error(e);
-				ServletUtility.handleException(e, request, response);
-				return;
-			}
-
-		} */
+*/
 
 		ServletUtility.redirect(getView(), request, response);
 		log.debug("CollegeCtl Method doPost Ended");
 	}
 
-	/* (non-Javadoc)
-	 * @see in.co.rays.ors.controller.BaseCtl#getView()
-	 */
 	@Override
 	protected String getView() {
 		return ORSView.COLLEGE_VIEW;

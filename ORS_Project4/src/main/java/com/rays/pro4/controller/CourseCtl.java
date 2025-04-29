@@ -1,7 +1,5 @@
 package com.rays.pro4.controller;
 
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -21,7 +19,6 @@ import com.rays.pro4.Util.DataValidator;
 import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;
 
-//TODO: Auto-generated Javadoc
 /**
 * The Class CourseCtl.
 *  @author Lokesh SOlanki
@@ -29,24 +26,18 @@ import com.rays.pro4.Util.ServletUtility;
 @WebServlet(name="CourseCtl", urlPatterns={"/ctl/CourseCtl"})
 public class CourseCtl extends BaseCtl{
 
-	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
-	
-	/** The log. */
 	private static Logger log = Logger.getLogger(CourseCtl.class);
 
-	/* (non-Javadoc)
-	 * @see in.co.rays.ors.controller.BaseCtl#validate(javax.servlet.http.HttpServletRequest)
-	 */
+	
 	protected boolean validate(HttpServletRequest request) {
 		log.debug("CourseCtl validate started");
 		boolean pass = true;
-
-		if (DataValidator.isNull(request.getParameter("name"))) {
-			request.setAttribute("name", PropertyReader.getValue("error.require", "Course Name"));
+		String op = DataUtility.getString(request.getParameter("operation"));
+		if (OP_CANCEL.equalsIgnoreCase(op) || OP_RESET.equalsIgnoreCase(op)) { return pass; }
+		if (DataValidator.isNull(request.getParameter("name"))) { request.setAttribute("name", PropertyReader.getValue("error.require", "Course Name"));
 			 pass = false ;
-		}else if (!DataValidator.isName(request.getParameter("name"))) {
-			request.setAttribute("name", PropertyReader.getValue("error.name", "Course name"));
+		}else if (!DataValidator.isName(request.getParameter("name"))) { request.setAttribute("name", PropertyReader.getValue("error.name", "Course name"));
 			 pass = false ;
 		}
 		if (DataValidator.isNull(request.getParameter("duration"))) {
@@ -62,16 +53,13 @@ public class CourseCtl extends BaseCtl{
 		return pass;
 	}
 
-	/* (non-Javadoc)
-	 * @see in.co.rays.ors.controller.BaseCtl#populateBean(javax.servlet.http.HttpServletRequest)
-	 */
+	
 	protected BaseBean populateBean(HttpServletRequest request){
 		log.debug("CourseCtl PopulatedBean started");
 		CourseBean bean = new CourseBean();
 		
 		bean.setId(DataUtility.getLong(request.getParameter("id")));
 		bean.setName(DataUtility.getString(request.getParameter("name")));
-		System.out.println("popppp    "+request.getParameter("duration"));
 		bean.setDuration(DataUtility.getString(request.getParameter("duration")));
 		bean.setDescription(DataUtility.getString(request.getParameter("description")));
 	
@@ -80,33 +68,22 @@ public class CourseCtl extends BaseCtl{
 		return bean;
 	}
 	
-    /**
-     * Contains Display logics.
-     *
-     * @param request the request
-     * @param response the response
-     * @throws ServletException the servlet exception
-     * @throws IOException Signals that an I/O exception has occurred.
-     */
-
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		log.debug("Do get method od courseCtl started");
-		String op = DataUtility.getString(request.getParameter("operation"));
 		
-		// get Model
 		CourseModel model = new CourseModel();
 		long id = DataUtility.getLong(request.getParameter("id"));
 		
 		if(id>0){
 			CourseBean bean;
 			try{
-			bean = model.FindByPK(id);
-			ServletUtility.setBean(bean, request);
-			
+				bean = model.FindByPK(id);
+				ServletUtility.setBean(bean, request);
+				
 			}catch(ApplicationException e){
 				log.error(e);
+				
 				ServletUtility.handleException(e, request, response);
 				return;
 			}
@@ -114,73 +91,55 @@ public class CourseCtl extends BaseCtl{
 		ServletUtility.forward(getView(), request, response);
 	}
     
-    /**
-     * Contains Submit logics.
-     *
-     * @param request the request
-     * @param response the response
-     * @throws ServletException the servlet exception
-     * @throws IOException Signals that an I/O exception has occurred.
-     */
+    
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		log.debug("Do Post method of CourseCtl started ");
-		String op = DataUtility.getString(request.getParameter("operation"));
 		
-		// Get Model
+		String op = DataUtility.getString(request.getParameter("operation"));
 		CourseModel model = new CourseModel();
 		long id = DataUtility.getLong(request.getParameter("id"));
-	
+		CourseBean bean =(CourseBean) populateBean(request);
+		
 		if(OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)){
-			CourseBean bean =(CourseBean) populateBean(request);
 			try{
 				if(id>0){		
-					model.update(bean);
-					ServletUtility.setSuccessMessage("Course is Successfully Updated", request);		
+					model.update(bean);	
+					ServletUtility.setSuccessMessage(PropertyReader.getValue("success.course.update"), request);
 				}else{
 					model.add(bean);
-					ServletUtility.setSuccessMessage("Course is Successfully Added", request);
+					ServletUtility.setSuccessMessage(PropertyReader.getValue("success.course.add"), request);
+					
 				}
-				Map<String,Object> map = new HashMap<String, Object>();
-				map.put("bean", bean);
-				ServletUtility.forward(getView(), map, request, response);
-				return;		
+				
 			}catch(ApplicationException e ){
-				e.printStackTrace();
 				log.error(e);
 				ServletUtility.handleException(e, request, response);
 				return;
 			} catch (DuplicateRecordException e) {
-				ServletUtility.setErrorMessage("Course Name Already Exist", request);
-				Map<String,Object> map = new HashMap<String, Object>();
-				map.put("bean", bean);
-				ServletUtility.forward(getView(), map, request, response);
-				return;
+				ServletUtility.setErrorMessage(PropertyReader.getValue("error.course.duplicate"), request);
 			}
+			ServletUtility.setBean(bean, request);
+			ServletUtility.forward(getView(), request, response);
+			return;
+		}else if(OP_RESET.equalsIgnoreCase(op)){
+		    ServletUtility.redirect(ORSView.COURSE_CTL, request, response);
+		    return;
 		}
-		
 		else if (OP_CANCEL.equalsIgnoreCase(op)) {
 			ServletUtility.redirect(ORSView.COURSE_LIST_CTL, request, response);
 			return;
 		}
-		else if (OP_RESET.equalsIgnoreCase(op)) {
-			ServletUtility.redirect(ORSView.COURSE_CTL, request, response);
-			return;
-		}
+	
 		
 		ServletUtility.forward(getView(), request, response );
-		log.debug("Do Post method CourseCtl Ended");
+		
 	
 	}
 
-	/* (non-Javadoc)
-	 * @see in.co.rays.ors.controller.BaseCtl#getView()
-	 */
+	
 	@Override
 	protected String getView() {
 		return ORSView.COURSE_VIEW;
 	}
-
-	
 }

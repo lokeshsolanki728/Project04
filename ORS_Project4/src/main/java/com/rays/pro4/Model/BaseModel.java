@@ -1,29 +1,28 @@
 package com.rays.pro4.Model;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-
-import org.apache.log4j.Logger; 
 
 import com.rays.pro4.Bean.DropdownListBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DatabaseException;
-import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.JDBCDataSource;
+import com.rays.pro4.Util.DataUtility;
+
+import org.apache.log4j.Logger;
 
 /**
- * The Class BaseModel
- * 
- * @author  Lokesh SOlanki
+ * The Class BaseModel.
  *
+ * @author Lokesh SOlanki
  */
-public abstract class BaseModel implements  Serializable,DropdownListBean {
+public abstract class BaseModel implements Serializable, DropdownListBean {
 
-	private static Logger log =Logger.getLogger(BaseModel.class);
+	private static Logger log = Logger.getLogger(BaseModel.class);
 
 	protected long id;
 	protected String createdBy;
@@ -31,12 +30,8 @@ public abstract class BaseModel implements  Serializable,DropdownListBean {
 	protected Timestamp createdDatetime;
 	protected Timestamp modifiedDateTime;
 	public static Logger getLog() {
-		return log;
+	    return log;
 	}
-	public static void setLog(Logger log) {
-		BaseModel.log = log;
-	}
-	public long getId() {
 		return id;
 	}
 	public void setId(long id) {
@@ -66,112 +61,94 @@ public abstract class BaseModel implements  Serializable,DropdownListBean {
 	public void setModifiedDateTime(Timestamp modifiedDateTime) {
 		this.modifiedDateTime = modifiedDateTime;
 	}
-	
-	
-	
-	public int compareTo(BaseModel next){
-		return(int)(id-next.getId());
+
+	public int compareTo(BaseModel next) {
+		return (int) (id - next.getId());
 	}
-	
-	public long nextPK()throws DatabaseException{
-		log.debug("Model nextPK Started");;
-		Connection conn=null;
-		long pk=0;
-		try{
-			conn=JDBCDataSource.getConnection();
-			PreparedStatement pstml=conn.prepareStatement("SELECT MAX(ID)FROM"+getTableName());
-			ResultSet rs=pstml.executeQuery();
-			while(rs.next()){
-				pk=rs.getInt(1);
-			}
-			rs.close();
-		}catch(Exception e){
-			log.error("Database Exception..",e);
-			throw new DatabaseException("Excertion : Exception in getting PK");
-			
-		}finally{
-			JDBCDataSource.closeConnection(conn);
-		}
-		log.debug("Model nextPK End");
-		return pk+1;
-		
+
+	/**
+	 * Generates and returns the next primary key.
+	 *
+	 * @return The next primary key.
+	 * @throws DatabaseException If a database error occurs.
+	 */
+	public long nextPK() throws DatabaseException {
+	    log.debug("Model nextPK Started");
+	    long pk = 0;
+	    try (Connection conn = JDBCDataSource.getConnection();
+	         PreparedStatement pstmt = conn.prepareStatement("SELECT MAX(ID) FROM " + getTableName())) {
+	        ResultSet rs = pstmt.executeQuery();
+	        if (rs.next()) {
+	            pk = rs.getLong(1);
+	        }
+	    } catch (SQLException e) {
+	        log.error("Database Exception in nextPK", e);
+	        throw new DatabaseException("Exception: Exception in getting PK - " + e.getMessage());
+	    }
+	    log.debug("Model nextPK End");
+	    return pk + 1; // Increment PK and return
 	}
-	
+
 	public abstract String getTableName();
-	
-	
-	
-	public void updateCreatesInfo()throws ApplicationException{
-		log.debug("Model update Started..."+createdBy);
-		
-		Connection conn=null;
-		
-		String sql="UPDATE"+getTableName()+"SET CREATED_BY=?,CREATED_DATETIME=?WHERE ID=?";
-		log.debug(sql);
-		
-		try{
-			conn=JDBCDataSource.getConnection();
-			conn.setAutoCommit(false);
-			PreparedStatement pstmt=conn.prepareStatement(sql);
-			pstmt.setString(1, createdBy);
-			pstmt.setTimestamp(2, DataUtility.getCurrentTimestamp());
-			pstmt.setLong(3, id);
-			
-			pstmt.executeUpdate();
-			conn.commit();
-			pstmt.close();
-		}catch(SQLException e){
-			log.error("Database Exception..",e);
-			JDBCDataSource.trnRollback(conn);
-			throw new ApplicationException(e.toString());
-			
-		}catch(Exception e){
-			e.printStackTrace();
-		}finally{
-			JDBCDataSource.closeConnection(conn);
-		}
-		log.debug("Model update End");
+
+	/**
+	 * Updates the create information of a record.
+	 *
+	 * @throws ApplicationException If a database or application error occurs.
+	 */
+	public void updateCreatesInfo() throws ApplicationException {
+	    log.debug("Model updateCreatesInfo Started..." + createdBy);
+	    String sql = "UPDATE " + getTableName() + " SET CREATED_BY=?, CREATED_DATETIME=? WHERE ID=?";
+	    log.debug(sql);
+	    try (Connection conn = JDBCDataSource.getConnection();
+	         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+	        conn.setAutoCommit(false);
+	        pstmt.setString(1, createdBy);
+	        pstmt.setTimestamp(2, DataUtility.getCurrentTimestamp());
+	        pstmt.setLong(3, id);
+	        pstmt.executeUpdate();
+	        conn.commit();
+	    } catch (SQLException e) {
+	        log.error("Database Exception in updateCreatesInfo", e);
+	        JDBCDataSource.trnRollback(conn);
+	        throw new ApplicationException("Exception in updateCreatesInfo: " + e.getMessage());
+	    }
+	    log.debug("Model updateCreatesInfo End");
 	}
-	
-	public void updateModifiedInfo()throws Exception{
-		log.debug("Model update Startes");
-		Connection conn=null;
-		
-		
-		String sql="UPDATE"+getTableName()+"SET MODIFIED_BY=?,MODIFIED_DATETIME=? WHERE ID=?";
-		
-		try{
-			conn=JDBCDataSource.getConnection();
-			conn.setAutoCommit(false);
-			PreparedStatement pstmt=conn.prepareStatement(sql);
-			pstmt.setString(1, modifiedBy);
-			pstmt.setTimestamp(2,DataUtility.getCurrentTimestamp());
-			pstmt.setLong(3, id);
-			pstmt.executeUpdate();
-			conn.commit();
-			pstmt.close();
-		}catch(SQLException e){
-			log.error("Database Exception...",e);
-			JDBCDataSource.trnRollback(conn);
-			
-		}finally{
-			JDBCDataSource.closeConnection(conn);
-		}
-		log.debug("Model update End");
-		
+
+	/**
+	 * Updates the modified information of a record.
+	 *
+	 * @throws ApplicationException If a database or application error occurs.
+	 */
+	public void updateModifiedInfo() throws ApplicationException {
+	    log.debug("Model updateModifiedInfo Started");
+	    String sql = "UPDATE " + getTableName() + " SET MODIFIED_BY=?, MODIFIED_DATETIME=? WHERE ID=?";
+	    try (Connection conn = JDBCDataSource.getConnection();
+	         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+	        conn.setAutoCommit(false);
+	        pstmt.setString(1, modifiedBy);
+	        pstmt.setTimestamp(2, DataUtility.getCurrentTimestamp());
+	        pstmt.setLong(3, id);
+	        pstmt.executeUpdate();
+	        conn.commit();
+	    } catch (SQLException e) {
+	        log.error("Database Exception in updateModifiedInfo", e);
+	        JDBCDataSource.trnRollback(conn);
+	        throw new ApplicationException("Exception in updateModifiedInfo: " + e.getMessage());
+	    }
+	    log.debug("Model updateModifiedInfo End");
 	}
-	
-	
-	protected <T extends BaseModel> T populateModel(T model,ResultSet rs)throws SQLException{
-		model.setId(rs.getLong("ID"));
-		model.setCreatedBy(rs.getString("CREATED_BY"));
-		model.setModifiedBy(rs.getString("MODIFIED_BY"));
-		
-		model.setCreatedDatetime(rs.getTimestamp("CREATED_DATETIME"));
-		
-		model.setModifiedDateTime(rs.getTimestamp("MODIFIED_DATETIME"));
-		
-		return model;
-	}
-	
+
+	/**
+	 * Populates a BaseModel object with data from a ResultSet.
+	 *
+	 * @param <T>       The type of the BaseModel object.
+	 * @param model     The BaseModel object to populate.
+	 * @param pstmt     The PreparedStatement object.
+	 * @param rs        The ResultSet containing the data.
+	 * @return The populated BaseModel object.
+	 * @throws SQLException If a database access error occurs.
+	 */
+	protected abstract <T extends BaseModel> T populate(T model, PreparedStatement pstmt, ResultSet rs) throws SQLException;
 }

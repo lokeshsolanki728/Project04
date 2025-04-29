@@ -1,7 +1,6 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -14,7 +13,6 @@ import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Bean.UserBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
-import com.rays.pro4.Model.RoleModel;
 import com.rays.pro4.Model.UserModel;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.DataValidator;
@@ -22,7 +20,7 @@ import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;
 
 //TODO: Auto-generated Javadoc
-/**
+/** 
  * The Class UserCtl.
  * 
  * @author Lokesh SOlanki
@@ -30,43 +28,21 @@ import com.rays.pro4.Util.ServletUtility;
  */
 @WebServlet(name = "UserCtl", urlPatterns = { "/ctl/UserCtl" })
 public class UserCtl extends BaseCtl {
-
+	
 	private static final long serialVersionUID = 1L;
 
 	/** The log. */
 	private static Logger log = Logger.getLogger(UserCtl.class);
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see in.co.rays.ors.controller.BaseCtl#preload(javax.servlet.http.
-	 * HttpServletRequest)
-	 */
-	@Override
-	protected void preload(HttpServletRequest request) {
-		System.out.println("uctl preload");
-		RoleModel model = new RoleModel();
-		try {
-			List l = model.list();
-			request.setAttribute("roleList", l);
-		} catch (ApplicationException e) {
-			log.error(e);
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see in.co.rays.ors.controller.BaseCtl#validate(javax.servlet.http.
-	 * HttpServletRequest)
-	 */
+	
+	
+	
 	@Override
 	protected boolean validate(HttpServletRequest request) {
-		System.out.println("uctl Validate");
+		
 		log.debug("UserCtl Method validate Started");
 
 		boolean pass = true;
-
+		String op=DataUtility.getString(request.getParameter("operation"));
 		if (DataValidator.isNull(request.getParameter("firstName"))) {
 			request.setAttribute("firstName", PropertyReader.getValue("error.require", "First Name"));
 			pass = false;
@@ -88,7 +64,7 @@ public class UserCtl extends BaseCtl {
 		} else if (DataValidator.isNotNull(request.getParameter("login"))
 				&& !DataValidator.isEmail(request.getParameter("login"))) {
 			request.setAttribute("login", PropertyReader.getValue("error.email", "Login Id"));
-			pass = false;
+			pass=false;
 		}
 
 		if (DataValidator.isNull(request.getParameter("mobileNo"))) {
@@ -100,26 +76,24 @@ public class UserCtl extends BaseCtl {
 		}
 
 		long id = DataUtility.getLong(request.getParameter("id"));
-		if (id > 0) {
-
-		} else {
-			if (DataValidator.isNull(request.getParameter("password"))) {
-				request.setAttribute("password", PropertyReader.getValue("error.require", "Password"));
+		if(id>0){
+			
+		}else{		
+		if (DataValidator.isNull(request.getParameter("password"))) {
+				request.setAttribute("password", PropertyReader.getValue("error.require", "Password"));		
 				pass = false;
 			} else if (!DataValidator.isPassword(request.getParameter("password"))) {
-				request.setAttribute("password",
-						"Password contain 8 letters with alpha-numeric,capital latter & special Character");
-				pass = false;
+				request.setAttribute("password",PropertyReader.getValue("error.password"));
+				pass=false;
 			}
-
-			if (DataValidator.isNull(request.getParameter("confirmPassword"))) {
-				request.setAttribute("confirmPassword", PropertyReader.getValue("error.require", "Confirm Password"));
+			
+			if(DataValidator.isNull(request.getParameter("confirmPassword"))){
+				request.setAttribute("confirmPassword",PropertyReader.getValue("error.require","Confirm Password"));
 				pass = false;
-			} else if (!DataValidator.isPassword(request.getParameter("password"))) {
-				request.setAttribute("password", "Password contain 8 letters with alpha-numeric & special Character");
-				pass = false;
-			} else if (!request.getParameter("password").equals(request.getParameter("confirmPassword"))) {
-				request.setAttribute("confirmPassword", "New password and Confirm password must be same!!");
+			}else if(!request.getParameter("password").equals(request.getParameter("confirmPassword"))){
+				request.setAttribute("confirmPassword","New password and confirm password must be same");
+				
+				
 				pass = false;
 			}
 
@@ -146,15 +120,7 @@ public class UserCtl extends BaseCtl {
 		log.debug("UserCtl Method validate Ended");
 
 		return pass;
-
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see in.co.rays.ors.controller.BaseCtl#populateBean(javax.servlet.http.
-	 * HttpServletRequest)
-	 */
 
 	protected BaseBean populateBean(HttpServletRequest request) {
 		System.out.println(" uctl Base bean P bean");
@@ -181,15 +147,8 @@ public class UserCtl extends BaseCtl {
 		bean.setMobileNo(DataUtility.getString(request.getParameter("mobileNo")));
 
 		bean.setDob(DataUtility.getDate(request.getParameter("dob")));
-		System.out.println("dob" + bean.getDob());
-
+		
 		populateDTO(bean, request);
-
-		log.debug("UserCtl Method populatebean Ended");
-
-		return bean;
-
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -202,13 +161,13 @@ public class UserCtl extends BaseCtl {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		log.debug("UserCtl Method doGet Started");
-		System.out.println("u ctl do get 1111111");
+		
 		String op = DataUtility.getString(request.getParameter("operation"));
 		// get model
 		UserModel model = new UserModel();
 		long id = DataUtility.getLong(request.getParameter("id"));
 		if (id > 0 || op != null) {
-			System.out.println("in id > 0  condition");
+		
 			UserBean bean;
 			try {
 				bean = model.findByPK(id);
@@ -235,12 +194,12 @@ public class UserCtl extends BaseCtl {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		System.out.println("uctl Do Post");
+		
 
 		log.debug("UserCtl Method doPost Started");
 
 		String op = DataUtility.getString(request.getParameter("operation"));
-		long id = DataUtility.getLong(request.getParameter("id"));
+		long id = DataUtility.getLong(request.getParameter("id"));	
 
 		System.out.println(">>>><<<<>><<><<><<><>**********" + id + op);
 
@@ -251,55 +210,39 @@ public class UserCtl extends BaseCtl {
 
 			try {
 				if (id > 0) {
-
-					// System.out.println("hi i am in dopost update");
 					model.update(bean);
-					ServletUtility.setBean(bean, request);
-					System.out.println(" U ctl DoPost 222222");
-					ServletUtility.setSuccessMessage("User is successfully Updated", request);
+					ServletUtility.setSuccessMessage(PropertyReader.getValue("success.user.update"), request);
 
 				} else {
-					System.out.println(" U ctl DoPost 33333");
-					long pk = model.add(bean);
-					// bean.setId(pk);
-					// ServletUtility.setBean(bean, request);
-
-					ServletUtility.setSuccessMessage("User is successfully Added", request);
-					//ServletUtility.forward(getView(), request, response);
-					bean.setId(pk);
+					model.add(bean);
+					ServletUtility.setSuccessMessage(PropertyReader.getValue("success.user.add"), request);	
 				}
-				/*
-				 * ServletUtility.setBean(bean, request);
-				 * ServletUtility.setSuccessMessage("User is successfully saved", request);
-				 */
+				
+				ServletUtility.setBean(bean, request);
+				ServletUtility.forward(getView(), request, response);
+				return;
 
 			} catch (ApplicationException e) {
 				log.error(e);
 				ServletUtility.handleException(e, request, response);
 				return;
 			} catch (DuplicateRecordException e) {
-				System.out.println(" U ctl D post 4444444");
-				ServletUtility.setBean(bean, request);
-				ServletUtility.setErrorMessage("Login id already exists", request);
+				log.error(e);
+				ServletUtility.setBean(bean, request);				
+				ServletUtility.setErrorMessage(PropertyReader.getValue("error.user.login.duplicate"), request);
 			}
 		} else if (OP_DELETE.equalsIgnoreCase(op)) {
-			System.out.println(" U ctl D p 5555555");
-
 			UserBean bean = (UserBean) populateBean(request);
 			try {
 				model.delete(bean);
-				System.out.println(" u ctl D Post  6666666");
 				ServletUtility.redirect(ORSView.USER_CTL, request, response);
 				return;
 			} catch (ApplicationException e) {
-				log.error(e);
+				log.error(e);	
 				ServletUtility.handleException(e, request, response);
-				return;
+				return;	
 			}
-
 		} else if (OP_CANCEL.equalsIgnoreCase(op)) {
-			System.out.println(" U  ctl Do post 77777");
-
 			ServletUtility.redirect(ORSView.USER_LIST_CTL, request, response);
 			return;
 		}
@@ -307,12 +250,8 @@ public class UserCtl extends BaseCtl {
 		ServletUtility.forward(getView(), request, response);
 
 
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see in.co.rays.ors.controller.BaseCtl#getView()
+	
+	}	
 	 */
 	@Override
 	protected String getView() {

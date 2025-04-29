@@ -1,7 +1,5 @@
 package com.rays.pro4.controller;
 
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -14,15 +12,12 @@ import org.apache.log4j.Logger;
 import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Bean.FacultyBean;
 import com.rays.pro4.Exception.ApplicationException;
-import com.rays.pro4.Model.CollegeModel;
-import com.rays.pro4.Model.CourseModel;
 import com.rays.pro4.Model.FacultyModel;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;
 
-//TODO: Auto-generated Javadoc
-/**
+/** 
 * The Class FacultyListCtl.
 *  @author Lokesh SOlanki
 */
@@ -31,37 +26,14 @@ public class FacultyListCtl extends BaseCtl{
 
 
 	/** The log. */
-	private static Logger log = Logger.getLogger(FacultyListCtl.class);
+	public static Logger log = Logger.getLogger(FacultyListCtl.class);
 	
-	 /* (non-Javadoc)
- 	 * @see in.co.rays.ors.controller.BaseCtl#preload(javax.servlet.http.HttpServletRequest)
- 	 */
- 	@Override
-	    protected void preload(HttpServletRequest request){
-	       
-	       CollegeModel cmodel = new CollegeModel();
-	    	CourseModel comodel= new CourseModel();
-	    	
-	    	try{
-	    	    List clist= cmodel.list();
-	    	    List colist= comodel.list();
-	    	    
-	    	    request.setAttribute("CollegeList",clist);
-	            request.setAttribute("CourseList",colist);
-	            }
-	            catch(ApplicationException e){
-	            e.printStackTrace();
-	            } catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-	            }
+	@Override
+	protected boolean validate(HttpServletRequest request) {
+		return true;
+		
+	}
 	    
-	
-
-	/* (non-Javadoc)
-	 * @see in.co.rays.ors.controller.BaseCtl#populateBean(javax.servlet.http.HttpServletRequest)
-	 */
 	protected BaseBean populateBean(HttpServletRequest request) {
 
 		FacultyBean bean = new FacultyBean();
@@ -69,14 +41,31 @@ public class FacultyListCtl extends BaseCtl{
 		bean.setFirstName(DataUtility.getString(request.getParameter("firstname")));
 		bean.setLastName(DataUtility.getString(request.getParameter("lastname")));
 		bean.setEmailId(DataUtility.getString(request.getParameter("login")));
-		System.out.println("in populate ------------");
 		bean.setCollegeId(DataUtility.getLong(request.getParameter("collegeid")));
-		System.out.println(bean.getCollegeId());
 		bean.setCourseId(DataUtility.getLong(request.getParameter("courseid")));
 		
 	return bean;
 	}
-    
+	private void setListAndPagination(List list, HttpServletRequest request, int pageNo, int pageSize) {
+		try {
+			ServletUtility.setList(list, request);
+			ServletUtility.setPageNo(pageNo, request);
+			ServletUtility.setPageSize(pageSize, request);
+			ServletUtility.forward(getView(), request, response);
+		} catch (ApplicationException e) {
+			log.error(e);
+			ServletUtility.handleException(e, request, response);
+			return;
+		}
+	}
+	@Override
+	protected String getView() {
+		return ORSView.FACULTY_LIST_VIEW;
+	}
+	
+	
+	
+
     /**
      * Contains Display logics.
      *
@@ -86,48 +75,43 @@ public class FacultyListCtl extends BaseCtl{
      * @throws IOException Signals that an I/O exception has occurred.
      */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-	    
+			throws javax.servlet.ServletException, java.io.IOException {
+		
+		log.debug("Do get method of FacultyCtl Started");
 		List list;
 		List nextList=null;
 		
 		int pageNo = 1;
-		int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));
+		int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));		
 		
 		FacultyModel model = new FacultyModel();
 		FacultyBean bean = (FacultyBean) populateBean(request);
 		
 		String op = DataUtility.getString(request.getParameter("operation"));
-	  //  String[] ids = request.getParameterValues("ids");
-	    	
-		
 		try {
 			list = model.search(bean, pageNo, pageSize);
 			
 			  nextList=model.search(bean,pageNo+1,pageSize);
-				
-				request.setAttribute("nextlist", nextList.size());
-				
-			ServletUtility.setList(list, request);
+			  request.setAttribute("nextlist", nextList.size());
+			
 			if (list == null || list.size() == 0) {
-                ServletUtility.setErrorMessage("No record found ", request);
+                ServletUtility.setErrorMessage(PropertyReader.getValue("error.norrecord"), request);
             }
 			ServletUtility.setList(list, request);
 	        ServletUtility.setPageNo(pageNo, request);
 	        ServletUtility.setPageSize(pageSize, request);
 	        ServletUtility.forward(getView(), request, response);
 	        
-        } catch (ApplicationException e) {
-			e.printStackTrace();
-        	log.error(e);
+        } catch (ApplicationException e) {			
+        	log.error(e);        	
 			ServletUtility.handleException(e, request, response);
 			return ;
 		}
 	    
-		log.debug(" DoGet Method of Faculty Model End");
+		log.debug("Do get method of FacultyCtl End");
 	}
     
-    /**
+    /** 
      * Contains Submit logics.
      *
      * @param request the request
@@ -138,12 +122,12 @@ public class FacultyListCtl extends BaseCtl{
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		List list;
+		log.debug("do Post method of FacultyCtl Started");
+		List list=null;
 		List nextList = null;
-
 		int pageNo = DataUtility.getInt(request.getParameter("pageNo"));
-		int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));
-		pageNo = (pageNo == 0) ? 1 : pageNo;
+		int pageSize = DataUtility.getInt(request.getParameter("pageSize"));
+		pageNo = (pageNo==0)?1:pageNo;
 		pageSize = (pageSize == 0) ? DataUtility.getInt(PropertyReader.getValue("page.size")) : pageSize;
 		
 		String op = DataUtility.getString(request.getParameter("operation"));
@@ -152,8 +136,7 @@ public class FacultyListCtl extends BaseCtl{
 		FacultyModel model = new FacultyModel();
 
 		String[] ids = (String[]) request.getParameterValues("ids");
-
-		
+		    
 		if (OP_SEARCH.equalsIgnoreCase(op)) {
 			pageNo = 1;
 		} else if (OP_NEXT.equalsIgnoreCase(op)) {
@@ -172,62 +155,42 @@ public class FacultyListCtl extends BaseCtl{
 			return;
 		}
 
-		else if (OP_DELETE.equalsIgnoreCase(op)) {
+		else if (OP_DELETE.equalsIgnoreCase(op)) {			
 			pageNo = 1;
 			if (ids != null && ids.length != 0) {
 				FacultyBean deletebean = new FacultyBean();
+				
 				for (String id : ids) {
 					deletebean.setId(DataUtility.getInt(id));
-					try {
-						model.delete(deletebean);
-					} catch (ApplicationException e) {
-						e.printStackTrace();
-						log.error(e);
-						ServletUtility.handleException(e, request, response);
-						return;
-					}
-					ServletUtility.setSuccessMessage("Data Deleted Succesfully", request);
+					
+				}try {
+					model.delete(deletebean);
+				} catch (ApplicationException e) {					
+					log.error(e);
+					ServletUtility.handleException(e, request, response);
+					return;
 				}
-
+				ServletUtility.setSuccessMessage(PropertyReader.getValue("success.faculty.delete"), request);
 			} else {
-				ServletUtility.setErrorMessage("Select at least one record", request);
+				ServletUtility.setErrorMessage(PropertyReader.getValue("error.require.selectone"), request);
 			}
-		}
+		}		
 		try {
-			list = model.search(bean, pageNo, pageSize);
-
+			list = model.search(bean, pageNo, pageSize);			
 			nextList = model.search(bean, pageNo + 1, pageSize);
-
 			request.setAttribute("nextlist", nextList.size());
-
-			ServletUtility.setBean(bean, request);
+			
 		} catch (ApplicationException e) {
-			e.printStackTrace();
+			log.error(e);
 			ServletUtility.handleException(e, request, response);
 			return;
 		}
 
-		if (list == null || list.size() == 0 && !OP_DELETE.equalsIgnoreCase(op)) {
-			ServletUtility.setErrorMessage("No Record Found", request);
-						}
-		HashMap<String, Object> map = new HashMap<>();
-		map.put("list", list);
-		map.put("bean", bean);
-		map.put("pageNo", pageNo);
-		map.put("pageSize", pageSize);
-		ServletUtility.forward(getView(), request, response, map);
-	
-				System.out.println("===faculty list ctl==="+list.size()+list+op);
-				 log.debug("UserListCtl doPost End");	
+		if (list == null || list.size() == 0 && !OP_DELETE.equalsIgnoreCase(op)) {			
+			ServletUtility.setErrorMessage(PropertyReader.getValue("error.record.notfound"), request);
 		}
-
-	/* (non-Javadoc)
-	 * @see in.co.rays.ors.controller.BaseCtl#getView()
-	 */
-	@Override
-	protected String getView() {
-		return ORSView.FACULTY_LIST_VIEW;
+		ServletUtility.setBean(bean, request);		
+		setListAndPagination(list, request, pageNo, pageSize);		
+		log.debug("do Post method of FacultyCtl End");
 	}
-
-	
 }

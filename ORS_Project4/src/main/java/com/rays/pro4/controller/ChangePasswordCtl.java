@@ -1,7 +1,6 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -23,7 +22,7 @@ import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;
 
 
-//TODO: Auto-generated Javadoc
+
 /**
 * The Class ChangePasswordCtl.
 * 
@@ -40,11 +39,8 @@ public class ChangePasswordCtl extends BaseCtl{
 	/** The log. */
 	private static Logger log = Logger.getLogger(ChangePasswordCtl.class);
 
-	/* (non-Javadoc)
-	 * @see in.co.rays.ors.controller.BaseCtl#validate(javax.servlet.http.HttpServletRequest)
-	 */
 	@Override
-	protected boolean validate(HttpServletRequest request) {
+	protected boolean validate(HttpServletRequest request){
 
 		log.debug("ChangePasswordCtl Method validate Started");
 
@@ -57,70 +53,43 @@ public class ChangePasswordCtl extends BaseCtl{
 			return pass;
 		}
 		if (DataValidator.isNull(request.getParameter("oldPassword"))) {
-			request.setAttribute("oldPassword", PropertyReader.getValue("error.require", "Old Password"));
+			request.setAttribute("oldPassword", PropertyReader.getValue("error.require", "Old Password"));			
 			pass = false;
 		}
-	
-		/*else if (!DataValidator.isPassword(request.getParameter("oldPassword"))) {
-			  request.setAttribute("oldPassword","Password should contain 8 letter with alpha-numeric and special Character");
-			  pass = false; 
-			  }
-			 */
+		
 		if (DataValidator.isNull(request.getParameter("newPassword"))) {
 			request.setAttribute("newPassword", PropertyReader.getValue("error.require", "New Password"));
 			pass = false;
 		}
 		else if(request.getParameter("oldPassword").equals(request.getParameter("newPassword"))){
-		request.setAttribute("newPassword", "Old password and New password should not be same!!");
+		request.setAttribute("newPassword", PropertyReader.getValue("error.newPassword.oldPassword"));
 		pass = false;
 		}
 		
 		else if (!DataValidator.isPassword(request.getParameter("newPassword"))) {
-			  request.setAttribute("newPassword","Password should contain 8 letter with alpha-numeric,capital latter and special Character");
+			  request.setAttribute("newPassword",PropertyReader.getValue("error.password"));
 			  pass = false; 
 			  }
 			 
 		
 		if (DataValidator.isNull(request.getParameter("confirmPassword"))) {
 			request.setAttribute("confirmPassword", PropertyReader.getValue("error.require", "Confirm Password"));
+			pass = false;		
+		}	
+		else if (!DataValidator.isPassword(request.getParameter("confirmPassword"))) {
+			  request.setAttribute("confirmPassword",PropertyReader.getValue("error.password"));
+			  pass = false; 
+		}else if(!request.getParameter("newPassword").equals(request.getParameter("confirmPassword"))){
+			request.setAttribute("confirmPassword", PropertyReader.getValue("error.confirmPassword.notMatch"));
 			pass = false;
 		}
-	
-		else if (!DataValidator.isPassword(request.getParameter("confirmPassword"))) {
-			  request.setAttribute("confirmPassword","Password should contain 8 letter with alpha-numeric,capital latter and special Character");
-			  pass = false; 
-			  }
-		
-		else if(!request.getParameter("newPassword").equals(request.getParameter("confirmPassword"))){
-			request.setAttribute("confirmPassword", "New password and Confirm password must be same!!");
-			pass = false;
-			}
-			 
-		
-	/*	if (!request.getParameter("newPassword").equals(request.getParameter("confirmPassword"))
-				&& !"".equals(request.getParameter("confirmPassword"))) {
-			ServletUtility.setErrorMessage("New and confirm passwords should be matched", request);
-
-			pass = false;
-		}*/
-        
-		/*if (request.getParameter("oldPassword").equals(request.getParameter("newPassword")))
-				{
-			ServletUtility.setErrorMessage("Old and NewPasswords should not be same", request);
-
-			pass = false;
-		}*/
-
 		
 		log.debug("ChangePasswordCtl Method validate Ended");
 
 		return pass;
 	}
 
-	/* (non-Javadoc)
-	 * @see in.co.rays.ors.controller.BaseCtl#populateBean(javax.servlet.http.HttpServletRequest)
-	 */
-	@Override
+	@Override	
 	protected BaseBean populateBean(HttpServletRequest request) {
 		log.debug("ChangePasswordCtl Method populatebean Started");
 
@@ -138,10 +107,7 @@ public class ChangePasswordCtl extends BaseCtl{
 
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
-	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)	
 			throws ServletException, IOException {
 		ServletUtility.forward(getView(), request, response);
 	}
@@ -154,7 +120,7 @@ public class ChangePasswordCtl extends BaseCtl{
 		
 		HttpSession session = request.getSession(true);
 
-		Map<String, Object> params = new HashMap<>();
+		
 		log.debug("ChangePasswordCtl Method doGet Started");
 
 		String op = DataUtility.getString(request.getParameter("operation"));
@@ -176,16 +142,14 @@ public class ChangePasswordCtl extends BaseCtl{
 				if (flag == true) {
 					bean = model.findByLogin(UserBean.getLogin());
 					session.setAttribute("user", bean);
-					params.put("bean", bean);
-					params.put("success", "Password has been changed Successfully.");
+					ServletUtility.setSuccessMessage(PropertyReader.getValue("success.password.change"), request);
 				}
 			} catch (ApplicationException e) {
 				log.error(e);
 				ServletUtility.handleException(e, request, response);
 				return;
-
 			} catch (RecordNotFoundException ex) {
-				params.put("error", ex.getMessage());
+				ServletUtility.setErrorMessage(ex.getMessage(), request);
 			}
 		} else if (OP_CHANGE_MY_PROFILE.equalsIgnoreCase(op)) {
 			ServletUtility.redirect(ORSView.MY_PROFILE_CTL, request, response);
@@ -198,13 +162,11 @@ public class ChangePasswordCtl extends BaseCtl{
 		log.debug("ChangePasswordCtl Method doGet Ended");
 	}
 
-	/* (non-Javadoc)
-	 * @see in.co.rays.ors.controller.BaseCtl#getView()
-	 */
+	
 	@Override
 	protected String getView() {
 		return ORSView.CHANGE_PASSWORD_VIEW;
 	}
-	protected String setView() {return ORSView.CHANGE_PASSWORD_CTL; }
+	
 
 }

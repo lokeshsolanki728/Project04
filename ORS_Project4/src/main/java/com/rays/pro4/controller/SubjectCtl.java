@@ -1,5 +1,6 @@
 package com.rays.pro4.controller;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
@@ -20,7 +21,6 @@ import com.rays.pro4.Util.DataValidator;
 import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;
 
-//TODO: Auto-generated Javadoc
 /**
 * The Class SubjectCtl.
 * 
@@ -43,7 +43,6 @@ public class SubjectCtl extends BaseCtl{
 	 */
 	protected void preload(HttpServletRequest request){
 		
-		System.out.println("preload enter");
 		 
 		CourseModel cmodel = new CourseModel();
 	//	List<CourseBean> cList = new ArrayList<CourseBean>();
@@ -55,9 +54,8 @@ public class SubjectCtl extends BaseCtl{
 			e.printStackTrace();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e);
 		}
-		System.out.println("preload out");
 	}
 	
 	
@@ -66,7 +64,6 @@ public class SubjectCtl extends BaseCtl{
 	 */
 	protected boolean validate(HttpServletRequest request){
 		log.debug("validate Method of Subject Ctl start");
-		System.out.println("validate inn");
 		boolean pass= true;
 		
 		if(DataValidator.isNull(request.getParameter("name"))){
@@ -86,7 +83,6 @@ public class SubjectCtl extends BaseCtl{
 			 pass = false;
 		}
 		log.debug("validate Method of Subject Ctl  End");
-		System.out.println("validate out");
 		return pass;
 	}
 	
@@ -95,7 +91,6 @@ public class SubjectCtl extends BaseCtl{
 	 */
 	protected SubjectBean populateBean(HttpServletRequest request){
 		log.debug("Populate bean Method of Subject Ctl start");
-	System.out.println("populate bean enter");
 		SubjectBean bean = new SubjectBean();
 		
 		bean.setId(DataUtility.getLong(request.getParameter("id")));
@@ -106,7 +101,6 @@ public class SubjectCtl extends BaseCtl{
 		populateDTO(bean, request);
 		
 		log.debug("PopulateBean Method of Subject Ctl End");
-		System.out.println("populate bean out");
 		return bean;
 		
 	}
@@ -123,7 +117,6 @@ public class SubjectCtl extends BaseCtl{
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		log.debug("Do get Method of Subject Ctl start ");
-		System.out.println("do get in ");
 		String op = DataUtility.getString(request.getParameter("operation"));
 		
 		SubjectModel model = new SubjectModel();
@@ -141,7 +134,6 @@ public class SubjectCtl extends BaseCtl{
 				return;
 				}
 		}
-		System.out.println("do get out");
 		log.debug("Do get Method of Subject Ctl End");
 		ServletUtility.forward(getView(), request, response);
 	}
@@ -165,27 +157,27 @@ public class SubjectCtl extends BaseCtl{
 		
 		if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {	
 			SubjectBean bean = (SubjectBean)populateBean(request);
-		//	System.out.println("post in operaion save  ");
 		try{	
 			if(id > 0){
 				model.update(bean);
-				ServletUtility.setBean(bean, request);
-				ServletUtility.setSuccessMessage(" Subject is Succesfully Updated ", request);
+				ServletUtility.setSuccessMessage(PropertyReader.getValue("success.subject.update"), request);
 			
 			}else{
-				long pk = model.add(bean);
-				ServletUtility.setSuccessMessage(" Subject is Succesfully Added ", request);
-		//		bean.setId(pk);
+				model.add(bean);
+				ServletUtility.setSuccessMessage(PropertyReader.getValue("success.subject.add"), request);
+		
 			}
 			ServletUtility.setBean(bean, request);
-			//ServletUtility.setSuccessMessage(" Subject is Succesfully Added ", request);
+			ServletUtility.forward(getView(), request, response);
+			return;
 		}catch(ApplicationException e){
 			log.error(e);
 			ServletUtility.handleException(e, request, response);
 			return;
 		} catch (DuplicateRecordException e) {
+			log.error(e);
 			ServletUtility.setBean(bean, request);
-			ServletUtility.setErrorMessage("Subject name already Exsist", request);
+			ServletUtility.setErrorMessage(PropertyReader.getValue("error.subject.duplicate"), request);
 			}
 		}
 		else if (OP_RESET.equalsIgnoreCase(op)) {
@@ -210,7 +202,6 @@ public class SubjectCtl extends BaseCtl{
 		}*/
 		
 	
-		ServletUtility.forward(getView(), request, response);
 		log.debug("Do post Method of Subject Ctl End");
 	}
 	

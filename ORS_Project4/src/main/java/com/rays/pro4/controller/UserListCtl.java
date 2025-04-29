@@ -1,6 +1,7 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -19,41 +20,17 @@ import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;
 
-//TODO: Auto-generated Javadoc
+
 /**
-* User List functionality Controller. Performs operation for list, search and
-* delete operations of User
-* 
-*  @author Lokesh SOlanki
-*/
+ * The Class UserListCtl.
+ * @author Lokesh SOlanki
+ */
 @WebServlet(name = "UserListCtl", urlPatterns = { "/ctl/UserListCtl" })
 public class UserListCtl extends BaseCtl{
 
 	private static Logger log = Logger.getLogger(UserListCtl.class);
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see in.co.rays.ors.controller.BaseCtl#preload(javax.servlet.http.
-	 * HttpServletRequest)
-	 */
-	@Override
-	protected void preload(HttpServletRequest request) {
-
-		RoleModel rmodel = new RoleModel();
-		UserModel umodel = new UserModel();
-
-		try {
-			List rlist = rmodel.list(0,0);
-			List ulist = umodel.list(0,0);
-
-			request.setAttribute("RoleList", rlist);
-			request.setAttribute("LoginId", ulist);
-
-		} catch (ApplicationException e) {
-			e.printStackTrace();
-		}
-	}
+	
 
 	/*
 	 * (non-Javadoc)
@@ -72,16 +49,25 @@ public class UserListCtl extends BaseCtl{
 		bean.setDob(DataUtility.getDate(request.getParameter("dob")));
 
 
-		return bean;
+		return bean;		
 	}
-
+	
 	/**
-	 * Contains Display logics.
+	 * Validate input Data Entered By User.
 	 *
-	 * @param request  the request
-	 * @param response the response
-	 * @throws ServletException the servlet exception
-	 * @throws IOException      Signals that an I/O exception has occurred.
+	 * @param request the request
+	 * @return true, if successful
+	 */
+	@Override
+	protected boolean validate(HttpServletRequest request) {
+		log.debug("UserListCtl Method validate Started");
+		
+		
+		
+		log.debug("UserListCtl Method validate ended");
+		return true;
+	}
+	/**	 * Contains Display logics.
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -95,15 +81,13 @@ public class UserListCtl extends BaseCtl{
 		UserBean bean = (UserBean) populateBean(request);
 		String op = DataUtility.getString(request.getParameter("operation"));
 
-//	        get the selected checkbox ids array for delete list
-
-		// String[] ids = request.getParameterValues("ids");
 		UserModel model = new UserModel();
 
 		try {
 			list = model.search(bean, pageNo, pageSize);
-			System.out.println("list" + list);
-
+			
+			
+			
 			nextList = model.search(bean, pageNo + 1, pageSize);
 
 			request.setAttribute("nextlist", nextList.size());
@@ -115,7 +99,7 @@ public class UserListCtl extends BaseCtl{
 			ServletUtility.setList(list, request);
 			ServletUtility.setPageNo(pageNo, request);
 			ServletUtility.setPageSize(pageSize, request);
-			//ServletUtility.setBean(bean, request);
+			
 			ServletUtility.forward(getView(), request, response);
 		} catch (ApplicationException e) {
 			log.error(e);
@@ -149,7 +133,8 @@ public class UserListCtl extends BaseCtl{
 		String op = DataUtility.getString(request.getParameter("operation"));
 		UserBean bean = (UserBean) populateBean(request);
 		// get the selected checkbox ids array for delete list
-		String[] ids = request.getParameterValues("ids");
+		String[] ids = request.getParameterValues("ids");	
+		
 		UserModel model = new UserModel();
 
 		if (OP_SEARCH.equalsIgnoreCase(op)) {
@@ -166,19 +151,18 @@ public class UserListCtl extends BaseCtl{
 			return;
 		} else if (OP_DELETE.equalsIgnoreCase(op)) {
 			pageNo = 1;
+			
 			if (ids != null && ids.length > 0) {
-				UserBean deletebean = new UserBean();
-				for (String id : ids) {
-					deletebean.setId(DataUtility.getInt(id));
-					try {
-						model.delete(deletebean);
-					} catch (ApplicationException e) {
-						log.error(e);
-						ServletUtility.handleException(e, request, response);
-						return;
-					}
-
-					ServletUtility.setSuccessMessage("User is Deleted Successfully", request);
+				UserBean deletebean = new UserBean();					
+				
+				for (String id : ids) {					
+					deletebean.setId(DataUtility.getInt(id));					
+				}				
+				try {
+					model.delete(deletebean);
+					ServletUtility.setSuccessMessage(PropertyReader.getValue("success.user.delete"), request);
+				}catch (ApplicationException e) {
+					log.error(e);
 				}
 			} else {
 				ServletUtility.setErrorMessage("Select at least one record", request);
@@ -186,7 +170,7 @@ public class UserListCtl extends BaseCtl{
 		}
 		try {
 
-			list = model.search(bean, pageNo, pageSize);
+			list = model.search(bean, pageNo, pageSize);			
 
 			nextList = model.search(bean, pageNo + 1, pageSize);
 
@@ -194,13 +178,15 @@ public class UserListCtl extends BaseCtl{
 
 		} catch (ApplicationException e) {
 			log.error(e);
+			ServletUtility.setErrorMessage(PropertyReader.getValue("error.norrecord"), request);
 			ServletUtility.handleException(e, request, response);
+			
 			return;
 		}
 		if (list == null || list.size() == 0 && !OP_DELETE.equalsIgnoreCase(op)) {
-			ServletUtility.setErrorMessage("No record found ", request);
+			ServletUtility.setErrorMessage(PropertyReader.getValue("error.norrecord"), request);
 		}
-		ServletUtility.setList(list, request);
+		ServletUtility.setList(list, request);		
 		ServletUtility.setBean(bean, request);
 		ServletUtility.setPageNo(pageNo, request);
 		ServletUtility.setPageSize(pageSize, request);

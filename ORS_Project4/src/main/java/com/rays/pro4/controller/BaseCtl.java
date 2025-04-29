@@ -1,6 +1,9 @@
  package com.rays.pro4.controller;
 
 import java.io.IOException;
+import java.util.MissingFormatArgumentException;
+import java.util.MissingResourceException;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 import javax.servlet.ServletException;
@@ -9,10 +12,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.rays.pro4.Bean.BaseBean;
-import com.rays.pro4.Bean.RoleBean;
 import com.rays.pro4.Bean.UserBean;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.DataValidator;
+import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;
 
 /**
@@ -24,6 +27,12 @@ import com.rays.pro4.Util.ServletUtility;
  */
 
 public abstract class BaseCtl extends HttpServlet {
+
+	/**	
+	 * Default serial version ID
+	 */
+	private static final long serialVersionUID = 1L;
+	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("com.rays.pro4.resources.System");
 
 	public static final String OP_SAVE = "Save";
 	public static final String OP_CANCEL = "Cancel";
@@ -56,8 +65,11 @@ public abstract class BaseCtl extends HttpServlet {
 	 * @param request
 	 * @return
 	 */
-	protected boolean validate(HttpServletRequest request) {
+	protected  boolean validate(HttpServletRequest request) {
+		
 		return true;
+		
+	}
 	}
 
 	/**
@@ -74,9 +86,8 @@ public abstract class BaseCtl extends HttpServlet {
 	 * @param request
 	 * @return
 	 */
-	protected BaseBean populateBean(HttpServletRequest request) {
-		return null;
-	}
+	protected abstract BaseBean populateBean(HttpServletRequest request) ;
+	
 
 	/**
 	 * Populates Generic attributes in DTO
@@ -87,19 +98,21 @@ public abstract class BaseCtl extends HttpServlet {
 	 */
 	protected BaseBean populateDTO(BaseBean dto, HttpServletRequest request) {
 		
-		ResourceBundle rb = ResourceBundle.getBundle("com.rays.pro4.resources.System");
-
-		String defaultUser = rb.getString("DEFAULT_USER");
+		String defaultUser= "root";
+		try {
+			defaultUser = RESOURCE_BUNDLE.getString("DEFAULT_USER");
+		} catch (MissingResourceException e) {
+			System.out.println("default user not found");
+		}
+				
+		Objects.requireNonNull(defaultUser, "default user can not be null");
 		
 		String createdBy = request.getParameter("createdBy");
-		String modifiedBy = null;
+		String modifiedBy = defaultUser;
 
 		UserBean userbean = (UserBean) request.getSession().getAttribute("user");
 
 		if (userbean == null) {
-			// If record is created without login
-			createdBy = defaultUser;
-			modifiedBy = defaultUser;
 		} else {
 
 			modifiedBy = userbean.getLogin();
@@ -130,33 +143,30 @@ public abstract class BaseCtl extends HttpServlet {
 	@Override
 	protected void service(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		System.out.println("Bctl service");
 
 		// Load the preloaded data required to display at HTML form
 		preload(request); 
 
 		String op = DataUtility.getString(request.getParameter("operation")); 
-		System.out.println("Bctl servi op" + op);
 		// Check if operation is not DELETE, VIEW, CANCEL, and NULL then
-		// perform input data validation
-
-		if (DataValidator.isNotNull(op) && !OP_CANCEL.equalsIgnoreCase(op) && !OP_VIEW.equalsIgnoreCase(op)
-				&& !OP_DELETE.equalsIgnoreCase(op) && !OP_RESET.equalsIgnoreCase(op)) {
-			System.out.println("Bctl 5 operation");
-			// Check validation, If fail then send back to page with error
+		// perform input data validation		
+		if (DataValidator.isNotNull(op) && !OP_CANCEL.equalsIgnoreCase(op) && !OP_VIEW.equalsIgnoreCase(op) && !OP_DELETE.equalsIgnoreCase(op) && !OP_RESET.equalsIgnoreCase(op)) {		
 			// messages
 
 			if (!validate(request)) {
-				System.out.println("Bctl validate ");
+				
 				BaseBean bean = (BaseBean) populateBean(request);
 				//wapis se inserted data dikhe jo phle in put kiya tha 
 				ServletUtility.setBean(bean, request);
 				ServletUtility.forward(getView(), request, response);
 				return;
 			}
+		}try {
+				super.service(request, response);
+		}catch (Exception e) {
+			ServletUtility.setErrorMessage(PropertyReader.getValue("error.default"), request);
+			ServletUtility.forward(getView(), request, response);
 		}
-		System.out.println("B ctl Super servi");
-		super.service(request, response);
 	}
 
 	/**
@@ -167,5 +177,4 @@ public abstract class BaseCtl extends HttpServlet {
 	protected abstract String getView();
 	
 	
-
 }
