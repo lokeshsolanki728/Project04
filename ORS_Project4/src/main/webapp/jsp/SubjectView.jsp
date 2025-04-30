@@ -1,106 +1,101 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@page import="com.rays.pro4.Bean.CourseBean"%>
 <%@page import="java.util.List"%>
-<%@page import="com.rays.pro4.Util.HTMLUtility"%>
-<%@page import="com.rays.pro4.controller.SubjectCtl"%>
 <%@page import="com.rays.pro4.Util.DataUtility"%>
+<%@ page import="com.rays.pro4.Util.HTMLUtility"%>
+<%@page import="com.rays.pro4.controller.ORSView"%>
+<%@page import="com.rays.pro4.controller.SubjectCtl"%>
 <%@page import="com.rays.pro4.Util.ServletUtility"%>
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1"%>
-<html>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html>
 <head>
 <link rel="icon" type="image/png" href="<%=ORSView.APP_CONTEXT%>/img/logo.png" sizes="16*16"/>
 <title> Subject Registration Page</title>
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
 
 
 </head>
 <body>
-<jsp:useBean id="bean" class="com.rays.pro4.Bean.SubjectBean" scope="request"></jsp:useBean>
-<form action="<%=ORSView.SUBJECT_CTL%>" method="post">
+<jsp:useBean id="bean" class="com.rays.pro4.Bean.SubjectBean" scope="request" />
+<form action="${pageContext.request.contextPath}${ORSView.SUBJECT_CTL}" method="post">
 
-<%@include file ="Header.jsp"%>
-	
+	<%@include file="Header.jsp"%>
+	<c:set var="CourseList" value="${requestScope.CourseList}" />
+	<center>
+		<h1>
+			<c:choose>
+				<c:when test="${not empty bean.id}">Update Subject</c:when>
+				<c:otherwise>Add Subject</c:otherwise>
+			</c:choose>
+		</h1>
+		<div>
+			<c:if test="${not empty successMessage}">
+				<div class="alert alert-success" role="alert">${successMessage}</div>
+			</c:if>
+			<c:if test="${not empty errorMessage}">
+				<div class="alert alert-danger" role="alert">${errorMessage}</div>
+			</c:if>
+		</div>
 
-	<%
-		List<CourseBean> cl =(List<CourseBean>) request.getAttribute("CourseList");
-	%>
-<center>
-	<h1>
-		<% if(bean != null && bean.getId() > 0 ) {%>
-			<tr><th>Update Subject</th></tr>
-		<%}else{ %>
-			<tr><th>Add Subject</th></tr>
-		<% }%>
-	</h1>
-<div>	
-	<h3>
-	<font style="color: green"><%=ServletUtility.getSuccessMessage(request) %>
-	</font>
-	</h3>
-	
-	<h3>
-	<font style="color: red"><%=ServletUtility.getErrorMessage(request)%>
-	</font>
-	</h3>
-</div>
-	
-	<input type="hidden" name="id" value="<%=bean.getId()%>">
- 	<input type="hidden" name="createdby" value="<%=bean.getCreatedBy()%>">
- 	<input type="hidden" name="modifiedby" value="<%=bean.getModifiedBy()%>">
- 	<input type="hidden" name="createddatetime" value="<%=bean.getCreatedDatetime()%>">
- 	<input type="hidden" name="modifieddatetime" value="<%=bean.getModifiedDatetime()%>">
- 	
-	<table>
-	
-	<tr>
-	<th align="left">Course Name <span style="color: red">*</span> :</th>
-	<td><%=HTMLUtility.getList("coursename", String.valueOf(bean.getCourseId()), cl) %>
-	</td><td style="position: fixed"><font  color="red"><%=ServletUtility.getErrorMessage("coursename",request) %>
-	</font></td></tr>
-	
-	 <tr><th style="padding: 3px"></th></tr>    
-	
-	<th align="left">Subject Name <span style="color: red">*</span> :</th>
-	<td><input type="text" name="name" placeholder="Enter Subject Name" size="25" value="<%=DataUtility.getStringData(bean.getSubjectName())%>">
-	</td><td style="position: fixed"><font  color="red"><%=ServletUtility.getErrorMessage("name",request) %>
-	</font>	</td></th></tr>
-	
-	 <tr><th style="padding: 3px"></th></tr> 
-	    
-	<th align="left">Description <span style="color: red">*</span> :</th>
-	<td><input type="text" name="description" placeholder="Enter Description" size="25" value="<%=DataUtility.getStringData(bean.getDescription())%>">
-	</td><td style="position: fixed"><font color="red"><%=ServletUtility.getErrorMessage("description",request) %>
-	</font></td></th></tr>
-	
-	 <tr><th style="padding: 3px"></th></tr>    
-	 
-	<tr><th></th>
-	<%
-		if(bean.getId() > 0){	%>
-	<td>
-	 &nbsp;  &emsp;
-	<input type="submit" name="operation" value="<%=SubjectCtl.OP_UPDATE %>">
-	 &nbsp;  &nbsp;
-	<input type="submit" name="operation" value="<%=SubjectCtl.OP_CANCEL %>">	
-	</td>
-	<%}else{ %>
-	
-	<td>
-	 &nbsp;  &emsp;
-	<input type="submit" name="operation" value="<%=SubjectCtl.OP_SAVE %>">
-	 &nbsp;  &nbsp;
-	<input type="submit" name="operation" value="<%=SubjectCtl.OP_RESET %>">	
-	</td>
-	<%} %>
-	
-	</tr>
-	</table>
+		<input type="hidden" name="id" value="${bean.id}"> <input type="hidden"
+			name="createdby" value="${bean.createdBy}"> <input
+			type="hidden" name="modifiedby" value="${bean.modifiedBy}"> <input
+			type="hidden" name="createddatetime" value="${bean.createdDatetime}">
+		<input type="hidden" name="modifieddatetime"
+			value="${bean.modifiedDatetime}">
 
+		<table>
 
-</form>
-</br>
-</br>
-</center>
+			<tr>
+				<th align="left"><label for="coursename">Course Name<span class="required">*</span> :</label></th>
+				<td>${HTMLUtility.getList("coursename", bean.courseId, CourseList)}</td>
+				<td><font color="red"><div class="error-message">${requestScope.coursename}</div></font></td>
+			</tr>
 
-<%@include file ="Footer.jsp"%>
+			<tr>
+				<th style="padding: 3px"></th>
+			</tr>
+
+			<tr>
+				<th align="left"><label for="name">Subject Name <span class="required">*</span> :</label></th>
+				<td><input type="text" name="name" id="name"
+					placeholder="Enter Subject Name" class="form-control" value="${bean.subjectName}"></td>
+				<td><font color="red"><div class="error-message">${requestScope.name}</div></font></td>
+			</tr>
+
+			<tr>
+				<th style="padding: 3px"></th>
+			</tr>
+
+			<tr>
+				<th align="left"><label for="description">Description<span class="required">*</span> :</label></th>
+				<td><input type="text" name="description" id="description"
+					placeholder="Enter Description" class="form-control" value="${bean.description}"></td>
+				<td><font color="red"><div class="error-message">${requestScope.description}</div></font></td>
+			</tr>
+
+			<tr>
+				<th style="padding: 3px"></th>
+			</tr>
+	
+			<tr>
+				<th></th>
+				<td colspan="2"> &nbsp; &emsp; <c:choose>
+						<c:when test="${not empty bean.id}">
+							<input type="submit" name="operation" value="<%=SubjectCtl.OP_UPDATE%>"> &nbsp; &nbsp; <input type="submit" name="operation" value="<%=SubjectCtl.OP_CANCEL%>">
+						</c:when>
+						<c:otherwise>
+							<input type="submit" name="operation" value="<%=SubjectCtl.OP_SAVE%>"> &nbsp; &nbsp; <input type="submit" name="operation" value="<%=SubjectCtl.OP_RESET%>">
+						</c:otherwise>
+					</c:choose></td>
+			</tr>
+		</table>
+
+	</form>
+	</br> </br>
+	</center>
+
+	<%@include file="Footer.jsp"%>
 </body>
 </html>

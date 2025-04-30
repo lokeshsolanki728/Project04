@@ -1,55 +1,57 @@
 --- a/ORS_Project4/src/main/webapp/jsp/LoginView.jsp
 +++ b/ORS_Project4/src/main/webapp/jsp/LoginView.jsp
 
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 <%@page import="com.rays.pro4.controller.LoginCtl"%>
-<%@page import="com.rays.pro4.Util.DataUtility"%>
-<%@page import="com.rays.pro4.Util.ServletUtility"%>
 <%@page import="com.rays.pro4.controller.ORSView"%>
 
 <!DOCTYPE html>
 <html>
 <head>
+
 <meta charset="ISO-8859-1">
-<link rel="icon" type="image/png" href="<%=ORSView.APP_CONTEXT%>/img/logo.png" sizes="16*16" />
+<link rel="icon" type="image/png" href="${pageContext.request.contextPath}/img/logo.png" sizes="16*16" />
 <title>Login</title>
-<link rel="stylesheet" href="<%=ORSView.APP_CONTEXT%>/css/style.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
 </head>
 <body>
-    <form action="<%=ORSView.LOGIN_CTL%>" method="post">
+    <form action="${pageContext.request.contextPath}${ORSView.LOGIN_CTL}" method="post">
         <%@ include file="Header.jsp"%>
 
         <jsp:useBean id="bean" class="com.rays.pro4.Bean.UserBean" scope="request"></jsp:useBean>
 
-        <%
-            String uri = (String) request.getAttribute("URI");
-        %>
-        <input type="hidden" name="URI" value="<%=uri%>">
+      
+        <input type="hidden" name="URI" value="${URI}">
         <div class="container">
             <h1>Login</h1>
-            <div class="message">
-                <span class="success-message"><%=ServletUtility.getSuccessMessage(request)%></span>
-                <span class="error-message"><%=ServletUtility.getErrorMessage(request)%></span>
-            </div>
+          <c:if test="${not empty successMessage}">
+				<div class="success-message">${successMessage}</div>
+			</c:if>
+			<c:if test="${not empty errorMessage}">
+				<div class="error-message">${errorMessage}</div>
+			</c:if>
 
-            <div style="display: none;">
-                <input type="hidden" name="id" value="<%=bean.getId()%>">
-                <input type="hidden" name="createdBy" value="<%=bean.getCreatedBy()%>">
-                <input type="hidden" name="modifiedBy" value="<%=bean.getModifiedBy()%>">
-                <input type="hidden" name="createdDatetime" value="<%=DataUtility.getTimestamp(bean.getCreatedDatetime())%>">
-                <input type="hidden" name="modifiedDatetime" value="<%=DataUtility.getTimestamp(bean.getModifiedDatetime())%>">
+            <div class="hidden-inputs">
+                <input type="hidden" name="id" value="${bean.id}">
+                <input type="hidden" name="createdBy" value="${bean.createdBy}">
+                <input type="hidden" name="modifiedBy" value="${bean.modifiedBy}">
+                <input type="hidden" name="createdDatetime" value="${bean.createdDatetime}">
+                <input type="hidden" name="modifiedDatetime" value="${bean.modifiedDatetime}">
+           </div>
+
+            <div class="row">
+                <label for="login">LoginId <span class="required">*</span> </label>
+                <input type="text" id="login" name="login"  placeholder="Enter valid Email-Id" value="${bean.login}" class="form-control">
+              
+                <div class="error-message">${requestScope.login}</div>
             </div>
 
             <div class="row">
-                <label for="login">LoginId <span class="required">*</span> :</label>
-                <input type="text" id="login" name="login" size="30" placeholder="Enter valid Email-Id" value="<%=DataUtility.getStringData(bean.getLogin())%>">
-                <span class="error-message"><%=ServletUtility.getErrorMessage("login", request)%></span>
-            </div>
-
-            <div class="row">
-                <label for="password">Password <span class="required">*</span> :</label>
-                <input type="password" id="password" name="password" size="30" placeholder="Enter Password" value="<%=DataUtility.getStringData(bean.getPassword())%>">
-                <span class="error-message"><%=ServletUtility.getErrorMessage("password", request)%></span>
+                <label for="password">Password <span class="required">*</span></label>
+                <input type="password" id="password" name="password"  placeholder="Enter Password" value="${bean.password}" class="form-control">
+              
+               <div class="error-message">${requestScope.password}</div>
             </div>
 
             <div class="button-container">
@@ -58,7 +60,7 @@
             </div>
 
             <div>
-                <a href="<%=ORSView.FORGET_PASSWORD_CTL%>">Forget my password</a>
+                <a href="${pageContext.request.contextPath}${ORSView.FORGET_PASSWORD_CTL}">Forget my password</a>
             </div>
         </div>
     </form>

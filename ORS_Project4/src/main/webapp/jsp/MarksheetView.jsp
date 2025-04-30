@@ -1,13 +1,15 @@
-<%@page import="com.rays.pro4.controller.MarksheetCtl"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@page import="com.rays.pro4.controller.ORSView"%>
 <%@page import="java.util.List"%>
 <%@page import="com.rays.pro4.Util.HTMLUtility"%>
 <%@page import="com.rays.pro4.Util.DataUtility"%>
 <%@page import="com.rays.pro4.Util.ServletUtility"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html>
 <html>
-<head>
 <link rel="icon" type="image/png"
+	<link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
 	href="<%=ORSView.APP_CONTEXT%>/img/logo.png" sizes="16*16" />
 <title>Marksheet Register</title>
 
@@ -15,163 +17,91 @@
 <body>
 	<jsp:useBean id="bean" class="com.rays.pro4.Bean.MarksheetBean"
 		scope="request"></jsp:useBean>
-	<form action="<%=ORSView.MARKSHEET_CTL%>" method="post">
+	<%@ include file="Header.jsp"%>
+	<form action="${pageContext.request.contextPath}/MarksheetCtl" method="post">
+<c:set var="studentList" value="${requestScope.studentList}" />
 
-		<%@ include file="Header.jsp"%>
-
-
-		<%
-			List l = (List) request.getAttribute("studentList");
-		%>
-
-		<div align="center">
-			<%
-				if (bean != null && bean.getId() > 0) {
-			%>
-			<h1>Update Marksheet</h1>
-			<%
-				} else {
-			%>
-			<h1>Add Marksheet</h1>
-			<%
-				}
-			%>
-			<H2>
-				<font color="red"> <%=ServletUtility.getErrorMessage(request)%></font>
-				<font color="green"> <%=ServletUtility.getSuccessMessage(request)%></font>
-			</H2>
-		</div>
-		<center>
-			<input type="hidden" name="id" value="<%=bean.getId()%>"> <input
-				type="hidden" name="createdBy" value="<%=bean.getCreatedBy()%>">
-			<input type="hidden" name="modifiedBy"
-				value="<%=bean.getModifiedBy()%>"> <input type="hidden"
-				` name="createdDatetime"
-				value="<%=DataUtility.getTimestamp(bean.getCreatedDatetime())%>">
-			<input type="hidden" name="modifiedDatetime"
-				value="<%=DataUtility.getTimestamp(bean.getModifiedDatetime())%>">
-
-
-			<table align="center">
+		<div class="text-center">
+		<h1>
+			<c:choose>
+				<c:when test="${not empty bean.id}">Update Marksheet</c:when>
+				<c:otherwise>Add Marksheet</c:otherwise>
+			</c:choose>
+		</h1>
+	
+		<c:if test="${not empty errorMessage}">
+			<div class="alert alert-danger" role="alert">${errorMessage}</div>
+		</c:if>
+		<c:if test="${not empty successMessage}">
+			<div class="alert alert-success" role="alert">${successMessage}</div>
+		</c:if>
+	</div>
+		<div class="container">
+			<input type="hidden" name="id" value="${bean.id}"> <input type="hidden"
+				name="createdBy" value="${bean.createdBy}"> <input
+				type="hidden" name="modifiedBy" value="${bean.modifiedBy}">
+			<input type="hidden" name="createdDatetime" value="${bean.createdDatetime}">
+			<input type="hidden" name="modifiedDatetime" value="${bean.modifiedDatetime}">
+			<table>
 				<tr>
-					<th align="left">Rollno<span style="color: red">*</span> :
+					<th align="left"><label for="rollNo">Rollno<span class="required">*</span> :</label>
 					</th>
-					<td><input type="text" name="rollNo"
-						placeholder="Enter RollNo" size="25"
-						value="<%=DataUtility.getStringData(bean.getRollNo())%>"></td>
-					<td style="position: fixed;"><font color="red"> <%=ServletUtility.getErrorMessage("rollNo", request)%></font></td>
+					<td><input type="text" id="rollNo" name="rollNo" placeholder="Enter RollNo"
+						class="form-control" value="${bean.rollNo}"></td>
+					<td><div class="error-message">${requestScope.rollNo}</div></td>
 				</tr>
-
+				
 				<tr>
-					<th style="padding: 3px"></th>
-				</tr>
-
-				<tr>
-					<th align="left">Name <span style="color: red">*</span> :
+					<th align="left"><label for="studentld">Name <span class="required">*</span> :</label>
 					</th>
-					<td><%=HTMLUtility.getList("studentld", String.valueOf(bean.getStudentld()), l)%></td>
-
-					<td style="position: fixed"><font color="red"> <%=ServletUtility.getErrorMessage("studentId", request)%></font></td>
-
+					<td>${HTMLUtility.getList("studentld", bean.studentld,studentList)}</td>
+					<td><div class="error-message">${requestScope.studentId}</div></td>
 				</tr>
-
+				
 				<tr>
-					<th style="padding: 3px"></th>
-				</tr>
-
-				<tr>
-					<th align="left">Physics<span style="color: red">*</span> :
+					<th align="left"><label for="physics">Physics<span class="required">*</span> :</label>
 					</th>
-					<td><input type="number" name="physics" maxlength="3"
-						placeholder="Enter Physics Marks" style="width: 203px"
-						value="<%=(DataUtility.getStringData(bean.getPhysics()).equals("0") ? ""
-					: DataUtility.getStringData(bean.getPhysics()))%>">
-					</td>
-
-					<%--  <td><input  onkeypress="return isNumberKey(event)" type="text" name="physics" placeholder="Enter Physics Marks"  size="25"
-                        value="<%=DataUtility.getStringData(bean.getPhysics())%>">
-                        </td> --%>
-
-					<td style="position: fixed;"><font color="red"> <%=ServletUtility.getErrorMessage("physics", request)%></font></td>
+					<td><input type="number" id="physics" name="physics" maxlength="3"
+						placeholder="Enter Physics Marks" class="form-control"
+						value="${bean.physics eq '0' ? '' : bean.physics}"></td>
+					<td><div class="error-message">${requestScope.physics}</div></td>
 				</tr>
-
+				
 				<tr>
-					<th style="padding: 3px"></th>
-				</tr>
-
-				<tr>
-					<th align="left">Chemistry<span style="color: red">*</span> :
+					<th align="left"><label for="chemistry">Chemistry<span class="required">*</span> :</label>
 					</th>
-					<td><input type="number" name="chemistry" maxlength="3"
-						placeholder="Enter Chemistry Marks" style="width: 203px"
-						value="<%=(DataUtility.getStringData(bean.getChemistry()).equals("0") ? ""
-					: DataUtility.getStringData(bean.getChemistry()))%>">
-					</td>
-
-					<%--   <td><input  onkeypress="return isNumberKey(event)" type="text" name="chemistry" placeholder="Enter Chemistry Marks"  size="25"
-                        value="<%=DataUtility.getStringData(bean.getChemistry())%>">
-                        </td> --%>
-					<td style="position: fixed;"><font color="red"> <%=ServletUtility.getErrorMessage("chemistry", request)%></font></td>
+					<td><input type="number" id="chemistry" name="chemistry" maxlength="3"
+						placeholder="Enter Chemistry Marks" class="form-control"
+						value="${bean.chemistry eq '0' ? '' : bean.chemistry}"></td>
+					<td><div class="error-message">${requestScope.chemistry}</div></td>
 				</tr>
-
+				
 				<tr>
-					<th style="padding: 3px"></th>
-				</tr>
-
-				<tr>
-
-					<th align="left">Maths <span style="color: red">*</span> :
+					<th align="left"><label for="maths">Maths <span class="required">*</span> :</label>
 					</th>
-					<td><input type="number" name="maths" maxlength="3"
-						placeholder="Enter Maths Marks" style="width: 203px"
-						value="<%=(DataUtility.getStringData(bean.getMaths()).equals("0") ? ""
-					: DataUtility.getStringData(bean.getMaths()))%>">
-					</td>
-					<%--  <td><input  onkeypress="return isNumberKey(event)" type="text" name="maths" placeholder="Enter Maths Marks"  size="25"
-                         value="<%=DataUtility.getStringData(bean.getMaths())%>">
-                        </td> --%>
-					<td style="position: fixed;"><font color="red"><%=ServletUtility.getErrorMessage("maths", request)%></font></td>
-
+					<td><input type="number" id="maths" name="maths" maxlength="3"
+						placeholder="Enter Maths Marks" class="form-control"
+						value="${bean.maths eq '0' ? '' : bean.maths}"></td>
+					<td><div class="error-message">${requestScope.maths}</div></td>
 				</tr>
-
-				<tr>
-					<th style="padding: 3px"></th>
-				</tr>
-
+				
 				<tr>
 					<th></th>
-					<%
-						if (bean.getId() > 0 && bean != null) {
-					%>
-					<td>
-						<%-- <input type="submit" name ="operation" style="width:80px;height:30px" value="<%=MarksheetCtl.OP_UPDATE%>">
-          <input type="submit" name ="operation" style="width:80px;height:30px" value="<%=MarksheetCtl.OP_CANCEL%>"></td>
-           --%> &nbsp; <input type="submit" name="operation"
-						value="<%=MarksheetCtl.OP_UPDATE%>"> &nbsp; <input
-						type="submit" name="operation" value="<%=MarksheetCtl.OP_CANCEL%>">
-					</td>
-
-
-					<%
-						} else {
-					%>
-
-					<td colspan="2">
-						<%-- <input type="submit" name="operation" style="width:80px;height:30px"  value="<%=MarksheetCtl.OP_SAVE%>"> 
-   <input type="submit" name="operation" style="width:80px;height:30px "  value="<%=MarksheetCtl.OP_RESET%>"></td>
-     --%> &nbsp; &emsp; <input type="submit" name="operation"
-						value="<%=MarksheetCtl.OP_SAVE%>"> &nbsp;&nbsp; <input
-						type="submit" name="operation" value="<%=MarksheetCtl.OP_RESET%>">
-					</td>
-
-					<%
-						}
-					%>
+					<td colspan="2"><c:choose>
+							<c:when test="${not empty bean.id}">
+								 <input type="submit" name="operation" value="Update"> 
+								 <input type="submit" name="operation" value="Cancel">
+							</c:when>
+							<c:otherwise>
+								&nbsp; &emsp; <input type="submit" name="operation" value="Save">
+								 &nbsp;&nbsp; <input type="submit" name="operation" value="Reset">
+							</c:otherwise>
+						</c:choose></td>
 				</tr>
 			</table>
+		</div>
 	</form>
-	</center>
-
-	<%@include file="Footer.jsp"%>
+	
+<%@include file="Footer.jsp"%>
 </body>
 </html>

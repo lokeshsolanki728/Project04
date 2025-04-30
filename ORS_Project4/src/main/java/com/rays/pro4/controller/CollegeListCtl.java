@@ -42,6 +42,12 @@ public class CollegeListCtl extends BaseCtl{
         }
     }
     
+    /**
+     * Populates bean object from request parameters
+     * 
+     * @param request
+     * @return
+     */
     
 
     /* (non-Javadoc)

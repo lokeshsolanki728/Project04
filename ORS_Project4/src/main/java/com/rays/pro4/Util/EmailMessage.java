@@ -1,92 +1,187 @@
-
 package com.rays.pro4.Util;
 
 /**
- * Contains Email Message.
- * 
- * @author Lokesh SOlanki
+ * EmailMessage is a data holder class that encapsulates all the information
+ * required to send an email. It contains properties for the recipient, sender,
+ * subject, message content, and message type (HTML or plain text).
  *
+ * @author Lokesh SOlanki
  */
+public class EmailMessage implements java.io.Serializable {
 
-public class EmailMessage {
+    /**
+     * serialVersionUID is added
+     */
+    private static final long serialVersionUID = 1L;
 
-	
-	
-	private String to=null;
-	
-	private String from=null;
-	
-	private String cc=null;
-	
-	
-	
-	private String bcc=null;
-	
-	private String subject=null;
-	
-	private String message=null;
-	
-	private int messageType= TEXT_MSG;
-	
-	public static final int HTML_MSG=1;
-	
-	public static final int TEXT_MSG=2;
+    /**
+     * Email address of the recipient.
+     */
+    private String to = null;
 
-	public String getTo() {
-		return to;
-	}
+    /**
+     * Email address of the sender.
+     */
+    private String from = null;
 
-	public void setTo(String to) {
-		this.to = to;
-	}
+    /**
+     * Comma-separated list of CC email addresses.
+     */
+    private String cc = null;
 
-	public String getFrom() {
-		return from;
-	}
+    /**
+     * Comma-separated list of BCC email addresses.
+     */
+    private String bcc = null;
 
-	public void setFrom(String from) {
-		this.from = from;
-	}
+    /**
+     * Subject of the email.
+     */
+    private String subject = null;
 
-	public String getCc() {
-		return cc;
-	}
+    /**
+     * Body of the email message.
+     */
+    private String message = null;
 
-	public void setCc(String cc) {
-		this.cc = cc;
-	}
+    /**
+     * Type of the email message (HTML or plain text).
+     */
+    private int messageType = TEXT_MSG;
 
-	public String getBcc() {
-		return bcc;
-	}
+    /**
+     * Constant representing an HTML message type.
+     */
+    public static final int HTML_MSG = 1;
 
-	public void setBcc(String bcc) {
-		this.bcc = bcc;
-	}
+    /**
+     * Constant representing a plain text message type.
+     */
+    public static final int TEXT_MSG = 2;
 
-	public String getSubject() {
-		return subject;
-	}
+    /**
+     * Gets the email address of the recipient.
+     *
+     * @return The email address of the recipient.
+     */
+    public String getTo() {
+        return to;
+    }
 
-	public void setSubject(String subject) {
-		this.subject = subject;
-	}
+    /**
+     * Sets the email address of the recipient.
+     *
+     * @param to The email address of the recipient.
+     */
+    public void setTo(String to) {
+        this.to = to;
+    }
 
-	public String getMessage() {
-		return message;
-	}
+    /**
+     * Gets the email address of the sender.
+     *
+     * @return The email address of the sender.
+     */
+    public String getFrom() {
+        return from;
+    }
 
-	public void setMessage(String message) {
-		this.message = message;
-	}
+    /**
+     * Sets the email address of the sender.
+     *
+     * @param from The email address of the sender.
+     */
+    public void setFrom(String from) {
+        this.from = from;
+    }
 
-	public int getMessageType() {
-		return messageType;
-	}
+    /**
+     * Gets the comma-separated list of CC email addresses.
+     *
+     * @return The comma-separated list of CC email addresses.
+     */
+    public String getCc() {
+        return cc;
+    }
 
-	public void setMessageType(int messageType) {
-		this.messageType = messageType;
-	}
+    /**
+     * Sets the comma-separated list of CC email addresses.
+     *
+     * @param cc The comma-separated list of CC email addresses.
+     */
+    public void setCc(String cc) {
+        this.cc = cc;
+    }
 
-	
+    /**
+     * Gets the comma-separated list of BCC email addresses.
+     *
+     * @return The comma-separated list of BCC email addresses.
+     */
+    public String getBcc() {
+        return bcc;
+    }
+
+    /**
+     * Sets the comma-separated list of BCC email addresses.
+     *
+     * @param bcc The comma-separated list of BCC email addresses.
+     */
+    public void setBcc(String bcc) {
+        this.bcc = bcc;
+    }
+
+    /**
+     * Gets the subject of the email.
+     *
+     * @return The subject of the email.
+     */
+    public String getSubject() {
+        return subject;
+    }
+
+    /**
+     * Sets the subject of the email.
+     *
+     * @param subject The subject of the email.
+     */
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    /**
+     * Gets the body of the email message.
+     *
+     * @return The body of the email message.
+     */
+    public String getMessage() {
+        return message;
+    }
+
+    /**
+     * Sets the body of the email message.
+     *
+     * @param message The body of the email message.
+     */
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    /**
+     * Gets the type of the email message.
+     *
+     * @return The type of the email message.
+     */
+    public int getMessageType() {
+        return messageType;
+    }
+
+    /**
+     * Sets the type of the email message.
+     *
+     * @param messageType The type of the email message.
+     */
+    public void setMessageType(int messageType) {
+        this.messageType = messageType;
+    }
 }

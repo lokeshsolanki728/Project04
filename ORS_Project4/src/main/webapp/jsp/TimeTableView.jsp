@@ -1,20 +1,22 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@page import="com.rays.pro4.controller.TimetableCtl"%>
 <%@page import="java.util.LinkedHashMap"%>
-<%@page import="com.rays.pro4.Util.HTMLUtility"%>
 <%@page import="com.rays.pro4.Bean.TimeTableBean"%>
 <%@page import="java.util.List"%>
-<%@page import="com.rays.pro4.controller.TimetableListCtl"%>
 <%@page import="com.rays.pro4.Util.DataUtility"%>
+<%@page import="com.rays.pro4.controller.ORSView"%>
 <%@page import="com.rays.pro4.Util.ServletUtility"%>
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1"%>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html>
 <html>
 <head>
-<link rel="icon" type="image/png" href="<%=ORSView.APP_CONTEXT%>/img/logo.png" sizes="16*16"/>
-<title> TimeTable Register Page</title>
-
+<link rel="icon" type="image/png" href="${pageContext.request.contextPath}/img/logo.png" sizes="16*16" />
+<title>TimeTable Register Page</title>
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
+<meta charset="utf-8">
   <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-  <link rel="stylesheet" href="/resources/demos/style.css">
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/demos/style.css">
   <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
@@ -43,146 +45,133 @@
 	});	  </script>
 
 
-
+<style type="text/css">
+</style>
 </head>
 <body>
-<jsp:useBean id="bean" class="com.rays.pro4.Bean.TimeTableBean" scope="request"></jsp:useBean>
+	<jsp:useBean id="bean" class="com.rays.pro4.Bean.TimeTableBean" scope="request"></jsp:useBean>
 
-<form action="<%=ORSView.TIMETABLE_CTL %>" method="post">
+	<form action="${pageContext.request.contextPath}${ORSView.TIMETABLE_CTL}" method="post">
 
-	<%@include file="Header.jsp" %>
+		<%@include file="Header.jsp"%>
 
-<center>
-	<%
-	List <TimeTableBean> courseList =(List<TimeTableBean>)request.getAttribute("CourseList"); 
-	List <TimeTableBean> subjectList = (List<TimeTableBean>)request.getAttribute("SubjectList");
-	%>
-	
-	<input type="hidden" name="id" value="<%=bean.getId() %>">
-	<input type="hidden" name="createdby" value="<%=bean.getCreatedBy() %>">
-	<input type="hidden" name="modifiedby" value="<%=bean.getModifiedBy() %>">
-	<input type="hidden" name="createddatetime" value="<%=DataUtility.getTimestamp(bean.getCreatedDatetime()) %>">
-	<input type="hidden" name="modifiedby" value="<%=DataUtility.getTimestamp(bean.getModifiedDatetime())%>">
-	
-	<div align = "center">
-		<h1>
-			<% if(bean != null && bean.getId() >0 ){ %>
-			
-		<tr><th>Update TimeTable</th></tr>
-				
-			<% }else{ %>
-		
-		<tr ><th >Add TimeTable</th></tr>	
-			<% } %>
-		</h1>
-		
-	<h3 align="center"><font style="color: red"><%=ServletUtility.getErrorMessage(request)%></font></h3>
-	<h3 align="center"><font style="color: green"><%=ServletUtility.getSuccessMessage(request) %></font></h3>
-	</div>
+		<center>
+			<c:set var="courseList" value="${requestScope.CourseList}" />
+			<c:set var="subjectList" value="${requestScope.SubjectList}" />
 
-<table>
-	<tr>
-	<th align="left">Course <span style="color: red">*</span> :</th>
-	<td><%=HTMLUtility.getList("courseId", String.valueOf(bean.getCourseId()), courseList) %></td>
-	<td style="position: fixed;"><font color="red"><%=ServletUtility.getErrorMessage("courseId",request) %></font> 
-	</td></tr>
-	
- <tr><th style="padding: 3px"></th></tr>   
-	
-	<tr><th align="left">Subject <span style="color: red">*</span> :</th>
-	<td><%=HTMLUtility.getList("subjectId", String.valueOf(bean.getSubjectId()), subjectList) %></td>
-	<td style="position: fixed;"><font color="red"><%=ServletUtility.getErrorMessage("subjectId",request) %></font> 
-	</td></tr>
-	
- <tr><th style="padding: 3px"></th></tr>   
-	
-	<tr>
-	<th align="left">Semester<span style="color: red">*</span> :</th>
-	<td><%
-		LinkedHashMap<String , String> map = new LinkedHashMap< String , String>();
-		map.put("1st","1st");
-		map.put("2nd","2nd");
-		map.put("3rd","3rd");
-		map.put("4th","4th");
-		map.put("5th","5th");
-		map.put("6th","6th");
-		map.put("7th","7th");
-		map.put("8th","8th");
-	
-		String htmlList = HTMLUtility.getList("semester", bean.getSemester(), map);
-	%>
-	<%=htmlList %>
-	</td>
-	<td style="position: fixed;"><font color="red"><%=ServletUtility.getErrorMessage("semester",request) %></font> 
-	</td></tr>
-	
- <tr><th style="padding: 3px"></th></tr>  
-  
-	<tr><th align="left">Exam Date <span style="color: red">*</span> :</th>
-	<td> <input type="text" readonly="readonly" id="udate5" size="25" placeholder="Select Date" name="ExDate" value="<%=DataUtility.getDateString(bean.getExamDate()) %>">
-	<td style="position: fixed;"><font color="red"><%=ServletUtility.getErrorMessage("ExDate",request) %></font> 
-	</td></tr>
-	
- <tr><th style="padding: 3px"></th></tr>   
- 
-	<tr><th align="left">Exam Time <span style="color: red">*</span> :</th>
-	<td>
-	<%
-		LinkedHashMap<String , String > map1 = new LinkedHashMap<String  ,String >();
-		map1.put("08:00 AM to 11:00 AM","08:00 AM to 11:00 AM");
-		map1.put("12:00 PM to 03:00 PM","12:00 PM to 03:00 PM");
-		map1.put("04:00 PM to 07:00 PM","04:00 PM to 07:00 PM");
-	
-		String htmlList1 = HTMLUtility.getList("ExTime", bean.getExamTime(), map1);
-	%>
-	<%=htmlList1 %>
-	</td>
-	<td style="position: fixed;"><font color="red"><%=ServletUtility.getErrorMessage("ExTime",request) %></font> 
-	</td></tr>
-	
-<%-- 	<tr><th align = "right">Description <span style="color: red">*</span></th>
-	<td><input type="text" name="description" placeholder="Enter Description" size="25" value="<%=DataUtility.getStringData(bean.getDescription())%>">
-	
-	<%
-	if(bean != null && bean.getId()>0) {
-	%>
-	<%=DataUtility.getStringData(bean.getDescription()) %>
-	<% } %>
-	</td>
-	<td style="position: fixed;"><font color="red"><%=ServletUtility.getErrorMessage("description", request) %>	</font>	</td></tr>
-	
- --%>
- 
- 	<tr><th style="padding: 3px"></th>
-	<td></td></tr>
-	
-	<tr><th></th><td></td>
-	</tr>
-	
-	<tr align="center">	
-	<%
-	if(bean != null && bean.getId() > 0){
-	%>
-		<td colspan="2">
-		 &emsp; &emsp;  &emsp;
-		<input type="submit" name="operation" value="<%=TimetableCtl.OP_UPDATE%>">
-		 &nbsp;  &nbsp;
-		<input type="submit" name="operation" value="<%=TimetableCtl.OP_CANCEL%>">
-		</td>
-		<%} else { %>
-		
-		<td colspan="2">
-		 &nbsp;  &emsp;
-		<input type="submit" name="operation" value="<%=TimetableCtl.OP_SAVE%>">
-		 &nbsp;  &nbsp;
-		<input type="submit" name="operation" value="<%=TimetableCtl.OP_RESET%>">
-		</td>
-		<% } %>
-	</tr>
-</table>
-</form>	
-</center>
+			<input type="hidden" name="id" value="${bean.id}">
+			<input type="hidden" name="createdby" value="${bean.createdBy}">
+			<input type="hidden" name="modifiedby" value="${bean.modifiedBy}">
+			<input type="hidden" name="createddatetime" value="${bean.createdDatetime}">
+			<input type="hidden" name="modifiedby" value="${bean.modifiedDatetime}">
 
-	<%@include file="Footer.jsp" %>
+			<div align="center">
+				<h1>
+					<c:choose>
+						<c:when test="${not empty bean.id && bean.id > 0}">
+							Update TimeTable
+						</c:when>
+						<c:otherwise>
+							Add TimeTable
+						</c:otherwise>
+					</c:choose>
+				</h1>
+
+				<h3 align="center">
+					<div class="error-message">${requestScope.errorMessage}</div>
+				</h3>
+				<h3 align="center">
+					<div class="success-message">${requestScope.successMessage}</div>
+				</h3>
+			</div>
+
+			<table>
+				<tr >
+					<th align="left"><label for="courseId">Course <span class="required">*</span> :</label></th>
+					<td>${HTMLUtility.getList("courseId", bean.courseId, courseList)}</td>
+					<td class="error-message">${requestScope.courseId}</td>
+				</tr>
+
+				<tr>
+					<th style="padding: 3px"></th>
+				</tr>
+
+				<tr>
+					<th align="left"><label for="subjectId">Subject <span class="required">*</span> :</label></th>
+					<td>${HTMLUtility.getList("subjectId", bean.subjectId, subjectList)}</td>
+					<td class="error-message">${requestScope.subjectId}</td>
+				</tr>
+
+				<tr>
+					<th style="padding: 3px"></th>
+				</tr>
+
+				<tr>
+					<th align="left"><label for="semester">Semester<span class="required">*</span> :</label></th>
+					<td><select name="semester" id="semester">
+							<option value="">Select Semester</option>
+							<option value="1st" ${bean.semester == '1st' ? 'selected' : ''}>1st</option>
+							<option value="2nd" ${bean.semester == '2nd' ? 'selected' : ''}>2nd</option>
+							<option value="3rd" ${bean.semester == '3rd' ? 'selected' : ''}>3rd</option>
+							<option value="4th" ${bean.semester == '4th' ? 'selected' : ''}>4th</option>
+							<option value="5th" ${bean.semester == '5th' ? 'selected' : ''}>5th</option>
+							<option value="6th" ${bean.semester == '6th' ? 'selected' : ''}>6th</option>
+							<option value="7th" ${bean.semester == '7th' ? 'selected' : ''}>7th</option>
+							<option value="8th" ${bean.semester == '8th' ? 'selected' : ''}>8th</option>
+						</select></td>
+					<td class="error-message">${requestScope.semester}</td>
+				</tr>
+
+				<tr>
+					<th style="padding: 3px"></th>
+				</tr>
+
+				<tr>
+					<th align="left"><label for="udate5">Exam Date <span class="required">*</span> :</label></th>
+					<td><input type="text" readonly="readonly" id="udate5" size="25" placeholder="Select Date" name="ExDate" value="${bean.examDate}"></td>
+					<td class="error-message">${requestScope.ExDate}</td>
+				</tr>
+
+				<tr>
+					<th style="padding: 3px"></th>
+				</tr>
+
+				<tr>
+					<th align="left"><label for="ExTime">Exam Time <span class="required">*</span> :</label></th>
+					<td><select name="ExTime" id="ExTime">
+					<option value="">Select Time</option>
+					<option value="08:00 AM to 11:00 AM" ${bean.examTime == '08:00 AM to 11:00 AM' ? 'selected' : ''}>08:00 AM to 11:00 AM</option>
+					<option value="12:00 PM to 03:00 PM" ${bean.examTime == '12:00 PM to 03:00 PM' ? 'selected' : ''}>12:00 PM to 03:00 PM</option>
+					<option value="04:00 PM to 07:00 PM" ${bean.examTime == '04:00 PM to 07:00 PM' ? 'selected' : ''}>04:00 PM to 07:00 PM</option>
+					</select>
+				</td>
+					<td class="error-message">${requestScope.ExTime}</td>
+				</tr>
+				<tr>
+					<th style="padding: 3px"></th>
+					<td></td>
+				</tr>
+
+				<tr align="center">
+					<c:choose>
+						<c:when test="${not empty bean.id && bean.id > 0}">
+							<td colspan="2">
+								&emsp; &emsp; &emsp; <input type="submit" name="operation" value="<%=TimetableCtl.OP_UPDATE%>"> &nbsp; &nbsp; <input
+								type="submit" name="operation" value="<%=TimetableCtl.OP_CANCEL%>">
+							</td>
+						</c:when>
+						<c:otherwise>
+							<td colspan="2">
+								&nbsp; &emsp; <input type="submit" name="operation" value="<%=TimetableCtl.OP_SAVE%>"> &nbsp; &nbsp; <input
+								type="submit" name="operation" value="<%=TimetableCtl.OP_RESET%>">
+							</td>
+						</c:otherwise>
+					</c:choose>
+				</tr>
+			</table>
+		</form>
+	</center>
+
+	<%@include file="Footer.jsp"%>
 </body>
 </html>

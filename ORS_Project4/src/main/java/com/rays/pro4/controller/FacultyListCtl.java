@@ -34,6 +34,12 @@ public class FacultyListCtl extends BaseCtl{
 		
 	}
 	    
+	/**
+	 * Populates bean object from request parameters
+	 * 
+	 * @param request
+	 * @return
+	 */
 	protected BaseBean populateBean(HttpServletRequest request) {
 
 		FacultyBean bean = new FacultyBean();
@@ -46,6 +52,14 @@ public class FacultyListCtl extends BaseCtl{
 		
 	return bean;
 	}
+	
+	/**
+	 * set list and pagination method
+	 * @param list
+	 * @param request
+	 * @param pageNo
+	 * @param pageSize
+	 */
 	private void setListAndPagination(List list, HttpServletRequest request, int pageNo, int pageSize) {
 		try {
 			ServletUtility.setList(list, request);
@@ -58,6 +72,11 @@ public class FacultyListCtl extends BaseCtl{
 			return;
 		}
 	}
+	/**
+	 * Returns the VIEW page of this Controller
+	 * 
+	 * @return
+	 */
 	@Override
 	protected String getView() {
 		return ORSView.FACULTY_LIST_VIEW;
@@ -74,6 +93,13 @@ public class FacultyListCtl extends BaseCtl{
      * @throws ServletException the servlet exception
      * @throws IOException Signals that an I/O exception has occurred.
      */
+	/**
+	 * Contains Display logics
+	 * @param request
+	 * @param response
+	 * @throws ServletException
+	 * @throws IOException
+	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws javax.servlet.ServletException, java.io.IOException {
 		
@@ -119,7 +145,13 @@ public class FacultyListCtl extends BaseCtl{
      * @throws ServletException the servlet exception
      * @throws IOException Signals that an I/O exception has occurred.
      */
-
+	/**
+	 * Contains Submit logics
+	 * @param request
+	 * @param response
+	 * @throws ServletException
+	 * @throws IOException
+	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		log.debug("do Post method of FacultyCtl Started");

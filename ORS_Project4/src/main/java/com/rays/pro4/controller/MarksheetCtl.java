@@ -29,7 +29,7 @@ import com.rays.pro4.Util.ServletUtility;
 *  @author Lokesh SOlanki
 */
 @WebServlet(name = "MarksheetCtl", urlPatterns = { "/ctl/MarksheetCtl" })
-public class MarksheetCtl extends BaseCtl{
+public class MarksheetCtl extends BaseCtl<MarksheetBean>{
 
 	private static Logger log = Logger.getLogger(MarksheetCtl.class);
 
@@ -50,6 +50,11 @@ public class MarksheetCtl extends BaseCtl{
 		}
 	}
 
+	/**
+	 * Validates input data entered by User
+	 * @param request
+	 * @return
+	 */
 	/* (non-Javadoc)
 	 * @see in.co.rays.ors.controller.BaseCtl#validate(javax.servlet.http.HttpServletRequest)
 	 */
@@ -122,11 +127,17 @@ public class MarksheetCtl extends BaseCtl{
 		return pass;
 	}
 
+	/**
+	 * Populates bean object from request parameters
+	 * 
+	 * @param request
+	 * @return
+	 */
 	/* (non-Javadoc)
 	 * @see in.co.rays.ors.controller.BaseCtl#populateBean(javax.servlet.http.HttpServletRequest)
 	 */
 	@Override
-	protected BaseBean populateBean(HttpServletRequest request) {
+	protected MarksheetBean populateBean(HttpServletRequest request) {
 
 		log.debug("MarksheetCtl Method populatebean Started");
 
@@ -140,7 +151,7 @@ public class MarksheetCtl extends BaseCtl{
 		bean.setMaths(DataUtility.getInt(request.getParameter("maths")));
 		bean.setStudentld(DataUtility.getLong(request.getParameter("studentld")));
 		
-	//	System.out.println(">>>>>>>>>>>>>" +request.getParameter("studentId"));
+		
 
 		populateDTO(bean, request);
 		System.out.println("Population done");
@@ -149,6 +160,12 @@ public class MarksheetCtl extends BaseCtl{
 		return bean;
 	}
 
+	/**
+	 * Contains Display logics
+	 * @param request
+	 * @param response
+	 * @throws ServletException
+	 * @throws IOException
 	/**
 	 * Contains Display logics.
 	 *
@@ -181,6 +198,12 @@ public class MarksheetCtl extends BaseCtl{
 	}
 
 	/**
+	 * Contains Submit logics
+	 * @param request
+	 * @param response
+	 * @throws ServletException
+	 * @throws IOException
+	/**
 	 * Contains Submit logics.
 	 *
 	 * @param request the request
@@ -201,6 +224,7 @@ public class MarksheetCtl extends BaseCtl{
 		MarksheetModel model = new MarksheetModel();
 
 		if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
+			if(OP_SAVE.equalsIgnoreCase(op)){bean.setId(0);}
 			try {
 				if (id > 0) {
 					model.update(bean);
@@ -240,6 +264,11 @@ public class MarksheetCtl extends BaseCtl{
 		log.debug("MarksheetCtl Method doPost Ended");
 	}
 
+	/**
+	 * Returns the VIEW page of this Controller
+	 * 
+	 * @return
+	 */
 	/* (non-Javadoc)
 	 * @see in.co.rays.ors.controller.BaseCtl#getView()
 	 */

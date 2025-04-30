@@ -33,13 +33,21 @@ public class ChangePasswordCtl extends BaseCtl{
 
 	private static final long serialVersionUID = 1L;
 
-	/** The Constant OP_CHANGE_MY_PROFILE. */
+	/**
+	 * Change My Profile operation constant
+	 */
 	public static final String OP_CHANGE_MY_PROFILE = "Change My Profile";
 
 	/** The log. */
 	private static Logger log = Logger.getLogger(ChangePasswordCtl.class);
 
-	@Override
+	/**
+	 * Validates input data entered by User
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@Override	
 	protected boolean validate(HttpServletRequest request){
 
 		log.debug("ChangePasswordCtl Method validate Started");
@@ -89,7 +97,13 @@ public class ChangePasswordCtl extends BaseCtl{
 		return pass;
 	}
 
-	@Override	
+	/**
+	 * Populates bean object from request parameters
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@Override
 	protected BaseBean populateBean(HttpServletRequest request) {
 		log.debug("ChangePasswordCtl Method populatebean Started");
 
@@ -107,13 +121,26 @@ public class ChangePasswordCtl extends BaseCtl{
 
 	}
 
+	/**
+	 * Contains Display logics
+	 * 
+	 * @param request
+	 * @param response
+	 * @throws ServletException
+	 * @throws IOException
+	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)	
 			throws ServletException, IOException {
 		ServletUtility.forward(getView(), request, response);
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+	/**
+	 * Contains Submit logics
+	 * 
+	 * @param request
+	 * @param response
+	 * @throws ServletException
+	 * @throws IOException
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -162,7 +189,11 @@ public class ChangePasswordCtl extends BaseCtl{
 		log.debug("ChangePasswordCtl Method doGet Ended");
 	}
 
-	
+	/**
+	 * Returns the VIEW page of this Controller
+	 * 
+	 * @return
+	 */
 	@Override
 	protected String getView() {
 		return ORSView.CHANGE_PASSWORD_VIEW;

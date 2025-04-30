@@ -29,6 +29,12 @@ public class CourseListCtl extends BaseCtl {
 	/** The log. */
 	public static Logger log = Logger.getLogger(CourseListCtl.class);
 
+	/**
+	 * Populates bean object from request parameters
+	 * 
+	 * @param request
+	 * @return
+	 */
 	@Override
 	protected BaseBean populateBean(HttpServletRequest request) {
 		CourseBean bean = new CourseBean();
@@ -37,6 +43,13 @@ public class CourseListCtl extends BaseCtl {
 		return bean;
 	}
 
+	/**
+	 * Contains Display logics
+	 * 
+	 * @param request
+	 * @param response
+	 * @throws ServletException
+	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws javax.servlet.ServletException, java.io.IOException {
 
@@ -68,6 +81,14 @@ public class CourseListCtl extends BaseCtl {
 		log.debug("do get method of CourseCtl End");
 	}
 
+	/**
+	 * set list and pagination method
+	 * 
+	 * @param list
+	 * @param request
+	 * @param pageNo
+	 * @param pageSize
+	 */
 	private void setListAndPagination(List list, HttpServletRequest request, int pageNo, int pageSize) {
 		try {
 			ServletUtility.setList(list, request);
@@ -84,6 +105,13 @@ public class CourseListCtl extends BaseCtl {
 		}		
 	}
 
+	/**
+	 * Contains Submit logics
+	 * 
+	 * @param request
+	 * @param response
+	 * @throws ServletException
+	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, java.io.IOException {
 
@@ -154,10 +182,22 @@ public class CourseListCtl extends BaseCtl {
 		log.debug("do Post method of CourseCtl End");
 	}
 
+	/**
+	 * Returns the VIEW page of this Controller
+	 * 
+	 * @return
+	 */
 	@Override
 	protected String getView() {
 		return ORSView.COURSE_LIST_VIEW;
 	}
+
+	/**
+	 * Validates input data entered by User
+	 * 
+	 * @param request
+	 * @return
+	 */
 
 	@Override
 	protected boolean validate(HttpServletRequest request) {

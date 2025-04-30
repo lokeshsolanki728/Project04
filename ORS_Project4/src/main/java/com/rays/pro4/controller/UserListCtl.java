@@ -1,6 +1,5 @@
 package com.rays.pro4.controller;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
+import java.io.IOException;
 import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Bean.UserBean;
 import com.rays.pro4.Exception.ApplicationException;
@@ -26,7 +26,7 @@ import com.rays.pro4.Util.ServletUtility;
  * @author Lokesh SOlanki
  */
 @WebServlet(name = "UserListCtl", urlPatterns = { "/ctl/UserListCtl" })
-public class UserListCtl extends BaseCtl{
+public class UserListCtl extends BaseCtl<UserBean>{
 
 	private static Logger log = Logger.getLogger(UserListCtl.class);
 
@@ -38,35 +38,44 @@ public class UserListCtl extends BaseCtl{
 	 * @see in.co.rays.ors.controller.BaseCtl#populateBean(javax.servlet.http.
 	 * HttpServletRequest)
 	 */	
+	/**
+	 * Populates bean object from request parameters
+	 * 
+	 * @param request
+	 * @return
+	 * 
+	 */
 	@Override
-	protected BaseBean populateBean(HttpServletRequest request) {
+	protected UserBean populateBean(HttpServletRequest request) {
+		log.debug("populateBean method of UserListCtl Started");
+
 		UserBean bean = new UserBean();
 
 		bean.setFirstName(DataUtility.getString(request.getParameter("firstName")));
 
 		bean.setRoleId(DataUtility.getLong(request.getParameter("roleid")));
-		bean.setLogin(DataUtility.getString(request.getParameter("loginid")));
-		bean.setDob(DataUtility.getDate(request.getParameter("dob")));
+		bean.setLogin(DataUtility.getString(request.getParameter("login")));
+		//bean.setDob(DataUtility.getDate(request.getParameter("dob")));
+		bean.setGender(DataUtility.getString(request.getParameter("gender")));
+		bean.setLastName(DataUtility.getString(request.getParameter("lastName")));
+		populateDTO(bean, request);
+		log.debug("populateBean method of UserListCtl Ended");
 
-
-		return bean;		
+		return bean;
 	}
 	
+	
 	/**
-	 * Validate input Data Entered By User.
-	 *
-	 * @param request the request
-	 * @return true, if successful
+	 * Contains Display logics.
+	 * 
+	 * @param request
+	 * @param response
+	 * @throws ServletException
+	 * @throws IOException
+	 * 
+	 * 
 	 */
-	@Override
-	protected boolean validate(HttpServletRequest request) {
-		log.debug("UserListCtl Method validate Started");
-		
-		
-		
-		log.debug("UserListCtl Method validate ended");
-		return true;
-	}
+	
 	/**	 * Contains Display logics.
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -155,14 +164,17 @@ public class UserListCtl extends BaseCtl{
 			if (ids != null && ids.length > 0) {
 				UserBean deletebean = new UserBean();					
 				
-				for (String id : ids) {					
-					deletebean.setId(DataUtility.getInt(id));					
-				}				
+				for (String id : ids) {
+					deletebean.setId(DataUtility.getInt(id));
+                    try{
+                        model.delete(deletebean);
+                    }catch(ApplicationException e){
+                    	log.error(e);
+                        log.error(e);
+                    }
+				}
 				try {
-					model.delete(deletebean);
 					ServletUtility.setSuccessMessage(PropertyReader.getValue("success.user.delete"), request);
-				}catch (ApplicationException e) {
-					log.error(e);
 				}
 			} else {
 				ServletUtility.setErrorMessage("Select at least one record", request);
@@ -194,9 +206,10 @@ public class UserListCtl extends BaseCtl{
 		log.debug("UserListCtl doGet End");
 
 	}
-
-	/*
-	 * (non-Javadoc)
+/**
+	 * Returns the VIEW page of this Controller
+	 * 
+	 * @return
 	 * 
 	 * @see in.co.rays.ors.controller.BaseCtl#getView()
 	 */

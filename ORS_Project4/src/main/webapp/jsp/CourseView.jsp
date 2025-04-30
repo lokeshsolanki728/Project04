@@ -1,68 +1,76 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@page import="java.util.LinkedHashMap"%>
 <%@page import="com.rays.pro4.Util.HTMLUtility"%>
+<%@page import="com.rays.pro4.controller.ORSView"%>
 <%@page import="com.rays.pro4.controller.CourseCtl"%>
 <%@page import="com.rays.pro4.Util.DataUtility"%>
 <%@page import="com.rays.pro4.Util.ServletUtility"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 <html>
 <head>
-<link rel="icon" type="image/png" href="<%=ORSView.APP_CONTEXT%>/img/logo.png" sizes="16*16" />
+<link rel="icon" type="image/png" href="${pageContext.request.contextPath}/img/logo.png" sizes="16*16" />
 <title>Course Registration Page</title>
-<link rel="stylesheet" href="<%=ORSView.APP_CONTEXT%>/css/style.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
 </head>
 <body>
 	<jsp:useBean id="bean" class="com.rays.pro4.Bean.CourseBean" scope="request"></jsp:useBean>
 	<form action="<%=ORSView.COURSE_CTL%>" method="post">
 		<%@include file="Header.jsp"%>
 		<div class="form-container">
-			<h1 align="center">
-				<%=bean.getId() > 0 ? "Update Course" : "Add Course"%>
+				<h1 class="text-center">
+				<c:choose>
+					<c:when test="${not empty bean.id}">Update Course</c:when>
+					<c:otherwise>Add Course</c:otherwise>
+				</c:choose>
 			</h1>
 
 			<div class="text-center">
-				<div class="success-message"><%=ServletUtility.getSuccessMessage(request)%></div>
-				<div class="error-message"><%=ServletUtility.getErrorMessage(request)%></div>
+				<c:if test="${not empty successMessage}">
+				<div class="success-message">${successMessage}</div>
+				</c:if>
+				<c:if test="${not empty errorMessage}">
+				<div class="error-message">${errorMessage}</div>
+				</c:if>
 			</div>
 
-			<div class="input-container">
-				<input type="hidden" name="id" value="<%=bean.getId()%>">
-				<input type="hidden" name="createdby" value="<%=bean.getCreatedBy()%>">
-				<input type="hidden" name="modifiedby" value="<%=bean.getModifiedBy()%>">
-				<input type="hidden" name="createdDatetime" value="<%=DataUtility.getTimestamp(bean.getCreatedDatetime())%>">
-				<input type="hidden" name="modifiedDatetime" value="<%=DataUtility.getTimestamp(bean.getModifiedDatetime())%>">
+			<div class="form-group">
+				<input type="hidden" name="id" value="${bean.id}">
+				<input type="hidden" name="createdby" value="${bean.createdBy}">
+				<input type="hidden" name="modifiedby" value="${bean.modifiedBy}">
+				<input type="hidden" name="createdDatetime" value="${bean.createdDatetime}">
+				<input type="hidden" name="modifiedDatetime" value="${bean.modifiedDatetime}">
 			</div>
 
-			<div class="input-container">
-				<label for="name">Course Name<span class="error-message">*</span>:</label>
-				<input type="text" id="name" name="name" placeholder="Enter Course Name" value="<%=DataUtility.getStringData(bean.getName())%>">
-				<div class="error-message"><%=ServletUtility.getErrorMessage("name", request)%></div>
+			<div class="form-group">
+				<label for="name">Course Name<span class="error-message">*</span></label>
+				<input type="text" id="name" name="name" placeholder="Enter Course Name" class="form-control" value="${bean.name}">
+				<div class="error-message">${requestScope.name}</div>
 			</div>
 
-			<div class="input-container">
-				<label for="duration">Duration <span class="error-message">*</span>:</label>
-				<%
-					LinkedHashMap<String, String> map = new LinkedHashMap<>();
-					map.put("1 Year", "1 Year");
-					map.put("2 Year", "2 Year");
-					map.put("3 Year", "3 Year");
-					map.put("4 Year", "4 Year");
-					map.put("5 Year", "5 Year");
-					map.put("6 Year", "6 Year");
-					String htmlList = HTMLUtility.getList("duration", bean.getDuration(), map);
-				%>
-				<%=htmlList%>
-				<div class="error-message"><%=ServletUtility.getErrorMessage("duration", request)%></div>
+			<div class="form-group">
+				<label for="duration">Duration <span class="error-message">*</span></label>
+				<select id="duration" name="duration" class="form-control">
+					<option value="">Select Duration</option>
+					<option value="1 Year" ${bean.duration == '1 Year' ? 'selected' : ''}>1 Year</option>
+					<option value="2 Year" ${bean.duration == '2 Year' ? 'selected' : ''}>2 Year</option>
+					<option value="3 Year" ${bean.duration == '3 Year' ? 'selected' : ''}>3 Year</option>
+					<option value="4 Year" ${bean.duration == '4 Year' ? 'selected' : ''}>4 Year</option>
+					<option value="5 Year" ${bean.duration == '5 Year' ? 'selected' : ''}>5 Year</option>
+					<option value="6 Year" ${bean.duration == '6 Year' ? 'selected' : ''}>6 Year</option>
+				</select>
+				<div class="error-message">${requestScope.duration}</div>
 			</div>
 
-			<div class="input-container">
-				<label for="description">Description <span class="error-message">*</span>:</label>
-				<input type="text" id="description" name="description" placeholder="Enter Description" value="<%=DataUtility.getStringData(bean.getDescription())%>">
-				<div class="error-message"><%=ServletUtility.getErrorMessage("description", request)%></div>
+			<div class="form-group">
+				<label for="description">Description <span class="error-message">*</span></label>
+				<input type="text" id="description" name="description" placeholder="Enter Description" class="form-control" value="${bean.description}">
+				<div class="error-message">${requestScope.description}</div>
 			</div>
 
 			<div class="button-container">
-				<input type="submit" name="operation" value="<%=bean.getId() > 0 ? CourseCtl.OP_UPDATE : CourseCtl.OP_SAVE%>">
-				<input type="submit" name="operation" value="<%=bean.getId() > 0 ? CourseCtl.OP_CANCEL : CourseCtl.OP_RESET%>">
+				<input type="submit" name="operation" value="${bean.id > 0 ? CourseCtl.OP_UPDATE : CourseCtl.OP_SAVE}" class="btn btn-primary">
+				<input type="submit" name="operation" value="${bean.id > 0 ? CourseCtl.OP_CANCEL : CourseCtl.OP_RESET}" class="btn btn-secondary">
 			</div>
 		</div>
 	</form>

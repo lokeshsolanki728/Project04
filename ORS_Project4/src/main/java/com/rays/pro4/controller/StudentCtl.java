@@ -1,4 +1,4 @@
-package com.rays.pro4.controller;
+ package com.rays.pro4.controller;
 
 import java.io.IOException;
 import java.util.List;
@@ -34,11 +34,15 @@ public class StudentCtl extends BaseCtl{
 	/** The log. */
     private static Logger log = Logger.getLogger(StudentCtl.class);
 
-    /* (non-Javadoc)
-     * @see in.co.rays.ors.controller.BaseCtl#preload(javax.servlet.http.HttpServletRequest)
-     */
+    /**
+	 * Loads pre-load data
+	 * @param request
+	 */
+    
     @Override
     protected void preload(HttpServletRequest request) {
+        log.debug("preload method of StudentCtl Started");
+        
         CollegeModel model = new CollegeModel();
         try {
             List l = model.list();
@@ -46,12 +50,16 @@ public class StudentCtl extends BaseCtl{
         } catch (ApplicationException e) {
             log.error(e);
         }
+        log.debug("preload method of StudentCtl Ended");
 
     }
 
-    /* (non-Javadoc)
-     * @see in.co.rays.ors.controller.BaseCtl#validate(javax.servlet.http.HttpServletRequest)
-     */
+    /**
+	 * Validates input data entered by User
+	 * 
+	 * @param request
+	 * @return
+	 */
     @Override
     protected boolean validate(HttpServletRequest request) {
     	System.out.println("validate started ... std ctl");
@@ -103,9 +111,13 @@ public class StudentCtl extends BaseCtl{
         return pass;
     }
 
-    /* (non-Javadoc)
-     * @see in.co.rays.ors.controller.BaseCtl#populateBean(javax.servlet.http.HttpServletRequest)
-     */
+    /**
+	 * Populates bean object from request parameters
+	 * 
+	 * @param request
+	 * @return
+	 * 
+	 */
     @Override
     protected BaseBean populateBean(HttpServletRequest request) {
 
@@ -127,12 +139,13 @@ public class StudentCtl extends BaseCtl{
     }
 
     /**
-     * Contains Display logics.
-     *
-     * @param request the request
-     * @param response the response
-     * @throws ServletException the servlet exception
-     * @throws IOException Signals that an I/O exception has occurred.
+	 * Contains Display logics
+	 * 
+	 * @param request
+	 * @param response
+	 * @throws ServletException
+	 * @throws IOException
+	 * 
      */
     protected void doGet(HttpServletRequest request,
             HttpServletResponse response) throws ServletException, IOException {
@@ -161,12 +174,13 @@ public class StudentCtl extends BaseCtl{
     }
 
     /**
-     * Contains Submit logics.
-     *
-     * @param request the request
-     * @param response the response
-     * @throws ServletException the servlet exception
-     * @throws IOException Signals that an I/O exception has occurred.
+	 * Contains Submit logics
+	 * 
+	 * @param request
+	 * @param response
+	 * @throws ServletException
+	 * @throws IOException
+	 * 
      */
     protected void doPost(HttpServletRequest request,
             HttpServletResponse response) throws ServletException, IOException {
@@ -184,7 +198,7 @@ public class StudentCtl extends BaseCtl{
             StudentBean bean = (StudentBean) populateBean(request);
             try {
                 if (id > 0) {
-                    model.Update(bean);
+                    model.update(bean);
                     ServletUtility.setBean(bean, request);
                     ServletUtility.setSuccessMessage(" Student is successfully Updated",request);
                 } else {
@@ -215,29 +229,15 @@ public class StudentCtl extends BaseCtl{
          	ServletUtility.redirect(ORSView.STUDENT_LIST_CTL, request, response);
              return;
          }
-/*
-        else if (OP_DELETE.equalsIgnoreCase(op)) {
-
-            StudentBean bean = (StudentBean) populateBean(request);
-            try {
-                model.delete(bean);
-                ServletUtility.redirect(ORSView.STUDENT_CTL, request, response);
-                return;
-
-            } catch (ApplicationException e) {
-                log.error(e);
-                ServletUtility.handleException(e, request, response);
-                return;
-            }
-        }
-*/        ServletUtility.forward(getView(), request, response);
+       ServletUtility.forward(getView(), request, response);
 
         log.debug("StudentCtl Method doPost Ended");
     }
 
-    /* (non-Javadoc)
-     * @see in.co.rays.ors.controller.BaseCtl#getView()
-     */
+    /**
+	 * Returns the VIEW page of this Controller
+	 * @return
+	 */
     @Override
     protected String getView() {
         return ORSView.STUDENT_VIEW;

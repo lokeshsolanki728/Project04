@@ -26,14 +26,19 @@ import com.rays.pro4.Util.ServletUtility;
 * @author Lokesh SOlanki
 */
 @WebServlet(name = "GetMarksheetCtl", urlPatterns = { "/ctl/GetMarksheetCtl" })
-public class GetMarksheetCtl extends BaseCtl{
+public class GetMarksheetCtl extends BaseCtl<MarksheetBean>{
 
 	  private static Logger log = Logger.getLogger(GetMarksheetCtl.class);
 
-	    /* (non-Javadoc)
-	     * @see in.co.rays.ors.controller.BaseCtl#validate(javax.servlet.http.HttpServletRequest)
-	     */
-	    @Override
+	    /**
+		 * Validates input data entered by User
+		 * 
+		 * @param request
+		 * @return
+		 */
+
+		@Override
+
 	    protected boolean validate(HttpServletRequest request) {
 
 	        log.debug("GetMarksheetCTL Method validate Started");
@@ -53,22 +58,20 @@ public class GetMarksheetCtl extends BaseCtl{
 	        return pass;
 	    }
 
-	    /* (non-Javadoc)
-	     * @see in.co.rays.ors.controller.BaseCtl#populateBean(javax.servlet.http.HttpServletRequest)
-	     */
-	    @Override
-	    protected BaseBean populateBean(HttpServletRequest request) {
+	    /**
+		 * Populates bean object from request parameters
+		 * 
+		 * @param request
+		 * @return
+		 */
+		@Override
+
+	    protected MarksheetBean populateBean(HttpServletRequest request) {
 
 	        log.debug("GetMarksheetCtl Method populatebean Started");
 
 	        MarksheetBean bean = new MarksheetBean();
-
-	    //    bean.setId(DataUtility.getLong(request.getParameter("id")));
 	        bean.setRollNo(DataUtility.getString(request.getParameter("rollNo")));
-	/*        bean.setName(DataUtility.getString(request.getParameter("name")));
-	        bean.setPhysics(DataUtility.getInt(request.getParameter("physics")));
-	        bean.setChemistry(DataUtility.getInt(request.getParameter("chemistry")));
-	        bean.setMaths(DataUtility.getInt(request.getParameter("maths")));*/
 
 	        log.debug("GetMarksheetCtl Method populatebean Ended");
 	        return bean;
@@ -82,6 +85,13 @@ public class GetMarksheetCtl extends BaseCtl{
 	     * @throws ServletException the servlet exception
 	     * @throws IOException Signals that an I/O exception has occurred.
 	     */
+		/**
+		 * Contains Display logics
+		 * @param request
+		 * @param response
+		 * @throws ServletException
+		 * @throws IOException
+		 */
 	    protected void doGet(HttpServletRequest request,
 	            HttpServletResponse response) throws ServletException, IOException {
 	     
@@ -96,6 +106,13 @@ public class GetMarksheetCtl extends BaseCtl{
 	     * @throws ServletException the servlet exception
 	     * @throws IOException Signals that an I/O exception has occurred.
 	     */
+		/**
+		 * Contains Submit logics
+		 * @param request
+		 * @param response
+		 * @throws ServletException
+		 * @throws IOException
+		 */
 	    protected void doPost(HttpServletRequest request,
 	            HttpServletResponse response) throws ServletException, IOException {
 
@@ -104,7 +121,6 @@ public class GetMarksheetCtl extends BaseCtl{
 	        long id = DataUtility.getLong(request.getParameter("id"));
 
 	        // get model
-	        MarksheetModel model = new MarksheetModel();
 	        MarksheetBean bean = (MarksheetBean) populateBean(request);
 
 
@@ -112,8 +128,9 @@ public class GetMarksheetCtl extends BaseCtl{
 
 	            try {
 	                bean = model.findByRollNo(bean.getRollNo());
-	        //        ServletUtility.setList(list, request);
-	                
+	                MarksheetModel model = new MarksheetModel();
+
+	                bean=model.findByRollNo(bean.getRollNo());
 	             
 	      
 	                if (bean != null) {
@@ -137,10 +154,14 @@ public class GetMarksheetCtl extends BaseCtl{
 	        log.debug("MarksheetCtl Method doGet Ended");
 	    }
 
-	    /* (non-Javadoc)
-	     * @see in.co.rays.ors.controller.BaseCtl#getView()
-	     */
-	    @Override
+	    /**
+		 * Returns the VIEW page of this Controller
+		 * 
+		 * @return
+		 */
+		@Override
+
+
 	    protected String getView() {
 	        return ORSView.GET_MARKSHEET_VIEW ;
 	    }

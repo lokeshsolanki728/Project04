@@ -1,7 +1,5 @@
 package com.rays.pro4.controller;
 
-import java.util.Map;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -24,12 +22,18 @@ import com.rays.pro4.Util.ServletUtility;
 *  @author Lokesh SOlanki
 */
 @WebServlet(name="CourseCtl", urlPatterns={"/ctl/CourseCtl"})
-public class CourseCtl extends BaseCtl{
+public class CourseCtl extends BaseCtl<CourseBean>{
 
 	private static final long serialVersionUID = 1L;
 	private static Logger log = Logger.getLogger(CourseCtl.class);
 
-	
+	/**
+	 * Validates input data entered by User
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@Override
 	protected boolean validate(HttpServletRequest request) {
 		log.debug("CourseCtl validate started");
 		boolean pass = true;
@@ -53,8 +57,15 @@ public class CourseCtl extends BaseCtl{
 		return pass;
 	}
 
-	
-	protected BaseBean populateBean(HttpServletRequest request){
+	/**
+	 * Populates bean object from request parameters
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@Override	
+	protected CourseBean populateBean(HttpServletRequest request){
+		
 		log.debug("CourseCtl PopulatedBean started");
 		CourseBean bean = new CourseBean();
 		
@@ -68,7 +79,14 @@ public class CourseCtl extends BaseCtl{
 		return bean;
 	}
 	
-	
+	/**
+	 * Contains Display logics
+	 * 
+	 * @param request
+	 * @param response
+	 * @throws ServletException
+	 * @throws IOException
+	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		
@@ -80,7 +98,7 @@ public class CourseCtl extends BaseCtl{
 			try{
 				bean = model.FindByPK(id);
 				ServletUtility.setBean(bean, request);
-				
+
 			}catch(ApplicationException e){
 				log.error(e);
 				
@@ -92,23 +110,31 @@ public class CourseCtl extends BaseCtl{
 	}
     
     
-
+	/**
+	 * Contains Submit logics
+	 * 
+	 * @param request
+	 * @param response
+	 * @throws ServletException
+	 * @throws IOException
+	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		
 		String op = DataUtility.getString(request.getParameter("operation"));
 		CourseModel model = new CourseModel();
 		long id = DataUtility.getLong(request.getParameter("id"));
-		CourseBean bean =(CourseBean) populateBean(request);
+		CourseBean bean =populateBean(request);
 		
 		if(OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)){
 			try{
-				if(id>0){		
+				if(OP_SAVE.equalsIgnoreCase(op)){
+					bean.setId(0);
+				}
+				if(id>0){
 					model.update(bean);	
 					ServletUtility.setSuccessMessage(PropertyReader.getValue("success.course.update"), request);
-				}else{
-					model.add(bean);
-					ServletUtility.setSuccessMessage(PropertyReader.getValue("success.course.add"), request);
+				}else{					model.add(bean);
 					
 				}
 				
@@ -137,7 +163,11 @@ public class CourseCtl extends BaseCtl{
 	
 	}
 
-	
+	/**
+	 * Returns the VIEW page of this Controller
+	 * 
+	 * @return
+	 */
 	@Override
 	protected String getView() {
 		return ORSView.COURSE_VIEW;

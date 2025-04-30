@@ -10,8 +10,17 @@ package com.rays.pro4.Bean;
 
 public interface DropdownListBean {
 
+	/**
+	 * Returns key of list element
+	 * @return key
+	 */
 	public abstract String getkey();
 
+	/**
+	 * Returns display text of list element
+	 * 
+	 * @return value
+	 */
 	public abstract String getValue();
 
 }

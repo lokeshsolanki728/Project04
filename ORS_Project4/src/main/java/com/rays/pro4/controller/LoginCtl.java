@@ -27,7 +27,7 @@ import com.rays.pro4.Util.ServletUtility;
  * @author Lokesh SOlanki
  */
 @WebServlet(name = "LoginCtl", urlPatterns = { "/LoginCtl" })
-public class LoginCtl extends BaseCtl {
+public class LoginCtl extends BaseCtl<UserBean> {
 	private static final long serialVersionUID = 1L;
 	public static final String OP_REGISTER = "Register";
 	public static final String OP_SIGN_IN = "SignIn";
@@ -36,6 +36,13 @@ public class LoginCtl extends BaseCtl {
 
 	private static Logger log = Logger.getLogger(LoginCtl.class);
 
+	/**
+	 * Validates input data entered by User
+	 * 
+	 * @param request
+	 * @return
+	 */
+	
 	@Override
 	protected boolean validate(HttpServletRequest request) {
 		System.out.println("loginctl  validate");
@@ -70,8 +77,15 @@ public class LoginCtl extends BaseCtl {
 		return pass;
 	}
 
+	/**
+	 * Populates bean object from request parameters
+	 * 
+	 * @param request
+	 * @return
+	 */
+	
 	@Override
-	protected BaseBean populateBean(HttpServletRequest request) {
+	protected UserBean populateBean(HttpServletRequest request) {
 
 		log.debug("LoginCtl Method populatebean Started");
 		System.out.println("BaseBean Populatebean");
@@ -88,7 +102,12 @@ public class LoginCtl extends BaseCtl {
 	}
 
 	/**
-	 * Display Login form
+	 * Contains Display logics
+	 * 
+	 * @param request
+	 * @param response
+	 * @throws ServletException
+	 * @throws IOException
 	 *
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -111,7 +130,12 @@ public class LoginCtl extends BaseCtl {
 	}
 
 	/**
-	 * Submitting or login action performing
+	 * Contains Submit logics
+	 * 
+	 * @param request
+	 * @param response
+	 * @throws ServletException
+	 * @throws IOException
 	 *
 	 */
 
@@ -129,7 +153,7 @@ public class LoginCtl extends BaseCtl {
 		// long id = DataUtility.getLong(request.getParameter("id"));
 
 		if (OP_SIGN_IN.equalsIgnoreCase(op)) {
-			System.out.println(" L ctl Do post 2222222");
+			
 			UserBean bean = (UserBean) populateBean(request);
 
 			try {
@@ -158,7 +182,7 @@ public class LoginCtl extends BaseCtl {
 					}
 
 				} else {
-					System.out.println(" Lctl Dp post 33");
+					
 					bean = (UserBean) populateBean(request);
 					ServletUtility.setBean(bean, request);
 					ServletUtility.setErrorMessage("Invalid LoginId And Password", request);
@@ -185,7 +209,7 @@ public class LoginCtl extends BaseCtl {
 			 */ else if (OP_SIGN_UP.equalsIgnoreCase(op))
 
 		{
-			System.out.println("L ctl Do post 55");
+			
 
 			ServletUtility.redirect(ORSView.USER_REGISTRATION_CTL, request, response);
 			return;
@@ -197,6 +221,11 @@ public class LoginCtl extends BaseCtl {
 		log.debug("UserCtl Method doPost Ended");
 	}
 
+	/**
+	 * Returns the VIEW page of this Controller
+	 * 
+	 * @return
+	 */
 	@Override
 	protected String getView() {
 		return ORSView.LOGIN_VIEW;

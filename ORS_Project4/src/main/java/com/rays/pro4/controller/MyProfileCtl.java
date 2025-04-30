@@ -27,12 +27,18 @@ import com.rays.pro4.Util.ServletUtility;
  * @author Lokesh SOlanki
  */
 @ WebServlet(name="MyProfileCtl",urlPatterns={"/ctl/MyProfileCtl"})
-public class MyProfileCtl extends BaseCtl{
+public class MyProfileCtl extends BaseCtl<UserBean>{
 
 	public static final String OP_CHANGE_MY_PASSWORD = "ChangePassword";
 
     private static Logger log = Logger.getLogger(MyProfileCtl.class);
 
+    /**
+	 * Validates input data entered by User
+	 * 
+	 * @param request
+	 * @return
+	 */
     @Override
     protected boolean validate(HttpServletRequest request) {
 
@@ -83,8 +89,14 @@ public class MyProfileCtl extends BaseCtl{
 
     }
 
+    /**
+	 * Populates bean object from request parameters
+	 * 
+	 * @param request
+	 * @return
+	 */
     @Override
-    protected BaseBean populateBean(HttpServletRequest request) {
+    protected UserBean populateBean(HttpServletRequest request) {
         log.debug("MyProfileCtl Method populatebean Started");
 
         UserBean bean = new UserBean();
@@ -106,19 +118,27 @@ public class MyProfileCtl extends BaseCtl{
 
         populateDTO(bean, request);
 
+        log.debug("MyProfileCtl Method populatebean Ended");
+
         return bean;
     }
 
     /**
-     * Display Concept for viewing profile page view
+     * Contains Display logics
+     * 
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     * 
      */
     protected void doGet(HttpServletRequest request,
             HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession(true);
         log.debug("MyprofileCtl Method doGet Started");
 
-        UserBean UserBean = (UserBean) session.getAttribute("user");
-        long id = UserBean.getId();
+        UserBean userBean = (UserBean) session.getAttribute("user");
+        long id = userBean.getId();
         String op = DataUtility.getString(request.getParameter("operation"));
 
         // get model
@@ -141,30 +161,36 @@ public class MyProfileCtl extends BaseCtl{
     }
 
     /**
-     * Submit Concept
+     * Contains Submit logics
+     * 
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     * 
      */
     protected void doPost(HttpServletRequest request,
             HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession(true);
         log.debug("MyprofileCtl Method doPost Started");
 
-        UserBean UserBean = (UserBean) session.getAttribute("user");
-        long id = UserBean.getId();
+        UserBean userBean = (UserBean) session.getAttribute("user");
+        long id = userBean.getId();
         String op = DataUtility.getString(request.getParameter("operation"));
 
         // get model
         UserModel model = new UserModel();
 
         if (OP_SAVE.equalsIgnoreCase(op)) {
-            UserBean bean = (UserBean) populateBean(request);
+            UserBean bean = populateBean(request);
             try {
                 if (id > 0) {
-                    UserBean.setFirstName(bean.getFirstName());
-                    UserBean.setLastName(bean.getLastName());
-                    UserBean.setGender(bean.getGender());
-                    UserBean.setMobileNo(bean.getMobileNo());
-                    UserBean.setDob(bean.getDob());
-                    model.update(UserBean);
+                   userBean.setFirstName(bean.getFirstName());
+                    userBean.setLastName(bean.getLastName());
+                    userBean.setGender(bean.getGender());
+                    userBean.setMobileNo(bean.getMobileNo());
+                    userBean.setDob(bean.getDob());
+                    model.update(userBean);
 
                 }
                 ServletUtility.setBean(bean, request);
@@ -192,6 +218,11 @@ public class MyProfileCtl extends BaseCtl{
         log.debug("MyProfileCtl Method doPost Ended");
     }
 
+    /**
+	 * Returns the VIEW page of this Controller
+	 * 
+	 * @return
+	 */
     @Override
     protected String getView() {
         return ORSView.MY_PROFILE_VIEW;

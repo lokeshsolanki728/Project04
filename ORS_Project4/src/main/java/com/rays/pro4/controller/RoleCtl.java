@@ -31,9 +31,13 @@ public class RoleCtl extends BaseCtl{
 	    /** The log. */
 	    private static Logger log = Logger.getLogger(RoleCtl.class);
 
-	    /* (non-Javadoc)
-	     * @see in.co.rays.ors.controller.BaseCtl#validate(javax.servlet.http.HttpServletRequest)
-	     */
+	    /**
+		 * Validates input data entered by User
+		 * 
+		 * @param request
+		 * @return
+		 */
+	    
 	    @Override
 	    protected boolean validate(HttpServletRequest request) {
 
@@ -62,9 +66,13 @@ public class RoleCtl extends BaseCtl{
 	        return pass;
 	    }
 
-	    /* (non-Javadoc)
-	     * @see in.co.rays.ors.controller.BaseCtl#populateBean(javax.servlet.http.HttpServletRequest)
-	     */
+	    /**
+		 * Populates bean object from request parameters
+		 * 
+		 * @param request
+		 * @return
+		 */
+	    
 	    @Override
 	    protected BaseBean populateBean(HttpServletRequest request) {
 
@@ -87,6 +95,9 @@ public class RoleCtl extends BaseCtl{
 
 	    /**
 	     * Contains Display logics.
+	     * @param request
+	     * @param response
+	     * @throws ServletException
 	     *
 	     * @param request the request
 	     * @param response the response
@@ -122,6 +133,10 @@ public class RoleCtl extends BaseCtl{
 
 	    /**
 	     * Contains Submit logics.
+	     * @param request
+	     * @param response
+	     * @throws ServletException
+	     * @throws IOException
 	     *
 	     * @param request the request
 	     * @param response the response
@@ -194,10 +209,13 @@ public class RoleCtl extends BaseCtl{
 	        log.debug("RoleCtl Method doPOst Ended");
 	    }
 
-	    /* (non-Javadoc)
-	     * @see in.co.rays.ors.controller.BaseCtl#getView()
-	     */
-	    @Override
+	    /**
+		 * Returns the VIEW page of this Controller
+		 * 
+		 * @return
+		 */
+	    
+	   @Override
 	    protected String getView() {
 	        return ORSView.ROLE_VIEW;
 	    }	

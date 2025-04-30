@@ -35,23 +35,26 @@ public class StudentListCtl extends BaseCtl{
     private static Logger log = Logger.getLogger(StudentListCtl.class);
     
     /* (non-Javadoc)
-     * @see in.co.rays.ors.controller.BaseCtl#preload(javax.servlet.http.HttpServletRequest)
+     * Loads pre-load data
+	 * 
+	 * @param request
      */
     @Override
     protected void preload(HttpServletRequest request){
-       
-       
+       log.debug("preload method of StudentListCtl Started");
     	CollegeModel cmodel= new CollegeModel();
     	
     	try{
     	    List clist= cmodel.list(0,0);
-    	    
     	    request.setAttribute("CollegeList",clist);
           
             }
             catch(ApplicationException e){
-            e.printStackTrace();
+             log.error(e);
+            
             }
+            log.debug("preload method of StudentListCtl Ended");
+            
             }
     
     
@@ -59,6 +62,12 @@ public class StudentListCtl extends BaseCtl{
      * @see in.co.rays.ors.controller.BaseCtl#populateBean(javax.servlet.http.HttpServletRequest)
      */
     @Override
+    /**
+	 * Populates bean object from request parameters
+	 * 
+	 * @param request
+	 * @return
+	 */
     protected BaseBean populateBean(HttpServletRequest request) {
 
         StudentBean bean = new StudentBean();
@@ -73,7 +82,7 @@ public class StudentListCtl extends BaseCtl{
 
     /**
      * Contains Display logics.
-     *
+     * @param request the request
      * @param request the request
      * @param response the response
      * @throws ServletException the servlet exception
@@ -115,7 +124,7 @@ public class StudentListCtl extends BaseCtl{
 
     /**
      * Contains Submit logics.
-     *
+     * @param request the request
      * @param request the request
      * @param response the response
      * @throws ServletException the servlet exception
@@ -164,12 +173,12 @@ public class StudentListCtl extends BaseCtl{
                             try {
                 				model.delete(deletebean);
     							
-    						} catch (ApplicationException e) {
-    							e.printStackTrace();
+    						} catch (ApplicationException e) {                            
+                            log.error(e);
     							ServletUtility.handleException(e, request, response);
     							return;
-    						}System.out.println("20");
-                            ServletUtility.setSuccessMessage(" Student Data Successfully Deleted", request);
+    						}
+                             ServletUtility.setSuccessMessage(" Student Data Successfully Deleted", request);
                         }
                     } 
                     else {
@@ -198,8 +207,12 @@ public class StudentListCtl extends BaseCtl{
         log.debug("StudentListCtl doGet End");
     }
 
-    /* (non-Javadoc)
-     * @see in.co.rays.ors.controller.BaseCtl#getView()
+    /**
+	 * Returns the VIEW page of this Controller
+	 * 
+	 * @return
+	 */
+    
      */
     @Override
     protected String getView() {

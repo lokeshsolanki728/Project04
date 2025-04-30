@@ -1,6 +1,7 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.HashMap;
 
 import javax.servlet.ServletException;
@@ -31,7 +32,7 @@ import com.rays.pro4.Util.ServletUtility;
 *  @author Lokesh SOlanki
 */
 @WebServlet(name = "FacultyCtl", urlPatterns = { "/ctl/FacultyCtl" })
-public class FacultyCtl extends BaseCtl{
+public class FacultyCtl extends BaseCtl<FacultyBean>{
 
 
 	/** The Constant serialVersionUID. */
@@ -40,19 +41,26 @@ public class FacultyCtl extends BaseCtl{
 	/** The log. */
 	private static Logger log = Logger.getLogger(FacultyCtl.class);
 
+	/**
+     * Loads pre-load data
+     * @param request
+     */
+	@Override
 	protected void preload(HttpServletRequest request) {
 
+		response.setContentType("text/html");
+		javax.servlet.http.HttpServletResponse resp = (HttpServletResponse) response;
 		CourseModel cmodel = new CourseModel();
 		CollegeModel comodel = new CollegeModel();
 		SubjectModel smodel = new SubjectModel();
 
         try {
-			List clist = cmodel.list();			
+			java.util.List clist = cmodel.list();			
 			request.setAttribute("CourseList", clist);
-            List colist = comodel.list();
+            java.util.List colist = comodel.list();
 			request.setAttribute("CollegeList", colist);
-            List slist = smodel.list();
-			request.setAttribute("SubjectList", slist);
+            java.util.List slist = smodel.list();
+			request.setAttribute("SubjectList",slist);
 		} catch (ApplicationException e) {
             log.error(e);
             ServletUtility.handleException(e, request, response);
@@ -66,9 +74,17 @@ public class FacultyCtl extends BaseCtl{
 			e.printStackTrace();
 		}
 
-	}	
+	}
+	
+	/**
+     * Validates input data entered by User
+     *
+     * @param request
+     * @return
+     */
+	@Override
 	protected boolean validate(HttpServletRequest request) {
-		log.debug("Validate Method of Faculty Ctl Started");
+		log.debug("Faculty Ctl validate Started");
 		boolean pass = true;
 		if (DataValidator.isNull(request.getParameter("firstname"))) {
 			request.setAttribute("firstname", PropertyReader.getValue("error.require", "FirstName"));
@@ -128,8 +144,15 @@ public class FacultyCtl extends BaseCtl{
 		log.debug("validate Ended");
 		return pass;
 	}	
-	 */
-	protected BaseBean populateBean(HttpServletRequest request) {
+	
+	/**
+     * Populates bean object from request parameters
+     *
+     * @param request
+     * @return
+     */
+	@Override
+	protected FacultyBean populateBean(HttpServletRequest request) {
 		log.debug("populate bean faculty ctl started");
 		FacultyBean bean = new FacultyBean();
 
@@ -162,7 +185,6 @@ public class FacultyCtl extends BaseCtl{
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 */
-
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		log.debug("Do get of faculty ctl Started");
@@ -174,7 +196,7 @@ public class FacultyCtl extends BaseCtl{
 		if (id > 0 || op != null) {
 			try {
 				bean = model.findByPK(id);
-				ServletUtility.setBean(bean, request);
+				ServletUtility.setBean((BaseBean) bean, request);
 
 			} catch (ApplicationException e) {
 				e.printStackTrace();
@@ -199,17 +221,19 @@ public class FacultyCtl extends BaseCtl{
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 */
-
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		log.debug("Do post of  faculty ctl Started");
 
-		String op = DataUtility.getString(request.getParameter("operation"));
+		String op = DataUtility.getString(request.getParameter("operation"));		
 		long id = DataUtility.getLong(request.getParameter("id"));		
 		FacultyModel model = new FacultyModel();
-        FacultyBean bean = (FacultyBean) populateBean(request);
+		FacultyBean bean = populateBean(request);
 		if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {	
 			try {
+				if(OP_SAVE.equalsIgnoreCase(op)){
+					bean.setId(0);
+				}
 				if (id > 0) {	
 					model.update(bean);
 					ServletUtility.setSuccessMessage(PropertyReader.getValue("success.faculty.update"), request);
@@ -218,8 +242,6 @@ public class FacultyCtl extends BaseCtl{
 					ServletUtility.setSuccessMessage(PropertyReader.getValue("success.faculty.add"), request);
 				}
 			} catch (DuplicateRecordException e) {
-				ServletUtility.setErrorMessage(PropertyReader.getValue("error.faculty.duplicate"), request);				
-			} catch (ApplicationException e) {
 				log.error(e);
 				ServletUtility.handleException(e, request, response);
 				return;
@@ -239,16 +261,17 @@ public class FacultyCtl extends BaseCtl{
 			ServletUtility.redirect(ORSView.FACULTY_LIST_CTL, request, response);		
 			return;
 		}
-		ServletUtility.setBean(bean, request);
+		ServletUtility.setBean((BaseBean) bean, request);
 		ServletUtility.forward(getView(), request, response);
 		log.debug("Do post of  faculty ctl Ended");
 	
 	}	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see in.co.rays.ors.controller.BaseCtl#getView()
-	 */
+	/**
+     * Returns the VIEW page of this Controller
+     *
+     * @return
+     */
+	
 	@Override
 	protected String getView() {
 		return ORSView.FACULTY_VIEW;

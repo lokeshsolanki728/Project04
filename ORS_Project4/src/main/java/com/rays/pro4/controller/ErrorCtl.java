@@ -32,7 +32,13 @@ public class ErrorCtl extends BaseCtl {
 	 * @throws ServletException the servlet exception
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-
+	/**
+	 * Contains Display logics
+	 * @param request
+	 * @param response
+	 * @throws ServletException
+	 * @throws IOException
+	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		log.debug("Do get Method of Error Ctl started");
@@ -54,7 +60,13 @@ public class ErrorCtl extends BaseCtl {
 	 * @throws ServletException the servlet exception
 	 * @throws IOException      Signals that an I/O exception has occurred.
 	 */
-
+	/**
+	 * Contains Submit logics
+	 * @param request
+	 * @param response
+	 * @throws ServletException
+	 * @throws IOException
+	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
@@ -62,15 +74,16 @@ public class ErrorCtl extends BaseCtl {
 		ServletUtility.forward(getView(), request, response);
 		log.debug("Do Post Method of Error Ctl End");
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see in.co.rays.ors.controller.BaseCtl#getView()
+	/**
+	 * Returns the VIEW page of this Controller
+	 *
+	 * @return
 	 */
 	@Override
+
 	protected String getView() {
 		return ORSView.ERROR_VIEW;
 	}
+
 
 }

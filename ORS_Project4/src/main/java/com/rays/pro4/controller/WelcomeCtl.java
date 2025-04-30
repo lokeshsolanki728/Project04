@@ -28,6 +28,14 @@ public class WelcomeCtl extends BaseCtl {
     /**
      * Contains Display logics.
      */
+    /**
+	 * Contains display logics
+	 * 
+	 * @param request
+	 * @param response
+	 * @throws ServletException
+	 * @throws IOException
+	 */
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -38,12 +46,29 @@ public class WelcomeCtl extends BaseCtl {
         log.debug("WelcomeCtl Method doGet Ended");
     }
 
+    /**
+	 * Contains submit logics
+	 * 
+	 * @param request
+	 * @param response
+	 * @throws ServletException
+	 * @throws IOException
+	 */
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
         doGet(request, response);
     }
 
+    /**
+	 * Returns the VIEW page of this Controller
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws ServletException
+	 * @throws IOException
+	 */
     
     protected String getView() {
         return ORSView.WELCOME_VIEW;

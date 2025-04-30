@@ -1,18 +1,19 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@page import="com.rays.pro4.Bean.SubjectBean"%>
 <%@page import="com.rays.pro4.Bean.CollegeBean"%>
 <%@page import="com.rays.pro4.Bean.CourseBean"%>
 <%@page import="java.util.List"%>
-<%@page import="com.rays.pro4.Util.HTMLUtility"%>+
+<%@page import="com.rays.pro4.Util.HTMLUtility"%>
 <%@page import="java.util.HashMap"%>
 <%@page import="com.rays.pro4.controller.FacultyCtl"%>
 <%@page import="com.rays.pro4.Util.DataUtility"%>
 <%@page import="com.rays.pro4.Util.ServletUtility"%>
+<%@page import="com.rays.pro4.controller.ORSView"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" isELIgnored="false"
 	pageEncoding="ISO-8859-1"%>
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<head>
-<meta charset="ISO-8859-1">
+<head>	
 <link rel="icon" type="image/png" href="<%=ORSView.APP_CONTEXT%>/img/logo.png"
 	sizes="16*16" />
 <title>Faculty Registration Page</title>
@@ -30,6 +31,7 @@
 		});
 	});
 </script>
+ <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
 </head>
 <body>
 	<jsp:useBean id="bean" class="com.rays.pro4.Bean.FacultyBean"
@@ -43,308 +45,94 @@
 		%>
 		<div class="container">
 			<h1>
-				<%=bean.getId() > 0 ? "Update Faculty" : "Add Faculty"%>
+				<c:choose>
+					<c:when test="${not empty bean.id}">Update Faculty</c:when>
+					<c:otherwise>Add Faculty</c:otherwise>
+				</c:choose>
 			</h1>
 			<div>
-				<div class="message">
-					<%=ServletUtility.getSuccessMessage(request)%>
-					<%=ServletUtility.getErrorMessage(request)%>
-				</div>
+				<c:if test="${not empty successMessage}">
+					<div class="alert alert-success" role="alert">${successMessage}</div>
+				</c:if>
+				<c:if test="${not empty errorMessage}">
+					<div class="alert alert-danger" role="alert">${errorMessage}</div>
+				</c:if>
 			</div>
-			<input type="hidden" name="id" value="<%=bean.getId()%>"> <input type="hidden" name="createdby" value="<%=bean.getCreatedBy()%>"> <input
-				type="hidden" name="modifiedby" value="<%=bean.getModifiedBy()%>"> <input type="hidden" name="createdDatetime"
-				value="<%=DataUtility.getStringData(bean.getCreatedDatetime())%>"> <input type="hidden" name="modifiedDatetime"
-				value="<%=DataUtility.getStringData(bean.getModifiedDatetime())%>">
+			<input type="hidden" name="id" value="${bean.id}"> <input
+				type="hidden" name="createdby" value="${bean.createdBy}"> <input
+				type="hidden" name="modifiedby" value="${bean.modifiedBy}"> <input
+				type="hidden" name="createdDatetime" value="${bean.createdDatetime}">
+			<input type="hidden" name="modifiedDatetime" value="${bean.modifiedDatetime}">
 
 			<div class="input-container">
-				<label>First Name <span class="required">*</span> :</label> <input type="text" name="firstname" placeholder=" Enter First Name"
-					size="25" value="<%=DataUtility.getStringData(bean.getFirstName())%>">
-				<div class="error">
-					<%=ServletUtility.getErrorMessage("firstname", request)%>
-				</div>
+				<label for="firstname">First Name <span class="required">*</span>
+					:</label> <input type="text" id="firstname" name="firstname"
+					placeholder=" Enter First Name" class="form-control" value="${bean.firstName}">
+				<div class="error">${requestScope.firstname}</div>
 			</div>
 			<div class="input-container">
-				<label>Last Name <span class="required">*</span> :</label> <input type="text" name="lastname" placeholder=" Enter last Name" size="25"
-					value="<%=DataUtility.getStringData(bean.getLastName())%>">
-				<div class="error">
-					<%=ServletUtility.getErrorMessage("lastname", request)%>
-				</div>
+				<label for="lastname">Last Name <span class="required">*</span>
+					:</label> <input type="text" id="lastname" name="lastname" class="form-control"
+					placeholder=" Enter last Name" value="${bean.lastName}">
+				<div class="error">${requestScope.lastname}</div>
 			</div>
 			<div class="input-container">
-				<label>Gender <span class="required">*</span> :</label>
-				<%
-					HashMap map = new HashMap();
-					map.put("Male", "Male");
-					map.put("Female", "Female");
-					String hlist = HTMLUtility.getList("gender", String.valueOf(bean.getGender()), map);
-				%> <%=hlist%>
-				<div class="error">
-					<%=ServletUtility.getErrorMessage("gender", request)%>
-				</div>
+				<label for="gender">Gender <span class="required">*</span>
+					:</label> <select id="gender" name="gender" class="form-control">
+					<option value="">Select Gender</option>
+					<option value="Male" ${bean.gender == 'Male' ? 'selected' : ''}>Male</option>
+					<option value="Female" ${bean.gender == 'Female' ? 'selected' : ''}>Female</option>
+				</select>
+				<div class="error">${requestScope.gender}</div>
 			</div>
 			<div class="input-container">
-				<label>CollegeName <span class="required">*</span> :</label>
-				<%=HTMLUtility.getList("collegeid", String.valueOf(bean.getCollegeId()), colist)%>
-				<div class="error">
-					<%=ServletUtility.getErrorMessage("collegeid", request)%>
-				</div>
+				<label for="collegeid">CollegeName <span class="required">*</span>
+					:</label> ${requestScope.collegeid}
+				<div class="error">${requestScope.collegeid}</div>
 			</div>
 			<div class="input-container">
-				<label>CourseName <span class="required">*</span> :</label>
-				<%=HTMLUtility.getList("courseid", String.valueOf(bean.getCourseId()), clist)%>
-				<div class="error">
-					<%=ServletUtility.getErrorMessage("courseid", request)%>
-				</div>
+				<label for="courseid">CourseName <span class="required">*</span>
+					:</label> ${requestScope.courseid}
+				<div class="error">${requestScope.courseid}</div>
 			</div>
 			<div class="input-container">
-				<label>SubjectName <span class="required">*</span> :</label>
-				<%=HTMLUtility.getList("subjectid", String.valueOf(bean.getSubjectId()), slist)%>
-				<div class="error">
-					<%=ServletUtility.getErrorMessage("subjectid", request)%>
-				</div>
+				<label for="subjectid">SubjectName <span class="required">*</span>
+					:</label> ${requestScope.subjectid}
+				<div class="error">${requestScope.subjectid}</div>
 			</div>
 			<div class="input-container">
-				<label>Date Of Birth <span class="required">*</span> :</label> <input type="text" name="dob" placeholder="Enter Date Of Birth" size="25"
-					readonly="readonly" id="date" value="<%=DataUtility.getDateString(bean.getDob())%>">
-				<div class="error">
-					<%=ServletUtility.getErrorMessage("dob", request)%>
-				</div>
+				<label for="date">Date Of Birth <span class="required">*</span>
+					:</label> <input type="text" name="dob" placeholder="Enter Date Of Birth" class="form-control"
+					readonly="readonly" id="date" value="${bean.dob}">
+				<div class="error">${requestScope.dob}</div>
 			</div>
 			<div class="input-container">
-				<label>LoginId <span class="required">*</span> :</label> <input type="text" name="loginid" placeholder=" Enter Login Id" size="25"
-					value="<%=DataUtility.getStringData(bean.getEmailId())%>">
-				<div class="error">
-					<%=ServletUtility.getErrorMessage("loginid", request)%>
-				</div>
+				<label for="loginid">LoginId <span class="required">*</span>
+					:</label> <input type="text" id="loginid" name="loginid" class="form-control"
+					placeholder=" Enter Login Id" value="${bean.emailId}">
+				<div class="error">${requestScope.loginid}</div>
 			</div>
 			<div class="input-container">
-				<label>MobileNo <span class="required">*</span> :</label> <input type="text" name="mobileno" size="25" maxlength="10"
-					placeholder=" Enter Mobile No" value="<%=DataUtility.getStringData(bean.getMobileNo())%>">
-				<div class="error">
-					<%=ServletUtility.getErrorMessage("mobileno", request)%>
-				</div>
+				<label for="mobileno">MobileNo <span class="required">*</span>
+					:</label> <input type="text" id="mobileno" name="mobileno" class="form-control" maxlength="10"
+					placeholder=" Enter Mobile No" value="${bean.mobileNo}">
+				<div class="error">${requestScope.mobileno}</div>
 			</div>
 			<div class="button-container">
-				<%
-					if (bean.getId() > 0) {
-				%>
-				<input type="submit" name="operation" value="<%=FacultyCtl.OP_UPDATE%>"> <input type="submit" name="operation" value="<%=FacultyCtl.OP_CANCEL%>">
-				<%
-				} else {
-				%>
-				<input type="submit" name="operation" value="<%=FacultyCtl.OP_SAVE%>"> <input type="submit" name="operation" value="<%=FacultyCtl.OP_RESET%>">
-				<%
-					}
-				%>
+				<c:choose>
+					<c:when test="${not empty bean.id}">
+						<input type="submit" name="operation"
+							value="<%=FacultyCtl.OP_UPDATE%>"> <input type="submit"
+							name="operation" value="<%=FacultyCtl.OP_CANCEL%>">
+					</c:when>
+					<c:otherwise>
+						<input type="submit" name="operation"
+							value="<%=FacultyCtl.OP_SAVE%>"> <input type="submit"
+							name="operation" value="<%=FacultyCtl.OP_RESET%>">
+					</c:otherwise>
+				</c:choose>
 			</div>
 		</div>
 	</form>
 	<%@include file="Footer.jsp"%>
 </body>
-</html>
-
-	<form action="<%=ORSView.FACULTY_CTL%>" method="post">
-
-		<%
-			List<CollegeBean> colist = (List<CollegeBean>) request.getAttribute("CollegeList");
-			List<CourseBean> clist = (List<CourseBean>) request.getAttribute("CourseList");
-			List<SubjectBean> slist = (List<SubjectBean>) request.getAttribute("SubjectList");
-		%>
-
-		<div align="center">
-			<div>
-				<h1>
-					<%
-						if (bean.getId() > 0) {
-					%>
-					Update Faculty
-					<%
-						} else {
-					%>
-					Add Faculty
-					<%
-						}
-					%>
-				</h1>
-				<div>
-					<span class="success"> <%=ServletUtility.getSuccessMessage(request)%>
-					</span> <span class="error"> <%=ServletUtility.getErrorMessage(request)%>
-					</span>
-				</div>
-			</div>
-
-			<input type="hidden" name="id" value=<%=bean.getId()%>> 
-			<input type="hidden" name="createdby" value=<%=bean.getCreatedBy()%>>
-			<input type="hidden" name="modifiedby" value=<%=bean.getModifiedBy()%>>
-			 <input type="hidden" name="createdDatetime" value=<%=DataUtility.getStringData(bean.getCreatedDatetime())%>>
-			<input type="hidden" name="modifiedDatetime" value=<%=DataUtility.getStringData(bean.getModifiedDatetime())%>>
-
-			<div class="row">
-				<div>
-					<label>First Name <span class="required">*</span> :</label>
-				</div>
-				<div>
-					<input type="text" name="firstname"
-						placeholder=" Enter First Name" size="25"
-						value="<%=DataUtility.getStringData(bean.getFirstName())%>">
-				</div>
-				<div class="error">
-					<%=ServletUtility.getErrorMessage("firstname", request)%>
-				</div>
-			</div>
-
-			<div class="row">
-				<div>
-					<label>Last Name <span class="required">*</span> :</label>
-				</div>
-				<div>
-					<input type="text" name="lastname" placeholder=" Enter last Name"
-						size="25" value="<%=DataUtility.getStringData(bean.getLastName())%>">
-				</div>
-				<div class="error">
-					<%=ServletUtility.getErrorMessage("lastname", request)%>
-				</div>
-			</div>
-
-			<div class="row">
-				<div>
-					<label>Gender <span class="required">*</span> :</label>
-				</div>
-				<div>
-					<%
-						HashMap map = new HashMap();
-						map.put("Male", "Male");
-						map.put("Female", "Female");
-
-						String hlist = HTMLUtility.getList("gender",
-								String.valueOf(bean.getGender()), map);
-					%> <%=hlist%>
-				</div>
-				<div class="error">
-					<%=ServletUtility.getErrorMessage("gender", request)%>
-				</div>
-			</div>
-
-			<div class="row">
-				<div>
-					<label>CollegeName <span class="required">*</span> :</label>
-				</div>
-				<div>
-					<%=HTMLUtility.getList("collegeid", String.valueOf(bean.getCollegeId()), colist)%>
-				</div>
-				<div class="error">
-					<%=ServletUtility.getErrorMessage("collegeid", request)%>
-				</div>
-			</div>
-
-			<div class="row">
-				<div>
-					<label>CourseName <span class="required">*</span> :</label>
-				</div>
-				<div>
-					<%=HTMLUtility.getList("courseid", String.valueOf(bean.getCourseId()), clist)%>
-				</div>
-				<div class="error">
-					<%=ServletUtility.getErrorMessage("courseid", request)%>
-				</div>
-			</div>
-
-			<div class="row">
-				<div>
-					<label>SubjectName <span class="required">*</span> :</label>
-				</div>
-				<div>
-					<%=HTMLUtility.getList("subjectid", String.valueOf(bean.getSubjectId()), slist)%>
-				</div>
-				<div class="error">
-					<%=ServletUtility.getErrorMessage("subjectid", request)%>
-				</div>
-			</div>
-
-			<div class="row">
-				<div>
-					<label>Date Of Birth <span class="required">*</span> :</label>
-				</div>
-				<div>
-					<input type="text" name="dob" placeholder="Enter Date Of Birth"
-						size="25" readonly="readonly" id="date"
-						value="<%=DataUtility.getDateString(bean.getDob())%>">
-				</div>
-				<div class="error">
-					<%=ServletUtility.getErrorMessage("dob", request)%>
-				</div>
-			</div>
-
-			<div class="row">
-				<div>
-					<label>LoginId <span class="required">*</span> :</label>
-				</div>
-				<div>
-					<input type="text" name="loginid" placeholder=" Enter Login Id"
-						size="25" value="<%=DataUtility.getStringData(bean.getEmailId())%>">
-				</div>
-				<div class="error">
-					<%=ServletUtility.getErrorMessage("loginid", request)%>
-				</div>
-			</div>
-
-			<div class="row">
-				<div>
-					<label>MobileNo <span class="required">*</span> :</label>
-				</div>
-				<div>
-					<input type="text" name="mobileno" size="25" maxlength="10"
-						placeholder=" Enter Mobile No"
-						value="<%=DataUtility.getStringData(bean.getMobileNo())%>">
-				</div>
-				<div class="error">
-					<%=ServletUtility.getErrorMessage("mobileno", request)%>
-				</div>
-			</div>
-
-			<%
-				if (bean.getId() > 0) {
-			%>
-			<div class="row">
-				<input type="submit" name="operation" value="<%=FacultyCtl.OP_UPDATE%>">
-				<input type="submit" name="operation" value="<%=FacultyCtl.OP_CANCEL%>">
-			</div>
-			<%
-				} else {
-			%>
-			<div class="row">
-				<input type="submit" name="operation" value="<%=FacultyCtl.OP_SAVE%>">
-				<input type="submit" name="operation" value="<%=FacultyCtl.OP_RESET%>">
-			</div>
-			<%
-				}
-			%>
-		</div>
-
-	</form>
-	<%@include file="Footer.jsp"%>
-</body>
-<style>
-	.row {
-		display: flex;
-		flex-direction: column;
-		margin-bottom: 10px; /* Espacio entre las filas */
-	}
-	
-	.required {
-		color: red;
-	}
-	
-	.error {
-		color: red;
-		font-size: 14px; /* Ajusta el tamaño de la fuente del mensaje de error */
-		margin-top: 5px; /* Añade un poco de espacio encima del mensaje de error */
-	}
-	
-	.success {
-		color: green;
-		font-size: 14px;
-		margin-top: 5px;
-	}
-	</style>
-</html>

@@ -26,16 +26,23 @@ import com.rays.pro4.Util.ServletUtility;
  * @author Lokesh SOlanki
  * 
  */
-@WebServlet(name = "UserCtl", urlPatterns = { "/ctl/UserCtl" })
-public class UserCtl extends BaseCtl {
-	
-	private static final long serialVersionUID = 1L;
+@WebServlet(name = "UserCtl", urlPatterns = {"/ctl/UserCtl"})
+public class UserCtl extends BaseCtl<UserBean> {
+
+    private static final long serialVersionUID = 1L;
 
 	/** The log. */
 	private static Logger log = Logger.getLogger(UserCtl.class);
 	
 	
 	
+	/**
+	 * Validates input data entered by User.
+	 *
+	 * @param request the request
+	 * @return true, if successful
+	 * @throws ServletException the servlet exception
+	 */
 	@Override
 	protected boolean validate(HttpServletRequest request) {
 		
@@ -75,11 +82,9 @@ public class UserCtl extends BaseCtl {
 			pass = false;
 		}
 
-		long id = DataUtility.getLong(request.getParameter("id"));
-		if(id>0){
 			
-		}else{		
 		if (DataValidator.isNull(request.getParameter("password"))) {
+		
 				request.setAttribute("password", PropertyReader.getValue("error.require", "Password"));		
 				pass = false;
 			} else if (!DataValidator.isPassword(request.getParameter("password"))) {
@@ -96,8 +101,6 @@ public class UserCtl extends BaseCtl {
 				
 				pass = false;
 			}
-
-		}
 
 		if (DataValidator.isNull(request.getParameter("gender"))) {
 			request.setAttribute("gender", PropertyReader.getValue("error.require", "Gender"));
@@ -122,11 +125,18 @@ public class UserCtl extends BaseCtl {
 		return pass;
 	}
 
-	protected BaseBean populateBean(HttpServletRequest request) {
-		System.out.println(" uctl Base bean P bean");
+	/**
+	 * Populates bean object from request parameters.
+	 *
+	 * @param request the request
+	 * @return the base bean
+	 * @throws ServletException the servlet exception
+	 */
+	@Override
+	protected UserBean populateBean(HttpServletRequest request) {
 		log.debug("UserCtl Method populatebean Started");
-
-		UserBean bean = new UserBean();
+		
+		UserBean bean = new UserBean();		
 
 		bean.setId(DataUtility.getLong(request.getParameter("id")));
 
@@ -147,14 +157,19 @@ public class UserCtl extends BaseCtl {
 		bean.setMobileNo(DataUtility.getString(request.getParameter("mobileNo")));
 
 		bean.setDob(DataUtility.getDate(request.getParameter("dob")));
-		
-		populateDTO(bean, request);
+		populateDTO(bean, request);	
+		log.debug("UserCtl Method populatebean Ended");	
+		return bean;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
+	}
 	 * javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest,
+	 * Contains display logic.
+	 *
+	 * @param request the request
+	 * @param response the response
+	 * @throws ServletException the servlet exception
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 * 
 	 * javax.servlet.http.HttpServletResponse)
 	 */
 
@@ -171,8 +186,6 @@ public class UserCtl extends BaseCtl {
 			UserBean bean;
 			try {
 				bean = model.findByPK(id);
-				System.out.println("Ankit11111111111");
-				System.out.println(bean);
 				ServletUtility.setBean(bean, request);
 			} catch (ApplicationException e) {
 				log.error(e);
@@ -185,13 +198,15 @@ public class UserCtl extends BaseCtl {
 	
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest,
-	 * javax.servlet.http.HttpServletResponse)
+	/**
+	 * Contains submit logic.
+	 *
+	 * @param request the request
+	 * @param response the response
+	 * @throws ServletException the servlet exception
+	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
+	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		
@@ -200,15 +215,13 @@ public class UserCtl extends BaseCtl {
 
 		String op = DataUtility.getString(request.getParameter("operation"));
 		long id = DataUtility.getLong(request.getParameter("id"));	
-
-		System.out.println(">>>><<<<>><<><<><<><>**********" + id + op);
-
 		UserModel model = new UserModel();
 		if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
 			UserBean bean = (UserBean) populateBean(request);
-			System.out.println(" U ctl DoPost 11111111");
-
 			try {
+				if(OP_SAVE.equalsIgnoreCase(op)){
+					bean.setId(0);
+				}
 				if (id > 0) {
 					model.update(bean);
 					ServletUtility.setSuccessMessage(PropertyReader.getValue("success.user.update"), request);
@@ -232,7 +245,7 @@ public class UserCtl extends BaseCtl {
 				ServletUtility.setErrorMessage(PropertyReader.getValue("error.user.login.duplicate"), request);
 			}
 		} else if (OP_DELETE.equalsIgnoreCase(op)) {
-			UserBean bean = (UserBean) populateBean(request);
+			UserBean bean =  populateBean(request);
 			try {
 				model.delete(bean);
 				ServletUtility.redirect(ORSView.USER_CTL, request, response);
@@ -251,7 +264,12 @@ public class UserCtl extends BaseCtl {
 
 
 	
-	}	
+	}
+	 /**
+     * Returns the VIEW page of this Controller
+     *
+     * @return the view
+     */
 	 */
 	@Override
 	protected String getView() {

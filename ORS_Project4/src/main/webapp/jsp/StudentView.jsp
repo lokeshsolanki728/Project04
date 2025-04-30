@@ -1,18 +1,19 @@
 
-<%@page import="com.rays.pro4.Util.HTMLUtility"%>
-<%@page import="javax.swing.text.html.HTML"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@page import="com.rays.pro4.Bean.CollegeBean"%>
 <%@page import="java.util.List"%>
 <%@page import="com.rays.pro4.controller.StudentCtl"%>
 <%@page import="com.rays.pro4.Util.ServletUtility"%>
 <%@page import="com.rays.pro4.Util.DataUtility"%>
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1"%>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
+<%@page import="com.rays.pro4.controller.ORSView"%>
 
 <html>
 <head>
-<link rel="icon" type="image/png" href="<%=ORSView.APP_CONTEXT%>/img/logo.png" sizes="16*16"/>
-<title> Student Registration Page</title>
+<link rel="icon" type="image/png" href="${pageContext.request.contextPath}/img/logo.png" sizes="16*16" />
+<title>Student Registration Page</title>
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
 
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -20,132 +21,96 @@
   <link rel="stylesheet" href="/resources/demos/style.css">
   <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/jquery-ui.min.css" />
+  <script type="text/javascript" src="${pageContext.request.contextPath}/resources/jquery-3.5.1.min.js"></script>
+  <script type="text/javascript" src="${pageContext.request.contextPath}/resources/jquery-ui.min.js"></script>
   <script>
   $( function() {
-    $( "#udate4" ).datepicker({
+    $( "#udate" ).datepicker({
       changeMonth: true,
       changeYear: true,
 	  yearRange:'1980:2002', 
-	  
     });
   } );
   </script>
-
-
+<style type="text/css">
+</style>
 </head>
 <body>
-    <jsp:useBean id="bean" class="com.rays.pro4.Bean.StudentBean" scope="request"></jsp:useBean>
-    	
-	<form action="<%=ORSView.STUDENT_CTL%>" method="post">
-    <%@include file="Header.jsp"%>
-    
-    <% 
-    	List <CollegeBean> clist = (List <CollegeBean>)request.getAttribute("collegeList");
-    
-    %>
-    
-    <center>
-        <h1>
-        	<%
-        		if( bean != null && bean.getId()>0){
-        	%> 
-        	<tr><th><font>Update Student</font></th></tr>
-        	<% }else{%>
-        	<tr><th><font>Add Student</font></th></tr>
-        	<% }%>
-        </h1>
-		
-		<div>
-		<h3><font style="color: green"><%=ServletUtility.getSuccessMessage(request) %></font></h1>
-		<h3><font style="color: red"><%=ServletUtility.getErrorMessage(request) %></font>
-		</h1>
+	<jsp:useBean id="bean" class="com.rays.pro4.Bean.StudentBean" scope="request"></jsp:useBean>
+	<%@include file="Header.jsp"%>
+	<form action="${pageContext.request.contextPath}${ORSView.STUDENT_CTL}" method="post">
+		<c:set var="clist" value="${requestScope.collegeList}"></c:set>
+		<div class="text-center">
+			<h1>
+				<c:choose>
+					<c:when test="${not empty bean.id}">Update Student</c:when>
+					<c:otherwise>Add Student</c:otherwise>
+				</c:choose>
+			</h1>
+			<c:if test="${not empty successMessage}">
+				<div class="alert alert-success" role="alert">${successMessage}</div>
+			</c:if>
+			<c:if test="${not empty errorMessage}">
+				<div class="alert alert-danger" role="alert">${errorMessage}</div>
+			</c:if>
 		</div>
-		
-		<input type="hidden" name="id" value="<%=bean.getId()%>">
-		<input type="hidden" name="createdby" value="<%=bean.getCreatedBy()%>">
-		<input type="hidden" name="modifiedby" value="<%=bean.getModifiedBy()%>">
-		<input type="hidden" name="createddatetime" value="<%=bean.getCreatedDatetime()%>">
-		<input type="hidden" name="modifieddatetime" value="<%=bean.getModifiedDatetime()%>">
-
-	<table>
-	
-		<tr>
-		<th align="left">CollegeName <span style="color: red">*</span> :</th>
-		<td><%=HTMLUtility.getList("collegename", String.valueOf(bean.getCollegeId()), clist) %>
-		<td style="position: fixed"><font color="red" ><%=ServletUtility.getErrorMessage("collegename", request)%></font>
-		</td>
-		</tr>
-		
-	  <tr><th style="padding: 3px"></th></tr>    	
-		
-		<tr>
-		<th align="left">FirstName <span style="color: red">*</span> :</th>
-		<td><input type="text" name="firstname" placeholder="Enter First Name" size="25" value="<%=DataUtility.getStringData(bean.getFirstName())%>"></td>
-		<td style="position: fixed"><font  color="red"><%=ServletUtility.getErrorMessage("firstname", request)%></font>
-		</td>
-		</tr>
-		
-		  <tr><th style="padding: 3px"></th></tr>    
-		
-		<tr>
-		<th align="left" >LastName <span style="color: red">*</span> :</th>
-		<td><input type="text" name="lastname" placeholder="Enter Last Name" size="25" value="<%=DataUtility.getStringData(bean.getLastName())%>"></td>
-		<td style="position: fixed"><font  color="red"><%=ServletUtility.getErrorMessage("lastname", request)%></font>
-		</td>
-		</tr>
-		
-		  <tr><th style="padding: 3px"></th></tr>    
-		
-		 <tr>
-		  <th align="left">Date Of Birth <span style="color: red">*</span> :</th>
-          <td><input type="text" name="dob" id="udate4" readonly="readonly" placeholder=" Date of Birth" size="25"  value="<%=DataUtility.getDateString(bean.getDob())%>"></td> 
-         <td style="position: fixed"><font color="red"> <%=ServletUtility.getErrorMessage("dob", request)%></font></td>
-                </tr>
-   
-   <tr><th style="padding: 3px"></th></tr>    
-	
-		<tr>
-		<th align="left">MobileNo <span style="color: red">*</span> :</th>
-		<td><input type="text" name="mobile" maxlength="10" placeholder="Enter Mobile No" size="25" value="<%=DataUtility.getStringData(bean.getMobileNo())%>"></td>
-		<td style="position: fixed" ><font color="red"><%=ServletUtility.getErrorMessage("mobile", request)%></font>
-		</td>
-		</tr>
-	
-		  <tr><th style="padding: 3px"></th></tr>    
-	
-		<tr>
-		<th align="left">Email-Id <span style="color: red">*</span> :</th>
-		<td><input type="text" name="email" placeholder="Enter Email_Id" size="25" value="<%=DataUtility.getStringData(bean.getEmail())%>"></td>
-		<td style="position: fixed" ><font color="red"><%=ServletUtility.getErrorMessage("email", request)%></font>
-		</td>
-		</tr>
-	
-		  <tr><th style="padding: 3px"></th></tr>    
-		
-
-	<tr>
-	<th></th>
-		<%
-		if(bean.getId() > 0){ %>
-		<td>
-		 &nbsp;  &emsp;
-		<input type="submit" name="operation" value="<%=StudentCtl.OP_UPDATE %>">
-		 &nbsp;  &nbsp;
-		<input type="submit" name="operation" value="<%=StudentCtl.OP_CANCEL%>"></td>
-		<%}else{ %>
-		<td>
-		 &nbsp;  &emsp;
-		<input type="submit" name="operation" value="<%=StudentCtl.OP_SAVE %>">
-		 &nbsp;  &nbsp;
-		<input type="submit" name="operation" value="<%=StudentCtl.OP_RESET%>"></td>
-	
-		<%} %>
-	</tr>
-	
-	</table>
-</form>
-</center>
-
-<%@ include file = "Footer.jsp" %>
+		<input type="hidden" name="id" value="${bean.id}">
+		<input type="hidden" name="createdby" value="${bean.createdBy}">
+		<input type="hidden" name="modifiedby" value="${bean.modifiedBy}">
+		<input type="hidden" name="createddatetime" value="${bean.createdDatetime}">
+		<input type="hidden" name="modifieddatetime" value="${bean.modifiedDatetime}">
+		<div class="container">
+			<table>
+				<tr>
+					<th align="left"><label for="collegename">CollegeName <span class="required">*</span> :</label></th>
+					<td><select class="form-control" id="collegename" name="collegename">
+							<option value="">Select College</option>
+							<c:forEach items="${clist}" var="college">
+								<option value="${college.id}" ${college.id == bean.collegeId ? 'selected' : ''}>${college.name}</option>
+							</c:forEach>
+					</select></td>
+					<td><div class="error-message">${requestScope.collegename}</div></td>
+				</tr>
+				<tr>
+					<th align="left"><label for="firstname">FirstName <span class="required">*</span> :</label></th>
+					<td><input type="text" id="firstname" class="form-control" name="firstname" placeholder="Enter First Name" value="${bean.firstName}"></td>
+					<td><div class="error-message">${requestScope.firstname}</div></td>
+				</tr>
+				<tr>
+					<th align="left"><label for="lastname">LastName <span class="required">*</span> :</label></th>
+					<td><input type="text" id="lastname" class="form-control" name="lastname" placeholder="Enter Last Name" value="${bean.lastName}"></td>
+					<td><div class="error-message">${requestScope.lastname}</div></td>
+				</tr>
+				<tr>
+					<th align="left"><label for="udate">Date Of Birth <span class="required">*</span> :</label></th>
+					<td><input type="text" id="udate" class="form-control" name="dob" readonly="readonly" placeholder=" Date of Birth" value="${bean.dob}"></td>
+					<td><div class="error-message">${requestScope.dob}</div></td>
+				</tr>
+				<tr>
+					<th align="left"><label for="mobile">MobileNo <span class="required">*</span> :</label></th>
+					<td><input type="text" id="mobile" class="form-control" name="mobile" maxlength="10" placeholder="Enter Mobile No" value="${bean.mobileNo}"></td>
+					<td><div class="error-message">${requestScope.mobile}</div></td>
+				</tr>
+				<tr>
+					<th align="left"><label for="email">Email-Id <span class="required">*</span> :</label></th>
+					<td><input type="text" id="email" class="form-control" name="email" placeholder="Enter Email_Id" value="${bean.email}"></td>
+					<td><div class="error-message">${requestScope.email}</div></td>
+				</tr>
+				<tr>
+					<th></th>
+					<c:choose>
+						<c:when test="${bean.id > 0}">
+							<td>&nbsp; &emsp; <input type="submit" name="operation" value="${StudentCtl.OP_UPDATE}"> &nbsp; &nbsp; <input type="submit" name="operation" value="${StudentCtl.OP_CANCEL}"></td>
+						</c:when>
+						<c:otherwise>
+							<td>&nbsp; &emsp; <input type="submit" name="operation" value="${StudentCtl.OP_SAVE}"> &nbsp; &nbsp; <input type="submit" name="operation" value="${StudentCtl.OP_RESET}"></td>
+						</c:otherwise>
+					</c:choose>
+				</tr>
+			</table>
+		</div>
+	</form>
+	<%@ include file="Footer.jsp"%>
 </body>
 </html>

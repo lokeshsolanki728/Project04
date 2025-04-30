@@ -32,11 +32,19 @@ public class RoleListCtl extends BaseCtl{
 	 /** The log. */
     private static Logger log = Logger.getLogger(RoleListCtl.class);
 
-    /* (non-Javadoc)
-     * @see in.co.rays.ors.controller.BaseCtl#preload(javax.servlet.http.HttpServletRequest)
-     */
+    /**
+	 * Loads pre-load data.
+	 *
+	 * @param request the request
+	 */
+	    
     @Override
     protected void preload(HttpServletRequest request){
+        
+        log.debug("preload method of RoleListCtl Started");
+        
+        
+
        
        RoleModel rmodel = new RoleModel();
     		
@@ -48,10 +56,15 @@ public class RoleListCtl extends BaseCtl{
             e.printStackTrace();
             }
             }
+    /**
+	 * Populates bean object from request parameters.
+	 *
+	 * @param request the request
+	 * @return the base bean
+	 * 
+	 */
     
-    /* (non-Javadoc)
-     * @see in.co.rays.ors.controller.BaseCtl#populateBean(javax.servlet.http.HttpServletRequest)
-     */
+   
     @Override
     protected BaseBean populateBean(HttpServletRequest request) {
         RoleBean bean = new RoleBean();
@@ -61,13 +74,16 @@ public class RoleListCtl extends BaseCtl{
     }
 
     /**
-     * Contains Display logics.
-     *
-     * @param request the request
-     * @param response the response
-     * @throws ServletException the servlet exception
-     * @throws IOException Signals that an I/O exception has occurred.
-     */
+	 * Contains Display logics.
+	 *
+	 * @param request  the request
+	 * @param response the response
+	 * @throws ServletException the servlet exception
+	 * @throws IOException      Signals that an I/O exception has occurred.
+	 * @throws IOException
+	 */
+    
+   
     @Override
     protected void doGet(HttpServletRequest request,
             HttpServletResponse response) throws ServletException, IOException {
@@ -111,13 +127,16 @@ public class RoleListCtl extends BaseCtl{
     }
 
     /**
-     * Contains Submit logics.
-     *
-     * @param request the request
-     * @param response the response
-     * @throws ServletException the servlet exception
-     * @throws IOException Signals that an I/O exception has occurred.
-     */
+	 * Contains Submit logics.
+	 *
+	 * @param request  the request
+	 * @param response the response
+	 * @throws ServletException the servlet exception
+	 * @throws IOException      Signals that an I/O exception has occurred.
+	 */
+    
+    
+    
     @Override
     protected void doPost(HttpServletRequest request,
             HttpServletResponse response) throws ServletException, IOException {
@@ -198,9 +217,13 @@ public class RoleListCtl extends BaseCtl{
         log.debug("RoleListCtl doPost End");
     }
 
-    /* (non-Javadoc)
-     * @see in.co.rays.ors.controller.BaseCtl#getView()
-     */
+    /**
+	 * Returns the VIEW page of this Controller.
+	 *
+	 * @return the view
+	 * 
+	 */
+   
     @Override
     protected String getView() {
         return ORSView.ROLE_LIST_VIEW;

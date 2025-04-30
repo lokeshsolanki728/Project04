@@ -1,107 +1,101 @@
 
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1"%>
-    <%@page import="com.rays.pro4.controller.MyProfileCtl"%>
-<%@page import="com.rays.pro4.Util.HTMLUtility"%>
-<%@page import="java.util.HashMap"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<%@page import="com.rays.pro4.controller.MyProfileCtl"%>
+<%@page import="com.rays.pro4.controller.ORSView"%>
 <%@page import="com.rays.pro4.Util.DataUtility"%>
 <%@page import="com.rays.pro4.Util.ServletUtility"%>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+	pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="ISO-8859-1">
-<title>Insert title here</title>
+<link rel="icon" type="image/png"
+	href="${pageContext.request.contextPath}/img/logo.png" sizes="16*16" />
+<title>My Profile</title>
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
+
+
+<meta charset="utf-8">
+<link rel="stylesheet"
+	href="${pageContext.request.contextPath}/resources/demos/style.css">
 </head>
 <body>
 
-<form action="<%=ORSView.MY_PROFILE_CTL%>" method="post">
+	<form action="<%=ORSView.MY_PROFILE_CTL%>" method="post">
 
-        <%@ include file="Header.jsp"%>
-        <script type="text/javascript" src="../js/calendar.js"></script>
-        <jsp:useBean id="bean" class="com.rays.pro4.Bean.UserBean"
-        scope="request"></jsp:useBean>
+		<%@ include file="Header.jsp"%>
+		<jsp:useBean id="bean" class="com.rays.pro4.Bean.UserBean"
+			scope="request"></jsp:useBean>
 
-        <center>
-            <h1>My Profile</h1>
-            
-            <H2>
-                <font color="red"> <%=ServletUtility.getErrorMessage(request)%>
-                </font>
-            </H2>
-            <input type="hidden" name="id" value="<%=bean.getId()%>">
-            <input type="hidden" name="createdBy" value="<%=bean.getCreatedBy()%>">
-            <input type="hidden" name="modifiedBy" value="<%=bean.getModifiedBy()%>">
-            <input type="hidden" name="createdDatetime" value="<%=DataUtility.getTimestamp(bean.getCreatedDatetime())%>">
-            <input type="hidden" name="modifiedDatetime" value="<%=DataUtility.getTimestamp(bean.getModifiedDatetime())%>">
-            
+		<div class="text-center">
+			<h1>My Profile</h1>
 
-            <table>
-                <tr>
-                    <th align="left">LoginId*</th>
-                    <td><input type="text" name="login"
-                        value="<%=DataUtility.getStringData(bean.getLogin())%>"readonly="readonly"><font
-                        color="red"> <%=ServletUtility.getErrorMessage("login", request)%></font></td>
-                </tr>
+			<c:if test="${not empty errorMessage}">
+				<div class="alert alert-danger" role="alert">${errorMessage}</div>
+			</c:if>
+			<c:if test="${not empty successMessage}">
+				<div class="alert alert-success" role="alert">${successMessage}</div>
+			</c:if>
+		</div>
+		<input type="hidden" name="id" value="${bean.id}"> <input
+			type="hidden" name="createdBy" value="${bean.createdBy}"> <input
+			type="hidden" name="modifiedBy" value="${bean.modifiedBy}">
+		<input type="hidden" name="createdDatetime"
+			value="${bean.createdDatetime}"> <input type="hidden"
+			name="modifiedDatetime" value="${bean.modifiedDatetime}">
 
-                <tr>
-                    <th align="left">First Name*</th>
-                    <td><input type="text" name="firstName"
-                        value="<%=DataUtility.getStringData(bean.getFirstName())%>"><font
-                        color="red"> <%=ServletUtility.getErrorMessage("firstName", request)%></font></td>
-                </tr>
-                <tr>
-                    <th align="left">Last Name*</th>
-                    <td><input type="text" name="lastName"
-                        value="<%=DataUtility.getStringData(bean.getLastName())%>"><font
-                        color="red"> <%=ServletUtility.getErrorMessage("lastName", request)%></font></td>
-                </tr>
-                <tr>
-                    <th align="left">Gender</th>
-                    <td>
-                    <input type=" text" name="gender" value="<%= DataUtility.getStringData(bean.getGender())%>">
-                        <%-- <%
-                            HashMap map = new HashMap();
-                            map.put("M", "Male");
-                            map.put("F", "Female");
+		<div class="container">
+			<table>
+				<tr>
+					<th align="left"><label for="login">Login Id*</label></th>
+					<td><input type="text" id="login" name="login"
+						class="form-control" value="${bean.login}" readonly="readonly">
+						<div class="error-message">${requestScope.login}</div></td>
+				</tr>
 
-                            String htmlList = HTMLUtility.getList("gender", bean.getGender(),
-                                    map);
-                        %> <%=htmlList%> --%>
-                    </td>
-                </tr>
-                <tr>
-                    <th align="left">Mobile No*</th>
-                    <td><input type="text" name="mobileNo"
-                        value="<%=DataUtility.getStringData(bean.getMobileNo())%>"><font
-                        color="red"> <%=ServletUtility.getErrorMessage("mobileNo", request)%></font></td>
-                </tr>
+				<tr>
+					<th align="left"><label for="firstName">First Name*</label></th>
+					<td><input type="text" id="firstName" name="firstName"
+						class="form-control" value="${bean.firstName}">
+						<div class="error-message">${requestScope.firstName}</div></td>
+				</tr>
+				<tr>
+					<th align="left"><label for="lastName">Last Name*</label></th>
+					<td><input type="text" id="lastName" name="lastName"
+						class="form-control" value="${bean.lastName}">
+						<div class="error-message">${requestScope.lastName}</div></td>
+				</tr>
+				<tr>
+					<th align="left"><label for="gender">Gender</label></th>
+					<td><input type="text" name="gender" id="gender"
+						class="form-control" value="${bean.gender}"></td>
+				</tr>
+				<tr>
+					<th align="left"><label for="mobileNo">Mobile No*</label></th>
+					<td><input type="text" id="mobileNo" name="mobileNo"
+						class="form-control" value="${bean.mobileNo}">
+						<div class="error-message">${requestScope.mobileNo}</div></td>
+				</tr>
 
-                <tr>
-                    <th align="left">Date Of Birth (mm/dd/yyyy)</th>
-                    <td><input type="text" name="dob" readonly="readonly"
-                        value="<%=DataUtility.getDateString(bean.getDob())%>">
-                 <!--   <a href="javascript:getCalendar(document.forms[0].dob);">
-                            <img src="../img/cal.jpg" width="16" height="15" border="0"
-                            alt="Calender">
-                    </a> --><font
-                        color="red"> <%=ServletUtility.getErrorMessage("dob", request)%></font></td>
-                </tr>
-                
-            <H2>
-                <font color="green"> <%=ServletUtility.getSuccessMessage(request)%>
-                </font>
-            </H2>
-                
-                <tr>
-                    <th></th>
-                    <td colspan="2"><input type="submit" name="operation"
-                        value="<%=MyProfileCtl.OP_CHANGE_MY_PASSWORD %>"> &nbsp; <input type="submit"
-                        name="operation" value="<%=MyProfileCtl.OP_SAVE %>"> &nbsp;</td>
-                </tr>
-            </table>
+				<tr>
+					<th align="left"><label for="dob">Date Of Birth (mm/dd/yyyy)</label></th>
+					<td><input type="text" id="dob" name="dob" readonly="readonly"
+						class="form-control" value="${bean.dob}">
+						<div class="error-message">${requestScope.dob}</div></td>
+				</tr>
+
+				<tr>
+					<th></th>
+					<td colspan="2"><input type="submit" name="operation"
+						value="<%=MyProfileCtl.OP_CHANGE_MY_PASSWORD%>"> &nbsp; <input
+						type="submit" name="operation" value="<%=MyProfileCtl.OP_SAVE%>">
+						&nbsp;</td>
+				</tr>
+			</table>
+		</div>
     </form>
-    </center>
-    <%@ include file="Footer.jsp"%>
+	<%@ include file="Footer.jsp"%>
 
 
 </body>

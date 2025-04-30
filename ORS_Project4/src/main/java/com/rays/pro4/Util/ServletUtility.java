@@ -1,8 +1,8 @@
 package com.rays.pro4.Util;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.RequestDispatcher;
@@ -22,19 +22,21 @@ import com.rays.pro4.controller.BaseCtl;
  * @author Lokesh SOlanki
  *
  */
+
 public class ServletUtility {
 
 	/**
 	 * Forward to given JSP/Servlet with request and response.
 	 *
-	 * @param page     the page
-	 * @param request  the request
-	 * @param response the response
-	 * @param map 
-	 * @throws IOException
-	 * @throws ServletException
+	 * @param page     : page name
+	 * @param request  : request
+	 * @param response : response
+	 * @param map      : map
+	 * @throws IOException      if there is an input/output exception
+	 * @throws ServletException if there is an servlet exception
 	 */
-	public static void forward(String page, HashMap<String, Object> map, HttpServletRequest request, HttpServletResponse response)
+	public static void forward(String page, HashMap<String, Object> map, HttpServletRequest request,
+			HttpServletResponse response)
 			throws IOException, ServletException {
 		
 		if(map != null)
@@ -51,13 +53,14 @@ public class ServletUtility {
 
 	/**
 	 * Redirect to given JSP/Servlet
-	 * 
-	 * @param page
-	 * @param request
-	 * @param response
-	 * @throws IOException
-	 * @throws ServletException
+	 *
+	 * @param page     : page name
+	 * @param request  : request
+	 * @param response : response
+	 * @throws IOException      if there is an input/output exception
+	 * @throws ServletException if there is an servlet exception
 	 */
+
 	public static void redirect(String page, HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
 		response.sendRedirect(page);
@@ -66,56 +69,46 @@ public class ServletUtility {
 	/**
 	 * Handle Exception.
 	 *
-	 * @param e
-	 * @param request
-	 * @param response
-	 * @throws IOException
-	 * @throws ServletException
+	 * @param e        : exception
+	 * @param request  : request
+	 * @param response : response
+	 * @throws IOException      if there is an input/output exception
+	 * @throws ServletException if there is an servlet exception
 	 */
-	public static void handleException(Exception e,  HttpServletRequest request, HttpServletResponse response)
+	public static void handleException(Exception e, HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
-		// System.out.println("servlet ulitity error ctl------------>");
 		request.setAttribute("exception", e);
-//        response.sendRedirect(ORSView.ERROR_CTL);
-//        
 	}
 
 	/**
-	 * Gets error message from request.
+	 * Gets error message from request scope
 	 *
-	 * @param property the property
-	 * @param request  the request
-	 * @return the error message
+	 * @param request : request
+	 * @return String : Error Message
 	 */
-	public static String getErrorMessage(String property, HttpServletRequest request) {
-
-		String val = (String) request.getAttribute(property);
-		if (val == null) {
-			return "";
-		} else {
-			return val;
-		}
-	}
-
+	public static String getErrorMessage(HttpServletRequest request) {
+		Enumeration<String> e = request.getAttributeNames();
 		StringBuffer sb = new StringBuffer("<UL>");
 		String name = null;
 
 		while (e.hasMoreElements()) {
 			name = e.nextElement();
 			if (name.startsWith("error.")) {
-				sb.append("<LI class='error'>" + request.getAttribute(name) + "</LI>");
+				sb.append("<li class='error'>" + request.getAttribute(name) + "</li>");
 			}
 		}
-		sb.append("</UL>");
+		if (sb.length() > 4) {
+			sb.append("</UL>");
+		}
 		return sb.toString();
 	}
-	/*    */
+
 	/**
-	 * Gets a message from request
-	 * 
-	 * @param property
-	 * @param request
-	 * @return
+	 * Gets a message from request scope
+	 *
+	 * @param property : property
+	 * @param request  : request
+	 * @return String : message
 	 */
 	public static String getMessage(String property, HttpServletRequest request) {
 		String val = (String) request.getAttribute(property);
@@ -127,10 +120,10 @@ public class ServletUtility {
 	}
 
 	/**
-	 * Sets error message to request
-	 * 
-	 * @param msg
-	 * @param request
+	 * Sets error message to request scope
+	 *
+	 * @param msg     : message
+	 * @param request : request
 	 */
 	public static void setErrorMessage(String msg, HttpServletRequest request) {
 		request.setAttribute(BaseCtl.MSG_ERROR, msg);
@@ -138,15 +131,13 @@ public class ServletUtility {
 
 	/**
 	 * Gets error message from request.
-	 *
-	 * @param request the request
-	 * @return the error message
+	 * @param property : property
+	 * @param request : request
+	 * @return String : message
 	 */
-	public static String getErrorMessage(HttpServletRequest request) {
-		String val = (String) request.getAttribute(BaseCtl.MSG_ERROR);
-		if (val == null) {
-			return "";
-		} else {
+	public static String getErrorMessage(String property, HttpServletRequest request) {
+		String val = (String) request.getAttribute(property);
+		if (DataValidator.isNotNull(val)) {
 			return val;
 		}
 	}
@@ -176,10 +167,9 @@ public class ServletUtility {
 		}
 	}
 
-	/*
-	 * public static void setModel(BaseModel model, HttpServletRequest request) {
-	 * request.setAttribute("model", model); }
-	 */
+
+
+
 	/**
 	 * Sets default Bean to request.
 	 *
@@ -191,10 +181,6 @@ public class ServletUtility {
 
 	}
 
-	/*
-	 * public static void setUserModel(UserModel model, HttpServletRequest request)
-	 * { request.getSession().setAttribute("user", model); }
-	 */
 	/**
 	 * Gets default bean from request.
 	 *
@@ -206,35 +192,15 @@ public class ServletUtility {
 		return (BaseBean) request.getAttribute("bean");
 	}
 
-	/*
-	 * public static boolean isLoggedIn(HttpServletRequest request) { UserModel
-	 * model = (UserModel) request.getSession().getAttribute("user"); return model
-	 * != null; }
-	 * 
-	 *//*    *//**
-				 * Returns logged in user role. s
-				 * 
-				 * @param property the property
-				 * @param request  the request
-				 * @return the parameter
-				 */
-
-	/*
-	 * 
-	 * public static long getRole(HttpServletRequest request) { UserModel model =
-	 * (UserModel) request.getSession().getAttribute("user"); if (model != null) {
-	 * return model.getRoleId(); } else { return AppRole.STUDENT; } }
+	/**
+	 * gets Model from request scope
+	 *
+	 * @param request : request
+	 * @return : BaseModel
 	 */
-	/*    *//**
-			 * gets Model from request scope
-			 * 
-			 * @param request
-			 * @return
-			 */
 	public static BaseModel getModel(HttpServletRequest request) {
 		return (BaseModel) request.getAttribute("model");
 	}
-
 	/**
 	 * Get request parameter to display. If value is null then return empty string
 	 * 
@@ -263,7 +229,7 @@ public class ServletUtility {
 	}
 
 	/**
-	 * Gets default list from request.
+	 * Gets default list from request scope
 	 *
 	 * @param request the request
 	 * @return the list
@@ -283,7 +249,7 @@ public class ServletUtility {
 	}
 
 	/**
-	 * Gets Page Number for List pages.
+	 * Gets Page Number for List pages from request scope
 	 *
 	 * @param request the request
 	 * @return the page no
@@ -303,7 +269,7 @@ public class ServletUtility {
 	}
 
 	/**
-	 * Gets Page Size for List pages.
+	 * Gets Page Size for List pages from request scope
 	 *
 	 * @param request the request
 	 * @return the page size

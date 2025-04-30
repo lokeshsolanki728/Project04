@@ -3,14 +3,13 @@ package com.rays.pro4.controller;
 import java.io.IOException;
 import java.util.List;
 
-import javax.naming.MalformedLinkException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-
+import org.apache.taglibs.standard.tag.common.sql.DataSourceUtil;
 import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Bean.MarksheetBean;
 import com.rays.pro4.Exception.ApplicationException;
@@ -34,52 +33,63 @@ import com.rays.pro4.Util.ServletUtility;
 *  @author  Lokesh SOlanki
 */
 @WebServlet(name = "MarksheetListCtl", urlPatterns = { "/ctl/MarksheetListCtl" })
-public class MarksheetListCtl extends BaseCtl {
+public class MarksheetListCtl extends BaseCtl<MarksheetBean> {
 
 	/** The log. */
 	private static Logger log = Logger.getLogger(MarksheetListCtl.class);
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Loads pre-load data
 	 * 
-	 * @see in.co.rays.ors.controller.BaseCtl#preload(javax.servlet.http.
-	 * HttpServletRequest)
+	 * @param request
 	 */
 	@Override
+
+
 	protected void preload(HttpServletRequest request) {
-		MarksheetModel model= new  MarksheetModel();
-		try {
-			List list = model.list(0, 0);
-			request.setAttribute("rollNo", list);
-		} catch (ApplicationException e) {
-			e.printStackTrace();
-		}
+		
+		MarksheetBean bean= new MarksheetBean();
+		
+		request.setAttribute("rollNo", bean);
+		
 	}
-
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Populates bean object from request parameters
 	 * 
-	 * @see in.co.rays.ors.controller.BaseCtl#populateBean(javax.servlet.http.
-	 * HttpServletRequest)
+	 * @param request
+	 * @return
 	 */
-	@Override
-	protected BaseBean populateBean(HttpServletRequest request) {
-		MarksheetBean bean = new MarksheetBean();
+	
 
-		bean.setId(DataUtility.getLong(request.getParameter("rollNo123")));
-		// bean.setRollNo(DataUtility.getString(request.getParameter("rollNo")));
+	@Override
+	protected MarksheetBean populateBean(HttpServletRequest request) {
+		log.debug("populateBean method of MarksheetListCtl Started");
+		MarksheetBean bean = new MarksheetBean();
+		bean.setRollNo(DataUtility.getString(request.getParameter("rollNo")));
 		bean.setName(DataUtility.getString(request.getParameter("name")));
+		bean.setPhysics(DataUtility.getInt(request.getParameter("physics")));
+		bean.setChemistry(DataUtility.getInt(request.getParameter("chemistry")));
+		bean.setMaths(DataUtility.getInt(request.getParameter("maths")));
+		
+		populateDTO(bean, request);
+		log.debug("populateBean method of MarksheetListCtl End");
 		return bean;
 	}
+	
+	public MarksheetListCtl() {
+		
+	}
 
-	/**
-	 * ContainsDisplaylogics.
-	 *
-	 * @param request  the request
-	 * @param response the response
-	 * @throws ServletException the servlet exception
-	 * @throws IOException      Signals that an I/O exception has occurred.
-	 */
+	
+		/**
+		 * Contains Display logics
+		 * @param request
+		 * @param response
+		 * @throws ServletException
+		 * @throws IOException
+		 */
+
+	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
@@ -112,21 +122,22 @@ public class MarksheetListCtl extends BaseCtl {
 			log.debug("MarksheetListCtl doGet End");
 
 		} catch (ApplicationException e) {
-			e.printStackTrace();
+			
 			log.error(e);
 			ServletUtility.handleException(e, request, response);
 			return;
 		}
 	}
 
-	/**
-	 * Contains Submit logics.
-	 *
-	 * @param request  the request
-	 * @param response the response
-	 * @throws ServletException the servlet exception
-	 * @throws IOException      Signals that an I/O exception has occurred.
-	 */
+	
+		/**
+		 * Contains Submit logics
+		 * @param request
+		 * @param response
+		 * @throws ServletException
+		 * @throws IOException
+		 */
+	
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -178,7 +189,7 @@ public class MarksheetListCtl extends BaseCtl {
 					try {
 						model.delete(deletebean);
 					} catch (ApplicationException e) {
-						e.printStackTrace();
+						
 						ServletUtility.handleException(e, request, response);
 						return;
 					}
@@ -197,7 +208,7 @@ public class MarksheetListCtl extends BaseCtl {
 
 			ServletUtility.setBean(bean, request);
 		} catch (ApplicationException e) {
-			e.printStackTrace();
+			
 			ServletUtility.handleException(e, request, response);
 			return;
 		}
@@ -214,14 +225,14 @@ public class MarksheetListCtl extends BaseCtl {
 		log.debug("Marksheet List Ctl do post End");
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Returns the VIEW page of this Controller
 	 * 
-	 * @see in.co.rays.ors.controller.BaseCtl#getView()
+	 * @return
 	 */
 	@Override
+
 	protected String getView() {
 		return ORSView.MARKSHEET_LIST_VIEW;
 	}
-
-}
+ }

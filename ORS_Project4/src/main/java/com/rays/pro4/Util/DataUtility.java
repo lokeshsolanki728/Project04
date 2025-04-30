@@ -43,16 +43,16 @@ public class DataUtility {
 	}
 
 	/**
-	 * Converts and Object to String
+	 * Converts and Object to String, and return null if object is null
 	 *
 	 * @param val
 	 * @return
 	 */
-	public static String getStringData(Object val) {
+	public static String getString(Object val) {
 		if (val != null) {
 			return val.toString();
-		} else {
-			return "";
+		} else{
+			return null;
 		}
 	}
 

@@ -3,21 +3,23 @@ package com.rays.pro4.Util;
 import java.util.HashMap;
 /**
  *  Class that build Application Email messages.
- *  
+ *
  * @author Lokesh SOlanki
  *
  */
 public class EmailBuilder {
 
-	 /**
-     * Returns Successful User Registration Message
-     *
-     * @param map
-     *            : Message parameters
-     * @return
-     */
+	/**
+	 * Returns Successful User Registration Message
+	 *
+	 * @param map
+	 *            : Message parameters
+	 * @return String
+	 */
     public static String getUserRegistrationMessage(HashMap<String, String> map) {
         StringBuilder msg = new StringBuilder();
+        
+        
 
         msg.append("<HTML><BODY>");
         msg.append("Registration is successful for ORS Project SunilOS");
@@ -37,24 +39,31 @@ public class EmailBuilder {
         return msg.toString();
     }
 
-    /**
-     * Returns Email message of Forget Password
-     *
-     * @param map
-     *            : params
-     * @return
-     */
+	/**
+	 * Returns Email message of Forget Password
+	 *
+	 * @param map : params
+	 * @return String
+	 */
 
     public static String getForgetPasswordMessage(HashMap<String, String> map) {
         StringBuilder msg = new StringBuilder();
+        
+        
 
         msg.append("<HTML><BODY>");
-        msg.append("<H1>Your password is reccovered !! " + map.get("firstName")
-                + " " + map.get("lastName") + "</H1>");
-        /*
-         * msg.append("<P>To access account user login ID : " + map.get("login")
-         * + " and password " + map.get("password") + "</P>");
-         */
+        msg.append("<div>");
+        msg.append("<H1>Dear " + map.get("firstName")
+                + " " + map.get("lastName") + ",</H1>");
+        msg.append("<P>We have received a request to recover your password.</P>");
+        msg.append("<P>Here are your login credentials:</P>");
+
+        msg.append("<P><B>Please login into ORS and change your password. </B></p>");
+       
+        msg.append("<div>");
+        
+
+
         msg.append("<P><B>To access account user Login Id : "
                 + map.get("login") + "<BR>" + " Password : "
                 + map.get("password") + "</B></p>");
@@ -63,14 +72,16 @@ public class EmailBuilder {
         return msg.toString();
     }
 
-    /**
-     * Returns Email message of Change Password
-     *
-     * @param map
-     * @return
-     */
+	/**
+	 * Returns Email message of Change Password
+	 *
+	 * @param map : params
+	 * @return String
+	 */
     public static String getChangePasswordMessage(HashMap<String, String> map) {
         StringBuilder msg = new StringBuilder();
+        
+        
 
         msg.append("<HTML><BODY>");
         msg.append("<H1>Your Password has been changed Successfully !! "
@@ -87,5 +98,3 @@ public class EmailBuilder {
         return msg.toString();
     }
 
-	
-}

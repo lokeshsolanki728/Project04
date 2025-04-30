@@ -2,6 +2,7 @@ package com.rays.pro4.controller;
 
 import java.io.IOException;
 
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -28,7 +29,7 @@ import com.rays.pro4.Util.ServletUtility;
 *  @author Lokesh SOlanki
 */
 @WebServlet(name="ForgetPasswordCtl",urlPatterns={"/ForgetPasswordCtl"})
-public class ForgetPasswordCtl extends BaseCtl{
+public class ForgetPasswordCtl extends BaseCtl<UserBean>{
 
 
     /** The log. */
@@ -64,12 +65,13 @@ public class ForgetPasswordCtl extends BaseCtl{
      * @see in.co.rays.ors.controller.BaseCtl#populateBean(javax.servlet.http.HttpServletRequest)
      */
     @Override
-    protected BaseBean populateBean(HttpServletRequest request) {
+    protected UserBean populateBean(HttpServletRequest request) {
 
         log.debug("ForgetPasswordCtl Method populatebean Started");
 
         UserBean bean = new UserBean();
 
+        bean.setId(DataUtility.getLong(request.getParameter("id")));
         bean.setLogin(DataUtility.getString(request.getParameter("login")));
 
         log.debug("ForgetPasswordCtl Method populatebean Ended");
@@ -109,16 +111,16 @@ public class ForgetPasswordCtl extends BaseCtl{
 
         String op = DataUtility.getString(request.getParameter("operation"));
         UserBean bean = (UserBean) populateBean(request);
+        bean.setId(0);
 
 // get model
         UserModel model = new UserModel();
-
+        
         if (OP_GO.equalsIgnoreCase(op)) {
             try {
                 model.forgetPassword(bean.getLogin());
                 ServletUtility.setSuccessMessage("Password has been sent to your email id.", request);
             } catch (RecordNotFoundException e) {
-            	ServletUtility.setBean(bean, request);
 				ServletUtility.setErrorMessage("Login Id does'nt Exists", request);
 				//ServletUtility.forward(getView(), request, response);
                 log.error(e);
@@ -130,12 +132,11 @@ public class ForgetPasswordCtl extends BaseCtl{
             }
         }
             else if (OP_RESET.equalsIgnoreCase(op)) {
-            	
             	ServletUtility.redirect(ORSView.FORGET_PASSWORD_CTL, request, response);
             	return;
 			}
         log.debug("ForgetPasswordCtl Method doPost Ended");
-           ServletUtility.forward(getView(), request, response);
+        ServletUtility.forward(getView(), request, response);
             
 
     

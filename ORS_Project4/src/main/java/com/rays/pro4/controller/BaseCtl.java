@@ -1,7 +1,6 @@
  package com.rays.pro4.controller;
 
 import java.io.IOException;
-import java.util.MissingFormatArgumentException;
 import java.util.MissingResourceException;
 import java.util.Objects;
 import java.util.ResourceBundle;
@@ -26,7 +25,7 @@ import com.rays.pro4.Util.ServletUtility;
  *
  */
 
-public abstract class BaseCtl extends HttpServlet {
+public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
 
 	/**	
 	 * Default serial version ID
@@ -34,30 +33,91 @@ public abstract class BaseCtl extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("com.rays.pro4.resources.System");
 
+	/**
+	 * Save operation constant
+	 */
 	public static final String OP_SAVE = "Save";
+	/**
+	 * Cancel operation constant
+	 */
 	public static final String OP_CANCEL = "Cancel";
+	/**
+	 * Delete operation constant
+	 */
 	public static final String OP_DELETE = "Delete";
+	/**
+	 * List operation constant
+	 */
 	public static final String OP_LIST = "List";
+	/**
+	 * Search operation constant
+	 */
 	public static final String OP_SEARCH = "Search";
+	/**
+	 * View operation constant
+	 */
 	public static final String OP_VIEW = "View";
+	/**
+	 * Next operation constant
+	 */
 	public static final String OP_NEXT = "Next";
+	/**
+	 * Previous operation constant
+	 */
 	public static final String OP_PREVIOUS = "Previous";
+	/**
+	 * New operation constant
+	 */
 	public static final String OP_NEW = "New";
+	/**
+	 * Go operation constant
+	 */
 	public static final String OP_GO = "Go";
+	/**
+	 * Back operation constant
+	 */
 	public static final String OP_BACK = "Back";
+	/**
+	 * Logout operation constant
+	 */
 	public static final String OP_LOG_OUT = "Logout";
+	/**
+	 * Reset operation constant
+	 */
 	public static final String OP_RESET = "Reset";
+	/**
+	 * Update operation constant
+	 */
 	public static final String OP_UPDATE = "Update";
 
 	/**
 	 * Success message key constant
 	 */
 	public static final String MSG_SUCCESS = "success";
-
 	/**
 	 * Error message key constant
 	 */
 	public static final String MSG_ERROR = "error";
+
+	/**
+	 * Validate input Data Entered by User
+	 * 
+	 * @param request
+	 * @return
+	 */
+	protected boolean validate(HttpServletRequest request) {
+
+		return true;
+
+	}
+
+	/**
+	 * Loads list and other data required to display at HTML form
+	 * 
+	 * @param request
+	 */
+	protected void preload(HttpServletRequest request) {
+	}
 
 	/**
 	 * Validates input data entered by User
@@ -65,35 +125,25 @@ public abstract class BaseCtl extends HttpServlet {
 	 * @param request
 	 * @return
 	 */
-	protected  boolean validate(HttpServletRequest request) {
+	protected boolean validate(HttpServletRequest request) {
 		
 		return true;
-		
-	}
-	}
 
-	/**
-	 * Loads list and other data required to display at HTML form
-	 *
-	 * @param request
-	 */
-	protected void preload(HttpServletRequest request) {
 	}
 
 	/**
 	 * Populates bean object from request parameters
-	 *
-	 * @param request
+	 * 
+	 * @param request http request
 	 * @return
 	 */
-	protected abstract BaseBean populateBean(HttpServletRequest request) ;
-	
+	protected abstract T populateBean(HttpServletRequest request);
 
 	/**
 	 * Populates Generic attributes in DTO
 	 *
-	 * @param dto
-	 * @param request
+	 * @param dto Bean object
+	 * @param request  http request
 	 * @return
 	 */
 	protected BaseBean populateDTO(BaseBean dto, HttpServletRequest request) {
@@ -152,11 +202,11 @@ public abstract class BaseCtl extends HttpServlet {
 		// perform input data validation		
 		if (DataValidator.isNotNull(op) && !OP_CANCEL.equalsIgnoreCase(op) && !OP_VIEW.equalsIgnoreCase(op) && !OP_DELETE.equalsIgnoreCase(op) && !OP_RESET.equalsIgnoreCase(op)) {		
 			// messages
-
+			
 			if (!validate(request)) {
 				
-				BaseBean bean = (BaseBean) populateBean(request);
-				//wapis se inserted data dikhe jo phle in put kiya tha 
+				BaseBean bean = (BaseBean) populateBean(request); 
+				//wapis se inserted data dikhe jo phle in put kiya tha
 				ServletUtility.setBean(bean, request);
 				ServletUtility.forward(getView(), request, response);
 				return;
@@ -168,10 +218,9 @@ public abstract class BaseCtl extends HttpServlet {
 			ServletUtility.forward(getView(), request, response);
 		}
 	}
-
 	/**
 	 * Returns the VIEW page of this Controller
-	 *
+	 * 
 	 * @return
 	 */
 	protected abstract String getView();

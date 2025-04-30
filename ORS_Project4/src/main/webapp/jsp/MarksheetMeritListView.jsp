@@ -1,94 +1,94 @@
-<%@page import="com.rays.pro4.Util.ServletUtility"%>
-<%@page import="java.util.List"%>
-<%@page import="java.util.Iterator"%>
-<%@page import="com.rays.pro4.Bean.MarksheetBean"%>
-<%@page import="com.rays.pro4.controller.MarksheetMeritListCtl"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@page import="com.rays.pro4.controller.ORSView"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1"%>
+	pageEncoding="ISO-8859-1"%>
 
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<link rel="icon" type="image/png" href="<%=ORSView.APP_CONTEXT%>/img/logo.png" sizes="16*16"/>
-<title> Marksheet Merit List</title>
-
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="${pageContext.request.contextPath}/img/logo.png"
+	sizes="16*16" />
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
+<title>Marksheet Merit List</title>
+<style type="text/css">
+.table-container {
+	width: 100%;
+	overflow-x: auto;
+}
+table {
+	width: 100%;
+	border-collapse: collapse;
+}
+th, td {
+	border: 1px solid #ddd;
+	padding: 8px;
+	text-align: center;
+}
+th {
+	background-color: skyblue;
+}
+tr:nth-child(even) {
+	background-color: #f2f2f2;
+}
+.green-text {
+	color: green;
+}
+</style>
 </head>
 <body>
-<jsp:useBean id="bean" class="com.rays.pro4.Bean.MarksheetBean" scope="request" ></jsp:useBean>
-        <form action="<%=ORSView.MARKSHEET_MERIT_LIST_CTL%>" method="POST">
-    <%@include file="Header.jsp"%>
-    
-    <center>    
-    
-        <h1>Marksheet Merit List</h1>
+	<jsp:useBean id="bean" class="com.rays.pro4.Bean.MarksheetBean"
+		scope="request"></jsp:useBean>
+	<form action="${pageContext.request.contextPath}${ORSView.MARKSHEET_MERIT_LIST_CTL}" method="POST">
+		<%@include file="Header.jsp"%>
 
-            <br>
-            <table border="1" width="100%" align="center" cellpadding=4px cellspacing=".2">
-                <tr style="background: skyblue">
+		<div class="text-center">
+			<h1>Marksheet Merit List</h1>
+		</div>
+		<div class="table-container">
+			<table class="table table-striped table-bordered">
+				<thead class="thead-dark">
+					<tr>
+						<th>S.No.</th>
+						<th>Roll No</th>
+						<th>Name</th>
+						<th>Physics</th>
+						<th>Chemistry</th>
+						<th>Maths</th>
+						<th>Total</th>
+						<th>Percentage</th>
+					</tr>
+				</thead>
+				<tbody>
+					<c:forEach var="marksheet" items="${list}" varStatus="loop">
+						<c:set var="phy" value="${marksheet.physics}" />
+						<c:set var="chem" value="${marksheet.chemistry}" />
+						<c:set var="maths" value="${marksheet.maths}" />
+						<c:set var="total" value="${phy + chem + maths}" />
+						<c:set var="perc" value="${total / 3}" />
+						<tr align="center">
+							<td>${loop.index + 1}</td>
+							<td>${marksheet.rollNo}</td>
+							<td>${marksheet.name}</td>
+							<td>${phy}</td>
+							<td>${chem}</td>
+							<td>${maths}</td>
+							<td>${total}</td>
+							<td class="green-text">${perc}%</td>
+						</tr>
+					</c:forEach>
+				</tbody>
+			</table>
+		</div>
 
-                    <th>S.No.</th>
-                    <th>Roll No</th>
-                    <th>Name</th>
-                    <th>Physics</th>
-                    <th>Chemistry</th>
-                    <th>Maths</th>
-					<th>Total</th>
-					<th>Percentage</th>
-                </tr>
-                <%
-                    int pageNo = ServletUtility.getPageNo(request);
-                    int pageSize = ServletUtility.getPageSize(request);
-                    int index = ((pageNo - 1) * pageSize) + 1;
-
-                    List list = ServletUtility.getList(request);
-                    Iterator<MarksheetBean> it = list.iterator();
-
-                    while (it.hasNext()) {
-
-                        bean = it.next();
-                
-                        int phy = bean.getPhysics(); 
-                		int chem = bean.getChemistry(); 
-                		int maths =bean.getMaths();
-                		int total = (phy+chem+maths);
-                		float perc = total/3;
-                		
-                %>
-                <tr align="center">
-
-                    <td><%=index++%></td>
-                    <td><%=bean.getRollNo()%></td>
-                    <td><%=bean.getName()%></td>
-                    <td><%=phy%></td>
-                    <td><%=chem%></td>
-                    <td><%=maths%></td>
-					<td><%=total %></td>
-					<td style="color:green" ><%=((perc) +"%") %></td>
-                </tr>
-
-                <%
-                    }
-                %>
-            </table><br>
-            <table>
-                <tr>
-                    <td align="right"><input type="submit" name="operation"
-                        value="<%=MarksheetMeritListCtl.OP_BACK%>"></td>
-                </tr>
-            </table>
-            <input type="hidden" name="pageNo" value="<%=pageNo%>"> 
-            <input type="hidden" name="pageSize" value="<%=pageSize%>">
-            
-        </form>
-    </center>
-    </br>
-    </br>
-    </br>
-                   </br>
-                   </br>
-                   </br>
-    
-
-    <%@include file="Footer.jsp"%>
+		<div class="text-center">
+			<input type="submit" name="operation" value="Back">
+		</div>
+		<input type="hidden" name="pageNo" value="${pageNo}"> <input
+			type="hidden" name="pageSize" value="${pageSize}">
+	</form>
+	<%@include file="Footer.jsp"%>
 </body>
 </html>
+

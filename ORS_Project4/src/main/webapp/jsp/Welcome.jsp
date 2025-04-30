@@ -1,39 +1,45 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@page import="com.rays.pro4.Bean.RoleBean"%>
-<%@page import="com.rays.pro4.Bean.UserBean"%>
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-	pageEncoding="ISO-8859-1"%>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 <%@page import="com.rays.pro4.controller.ORSView"%>
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="ISO-8859-1">
-<title>Welcome Page</title>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
+    <meta charset="ISO-8859-1">
+    <title>Welcome Page</title>
+    <style>
+        .welcome-container {
+            text-align: center;
+        }
+        .welcome-heading {
+            font-size: 36px;
+            color: red;
+        }
+        .student-marksheet-link {
+            font-size: 24px;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-	<form action="<%=ORSView.WELCOME_CTL%>">
-	<%@ include file="Header.jsp"%>
-		<h1 align="Center">
-			<font size="10px" color="red">Welcome to ORS </font>
-		</h1>
+    <form action="${pageContext.request.contextPath}${ORSView.WELCOME_CTL}">
+        <%@ include file="Header.jsp"%>
+        <div class="welcome-container">
+            <h1 class="welcome-heading">
+                Welcome to ORS
+            </h1>
 
-		<%
-			UserBean beanUserBean = (UserBean) session.getAttribute("user");
-			if (beanUserBean != null) {
-				if (beanUserBean.getRoleId() == RoleBean.STUDENT) {
-		%>
+            <c:if test="${not empty sessionScope.user}">
+                <c:if test="${sessionScope.user.roleId == RoleBean.STUDENT}">
+                    <h2 class="student-marksheet-link">
+                        <a href="${pageContext.request.contextPath}${ORSView.GET_MARKSHEET_CTL}">Click here to see your Marksheet</a>
+                    </h2>
+                </c:if>
+            </c:if>
+        </div>
+    </form>
 
-		<h2 align="Center">
-			<a href="<%=ORSView.GET_MARKSHEET_CTL%>">Click here to see your
-				Marksheet </a>
-		</h2>
-
-		<%
-			}
-			}
-		%>
-
-	</form>
-
-	<%@ include file="Footer.jsp"%> 
+    <%@ include file="Footer.jsp"%>
 </body>
 </html>

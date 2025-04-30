@@ -1,17 +1,22 @@
 --- a/ORS_Project4/src/main/webapp/jsp/ErrorView.jsp
 +++ b/ORS_Project4/src/main/webapp/jsp/ErrorView.jsp
 
-<%@page import="com.rays.pro4.controller.ORSView"%>
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1" isErrorPage="true"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@page import="com.rays.pro4.controller.ORSView" %>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+	pageEncoding="ISO-8859-1" isErrorPage="true"%>
 <html>
 <head>
-<link rel="icon" type="image/png" href="<%=ORSView.APP_CONTEXT%>/img/customLogo.png" sizes="16*16" />
+<link rel="icon" type="image/png"
+	href="${pageContext.request.contextPath}/img/customLogo.png"
+	sizes="16*16" />
 <title>Error Page</title>
-<link rel="stylesheet" href="<%=ORSView.APP_CONTEXT%>/css/style.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
 </head>
 <body>
 	<div class="error-container">
-		<img src="<%=ORSView.APP_CONTEXT%>/img/Error.jpg" class="error-image" alt="Error Image">
+		<img src="${pageContext.request.contextPath}/img/Error.jpg"
+			class="error-image" alt="Error Image">
 		<div class="error-header">
 			<h1 class="error-message">Ooops! Something went wrong..</h1>
 		</div>
@@ -23,16 +28,15 @@
 				<h3>Try :</h3>
 			</div>
 			<div>
-				<ul>
-					<li>Check the network cables, modem, and router</li>
-					<li>Reconnect to network or wi-fi</li>
+				<ul class="error-list">
+					<li class="error-list-item">Check the network cables, modem,
+						and router</li>
+					<li class="error-list-item">Reconnect to network or wi-fi</li>
 				</ul>
 			</div>
 		</div>
 		<div class="error-link-container">
-			<a href="<%=ORSView.WELCOME_CTL%>" class="error-link">*Click here to Go Back*</a>
+			<a href="${pageContext.request.contextPath}${ORSView.WELCOME_CTL}" class="error-link">*Click here to Go Back*</a>
 		</div>
 	</div>
 </body>
-</html>
-
