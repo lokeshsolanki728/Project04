@@ -100,7 +100,6 @@ public class StudentListCtl extends BaseCtl{
         StudentModel model = new StudentModel();
         
         String op = DataUtility.getString(request.getParameter("operation"));
-     //   String[] ids = request.getParameterValues("ids");
 
         try {
             list = model.search(bean, pageNo, pageSize);

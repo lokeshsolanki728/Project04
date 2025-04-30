@@ -31,7 +31,7 @@ public interface ORSView {
 	    public String USER_REGISTRATION_VIEW = PAGE_FOLDER
 	            + "/UserRegistrationView.jsp";
 	    public String LOGIN_VIEW = PAGE_FOLDER + "/LoginView.jsp";
-	    public static String WELCOME_VIEW = PAGE_FOLDER + "/Welcome.jsp";
+	    public String WELCOME_VIEW = PAGE_FOLDER + "/Welcome.jsp";
 	    public String CHANGE_PASSWORD_VIEW = PAGE_FOLDER
 	            + "/ChangePasswordView.jsp";
 	    public String MY_PROFILE_VIEW = PAGE_FOLDER + "/MyProfileView.jsp";

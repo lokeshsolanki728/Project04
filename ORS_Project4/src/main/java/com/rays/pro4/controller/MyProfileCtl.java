@@ -54,7 +54,6 @@ public class MyProfileCtl extends BaseCtl<UserBean>{
         }
 
         if (DataValidator.isNull(request.getParameter("firstName"))) {
-            System.out.println("firstName" + request.getParameter("firstName"));
             request.setAttribute("firstName",
                     PropertyReader.getValue("error.require", "First Name"));
             pass = false;
@@ -147,7 +146,6 @@ public class MyProfileCtl extends BaseCtl<UserBean>{
             UserBean bean;
             try {
                 bean = model.findByPK(id);
-                System.out.println(bean);
                 ServletUtility.setBean(bean, request);
             } catch (ApplicationException e) {
                 log.error(e);

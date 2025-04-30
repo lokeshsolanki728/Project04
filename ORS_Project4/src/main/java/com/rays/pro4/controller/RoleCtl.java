@@ -108,8 +108,6 @@ public class RoleCtl extends BaseCtl{
 	            HttpServletResponse response) throws ServletException, IOException {
 	        log.debug("RoleCtl Method doGet Started");
 
-	        System.out.println("In do get");
-
 	        String op = DataUtility.getString(request.getParameter("operation"));
 
 	        // get model
@@ -146,8 +144,6 @@ public class RoleCtl extends BaseCtl{
 	    protected void doPost(HttpServletRequest request,
 	            HttpServletResponse response) throws ServletException, IOException {
 	        log.debug("RoleCtl Method doGet Started");
-
-	        System.out.println("In do get");
 
 	        String op = DataUtility.getString(request.getParameter("operation"));
 

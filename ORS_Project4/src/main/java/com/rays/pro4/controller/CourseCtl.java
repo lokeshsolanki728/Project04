@@ -127,17 +127,17 @@ public class CourseCtl extends BaseCtl<CourseBean>{
 		CourseBean bean =populateBean(request);
 		
 		if(OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)){
-			try{
-				if(OP_SAVE.equalsIgnoreCase(op)){
-					bean.setId(0);
-				}
+			try {
+                if (OP_SAVE.equalsIgnoreCase(op)) {
+                    bean.setId(0);
+                }
 				if(id>0){
 					model.update(bean);	
 					ServletUtility.setSuccessMessage(PropertyReader.getValue("success.course.update"), request);
-				}else{					model.add(bean);
-					
-				}
-				
+				}else{
+					model.add(bean);
+                    ServletUtility.setSuccessMessage(PropertyReader.getValue("success.course.add"), request);
+				}				
 			}catch(ApplicationException e ){
 				log.error(e);
 				ServletUtility.handleException(e, request, response);
@@ -146,8 +146,7 @@ public class CourseCtl extends BaseCtl<CourseBean>{
 				ServletUtility.setErrorMessage(PropertyReader.getValue("error.course.duplicate"), request);
 			}
 			ServletUtility.setBean(bean, request);
-			ServletUtility.forward(getView(), request, response);
-			return;
+			
 		}else if(OP_RESET.equalsIgnoreCase(op)){
 		    ServletUtility.redirect(ORSView.COURSE_CTL, request, response);
 		    return;

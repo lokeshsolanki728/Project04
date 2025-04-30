@@ -1,6 +1,5 @@
 package com.rays.pro4.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -13,13 +12,12 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Bean.UserBean;
-import com.rays.pro4.Exception.ApplicationException;
-import com.rays.pro4.Model.RoleModel;
+import com.rays.pro4.Exception.ApplicationException;;
 import com.rays.pro4.Model.UserModel;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;
-
+;
 
 /**
  * The Class UserListCtl.
@@ -28,16 +26,13 @@ import com.rays.pro4.Util.ServletUtility;
 @WebServlet(name = "UserListCtl", urlPatterns = { "/ctl/UserListCtl" })
 public class UserListCtl extends BaseCtl<UserBean>{
 
-	private static Logger log = Logger.getLogger(UserListCtl.class);
+	private static final long serialVersionUID = 1L;
+	
+	private static Logger log = Logger.getLogger(UserListCtl.class);	
 
 	
+	
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see in.co.rays.ors.controller.BaseCtl#populateBean(javax.servlet.http.
-	 * HttpServletRequest)
-	 */	
 	/**
 	 * Populates bean object from request parameters
 	 * 
@@ -64,19 +59,12 @@ public class UserListCtl extends BaseCtl<UserBean>{
 		return bean;
 	}
 	
-	
 	/**
-	 * Contains Display logics.
-	 * 
+	 * Contains display logics.
 	 * @param request
 	 * @param response
 	 * @throws ServletException
 	 * @throws IOException
-	 * 
-	 * 
-	 */
-	
-	/**	 * Contains Display logics.
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -94,10 +82,7 @@ public class UserListCtl extends BaseCtl<UserBean>{
 
 		try {
 			list = model.search(bean, pageNo, pageSize);
-			
-			
-			
-			nextList = model.search(bean, pageNo + 1, pageSize);
+		   nextList = model.search(bean, pageNo + 1, pageSize);
 
 			request.setAttribute("nextlist", nextList.size());
 
@@ -161,16 +146,15 @@ public class UserListCtl extends BaseCtl<UserBean>{
 		} else if (OP_DELETE.equalsIgnoreCase(op)) {
 			pageNo = 1;
 			
-			if (ids != null && ids.length > 0) {
-				UserBean deletebean = new UserBean();					
-				
-				for (String id : ids) {
-					deletebean.setId(DataUtility.getInt(id));
-                    try{
-                        model.delete(deletebean);
-                    }catch(ApplicationException e){
-                    	log.error(e);
-                        log.error(e);
+			if (ids != null && ids.length > 0) {					
+				for (String id : ids) {				
+					UserBean bean2 = new UserBean();
+					bean2.setId(DataUtility.getInt(id));
+					try{
+						model.delete(bean2);
+					}catch(ApplicationException e){
+						log.error(e);
+						
                     }
 				}
 				try {
@@ -182,7 +166,7 @@ public class UserListCtl extends BaseCtl<UserBean>{
 		}
 		try {
 
-			list = model.search(bean, pageNo, pageSize);			
+		   list = model.search(bean, pageNo, pageSize);			
 
 			nextList = model.search(bean, pageNo + 1, pageSize);
 
@@ -208,7 +192,8 @@ public class UserListCtl extends BaseCtl<UserBean>{
 	}
 /**
 	 * Returns the VIEW page of this Controller
-	 * 
+	 * @return
+	 * @see com.rays.pro4.controller.BaseCtl#getView()
 	 * @return
 	 * 
 	 * @see in.co.rays.ors.controller.BaseCtl#getView()

@@ -36,7 +36,6 @@ public class FrontControler implements Filter {
 	 */
 	public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain)
 			throws IOException, ServletException {
-		System.out.println("Fctl Do filter");
 
 		HttpServletRequest request = (HttpServletRequest) req;
 		HttpServletResponse response = (HttpServletResponse) resp;
@@ -50,7 +49,6 @@ public class FrontControler implements Filter {
 
 			String uri = request.getRequestURI();
 			request.setAttribute("URI", uri);
-			System.out.println("URI" + uri);
 
 			ServletUtility.forward(ORSView.LOGIN_VIEW, request, response);
 			return;

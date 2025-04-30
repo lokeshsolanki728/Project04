@@ -45,20 +45,16 @@ public class LoginCtl extends BaseCtl<UserBean> {
 	
 	@Override
 	protected boolean validate(HttpServletRequest request) {
-		System.out.println("loginctl  validate");
 		log.debug("LoginCtl Method validate Started");
 
 		boolean pass = true;
 
 		String op = request.getParameter("operation");
-		if (OP_SIGN_UP.equals(op) || OP_LOG_OUT.equals(op)) {
-			return pass;
-		}
-
+	    if (OP_SIGN_UP.equalsIgnoreCase(op) || OP_LOG_OUT.equalsIgnoreCase(op)) {
+	        return pass;
+	    }
 		String login = request.getParameter("login");
-
 		if (DataValidator.isNull(login)) {
-			System.out.println("loginctl 11");
 			request.setAttribute("login", PropertyReader.getValue("error.require", "Login Id"));
 			pass = false;
 		} else if (!DataValidator.isEmail(login)) {
@@ -67,7 +63,6 @@ public class LoginCtl extends BaseCtl<UserBean> {
 			pass = false;
 		}
 		if (DataValidator.isNull(request.getParameter("password"))) {
-			System.out.println("loginctl 33");
 			request.setAttribute("password", PropertyReader.getValue("error.require", "Password"));
 			pass = false;
 		}
@@ -88,7 +83,6 @@ public class LoginCtl extends BaseCtl<UserBean> {
 	protected UserBean populateBean(HttpServletRequest request) {
 
 		log.debug("LoginCtl Method populatebean Started");
-		System.out.println("BaseBean Populatebean");
 
 		UserBean bean = new UserBean();
 
@@ -112,19 +106,16 @@ public class LoginCtl extends BaseCtl<UserBean> {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		System.out.println("Lctl Do post");
 		HttpSession session = request.getSession(false);
 		String op = DataUtility.getString(request.getParameter("operation"));
-
-		if (OP_LOG_OUT.equals(op) && !OP_SIGN_IN.equals(op)) {
-			System.out.println("Do get 11");
-
+		
+		if (OP_LOG_OUT.equalsIgnoreCase(op)) {
 			session.invalidate();
 			ServletUtility.setSuccessMessage("User Logout Succesfully", request);
 			ServletUtility.forward(getView(), request, response);
 			return;
 		}
-		System.out.println("Don get 22");
+		
 		ServletUtility.forward(getView(), request, response);
 
 	}
@@ -161,7 +152,6 @@ public class LoginCtl extends BaseCtl<UserBean> {
 				bean = model.authenticate(bean.getLogin(), bean.getPassword());
 
 				String uri = request.getParameter("URI");
-				System.out.println("uri in do post" + uri);
 
 				if (bean != null) {
 					session.setAttribute("user", bean);
@@ -193,24 +183,10 @@ public class LoginCtl extends BaseCtl<UserBean> {
 				ServletUtility.handleException(e, request, response);
 				return;
 			}
+		} else if (OP_SIGN_UP.equalsIgnoreCase(op)) {
 
-		} /*
-			 * 
-			 * 
-			 * else if (OP_LOG_OUT.equals(op)) { System.out.println(" Lctl Do post 44");
-			 * 
-			 * session = request.getSession(); session.invalidate();
-			 * 
-			 * ServletUtility.redirect(ORSView.LOGIN_CTL, request, response);
-			 * 
-			 * return;
-			 * 
-			 * }
-			 */ else if (OP_SIGN_UP.equalsIgnoreCase(op))
-
-		{
 			
-
+			
 			ServletUtility.redirect(ORSView.USER_REGISTRATION_CTL, request, response);
 			return;
 

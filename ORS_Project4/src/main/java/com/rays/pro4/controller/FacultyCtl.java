@@ -1,7 +1,6 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.HashMap;
 
 import javax.servlet.ServletException;
@@ -14,7 +13,6 @@ import org.apache.log4j.Logger;
 import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Bean.CollegeBean;
 import com.rays.pro4.Bean.FacultyBean;
-import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Model.CollegeModel;
 import com.rays.pro4.Model.CourseModel;
 import com.rays.pro4.Model.FacultyModel;
@@ -22,6 +20,7 @@ import com.rays.pro4.Model.SubjectModel;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.DataValidator;
 import com.rays.pro4.Util.PropertyReader;
+import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Exception.ApplicationException;
 
 import com.rays.pro4.Util.ServletUtility;
@@ -47,11 +46,9 @@ public class FacultyCtl extends BaseCtl<FacultyBean>{
      */
 	@Override
 	protected void preload(HttpServletRequest request) {
-
-		response.setContentType("text/html");
-		javax.servlet.http.HttpServletResponse resp = (HttpServletResponse) response;
 		CourseModel cmodel = new CourseModel();
 		CollegeModel comodel = new CollegeModel();
+		
 		SubjectModel smodel = new SubjectModel();
 
         try {
@@ -65,14 +62,7 @@ public class FacultyCtl extends BaseCtl<FacultyBean>{
             log.error(e);
             ServletUtility.handleException(e, request, response);
 		}
-		try {
-
-			List slist = smodel.list();
-			request.setAttribute("SubjectList", slist);
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		
 
 	}
 	
@@ -188,7 +178,7 @@ public class FacultyCtl extends BaseCtl<FacultyBean>{
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		log.debug("Do get of faculty ctl Started");
-		String op = DataUtility.getString(request.getParameter("operation"));
+		String op = DataUtility.getString(request.getParameter("operation"));		
 
 		FacultyModel model = new FacultyModel();
 		Long id = DataUtility.getLong(request.getParameter("id"));
@@ -199,7 +189,6 @@ public class FacultyCtl extends BaseCtl<FacultyBean>{
 				ServletUtility.setBean((BaseBean) bean, request);
 
 			} catch (ApplicationException e) {
-				e.printStackTrace();
 				log.error(e);
 				ServletUtility.handleException(e, request, response);
 				return;
@@ -231,25 +220,25 @@ public class FacultyCtl extends BaseCtl<FacultyBean>{
 		FacultyBean bean = populateBean(request);
 		if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {	
 			try {
-				if(OP_SAVE.equalsIgnoreCase(op)){
-					bean.setId(0);
-				}
-				if (id > 0) {	
+				
+				if (id > 0) {
 					model.update(bean);
 					ServletUtility.setSuccessMessage(PropertyReader.getValue("success.faculty.update"), request);
 				} else {
 					model.add(bean);
 					ServletUtility.setSuccessMessage(PropertyReader.getValue("success.faculty.add"), request);
 				}
-			} catch (DuplicateRecordException e) {
-				log.error(e);
-				ServletUtility.handleException(e, request, response);
+				ServletUtility.setBean((BaseBean) bean, request);
+				ServletUtility.forward(getView(), request, response);
 				return;
-
 			} catch (DuplicateRecordException e) {
 				log.error(e);
 				ServletUtility.setBean(bean, request);
 				ServletUtility.setErrorMessage(PropertyReader.getValue("error.faculty.duplicate"), request);
+				
+				return;
+			} catch (ApplicationException e) {
+				log.error(e);
 				ServletUtility.forward(getView(), request, response);
 				return;
 			}
@@ -261,7 +250,7 @@ public class FacultyCtl extends BaseCtl<FacultyBean>{
 			ServletUtility.redirect(ORSView.FACULTY_LIST_CTL, request, response);		
 			return;
 		}
-		ServletUtility.setBean((BaseBean) bean, request);
+		
 		ServletUtility.forward(getView(), request, response);
 		log.debug("Do post of  faculty ctl Ended");
 	

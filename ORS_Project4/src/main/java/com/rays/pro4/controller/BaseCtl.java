@@ -1,6 +1,5 @@
  package com.rays.pro4.controller;
 
-import java.io.IOException;
 import java.util.MissingResourceException;
 import java.util.Objects;
 import java.util.ResourceBundle;
@@ -10,6 +9,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import java.io.IOException;
 import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Bean.UserBean;
 import com.rays.pro4.Util.DataUtility;
@@ -100,18 +100,6 @@ public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
 	public static final String MSG_ERROR = "error";
 
 	/**
-	 * Validate input Data Entered by User
-	 * 
-	 * @param request
-	 * @return
-	 */
-	protected boolean validate(HttpServletRequest request) {
-
-		return true;
-
-	}
-
-	/**
 	 * Loads list and other data required to display at HTML form
 	 * 
 	 * @param request
@@ -148,14 +136,17 @@ public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
 	 */
 	protected BaseBean populateDTO(BaseBean dto, HttpServletRequest request) {
 		
-		String defaultUser= "root";
+		String createdBy = "";
+		String modifiedBy = "";
 		try {
-			defaultUser = RESOURCE_BUNDLE.getString("DEFAULT_USER");
+			createdBy = RESOURCE_BUNDLE.getString("DEFAULT_USER");
+			modifiedBy = RESOURCE_BUNDLE.getString("DEFAULT_USER");
 		} catch (MissingResourceException e) {
 			System.out.println("default user not found");
 		}
-				
-		Objects.requireNonNull(defaultUser, "default user can not be null");
+		Objects.requireNonNull(modifiedBy, "default user can not be null");
+		
+		//String createdBy = request.getParameter("createdBy");
 		
 		String createdBy = request.getParameter("createdBy");
 		String modifiedBy = defaultUser;
@@ -165,7 +156,7 @@ public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
 		if (userbean == null) {
 		} else {
 
-			modifiedBy = userbean.getLogin();
+			modifiedBy = userbean.getLogin();		
 
 			// If record is created first time
 			if (DataValidator.isNull(createdBy)) {
@@ -174,7 +165,7 @@ public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
 
 		}
 
-		dto.setCreatedBy(createdBy);
+		dto.setCreatedBy(createdBy);		
 		dto.setModifiedBy(modifiedBy);
 
 		long cdt = DataUtility.getLong(request.getParameter("createdDatetime"));
@@ -219,7 +210,7 @@ public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
 		}
 	}
 	/**
-	 * Returns the VIEW page of this Controller
+	 * Returns the VIEW page of this Controller 
 	 * 
 	 * @return
 	 */

@@ -50,7 +50,7 @@ private static final long serialVersionUID = 1L;
 			request.setAttribute("name", PropertyReader.getValue("error.require", "Name"));
 			pass = false;
 		}else if (!DataValidator.isName(request.getParameter("name"))) {
-			request.setAttribute("name","Name must contains alphabet only");
+			request.setAttribute("name",PropertyReader.getValue("error.name"));
 			pass = false;
 		}
 		if (DataValidator.isNull(request.getParameter("address"))) {
@@ -77,7 +77,7 @@ private static final long serialVersionUID = 1L;
 			request.setAttribute("phoneNo", PropertyReader.getValue("error.require", "Mobile No"));
 			pass = false;	
 		}else if (!DataValidator.isMobileNo(request.getParameter("phoneNo"))) {
-			request.setAttribute("phoneNo", "Mobile No. must be 10 Digit and No. Series start with 6-9");
+			request.setAttribute("phoneNo", PropertyReader.getValue("error.mobileNo"));
 			pass = false;
 		}
 
@@ -120,7 +120,6 @@ private static final long serialVersionUID = 1L;
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, java.io.IOException {
     	
-    	javax.servlet.http.HttpSession session=request.getSession();
     	com.rays.pro4.Model.CollegeModel model= new com.rays.pro4.Model.CollegeModel();
 
 		String op = DataUtility.getString(request.getParameter("operation"));
@@ -169,8 +168,7 @@ private static final long serialVersionUID = 1L;
 					bean.setId(pk);
 				}
 				ServletUtility.setBean(bean, request);
-				ServletUtility.forward(getView(), request, response);
-				return;
+				
 			} catch (ApplicationException e) {
 				log.error(e);
 				ServletUtility.handleException(e, request, response);
@@ -178,7 +176,7 @@ private static final long serialVersionUID = 1L;
 			} catch (DuplicateRecordException e) {
 					ServletUtility.setBean(bean, request);
 					ServletUtility.setErrorMessage(PropertyReader.getValue("error.college.exist"), request);
-					ServletUtility.forward(getView(), request, response);
+					
 					return;
 			}
 		} else if (OP_RESET.equalsIgnoreCase(op)) {

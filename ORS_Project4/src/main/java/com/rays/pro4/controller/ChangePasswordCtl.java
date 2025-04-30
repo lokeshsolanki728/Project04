@@ -1,7 +1,6 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -14,7 +13,6 @@ import org.apache.log4j.Logger;
 import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Bean.UserBean;
 import com.rays.pro4.Exception.ApplicationException;
-import com.rays.pro4.Exception.RecordNotFoundException;
 import com.rays.pro4.Model.UserModel;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.DataValidator;
@@ -29,7 +27,7 @@ import com.rays.pro4.Util.ServletUtility;
 * @author Lokesh SOlanki
 */
 @WebServlet(name = "ChangePasswordCtl", urlPatterns = { "/ctl/ChangePasswordCtl" })
-public class ChangePasswordCtl extends BaseCtl{
+public class ChangePasswordCtl extends BaseCtl<UserBean>{
 
 	private static final long serialVersionUID = 1L;
 
@@ -54,13 +52,7 @@ public class ChangePasswordCtl extends BaseCtl{
 
 		boolean pass = true;
 
-		String op = request.getParameter("operation");
-
-		if (OP_CHANGE_MY_PROFILE.equalsIgnoreCase(op)) {
-
-			return pass;
-		}
-		if (DataValidator.isNull(request.getParameter("oldPassword"))) {
+		if (DataValidator.isNull(request.getParameter("oldPassword"))) {	
 			request.setAttribute("oldPassword", PropertyReader.getValue("error.require", "Old Password"));			
 			pass = false;
 		}
@@ -104,12 +96,12 @@ public class ChangePasswordCtl extends BaseCtl{
 	 * @return
 	 */
 	@Override
-	protected BaseBean populateBean(HttpServletRequest request) {
+	protected UserBean populateBean(HttpServletRequest request) {
 		log.debug("ChangePasswordCtl Method populatebean Started");
 
 		UserBean bean = new UserBean();
-
-		bean.setPassword(DataUtility.getString(request.getParameter("oldPassword")));
+		String oldPassword = DataUtility.getString(request.getParameter("oldPassword"));
+		bean.setPassword(oldPassword);
 
 		bean.setConfirmPassword(DataUtility.getString(request.getParameter("confirmPassword")));
 
@@ -147,15 +139,15 @@ public class ChangePasswordCtl extends BaseCtl{
 		
 		HttpSession session = request.getSession(true);
 
-		
-		log.debug("ChangePasswordCtl Method doGet Started");
+				
+		log.debug("ChangePasswordCtl Method doPost Started");
 
 		String op = DataUtility.getString(request.getParameter("operation"));
 
 		// get model
 		UserModel model = new UserModel();
 
-		UserBean bean = (UserBean) populateBean(request);
+		UserBean bean = (UserBean) populateBean(request);		
 
 		UserBean UserBean = (UserBean) session.getAttribute("user");
 
@@ -175,18 +167,15 @@ public class ChangePasswordCtl extends BaseCtl{
 				log.error(e);
 				ServletUtility.handleException(e, request, response);
 				return;
-			} catch (RecordNotFoundException ex) {
-				ServletUtility.setErrorMessage(ex.getMessage(), request);
-			}
-		} else if (OP_CHANGE_MY_PROFILE.equalsIgnoreCase(op)) {
-			ServletUtility.redirect(ORSView.MY_PROFILE_CTL, request, response);
+		}		 else if (OP_CHANGE_MY_PROFILE.equalsIgnoreCase(op)) {
+			ServletUtility.redirect(ORSView.MY_PROFILE_CTL, request, response);			
 
 
 			return;
 
 		}
 		ServletUtility.forward(ORSView.CHANGE_PASSWORD_VIEW, request, response);
-		log.debug("ChangePasswordCtl Method doGet Ended");
+		log.debug("ChangePasswordCtl Method doPost Ended");
 	}
 
 	/**

@@ -1,6 +1,5 @@
 package com.rays.pro4.controller;
 
-import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -27,7 +26,7 @@ import java.io.IOException;
 * 
 */
 @WebServlet(name="CollegeListCtl",urlPatterns={"/ctl/CollegeListCtl"})
-public class CollegeListCtl extends BaseCtl{
+public class CollegeListCtl extends BaseCtl<CollegeBean>{
 	private static final long serialVersionUID = 1L;
 	private static Logger log = Logger.getLogger(CollegeListCtl.class);
     
@@ -54,10 +53,9 @@ public class CollegeListCtl extends BaseCtl{
      * @see in.co.rays.ors.controller.BaseCtl#populateBean(javax.servlet.http.HttpServletRequest)
      */
     @Override
-    protected BaseBean populateBean(HttpServletRequest request) {
+    protected CollegeBean populateBean(HttpServletRequest request) {
         CollegeBean bean = new CollegeBean();
-
-       // bean.setName(DataUtility.getString(request.getParameter("name")));
+        
         bean.setCity(DataUtility.getString(request.getParameter("city")));        
         bean.setPhoneNo(DataUtility.getString(request.getParameter("phoneno")));
         bean.setId(DataUtility.getLong(request.getParameter("collegeid")));
@@ -104,13 +102,11 @@ public class CollegeListCtl extends BaseCtl{
         }
 
         if (list == null || list.size() == 0) {
-            ServletUtility.setErrorMessage(PropertyReader.getValue("error.record.notfound"), request);
+            ServletUtility.setErrorMessage(PropertyReader.getValue("error.record.notfound"), request);         
         }
-        setListAndPagination(list, request, pageNo, pageSize);
-        catch (ApplicationException e) {
-            log.error(e);
-            ServletUtility.handleException(e, request, response);
-            return;
+        setListAndPagination(list, request, pageNo, pageSize);        
+       
+        
         }
     }
 
@@ -144,10 +140,9 @@ public class CollegeListCtl extends BaseCtl{
         CollegeModel model = new CollegeModel();
         CollegeBean bean = (CollegeBean) populateBean(request);
 
-                if (OP_SEARCH.equalsIgnoreCase(op)) {
-                    pageNo = 1;
-                } 
-                else if (OP_NEXT.equalsIgnoreCase(op)) {
+        if (OP_SEARCH.equalsIgnoreCase(op)) {
+            pageNo = 1;
+        } else if (OP_NEXT.equalsIgnoreCase(op)) {
                     pageNo++;
                 } 
                 else if (OP_PREVIOUS.equalsIgnoreCase(op) && pageNo > 1) {
@@ -165,7 +160,7 @@ public class CollegeListCtl extends BaseCtl{
                 if (ids != null && ids.length > 0) {
                    CollegeBean deletebean = new CollegeBean();
                // 	UserBean deletebean = new UserBean();
-                    for (String id : ids) {
+                for (String id : ids) {
                         deletebean.setId(DataUtility.getInt(id));
                         try {
                             model.delete(deletebean);
@@ -175,21 +170,18 @@ public class CollegeListCtl extends BaseCtl{
                         }
                     }
                     ServletUtility.setSuccessMessage(PropertyReader.getValue("success.college.delete"), request);
-                } 
-                else {
-                    ServletUtility.setErrorMessage(
-                            PropertyReader.getValue("error.select.one"), request);
+                } else {
+                    ServletUtility.setErrorMessage(PropertyReader.getValue("error.select.one"), request);
                 }
-            }
-            try {
-				
-            	list = model.search(bean, pageNo, pageSize);
+            } try {
+
+                list = model.search(bean, pageNo, pageSize);
                 List nextList = model.search(bean, pageNo + 1, pageSize);
-				
-            	//nextList=model.search(bean,pageNo+1,pageSize);
-				
-            	request.setAttribute("nextlist", nextList.size());
-				
+
+                // nextList=model.search(bean,pageNo+1,pageSize);
+
+                request.setAttribute("nextlist", nextList.size());
+
 			} catch (ApplicationException e) {
 				log.error(e);
 				ServletUtility.handleException(e, request, response);
@@ -200,9 +192,8 @@ public class CollegeListCtl extends BaseCtl{
                 ServletUtility.setErrorMessage(PropertyReader.getValue("error.record.notfound"), request);
             }
             setListAndPagination(list, request, pageNo, pageSize);
-            ServletUtility.setBean(bean, request);            
-            
-            ServletUtility.forward(getView(), request);
+            ServletUtility.setBean(bean, request);
+
             log.debug("CollegeListCtl doPost End");
     }
     
@@ -218,6 +209,6 @@ public class CollegeListCtl extends BaseCtl{
         ServletUtility.setList(list, request);
         ServletUtility.setPageNo(pageNo, request);
         ServletUtility.setPageSize(pageSize, request);
-        ServletUtility.forward(getView(), request);
+        ServletUtility.forward(getView(), request,response);
     }
 }

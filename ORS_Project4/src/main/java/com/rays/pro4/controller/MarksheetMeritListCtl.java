@@ -67,7 +67,6 @@ public class MarksheetMeritListCtl extends BaseCtl{
 	            ServletUtility.setList(list, request);
 	            } catch (ApplicationException e) {
 	            log.error(e);
-	            e.printStackTrace();
 	            ServletUtility.handleException(e, request, response);
 	            return;
 	        }

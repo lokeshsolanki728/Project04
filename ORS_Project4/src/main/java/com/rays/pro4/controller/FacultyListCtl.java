@@ -1,5 +1,6 @@
 package com.rays.pro4.controller;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -22,21 +23,13 @@ import com.rays.pro4.Util.ServletUtility;
 *  @author Lokesh SOlanki
 */
 @WebServlet (name = "FacultyListCtl" , urlPatterns = {"/ctl/FacultyListCtl"})
-public class FacultyListCtl extends BaseCtl{
+public class FacultyListCtl extends BaseCtl<FacultyBean>{
 
 
 	/** The log. */
 	public static Logger log = Logger.getLogger(FacultyListCtl.class);
 	
-	@Override
-	protected boolean validate(HttpServletRequest request) {
-		return true;
-		
-	}
-	    
-	/**
-	 * Populates bean object from request parameters
-	 * 
+	/**	 * Populates bean object from request parameters
 	 * @param request
 	 * @return
 	 */
@@ -49,32 +42,22 @@ public class FacultyListCtl extends BaseCtl{
 		bean.setEmailId(DataUtility.getString(request.getParameter("login")));
 		bean.setCollegeId(DataUtility.getLong(request.getParameter("collegeid")));
 		bean.setCourseId(DataUtility.getLong(request.getParameter("courseid")));
-		
+		populateDTO(bean, request);
 	return bean;
 	}
 	
 	/**
 	 * set list and pagination method
-	 * @param list
-	 * @param request
-	 * @param pageNo
-	 * @param pageSize
+	 * @param list	 * @param request
+	 * @param pageNo	 * @param pageSize
 	 */
-	private void setListAndPagination(List list, HttpServletRequest request, int pageNo, int pageSize) {
-		try {
-			ServletUtility.setList(list, request);
-			ServletUtility.setPageNo(pageNo, request);
-			ServletUtility.setPageSize(pageSize, request);
-			ServletUtility.forward(getView(), request, response);
-		} catch (ApplicationException e) {
-			log.error(e);
-			ServletUtility.handleException(e, request, response);
-			return;
-		}
+	public void setListAndPagination(List list, HttpServletRequest request, int pageNo, int pageSize) {
+		ServletUtility.setList(list, request);
+		ServletUtility.setPageNo(pageNo, request);
+		ServletUtility.setPageSize(pageSize, request);
+		ServletUtility.forward(getView(), request, response);
 	}
-	/**
-	 * Returns the VIEW page of this Controller
-	 * 
+	/**	 * Returns the VIEW page of this Controller
 	 * @return
 	 */
 	@Override
@@ -82,20 +65,12 @@ public class FacultyListCtl extends BaseCtl{
 		return ORSView.FACULTY_LIST_VIEW;
 	}
 	
-	
-	
-
     /**
-     * Contains Display logics.
-     *
-     * @param request the request
-     * @param response the response
-     * @throws ServletException the servlet exception
+     * Contains Display logics.    * @param request the request
+     * @param response the response    * @throws ServletException the servlet exception
      * @throws IOException Signals that an I/O exception has occurred.
      */
-	/**
-	 * Contains Display logics
-	 * @param request
+	/**	 * Contains Display logics	 * @param request
 	 * @param response
 	 * @throws ServletException
 	 * @throws IOException
@@ -134,24 +109,13 @@ public class FacultyListCtl extends BaseCtl{
 			return ;
 		}
 	    
-		log.debug("Do get method of FacultyCtl End");
+		log.debug("Do get method of FacultyListCtl End");
 	}
     
-    /** 
-     * Contains Submit logics.
-     *
-     * @param request the request
-     * @param response the response
-     * @throws ServletException the servlet exception
+    /**	 * Contains Submit logics.	 * @param request the request
+     * @param response the response	 * @throws ServletException the servlet exception
      * @throws IOException Signals that an I/O exception has occurred.
      */
-	/**
-	 * Contains Submit logics
-	 * @param request
-	 * @param response
-	 * @throws ServletException
-	 * @throws IOException
-	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		log.debug("do Post method of FacultyCtl Started");
@@ -182,7 +146,7 @@ public class FacultyListCtl extends BaseCtl{
 		} else if (OP_NEW.equalsIgnoreCase(op)) {
 			ServletUtility.redirect(ORSView.FACULTY_CTL, request, response);
 			return;
-		} else if (OP_RESET.equalsIgnoreCase(op) || OP_BACK.equalsIgnoreCase(op)) {
+		} else if (OP_RESET.equalsIgnoreCase(op) ) {
 			ServletUtility.redirect(ORSView.FACULTY_LIST_CTL, request, response);
 			return;
 		}
@@ -223,6 +187,6 @@ public class FacultyListCtl extends BaseCtl{
 		}
 		ServletUtility.setBean(bean, request);		
 		setListAndPagination(list, request, pageNo, pageSize);		
-		log.debug("do Post method of FacultyCtl End");
+		log.debug("do Post method of FacultyListCtl End");
 	}
 }

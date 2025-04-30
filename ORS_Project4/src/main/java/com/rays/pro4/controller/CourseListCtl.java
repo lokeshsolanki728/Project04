@@ -2,24 +2,25 @@ package com.rays.pro4.controller;
 
 import java.util.List;
 
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.rays.pro4.Exception.DatabaseException;
-import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Bean.CourseBean;
 import com.rays.pro4.Exception.ApplicationException;
 import org.apache.log4j.Logger;
 import com.rays.pro4.Model.CourseModel;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.PropertyReader;
+import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Util.ServletUtility;
 
-/** 
+/**
  * The Class CourseListCtl.
- * 
+ *
  * @author Lokesh SOlanki
  */
 @WebServlet(name = "CourseListCtl", urlPatterns = { "/ctl/CourseListCtl" })
@@ -29,14 +30,15 @@ public class CourseListCtl extends BaseCtl {
 	/** The log. */
 	public static Logger log = Logger.getLogger(CourseListCtl.class);
 
+
 	/**
 	 * Populates bean object from request parameters
-	 * 
+	 *
 	 * @param request
 	 * @return
 	 */
 	@Override
-	protected BaseBean populateBean(HttpServletRequest request) {
+	protected CourseBean populateBean(HttpServletRequest request) {
 		CourseBean bean = new CourseBean();
 		bean.setId(DataUtility.getLong(request.getParameter("cname")));
 		populateDTO(bean, request);
@@ -44,7 +46,7 @@ public class CourseListCtl extends BaseCtl {
 	}
 
 	/**
-	 * Contains Display logics
+	 * Contains Display logics.
 	 * 
 	 * @param request
 	 * @param response
@@ -68,14 +70,12 @@ public class CourseListCtl extends BaseCtl {
 			log.error(e);
 			ServletUtility.handleException(e, request, response);
 			return;
-		} catch (DatabaseException e) {
-			e.printStackTrace();
 		}
 
 		if (list == null || list.size() == 0) {
 			ServletUtility.setErrorMessage(PropertyReader.getValue("error.record.notfound"), request);
 		}
-
+		
 		setListAndPagination(list, request, pageNo, pageSize);
 
 		log.debug("do get method of CourseCtl End");
@@ -91,16 +91,11 @@ public class CourseListCtl extends BaseCtl {
 	 */
 	private void setListAndPagination(List list, HttpServletRequest request, int pageNo, int pageSize) {
 		try {
-			ServletUtility.setList(list, request);
-			ServletUtility.setPageNo(pageNo, request);
-			ServletUtility.setPageSize(pageSize, request);
-			ServletUtility.forward(getView(), request, response);
+			setListAndPagination(list, request, pageNo, pageSize);
 		} catch (ApplicationException e) {
 			log.error(e);
 			ServletUtility.handleException(e, request, response);
 			return;
-		} catch (DatabaseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}		
 	}
@@ -175,16 +170,12 @@ public class CourseListCtl extends BaseCtl {
 			log.error(e);
 			ServletUtility.handleException(e, request, response);
 			return;
-		}
+		}	
+		
 		setListAndPagination(list, request, pageNo, pageSize);
-
-		ServletUtility.setBean(bean, request);
 		log.debug("do Post method of CourseCtl End");
 	}
-
 	/**
-	 * Returns the VIEW page of this Controller
-	 * 
 	 * @return
 	 */
 	@Override
@@ -192,16 +183,24 @@ public class CourseListCtl extends BaseCtl {
 		return ORSView.COURSE_LIST_VIEW;
 	}
 
+	
+	
 	/**
-	 * Validates input data entered by User
-	 * 
+	 * set list and pagination method
+	 *
+	 * @param list
 	 * @param request
-	 * @return
+	 * @param pageNo
+	 * @param pageSize
 	 */
+	public void setListAndPagination(List list, HttpServletRequest request, int pageNo, int pageSize) {
+		ServletUtility.setList(list, request);
+		ServletUtility.setPageNo(pageNo, request);
+		ServletUtility.setPageSize(pageSize, request);
+		ServletUtility.forward(getView(), request, response);
+	}
 
-	@Override
-	protected boolean validate(HttpServletRequest request) {
-		return true;
+
 
 	}
 

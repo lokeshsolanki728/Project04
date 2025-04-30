@@ -1,5 +1,4 @@
 package com.rays.pro4.controller;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-
 import com.rays.pro4.Util.ServletUtility;
 
 /**
@@ -30,8 +28,8 @@ public class ErrorCtl extends BaseCtl {
 	 * @param request  the request
 	 * @param response the response
 	 * @throws ServletException the servlet exception
-	 * @throws IOException Signals that an I/O exception has occurred.
-	 */
+	 * @throws IOException      Signals that an I/O exception has occurred.
+	*/
 	/**
 	 * Contains Display logics
 	 * @param request
@@ -42,13 +40,10 @@ public class ErrorCtl extends BaseCtl {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		log.debug("Do get Method of Error Ctl started");
-		// System.out.println("_______________error ctl-_-------->" );
-		
 		Map<String, Object> map = new HashMap<String, Object>();
-		
 		ServletUtility.forward(getView(), map, request);
-
 		log.debug("Do get Method of Error Ctl End");
+	
 
 	}
 
@@ -70,11 +65,11 @@ public class ErrorCtl extends BaseCtl {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		log.debug("Do Post Method of Error Ctl started");
-		ServletUtility.forward(getView(), request, response);
-		log.debug("Do Post Method of Error Ctl End");
+			log.debug("Do Post Method of Error Ctl started");
+			ServletUtility.forward(getView(), request, response);
+			log.debug("Do Post Method of Error Ctl End");
 	}
-	/**
+	/** 
 	 * Returns the VIEW page of this Controller
 	 *
 	 * @return

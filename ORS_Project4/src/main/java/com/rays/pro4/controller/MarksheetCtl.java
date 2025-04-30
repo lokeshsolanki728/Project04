@@ -187,7 +187,6 @@ public class MarksheetCtl extends BaseCtl<MarksheetBean>{
 				bean = model.findByPK(id);
 				ServletUtility.setBean(bean, request);
 			} catch (ApplicationException e) {
-				e.printStackTrace();
 				log.error(e);
 				ServletUtility.handleException(e, request, response);
 				return;
@@ -241,7 +240,6 @@ public class MarksheetCtl extends BaseCtl<MarksheetBean>{
 
 			} catch (ApplicationException e) {
 				log.error(e);
-				e.printStackTrace();
 				ServletUtility.handleException(e, request, response);
 				return;
 			} catch (DuplicateRecordException e) {

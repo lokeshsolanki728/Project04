@@ -56,8 +56,10 @@ public class WelcomeCtl extends BaseCtl {
 	 */
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        doGet(request, response);
+
+        log.debug("WelcomeCtl Method doPost Started");
+        ServletUtility.forward(getView(), request, response);
+        log.debug("WelcomeCtl Method doPost Ended");
     }
 
     /**

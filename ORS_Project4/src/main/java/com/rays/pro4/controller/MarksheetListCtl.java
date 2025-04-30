@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import org.apache.taglibs.standard.tag.common.sql.DataSourceUtil;
 import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Bean.MarksheetBean;
 import com.rays.pro4.Exception.ApplicationException;
@@ -39,20 +38,8 @@ public class MarksheetListCtl extends BaseCtl<MarksheetBean> {
 	private static Logger log = Logger.getLogger(MarksheetListCtl.class);
 
 	/**
-	 * Loads pre-load data
 	 * 
-	 * @param request
 	 */
-	@Override
-
-
-	protected void preload(HttpServletRequest request) {
-		
-		MarksheetBean bean= new MarksheetBean();
-		
-		request.setAttribute("rollNo", bean);
-		
-	}
 	/**
 	 * Populates bean object from request parameters
 	 * 
@@ -102,7 +89,6 @@ public class MarksheetListCtl extends BaseCtl<MarksheetBean> {
 		pageSize = (pageSize == 0) ? DataUtility.getInt(PropertyReader.getValue("page.size")) : pageSize;
 
 		MarksheetBean bean = (MarksheetBean) populateBean(request);
-		String[] ids = request.getParameterValues("ids");
 		List list;
 		MarksheetModel model = new MarksheetModel();
 		try {

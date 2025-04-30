@@ -62,7 +62,6 @@ public class StudentCtl extends BaseCtl{
 	 */
     @Override
     protected boolean validate(HttpServletRequest request) {
-    	System.out.println("validate started ... std ctl");
         log.debug("StudentCtl Method validate Started");
         boolean pass = true;
 
@@ -106,7 +105,6 @@ public class StudentCtl extends BaseCtl{
             request.setAttribute("collegename", PropertyReader.getValue("error.require", "College Name"));
             pass = false;
         } 
-        System.out.println("validate over ,.... Student ctl");
         log.debug("StudentCtl Method validate Ended");
         return pass;
     }
@@ -129,7 +127,6 @@ public class StudentCtl extends BaseCtl{
         bean.setFirstName(DataUtility.getString(request.getParameter("firstname")));
         bean.setLastName(DataUtility.getString(request.getParameter("lastname")));
         bean.setDob(DataUtility.getDate(request.getParameter("dob")));
-        System.out.println("dob"+bean.getDob());
         bean.setMobileNo(DataUtility.getString(request.getParameter("mobile")));
         bean.setEmail(DataUtility.getString(request.getParameter("email")));
         bean.setCollegeId(DataUtility.getLong(request.getParameter("collegename")));

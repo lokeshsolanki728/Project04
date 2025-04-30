@@ -53,9 +53,8 @@ public class RoleListCtl extends BaseCtl{
     	    request.setAttribute("RoleList",rlist);
             }
             catch(ApplicationException e){
-            e.printStackTrace();
-            }
-            }
+			}
+	}
     /**
 	 * Populates bean object from request parameters.
 	 *
