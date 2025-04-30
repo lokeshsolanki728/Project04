@@ -9,7 +9,7 @@ package com.rays.pro4.Bean;
 public class MarksheetBean extends BaseBean{
 
 	private String rollNo;
-	private long studentld;
+	private long studentId;
 	private String name;
 	private Integer physics;
 	private Integer chemistry;
@@ -20,11 +20,11 @@ public class MarksheetBean extends BaseBean{
 	public void setRollNo(String rollNo) {
 		this.rollNo = rollNo;
 	}
-	public long getStudentld() {
-		return studentld;
+	public long getStudentId() {
+		return studentId;
 	}
-	public void setStudentld(long studentld) {
-		this.studentld = studentld;
+	public void setStudentId(long studentId) {
+		this.studentId = studentId;
 	}
 	public String getName() {
 		return name;
@@ -57,6 +57,13 @@ public class MarksheetBean extends BaseBean{
 	@Override
 	public String getValue() {
 		return rollNo;
+	}
+	@Override
+	public String toString() {
+		return "MarksheetBean [rollNo=" + rollNo + ", studentId=" + studentId + ", name=" + name + ", physics="
+				+ physics + ", chemistry=" + chemistry + ", maths=" + maths + ", id=" + id + ", createdBy=" + createdBy
+				+ ", modifiedBy=" + modifiedBy + ", createdDatetime=" + createdDatetime + ", modifiedDatetime="
+				+ modifiedDatetime + "]";
 	}
 	
 	

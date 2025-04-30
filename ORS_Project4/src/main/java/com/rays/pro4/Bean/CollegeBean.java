@@ -7,6 +7,7 @@ package com.rays.pro4.Bean;
  */
 public class CollegeBean extends BaseBean{
 
+
 	private String name;
 	private String address;
 	private String state;
@@ -52,6 +53,12 @@ public class CollegeBean extends BaseBean{
 	@Override
 	public String getValue() {
 		return name;
+	}
+	@Override
+	public String toString() {
+		return "CollegeBean [name=" + name + ", address=" + address + ", state=" + state + ", city=" + city
+				+ ", phoneNo=" + phoneNo + ", id=" + id + ", createdBy=" + createdBy + ", modifiedBy=" + modifiedBy
+				+ ", createdDatetime=" + createdDatetime + ", modifiedDatetime=" + modifiedDatetime + "]";
 	}
 
 }

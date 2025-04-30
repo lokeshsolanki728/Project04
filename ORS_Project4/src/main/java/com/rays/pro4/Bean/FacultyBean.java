@@ -12,7 +12,7 @@ public class FacultyBean extends BaseBean{
 
 	private String firstName;
 	private String lastName;
-	private String Gender;
+	private String gender;
 	private String emailId;
 	private String mobileNo;
 	private long collegeId;
@@ -37,11 +37,11 @@ public class FacultyBean extends BaseBean{
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
-	public String getGender() {
-		return Gender;
+	public String getgender() {
+		return gender;
 	}
 	public void setGender(String gender) {
-		Gender = gender;
+		this.gender = gender;
 	}
 	public String getEmailId() {
 		return emailId;
@@ -99,12 +99,18 @@ public class FacultyBean extends BaseBean{
 	}
 	@Override
 	public String getkey() {
-		// TODO Auto-generated method stub
 		return id+"";
 	}
 	public String getValue() {
-		// TODO Auto-generated method stub
 		return firstName + " " + lastName;
+	}
+	@Override
+	public String toString() {
+		return "FacultyBean [firstName=" + firstName + ", lastName=" + lastName + ", gender=" + gender + ", emailId="
+				+ emailId + ", mobileNo=" + mobileNo + ", collegeId=" + collegeId + ", collegeName=" + collegeName
+				+ ", courseId=" + courseId + ", courseName=" + courseName + ", dob=" + dob + ", subjectId=" + subjectId
+				+ ", subjectName=" + subjectName + ", id=" + id + ", createdBy=" + createdBy + ", modifiedBy="
+				+ modifiedBy + ", createdDatetime=" + createdDatetime + ", modifiedDatetime=" + modifiedDatetime + "]";
 	}
 	
 }

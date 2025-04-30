@@ -10,6 +10,7 @@ package com.rays.pro4.Exception;
 
 public class DatabaseException extends Exception {
 
+	private static final long serialVersionUID = 1L;
 	public DatabaseException(String msg){
 		super(msg);
 	}

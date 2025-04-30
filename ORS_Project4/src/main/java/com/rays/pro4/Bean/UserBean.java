@@ -11,8 +11,8 @@ import java.util.Date;
  */
 public class UserBean extends BaseBean {
 
-	public static final String ACTIVE ="Active";
-	public static final String INACTIVE="inactive";
+	public static final String ACTIVE ="Active"; //make it final
+	public static final String INACTIVE="inactive"; //make it final
 	private String firstName; 
 	private String lastName;
 	private String login;

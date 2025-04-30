@@ -78,5 +78,14 @@ public class TimeTableBean extends BaseBean{
 		return subjectName;
 	}
 
+	@Override
+	public String toString() {
+		return "TimeTableBean [courseId=" + courseId + ", courseName=" + courseName + ", subjectId=" + subjectId
+				+ ", subjectName=" + subjectName + ", semester=" + semester + ", examDate=" + examDate + ", examTime="
+				+ examTime + ", description=" + description + ", id=" + id + ", createdBy=" + createdBy
+				+ ", modifiedBy=" + modifiedBy + ", createdDatetime=" + createdDatetime + ", modifiedDatetime="
+				+ modifiedDatetime + "]";
+	}
+
 	
 }

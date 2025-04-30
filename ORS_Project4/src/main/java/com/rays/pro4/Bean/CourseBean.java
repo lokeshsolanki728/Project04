@@ -29,13 +29,25 @@ public class CourseBean extends BaseBean{
 	public void setDuration(String duration) {
 		this.duration = duration;
 	}
+	
 	@Override
 	public String getkey() {
 		return String.valueOf(id);
 	}
+	
 	public String getValue() {
 		return name;
 	}
+	
+	@Override
+	public String toString() {
+		return "CourseBean [name=" + name + ", description=" + description + ", duration=" + duration + ", id=" + id
+				+ ", createdBy=" + createdBy + ", modifiedBy=" + modifiedBy + ", createdDatetime=" + createdDatetime
+				+ ", modifiedDatetime=" + modifiedDatetime + "]";
+	}
+	
+	
+}
 	
 	
 }

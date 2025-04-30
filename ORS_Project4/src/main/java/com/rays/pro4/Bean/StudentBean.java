@@ -69,5 +69,13 @@ public class StudentBean extends BaseBean {
 	public String getValue() {
 		return firstName + " "+lastName;
 	}
-	
+	@Override
+	public String toString() {
+		return "StudentBean [firstName=" + firstName + ", lastName=" + lastName + ", dob=" + dob + ", mobileNo="
+				+ mobileNo + ", email=" + email + ", collegeId=" + collegeId + ", collegeName=" + collegeName + ", id="
+				+ id + ", createdBy=" + createdBy + ", modifiedBy=" + modifiedBy + ", createdDatetime="
+				+ createdDatetime + ", modifiedDatetime=" + modifiedDatetime + "]";
+	}
+
+
 }

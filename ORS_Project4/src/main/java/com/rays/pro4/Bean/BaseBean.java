@@ -1,6 +1,7 @@
 package com.rays.pro4.Bean;
 
 import java.io.Serializable;
+
 import java.sql.Timestamp;
 
 /**
@@ -10,7 +11,7 @@ import java.sql.Timestamp;
  *
  */
 
-public abstract class BaseBean implements Serializable, DropdownListBean, Comparable<BaseBean> {
+public abstract class BaseBean implements Serializable, DropdownListBean {
 
 	protected long id;
 	protected String createdBy;
@@ -57,9 +58,12 @@ public abstract class BaseBean implements Serializable, DropdownListBean, Compar
 	public void setModifiedDatetime(Timestamp modifiedDatetime) {
 		this.modifiedDatetime = modifiedDatetime;
 	}
-
-	public int compareTo(BaseBean next) {
-		return getValue().compareTo(next.getValue());
+	
+	@Override
+	public String toString() {
+		return "BaseBean [id=" + id + ", createdBy=" + createdBy + ", modifiedBy=" + modifiedBy
+				+ ", createdDatetime=" + createdDatetime + ", modifiedDatetime=" + modifiedDatetime + "]";
 	}
+	
 
 }

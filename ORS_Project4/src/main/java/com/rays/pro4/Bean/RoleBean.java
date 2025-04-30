@@ -8,11 +8,11 @@ package com.rays.pro4.Bean;
  */
 public class RoleBean extends BaseBean{
 
-	public static final int ADMIN = 1;
-	public static final int STUDENT = 2;
-	public static final int COLLEGE = 3;
-	public static final int FACULTY = 4;
-	public static final int KIOSK = 5;
+	public static final  int ADMIN = 1;
+	public static final  int STUDENT = 2;
+	public static final  int COLLEGE = 3;
+	public static final  int FACULTY = 4;
+	public static final  int KIOSK = 5;
 
 	private String name;
 
@@ -44,4 +44,10 @@ public class RoleBean extends BaseBean{
 		return name;
 	}
 
+	@Override
+	public String toString() {
+		return "RoleBean [name=" + name + ", description=" + description + ", id=" + id + ", createdBy=" + createdBy
+				+ ", modifiedBy=" + modifiedBy + ", createdDatetime=" + createdDatetime + ", modifiedDatetime="
+				+ modifiedDatetime + "]";
+	}
 }

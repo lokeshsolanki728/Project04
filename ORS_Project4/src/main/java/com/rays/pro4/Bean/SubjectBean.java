@@ -1,13 +1,9 @@
 package com.rays.pro4.Bean;
 
-/**
- * Subject JavaBean encapsulates Subject attributes.
- * 
- * @author Lokesh SOlanki
- *
- */
 public class SubjectBean extends BaseBean{
 
+	
+	
 	private String subjectName;
 	private String description;
 	private long courseId;
@@ -44,10 +40,16 @@ public class SubjectBean extends BaseBean{
 		return String.valueOf(id);
 	}
 	public String getValue() {
-		// TODO Auto-generated method stub
 		return subjectName;
 	}
-	
-	
-	
+
+	@Override
+	public String toString() {
+		return "SubjectBean [subjectName=" + subjectName + ", description=" + description + ", courseId=" + courseId
+				+ ", courseName=" + courseName + ", id=" + id + ", createdBy=" + createdBy + ", modifiedBy="
+				+ modifiedBy + ", createdDatetime=" + createdDatetime + ", modifiedDatetime=" + modifiedDatetime + "]";
+	}
+
+
+
 }
