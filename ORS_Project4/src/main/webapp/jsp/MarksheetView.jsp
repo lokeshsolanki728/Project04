@@ -1,5 +1,7 @@
+jsp
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@page import="com.rays.pro4.controller.ORSView"%>
+<%@page import="com.rays.pro4.controller.MarksheetCtl"%>
 <%@page import="java.util.List"%>
 <%@page import="com.rays.pro4.Util.HTMLUtility"%>
 <%@page import="com.rays.pro4.Util.DataUtility"%>
@@ -18,7 +20,7 @@
 	<jsp:useBean id="bean" class="com.rays.pro4.Bean.MarksheetBean"
 		scope="request"></jsp:useBean>
 	<%@ include file="Header.jsp"%>
-	<form action="${pageContext.request.contextPath}/MarksheetCtl" method="post">
+	<form action="<%=ORSView.MARKSHEET_CTL%>" method="post">
 <c:set var="studentList" value="${requestScope.studentList}" />
 
 		<div class="text-center">
@@ -89,12 +91,12 @@
 					<th></th>
 					<td colspan="2"><c:choose>
 							<c:when test="${not empty bean.id}">
-								 <input type="submit" name="operation" value="Update"> 
-								 <input type="submit" name="operation" value="Cancel">
+								 <input type="submit" name="operation" value="<%=MarksheetCtl.OP_UPDATE%>"> 
+								 <input type="submit" name="operation" value="<%=MarksheetCtl.OP_CANCEL%>">
 							</c:when>
 							<c:otherwise>
-								&nbsp; &emsp; <input type="submit" name="operation" value="Save">
-								 &nbsp;&nbsp; <input type="submit" name="operation" value="Reset">
+								&nbsp; &emsp; <input type="submit" name="operation" value="<%=MarksheetCtl.OP_SAVE%>">
+								 &nbsp;&nbsp; <input type="submit" name="operation" value="<%=MarksheetCtl.OP_RESET%>">
 							</c:otherwise>
 						</c:choose></td>
 				</tr>
