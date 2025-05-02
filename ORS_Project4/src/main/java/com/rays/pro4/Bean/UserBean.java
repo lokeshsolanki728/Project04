@@ -1,27 +1,32 @@
 package com.rays.pro4.Bean;
 
 import java.sql.Timestamp;
-import java.util.Date;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import com.rays.pro4.Util.DataUtility;
+
 /**
- * User JavaBean encapsulates User attributes.
  *
  *
  * @author Lokesh SOlanki
  *
  */
+import javax.servlet.http.HttpServletRequest;
+
 public class UserBean extends BaseBean {
 
-	public static final String ACTIVE ="Active"; //make it final
-	public static final String INACTIVE="inactive"; //make it final
+	public static final String ACTIVE = "Active";
+	public static final String INACTIVE = "inactive";
 	/**
 	 * Active User Constant
 	 */
-	public static final String ACTIVE = "Active";
+
 	/**
 	 * Inactive User Constant
 	 */
-	public static final String INACTIVE = "inactive";
+
 	/**
 	 * First Name of User
 	 */
@@ -39,21 +44,17 @@ public class UserBean extends BaseBean {
 	 */
 	private String password;
 	/**
-	 * Confirm Password of User
-	 */
-	private String confirmPassword;
-	/**
 	 * Date of Birth of User
 	 */
 	private Date dob;
-	private String mobileNo;  
+	private String mobileNo;
 	private long roleId;
 	private int unSuccessfulLogin;
 	private String gender;
 	private Timestamp lastLogin;
-	private String lock=INACTIVE;
+	private String lock = INACTIVE;
 	private String registerdIP;
-	private String lastLoginIP;	
+	private String lastLoginIP;
 	/**
 	 * Get first name
 	 * @return firstName
@@ -109,20 +110,6 @@ public class UserBean extends BaseBean {
 	 */
 	public void setPassword(String password) {
 		this.password = password;
-	}
-	/**
-	 * get the confirm password
-	 * @return confirmPassword
-	 */
-	public String getConfirmPassword() {
-		return confirmPassword;
-	}
-	/**
-	 * set the confirm password
-	 * @param confirmPassword
-	 */
-	public void setConfirmPassword(String confirmPassword) {
-		this.confirmPassword = confirmPassword;
 	}
 	/**
 	 * get the dob
@@ -280,19 +267,41 @@ public class UserBean extends BaseBean {
 	public String getValue() {
 		return firstName + " " + lastName;
 	}
+
+	/**
+     * Populate bean object from request parameters.
+	 *
+     * @param request the request
+     */
+    @Override
+    public void populate(HttpServletRequest request) {
+        setId(DataUtility.getLong(request.getParameter("id")));        
+        setFirstName(DataUtility.getString(request.getParameter("firstName")));        
+        setLastName(DataUtility.getString(request.getParameter("lastName")));        
+        setLogin(DataUtility.getString(request.getParameter("login")));        
+        setDob(DataUtility.getDate(request.getParameter("dob")));        
+        setMobileNo(DataUtility.getString(request.getParameter("mobileNo")));        
+        setRoleId(DataUtility.getLong(request.getParameter("roleId")));        
+        setGender(DataUtility.getString(request.getParameter("gender")));        
+        setCreatedBy(request.getParameter("createdBy"));        
+        setModifiedBy(request.getParameter("modifiedBy"));
+    }
+
 	/**
 	 * return all the attributes of the bean
 	 * @return String
 	 */
 	@Override
 	public String toString() {
-		SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-		return "UserBean [firstName=" + firstName + ", lastName=" + lastName + ", login=" + login + ", password="
-				+ password + ", confirmPassword=" + confirmPassword + ", dob=" + sdf.format(dob) + ", mobileNo=" + mobileNo
-				+ ", roleId=" + roleId + ", unSuccessfulLogin=" + unSuccessfulLogin + ", gender=" + gender
+		DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+		return "UserBean [firstName=" + firstName + ", lastName=" + lastName + ", login=" + login + ", password=" + password + ", dob="
+                + (dob != null ? df.format(dob) : null) + ", mobileNo=" + mobileNo
+				+ ", roleId=" + roleId + ", unSuccessfulLogin="
+				+ unSuccessfulLogin + ", gender=" + gender
 				+ ", lastLogin=" + lastLogin + ", lock=" + lock + ", registerdIP=" + registerdIP + ", lastLoginIP="
 				+ lastLoginIP + ", id=" + id + ", createdBy=" + createdBy + ", modifiedBy=" + modifiedBy
 				+ ", createdDatetime=" + createdDatetime + ", modifiedDatetime=" + modifiedDatetime + "]";
 	}
+    final SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
 
 }

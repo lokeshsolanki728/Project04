@@ -283,22 +283,45 @@ public class MarksheetModel {
 		StringBuffer sql = new StringBuffer("SELECT * FROM ST_MARKSHEET WHERE 1=1");
 		ArrayList<MarksheetBean> list = new ArrayList<>();
 
-        if (pageNo < 0) {
-            pageNo = 1;
+        int index = 1;
+        if (bean != null) {
+            if (bean.getId() > 0) {
+                sql.append(" AND id = " + bean.getId());
+            }
+            if (bean.getRollNo() != null && !bean.getRollNo().isEmpty()) {
+                sql.append(" AND roll_no like ?");
+            }
+            if (bean.getName() != null && !bean.getName().isEmpty()) {
+                sql.append(" AND name like ?");
+            }
+            if (bean.getPhysics() > 0) {
+                sql.append(" AND physics = ?");
+            }
+            if (bean.getChemistry() > 0) {
+                sql.append(" AND chemistry = ?");
+            }
+            if (bean.getMaths() > 0) {
+                sql.append(" AND maths = ?");
+            }
         }
-        if (pageSize < 0) {
-            pageSize = 10; // Default page size
+
+        // if page size is greater than zero then apply pagination
+        if (pageSize > 0) {
+            // Calculate start record index
+            pageNo = (pageNo - 1) * pageSize;
+            sql.append(" LIMIT " + pageNo + ", " + pageSize);
         }
-		if (bean != null) {
-			if (bean.getId() > 0) {
-				sql.append(" AND id = " + bean.getId());
-			}
-			if (bean.getRollNo() != null && !bean.getRollNo().isEmpty()) {
-				sql.append(" AND roll_no like '" + bean.getRollNo() + "%'");
-			}
-			if (bean.getName() != null && !bean.getName().isEmpty()) {
-				sql.append(" AND name like '" + bean.getName() + "%'");
-			}
+
+        try (Connection conn = JDBCDataSource.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+
+            if (bean != null) {
+                if (bean.getRollNo() != null && !bean.getRollNo().isEmpty()) {
+                    pstmt.setString(index++, bean.getRollNo() + "%");
+                }
+                if (bean.getName() != null && !bean.getName().isEmpty()) {
+                    pstmt.setString(index++, bean.getName() + "%");
+                }
 			if (bean.getPhysics() > 0) {
 				sql.append(" AND physics = " + bean.getPhysics());
 			}
@@ -308,18 +331,6 @@ public class MarksheetModel {
 			if (bean.getMaths() > 0) {
 				sql.append(" AND maths = " + bean.getMaths());
 			}
-		}
-
-		// if page size is greater than zero then apply pagination
-		if (pageSize > 0) {
-			// Calculate start record index
-			pageNo = (pageNo - 1) * pageSize;
-			sql.append(" LIMIT " + pageNo + ", " + pageSize);
-		}
-
-		try (Connection conn = JDBCDataSource.getConnection();
-				PreparedStatement pstmt = conn.prepareStatement(sql.toString());
-				ResultSet rs = pstmt.executeQuery()) {
 			while (rs.next()) {
 				bean = new MarksheetBean();
 				bean.setId(rs.getLong(1));
@@ -340,6 +351,20 @@ public class MarksheetModel {
 			throw new ApplicationException("Exception: Exception in searching marksheet - " + e.getMessage());
 		}
 		log.debug("Model search End");
+            if (bean.getPhysics() > 0) {
+                pstmt.setInt(index++, bean.getPhysics());
+            }
+            if (bean.getChemistry() > 0) {
+                pstmt.setInt(index++, bean.getChemistry());
+            }
+            if (bean.getMaths() > 0) {
+                pstmt.setInt(index++, bean.getMaths());
+            }
+        }
+
+        try (ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+
 		return list;
 	}
 
@@ -386,7 +411,7 @@ public class MarksheetModel {
 				bean.setCreatedDatetime(rs.getTimestamp(10));
 				bean.setModifiedDatetime(rs.getTimestamp(11));
 				list.add(bean);
-			}
+            }
 		} catch (SQLException e) {
 			log.error("Database Exception in list", e);
 			throw new ApplicationException("Exception: Exception in getting list of Marksheet - " + e.getMessage());
@@ -409,16 +434,17 @@ public class MarksheetModel {
 		ArrayList<MarksheetBean> list = new ArrayList<>();
 		StringBuffer sql = new StringBuffer(
 				"SELECT ID,ROLL_NO,NAME,PHYSICS,CHEMISTRY,MATHS,(PHYSICS+CHEMISTRY+MATHS) as total from ST_MARKSHEET ORDER BY TOTAL DESC");
+
+        if (pageSize > 0) {
+            pageNo = (pageNo - 1) * pageSize;
+            sql.append(" LIMIT " + pageNo + "," + pageSize);
+        }
         if (pageNo < 0) {
             pageNo = 1;
         }
         if (pageSize < 0) {
             pageSize = 10; // Default page size
         }
-		if (pageSize > 0) {
-			pageNo = (pageNo - 1) * pageSize;
-			sql.append(" LIMIT " + pageNo + "," + pageSize);
-		}
 		try (Connection conn = JDBCDataSource.getConnection();
 				PreparedStatement pstmt = conn.prepareStatement(sql.toString());
 				ResultSet rs = pstmt.executeQuery()) {

@@ -107,15 +107,14 @@ public class StudentModel {
 	 * @param id
 	 * @throws ApplicationException
 	 */
-	public void delete(long id) throws ApplicationException {
+	public void delete(StudentBean bean) throws ApplicationException {
 
 		log.debug("Model delete Started");
 		try (Connection conn = JDBCDataSource.getConnection();
 			conn.setAutoCommit(false);
 			PreparedStatement pstmt = conn.prepareStatement("DELETE FROM ST_STUDENT WHERE ID=?");
 			pstmt.setLong(1, bean.getId());
-			pstmt.executeUpdate();
-			conn.commit();
+			pstmt.executeUpdate();conn.commit();
 			pstmt.close();
 		} catch (Exception e) {
 			log.error("Database Exception.." + e);

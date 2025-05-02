@@ -7,186 +7,268 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.log4j.Logger;
 
-import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Bean.FacultyBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Model.FacultyModel;
+import com.rays.pro4.Util.FacultyListValidator;
 import com.rays.pro4.Util.DataUtility;
+import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;
 
-/** 
-* The Class FacultyListCtl.
-*  @author Lokesh SOlanki
-*/
-@WebServlet (name = "FacultyListCtl" , urlPatterns = {"/ctl/FacultyListCtl"})
-public class FacultyListCtl extends BaseCtl<FacultyBean>{
+/**
+ * The Class FacultyListCtl.
+ * 
+ * @author Lokesh SOlanki
+ */
+@WebServlet(name = "FacultyListCtl", urlPatterns = { "/ctl/FacultyListCtl" })
+public class FacultyListCtl extends BaseCtl<FacultyBean> {
 
-
+	private static final long serialVersionUID = 1L;
 	/** The log. */
-	public static Logger log = Logger.getLogger(FacultyListCtl.class);
-	
-	/**	 * Populates bean object from request parameters
-	 * @param request
-	 * @return
-	 */
-	protected BaseBean populateBean(HttpServletRequest request) {
+	private static Logger log = Logger.getLogger(FacultyListCtl.class);
 
-		FacultyBean bean = new FacultyBean();
-
-		bean.setFirstName(DataUtility.getString(request.getParameter("firstname")));
-		bean.setLastName(DataUtility.getString(request.getParameter("lastname")));
-		bean.setEmailId(DataUtility.getString(request.getParameter("login")));
-		bean.setCollegeId(DataUtility.getLong(request.getParameter("collegeid")));
-		bean.setCourseId(DataUtility.getLong(request.getParameter("courseid")));
-		populateDTO(bean, request);
-	return bean;
-	}
+	private final FacultyModel model = new FacultyModel();
 	
 	/**
-	 * set list and pagination method
-	 * @param list	 * @param request
-	 * @param pageNo	 * @param pageSize
+	 * Preload method to add data to request object.
+	 *
+	 * @param request the request
 	 */
-	public void setListAndPagination(List list, HttpServletRequest request, int pageNo, int pageSize) {
+	@Override
+	protected void preload(final HttpServletRequest request) {
+		log.debug("preload method of FacultyListCtl Started");
+		final int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));
+		showList(populate(request), request, response, 1, pageSize);
+		log.debug("preload method of FacultyListCtl Ended");
+	}
+
+	/**
+	 * populate the bean
+	 * @param request the request
+	 * @return the bean
+	 */
+	/**
+	 * Populates bean object from request parameters.
+	 * 
+	 * @param request the request
+	 * @return the college bean
+	 */
+	@Override
+	protected FacultyBean populate(final HttpServletRequest request) {
+		final FacultyBean bean = new FacultyBean();
+		bean.populate(request);
+		return bean;
+	}
+
+	
+	/**
+	 * Search method.
+	 * 
+	 * @param bean     the bean
+	 * @param pageNo   the page no
+	 * @param pageSize the page size
+	 * @return the list
+	 * @throws ApplicationException the application exception
+	 */
+	private final List<FacultyBean> searchFaculty(final FacultyBean bean, final int pageNo, final int pageSize)
+			throws ApplicationException {
+		return model.search(bean, pageNo, pageSize);
+	}
+
+	/**
+	 * Validates the data send by the user.
+	 * 
+	 * @param request the request
+	 * @return true if the data is valid
+	 */
+	@Override
+	protected boolean validate(HttpServletRequest request) {
+		log.debug("validate Method Started");
+		final boolean pass = FacultyListValidator.validate(request);
+		if (!pass) {
+			log.debug("validate Method End with error");
+		}
+		log.debug("validate Method End");
+		return pass;
+	}
+
+	/**
+	 * Contains Display logics. Display List functionality of Faculty List
+	 * 
+	 * @param request  request
+	 * @param response response
+	 * @throws ServletException  the servlet exception
+	 * @throws IOException      Signals that an I/O exception has occurred.
+	 * @throws ServletException 
+	 */
+	@Override
+	protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
+			throws ServletException, IOException {
+		log.debug("Do get method of FacultyCtl Started");
+		final FacultyBean bean = populate(request);
+		final int pageNo = 1;
+		final int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));
+		try {
+			showList(bean, request, response, pageNo, pageSize);
+		} catch (Exception e) {
+			handleDatabaseException(e, request, response);
+		}
+		log.debug("Do get method of FacultyListCtl End");
+	}
+
+	/**
+	 * Delete the Faculty.
+	 * 
+	 * @param ids      the id of the element to delete
+	 * @param request  request
+	 * @param response response
+	 * @throws ApplicationException the application exception
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws ServletException
+	 */
+	private final void delete(final String[] ids, final HttpServletRequest request, final HttpServletResponse response)
+			throws ApplicationException {
+		if (ids != null && ids.length > 0) {
+			final FacultyBean deletebean = new FacultyBean();
+			for (final String id : ids) {
+				deletebean.setId(DataUtility.getInt(id));
+				model.delete(deletebean);
+			}
+			ServletUtility.setSuccessMessage(MessageConstant.FACULTY_SUCCESS_DELETE, request);
+		} else {
+			ServletUtility.setErrorMessage(PropertyReader.getValue("error.select.one"), request);
+		}
+	}
+
+	/**
+	 * Contains Submit logics. Submit List functionality of Faculty List
+	 * 
+	 * @param request  request
+	 * @param response response
+	 * @throws ServletException the servlet exception
+	 * @throws IOException      Signals that an I/O exception has occurred.
+	 */
+	@Override
+	protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
+			throws ServletException, IOException {
+		log.debug("do Post method of FacultyListCtl Started");
+		final String op = DataUtility.getString(request.getParameter("operation"));
+		final String[] ids = request.getParameterValues("ids");
+		final int[] pageData = paginate(request);
+		int pageNo = pageData[0];
+		int pageSize = pageData[1];
+
+			if (OP_SEARCH.equalsIgnoreCase(op)) {
+				pageNo = 1;
+			} else if (OP_NEXT.equalsIgnoreCase(op)) {
+				pageNo++;
+			} else if (OP_PREVIOUS.equalsIgnoreCase(op) && pageNo > 1) {
+				pageNo--;
+			} else if (OP_DELETE.equalsIgnoreCase(op)) {
+				pageNo = 1;
+				try {
+					delete(ids, request, response);
+				} catch (ApplicationException e) {
+					handleDatabaseException(e, request, response);
+					return;
+				}
+			}
+			final FacultyBean bean = populate(request);
+			showList(bean, request, response, pageNo, pageSize);
+		 if (OP_NEW.equalsIgnoreCase(op)) {
+			ServletUtility.redirect(ORSView.FACULTY_CTL, request, response);
+		} else if (OP_RESET.equalsIgnoreCase(op)) {
+			ServletUtility.redirect(ORSView.FACULTY_LIST_CTL, request, response);
+		}
+		log.debug("do Post method of FacultyListCtl End");}
+	}
+
+	/**
+	 * set the data in the list.
+	 * 
+	 * @param bean     bean
+	 * @param request  request
+	 * @param response response
+	 * @param pageNo   pageNo
+	 * @param pageSize pageSize
+	 * @throws ServletException the servlet exception
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
+
+	/**
+	 * showList Method. set the data in the list
+	 * 
+	 * @param bean     the bean
+	 * @param request  the request
+	 * @param response the response
+	 * @param pageNo   the page number
+	 * @param pageSize the size of the page
+	 * @throws ServletException  the servlet exception
+	 * @throws IOException      Signals that an I/O exception has occurred.
+	 * @throws ApplicationException the application exception
+	 * 
+	 * @throws ServletException
+	 * @throws IOException
+	 */
+	private final void showList(final FacultyBean bean, final HttpServletRequest request,
+			final HttpServletResponse response, final int pageNo, final int pageSize)
+			throws ServletException, IOException {
+		log.debug("showList Method Start");
+		List<FacultyBean> list = null;
+		try {
+			list = searchFaculty(bean, pageNo, pageSize);
+			final List<FacultyBean> nextList = searchFaculty(bean, pageNo + 1, pageSize);
+			request.setAttribute("nextlist", nextList.size());
+		} catch (ApplicationException e) {
+			log.error(e);
+			handleDatabaseException(e, request, response);
+			return;
+		}
+		if (list.isEmpty()
+				&& !OP_DELETE.equalsIgnoreCase(DataUtility.getString(request.getParameter("operation")))) {
+			ServletUtility.setErrorMessage(PropertyReader.getValue("error.record.notfound"), request);
+		}
+		setListAndPagination(list, request, pageNo, pageSize);
+	}
+
+	/**
+	 * manage the pagination.
+	 * 
+	 * @param request the request
+	 * @return the page data
+	 */
+	private int[] paginate(final HttpServletRequest request) {
+		int pageNo = DataUtility.getInt(request.getParameter("pageNo"));
+		int pageSize = DataUtility.getInt(request.getParameter("pageSize"));
+		pageNo = (pageNo == 0) ? 1 : pageNo;
+		pageSize = (pageSize == 0) ? DataUtility.getInt(PropertyReader.getValue("page.size")) : pageSize;
+		return new int[] { pageNo, pageSize };
+	}
+
+	/**
+	 * setListAndPagination method
+	 * @param list  list
+	 * @param request request
+	 * @param pageNo pageNo
+	 * @param pageSize pageSize
+	 */
+	private final void setListAndPagination(final List list, final HttpServletRequest request, final int pageNo,
+			final int pageSize) {
 		ServletUtility.setList(list, request);
 		ServletUtility.setPageNo(pageNo, request);
 		ServletUtility.setPageSize(pageSize, request);
 		ServletUtility.forward(getView(), request, response);
 	}
-	/**	 * Returns the VIEW page of this Controller
-	 * @return
+
+	/** 
+	 * get the view
 	 */
 	@Override
 	protected String getView() {
 		return ORSView.FACULTY_LIST_VIEW;
 	}
-	
-    /**
-     * Contains Display logics.    * @param request the request
-     * @param response the response    * @throws ServletException the servlet exception
-     * @throws IOException Signals that an I/O exception has occurred.
-     */
-	/**	 * Contains Display logics	 * @param request
-	 * @param response
-	 * @throws ServletException
-	 * @throws IOException
-	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws javax.servlet.ServletException, java.io.IOException {
-		
-		log.debug("Do get method of FacultyCtl Started");
-		List list;
-		List nextList=null;
-		
-		int pageNo = 1;
-		int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));		
-		
-		FacultyModel model = new FacultyModel();
-		FacultyBean bean = (FacultyBean) populateBean(request);
-		
-		String op = DataUtility.getString(request.getParameter("operation"));
-		try {
-			list = model.search(bean, pageNo, pageSize);
-			
-			  nextList=model.search(bean,pageNo+1,pageSize);
-			  request.setAttribute("nextlist", nextList.size());
-			
-			if (list == null || list.size() == 0) {
-                ServletUtility.setErrorMessage(PropertyReader.getValue("error.norrecord"), request);
-            }
-			ServletUtility.setList(list, request);
-	        ServletUtility.setPageNo(pageNo, request);
-	        ServletUtility.setPageSize(pageSize, request);
-	        ServletUtility.forward(getView(), request, response);
-	        
-        } catch (ApplicationException e) {			
-        	log.error(e);        	
-			ServletUtility.handleException(e, request, response);
-			return ;
-		}
-	    
-		log.debug("Do get method of FacultyListCtl End");
-	}
-    
-    /**	 * Contains Submit logics.	 * @param request the request
-     * @param response the response	 * @throws ServletException the servlet exception
-     * @throws IOException Signals that an I/O exception has occurred.
-     */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		log.debug("do Post method of FacultyCtl Started");
-		List list=null;
-		List nextList = null;
-		int pageNo = DataUtility.getInt(request.getParameter("pageNo"));
-		int pageSize = DataUtility.getInt(request.getParameter("pageSize"));
-		pageNo = (pageNo==0)?1:pageNo;
-		pageSize = (pageSize == 0) ? DataUtility.getInt(PropertyReader.getValue("page.size")) : pageSize;
-		
-		String op = DataUtility.getString(request.getParameter("operation"));
-
-		FacultyBean bean = (FacultyBean)populateBean(request);
-		FacultyModel model = new FacultyModel();
-
-		String[] ids = (String[]) request.getParameterValues("ids");
-		    
-		if (OP_SEARCH.equalsIgnoreCase(op)) {
-			pageNo = 1;
-		} else if (OP_NEXT.equalsIgnoreCase(op)) {
-			pageNo++;
-		} else if (OP_PREVIOUS.equalsIgnoreCase(op)) {
-			if (pageNo > 1) {
-				pageNo--;
-			} else {
-				pageNo = 1;
-			}
-		} else if (OP_NEW.equalsIgnoreCase(op)) {
-			ServletUtility.redirect(ORSView.FACULTY_CTL, request, response);
-			return;
-		} else if (OP_RESET.equalsIgnoreCase(op) ) {
-			ServletUtility.redirect(ORSView.FACULTY_LIST_CTL, request, response);
-			return;
-		}
-
-		else if (OP_DELETE.equalsIgnoreCase(op)) {			
-			pageNo = 1;
-			if (ids != null && ids.length != 0) {
-				FacultyBean deletebean = new FacultyBean();
-				
-				for (String id : ids) {
-					deletebean.setId(DataUtility.getInt(id));
-					
-				}try {
-					model.delete(deletebean);
-				} catch (ApplicationException e) {					
-					log.error(e);
-					ServletUtility.handleException(e, request, response);
-					return;
-				}
-				ServletUtility.setSuccessMessage(PropertyReader.getValue("success.faculty.delete"), request);
-			} else {
-				ServletUtility.setErrorMessage(PropertyReader.getValue("error.require.selectone"), request);
-			}
-		}		
-		try {
-			list = model.search(bean, pageNo, pageSize);			
-			nextList = model.search(bean, pageNo + 1, pageSize);
-			request.setAttribute("nextlist", nextList.size());
-			
-		} catch (ApplicationException e) {
-			log.error(e);
-			ServletUtility.handleException(e, request, response);
-			return;
-		}
-
-		if (list == null || list.size() == 0 && !OP_DELETE.equalsIgnoreCase(op)) {			
-			ServletUtility.setErrorMessage(PropertyReader.getValue("error.record.notfound"), request);
-		}
-		ServletUtility.setBean(bean, request);		
-		setListAndPagination(list, request, pageNo, pageSize);		
-		log.debug("do Post method of FacultyListCtl End");
-	}
 }
+

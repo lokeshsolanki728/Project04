@@ -1,5 +1,6 @@
 package com.rays.pro4.controller;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -8,22 +9,24 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.rays.pro4.Exception.DuplicateRecordException;
 import org.apache.log4j.Logger;
 
 import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Bean.CourseBean;
 import com.rays.pro4.Bean.SubjectBean;
 import com.rays.pro4.Exception.ApplicationException;
-import com.rays.pro4.Exception.DatabaseException;
 import com.rays.pro4.Model.CourseModel;
 import com.rays.pro4.Model.SubjectModel;
 import com.rays.pro4.Util.DataUtility;
+import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;
+import com.rays.pro4.Util.SubjectValidator;
 
 /**
+ * Subject List functionality Controller. Performs operation for list, search and delete
  * @author Lokesh SOlanki
- *
  */
 @WebServlet(name = "SubjectListCtl", urlPatterns = "/ctl/SubjectListCtl")
 public class SubjectListCtl extends BaseCtl {
@@ -37,20 +40,15 @@ public class SubjectListCtl extends BaseCtl {
 	private static Logger log = Logger.getLogger(SubjectListCtl.class);
 	
 	@Override
-	protected boolean validate(HttpServletRequest request) {
-		
-		return true;
-
-	}
-
-
-	@Override
 	protected BaseBean populateBean(HttpServletRequest request) {
 
 		SubjectBean bean = new SubjectBean();
 		bean.setId(DataUtility.getLong(request.getParameter("subjectId")));
 		bean.setCourseId(DataUtility.getLong(request.getParameter("courseId")));
 		populateDTO(bean, request);
+		bean.setSubjectName(request.getParameter("subjectId"));
+		bean.setCourseName(request.getParameter("courseId"));
+
 		return bean;
 	}
 
@@ -144,9 +142,11 @@ public class SubjectListCtl extends BaseCtl {
 			} else if (OP_DELETE.equalsIgnoreCase(op)) {
 				pageNo = 1;
 				if (ids != null && ids.length > 0) {
-					SubjectBean deletebean = new SubjectBean();
-					for (String id : ids) {						
-						deletebean.setId(DataUtility.getInt(id));
+				   SubjectBean deletebean = new SubjectBean();
+					for (String id : ids) {
+						
+						deletebean.setId(DataUtility.getLong(id));
+
 						model.Delete(deletebean);
 						ServletUtility.setSuccessMessage(PropertyReader.getValue("success.subject.delete"), request);
 					}

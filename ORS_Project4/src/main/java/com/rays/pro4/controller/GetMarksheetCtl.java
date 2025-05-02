@@ -10,19 +10,19 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import com.rays.pro4.Bean.BaseBean;
+import com.rays.pro4.util.GetMarksheetValidator;
 import com.rays.pro4.Bean.MarksheetBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Model.MarksheetModel;
+import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.DataValidator;
 import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;
-
-//TODO: Auto-generated Javadoc
 /**
-* Get Marksheet functionality Controller. Performs operation for Get Marksheet
-* 
-* @author Lokesh SOlanki
+ * Get Marksheet functionality Controller. Performs operation for Get Marksheet
+ *
+ * @author Lokesh SOlanki
 */
 @WebServlet(name = "GetMarksheetCtl", urlPatterns = { "/ctl/GetMarksheetCtl" })
 public class GetMarksheetCtl extends BaseCtl<MarksheetBean> {
@@ -30,31 +30,24 @@ public class GetMarksheetCtl extends BaseCtl<MarksheetBean> {
 	private static Logger log = Logger.getLogger(GetMarksheetCtl.class);
 
 	/**
-	 * Validates input data entered by User
-	 * 
-	 * @param request
-	 * @return
+	 * the model
 	 */
-
+	private final MarksheetModel model = new MarksheetModel();
+	
+	/**
+	 * Validates input data entered by User
+	 *
+	 * @param request the request
+	 * @return true, if successful
+	 */
 	@Override
-
-	protected boolean validate(HttpServletRequest request) {
-
+	protected boolean validate(final HttpServletRequest request) {
 		log.debug("GetMarksheetCTL Method validate Started");
-
-		boolean pass = true;
-
-		if (DataValidator.isNull(request.getParameter("rollNo"))) {
-			request.setAttribute("rollNo", PropertyReader.getValue("error.require", "Roll Number"));
-			pass = false;
-		} else if (!DataValidator.isRollNo(request.getParameter("rollNo"))) {
-			request.setAttribute("rollNo", "Roll No. must be in Formate (0000XX000000)");
-			pass = false;
-		}
-
+		final boolean pass = GetMarksheetValidator.validate(request);
 		log.debug("GetMarksheetCTL Method validate Ended");
 		return pass;
 	}
+
 
 	/**
 	 * Populates bean object from request parameters
@@ -63,17 +56,15 @@ public class GetMarksheetCtl extends BaseCtl<MarksheetBean> {
 	 * @return
 	 */
 	@Override
-
-	protected MarksheetBean populateBean(HttpServletRequest request) {
-
-		log.debug("GetMarksheetCtl Method populatebean Started");
-
-		MarksheetBean bean = new MarksheetBean();
-		bean.setRollNo(DataUtility.getString(request.getParameter("rollNo")));
-
+	protected final BaseBean populateBean(final HttpServletRequest request) {
+		log.debug("GetMarksheetCtl Method populateBean Started");
+		final MarksheetBean bean = new MarksheetBean();
+		bean.populate(request);
 		log.debug("GetMarksheetCtl Method populatebean Ended");
 		return bean;
 	}
+
+
 
 	/**
 	 * Concept of Display method.
@@ -81,20 +72,15 @@ public class GetMarksheetCtl extends BaseCtl<MarksheetBean> {
 	 * @param request  the request
 	 * @param response the response
 	 * @throws ServletException the servlet exception
-	 * @throws IOException      Signals that an I/O exception has occurred.
+	 * @throws IOException      Signals that an I/O exception has occurred.	
 	 */
-	/**
-	 * Contains Display logics
-	 * 
-	 * @param request
-	 * @param response
-	 * @throws ServletException
-	 * @throws IOException
-	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+
+	protected final void doGet(final HttpServletRequest request, final HttpServletResponse response)
 			throws ServletException, IOException {
 
+		log.debug("GetMarksheetCtl Method doGet Started");		
 		ServletUtility.forward(getView(), request, response);
+		log.debug("GetMarksheetCtl Method doGet Ended");
 	}
 
 	/**
@@ -105,47 +91,53 @@ public class GetMarksheetCtl extends BaseCtl<MarksheetBean> {
 	 * @throws ServletException the servlet exception
 	 * @throws IOException      Signals that an I/O exception has occurred.
 	 */
+
+
+	private void getMarksheet(final MarksheetBean bean, final HttpServletRequest request) throws ApplicationException {
+		log.debug("getMarksheet Method Started");
+        final MarksheetBean marksheetBean = model.findByRollNo(bean.getRollNo());
+        if (marksheetBean == null) {
+            ServletUtility.setErrorMessage("RollNo Does Not Exists", request);
+        } else {
+            ServletUtility.setBean(marksheetBean, request);
+        }
+        log.debug("getMarksheet Method End");
+	}
+
 	/**
-	 * Contains Submit logics
-	 * 
-	 * @param request
-	 * @param response
-	 * @throws ServletException
-	 * @throws IOException
+	 * Do post.
+	 *
+	 * @param request  the request
+	 * @param response the response
+	 * @throws ServletException the servlet exception
+	 * @throws IOException      Signals that an I/O exception has occurred.
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+	@Override
+	protected final void doPost(final HttpServletRequest request, final HttpServletResponse response)
 			throws ServletException, IOException {
 
-		log.debug("GetMarksheetCtl Method doGet Started");
-		String op = DataUtility.getString(request.getParameter("operation"));
+		log.debug("GetMarksheetCtl Method doPost Started");
+		final String operation = DataUtility.getString(request.getParameter("operation"));
 
-		// get model
-		MarksheetBean bean = (MarksheetBean) populateBean(request);
-		MarksheetModel model = new MarksheetModel();
+		final MarksheetBean bean = (MarksheetBean) populateBean(request);
 
-		if (OP_GO.equalsIgnoreCase(op)) {
-
-			try {
-				bean = model.findByRollNo(bean.getRollNo());
-
-				if (bean != null) {
-					ServletUtility.setBean(bean, request);
-				} else {
-					ServletUtility.setErrorMessage("RollNo Does Not Exists", request);
-
+		if (OP_GO.equalsIgnoreCase(operation)) {
+			if (validate(request)) {				
+				try {
+					getMarksheet(bean, request);					
+				} catch (final ApplicationException e) {
+					log.error("Error in get marksheet ", e);
+					handleDatabaseException(e, request, response);
+					return;
 				}
-			} catch (ApplicationException e) {
-				log.error(e);
-				ServletUtility.handleException(e, request, response);
-				return;
 			}
-		} else if (OP_RESET.equalsIgnoreCase(op)) {
+		} else if (OP_RESET.equalsIgnoreCase(operation)) {
 			ServletUtility.redirect(ORSView.GET_MARKSHEET_CTL, request, response);
 			return;
 		}
 		ServletUtility.forward(getView(), request, response);
-		log.debug("MarksheetCtl Method doGet Ended");
-	}
+		log.debug("MarksheetCtl Method do post Ended");
+	}	
 
 	/**
 	 * Returns the VIEW page of this Controller
@@ -156,5 +148,4 @@ public class GetMarksheetCtl extends BaseCtl<MarksheetBean> {
 	protected String getView() {
 		return ORSView.GET_MARKSHEET_VIEW;
 	}
-
 }

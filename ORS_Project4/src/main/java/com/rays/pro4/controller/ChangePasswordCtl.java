@@ -1,28 +1,24 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
 import org.apache.log4j.Logger;
-
-import com.rays.pro4.Bean.BaseBean;
+import com.rays.pro4.util.ChangePasswordValidator; 
 import com.rays.pro4.Bean.UserBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Model.UserModel;
 import com.rays.pro4.Util.DataUtility;
-import com.rays.pro4.Util.DataValidator;
-import com.rays.pro4.Util.PropertyReader;
+import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.ServletUtility;
 
 
-
 /**
-* The Class ChangePasswordCtl.
+* The Class ChangePasswordCtl is a controller that allows users to change their password.
+* It handles the display and submission logic for the change password form.
 * 
 * @author Lokesh SOlanki
 */
@@ -36,149 +32,151 @@ public class ChangePasswordCtl extends BaseCtl<UserBean>{
 	 */
 	public static final String OP_CHANGE_MY_PROFILE = "Change My Profile";
 
-	/** The log. */
+	/** The logger. */
 	private static Logger log = Logger.getLogger(ChangePasswordCtl.class);
+	
+	/**
+     * The model.
+     */
+    
+    
+    /**
+     * The model.
+     */
+    
+    
+	private final UserModel model = new UserModel();
 
 	/**
-	 * Validates input data entered by User
+	 * Validates the input data entered by the user.
 	 * 
-	 * @param request
-	 * @return
-	 */
-	@Override	
-	protected boolean validate(HttpServletRequest request){
-
-		log.debug("ChangePasswordCtl Method validate Started");
-
-		boolean pass = true;
-
-		if (DataValidator.isNull(request.getParameter("oldPassword"))) {	
-			request.setAttribute("oldPassword", PropertyReader.getValue("error.require", "Old Password"));			
-			pass = false;
-		}
-		
-		if (DataValidator.isNull(request.getParameter("newPassword"))) {
-			request.setAttribute("newPassword", PropertyReader.getValue("error.require", "New Password"));
-			pass = false;
-		}
-		else if(request.getParameter("oldPassword").equals(request.getParameter("newPassword"))){
-		request.setAttribute("newPassword", PropertyReader.getValue("error.newPassword.oldPassword"));
-		pass = false;
-		}
-		
-		else if (!DataValidator.isPassword(request.getParameter("newPassword"))) {
-			  request.setAttribute("newPassword",PropertyReader.getValue("error.password"));
-			  pass = false; 
-			  }
-			 
-		
-		if (DataValidator.isNull(request.getParameter("confirmPassword"))) {
-			request.setAttribute("confirmPassword", PropertyReader.getValue("error.require", "Confirm Password"));
-			pass = false;		
-		}	
-		else if (!DataValidator.isPassword(request.getParameter("confirmPassword"))) {
-			  request.setAttribute("confirmPassword",PropertyReader.getValue("error.password"));
-			  pass = false; 
-		}else if(!request.getParameter("newPassword").equals(request.getParameter("confirmPassword"))){
-			request.setAttribute("confirmPassword", PropertyReader.getValue("error.confirmPassword.notMatch"));
-			pass = false;
-		}
-		
-		log.debug("ChangePasswordCtl Method validate Ended");
-
-		return pass;
-	}
-
-	/**
-	 * Populates bean object from request parameters
-	 * 
-	 * @param request
-	 * @return
+	 * @param request The HttpServletRequest object.
+	 * @return True if the request is valid, false otherwise.
 	 */
 	@Override
-	protected UserBean populateBean(HttpServletRequest request) {
-		log.debug("ChangePasswordCtl Method populatebean Started");
+	protected boolean validate(final HttpServletRequest request) {
 
-		UserBean bean = new UserBean();
-		String oldPassword = DataUtility.getString(request.getParameter("oldPassword"));
-		bean.setPassword(oldPassword);
-
-		bean.setConfirmPassword(DataUtility.getString(request.getParameter("confirmPassword")));
-
-		populateDTO(bean, request);
-
-		log.debug("ChangePasswordCtl Method populatebean Ended");
-
-		return bean;
-
+	    log.debug("ChangePasswordCtl Method validate Started");
+	    final boolean pass = ChangePasswordValidator.validate(request);
+	    if (!pass) {
+	        log.debug("ChangePasswordCtl Method validate Ended with error");
+	    }
+	
+	    log.debug("ChangePasswordCtl Method validate Ended");
+	    return pass;
 	}
 
 	/**
-	 * Contains Display logics
-	 * 
-	 * @param request
-	 * @param response
-	 * @throws ServletException
-	 * @throws IOException
+     * Populates bean object from request parameters.
+     *
+     * @param request The HttpServletRequest object.
+     * @return The UserBean populated with request parameters.
+     */
+    @Override
+    protected UserBean populateBean(final HttpServletRequest request) {
+        log.debug("ChangePasswordCtl Method populate Started");
+
+        final UserBean bean = new UserBean();
+        bean.populate(request);
+        log.debug("ChangePasswordCtl Method populate Ended");
+		
+        return bean;
+    }
+    
+    
+	/**
+     * Handles GET requests for displaying the change password view.
+     *
+     * @param request  The HttpServletRequest object.
+     * @param response The HttpServletResponse object.
+     * @throws ServletException
+     * @throws IOException      If an input or output exception occurs.
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)	
+	@Override
+	protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
 			throws ServletException, IOException {
+		log.debug("ChangePasswordCtl Method doGet Started");
+		final HttpSession session = request.getSession();
+		if(session.getAttribute("user")==null){
+			ServletUtility.redirect(ORSView.LOGIN_CTL, request, response);
+			return;
+		}		
+		ServletUtility.forward(getView(), request, response);	
+		log.debug("ChangePasswordCtl Method doGet Ended");
+	}
+	
+	
+	/**
+	 * Change password.
+	 *
+	 * @param bean the bean
+	 * @param newPassword the new password
+	 * @param request the request
+	 * @throws ApplicationException the application exception
+	 * @throws IOException
+	 * @throws ServletException
+	 */
+	private final void changePassword(final UserBean bean, final String newPassword,final HttpServletRequest request, final HttpServletResponse response) throws ApplicationException, IOException, ServletException {
+		final HttpSession session = request.getSession();
+		final UserBean userBean = (UserBean) session.getAttribute("user");
+		if(userBean == null){
+			ServletUtility.setErrorMessage("User not found", request);
+			ServletUtility.forward(getView(), request, response);
+			return;
+		}
+		final long id = userBean.getId();
+		final boolean flag = model.changePassword(id, bean.getPassword(), newPassword);		
+		if (flag) {			
+			final UserBean user = model.findByLogin(userBean.getLogin());
+			session.setAttribute("user", user);			
+			ServletUtility.setSuccessMessage(MessageConstant.PASSWORD_CHANGE, request);
+		} else {
+			ServletUtility.setErrorMessage("Password change failed.", request);
+		}
 		ServletUtility.forward(getView(), request, response);
 	}
-
+	
+	
 	/**
-	 * Contains Submit logics
-	 * 
-	 * @param request
-	 * @param response
-	 * @throws ServletException
-	 * @throws IOException
+	 * Handles POST requests for processing the change password form submission.
+	 * @param request the request
+	 * @param response the response
+	 * @throws ServletException the servlet exception
+	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+	@Override
+	protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
 			throws ServletException, IOException {
-		
-		HttpSession session = request.getSession(true);
 
-				
 		log.debug("ChangePasswordCtl Method doPost Started");
-
-		String op = DataUtility.getString(request.getParameter("operation"));
-
-		// get model
-		UserModel model = new UserModel();
-
-		UserBean bean = (UserBean) populateBean(request);		
-
-		UserBean UserBean = (UserBean) session.getAttribute("user");
-
-		String newPassword = (String) request.getParameter("newPassword");
-
-		long id = UserBean.getId();
-
-		if (OP_SAVE.equalsIgnoreCase(op)) {
-			try {
-				boolean flag = model.changePassword(id, bean.getPassword(), newPassword);
-				if (flag == true) {
-					bean = model.findByLogin(UserBean.getLogin());
-					session.setAttribute("user", bean);
-					ServletUtility.setSuccessMessage(PropertyReader.getValue("success.password.change"), request);
+		final String op = DataUtility.getString(request.getParameter("operation"));		
+		final UserBean bean = populateBean(request);
+		final String newPassword = (String) request.getParameter("newPassword");
+	    
+		if (OP_SAVE.equalsIgnoreCase(op)) {			
+			if(validate(request)){
+				
+				try {
+					changePassword(bean, newPassword, request, response);
+					return;
+				}catch (final ApplicationException e) {
+					log.error(e);
+					handleDatabaseException(e, request, response);
+					return;
 				}
-			} catch (ApplicationException e) {
-				log.error(e);
-				ServletUtility.handleException(e, request, response);
-				return;
-		}		 else if (OP_CHANGE_MY_PROFILE.equalsIgnoreCase(op)) {
-			ServletUtility.redirect(ORSView.MY_PROFILE_CTL, request, response);			
-
-
-			return;
-
-		}
-		ServletUtility.forward(ORSView.CHANGE_PASSWORD_VIEW, request, response);
+			}
+		}else if (OP_CHANGE_MY_PROFILE.equalsIgnoreCase(op)) {
+            ServletUtility.redirect(ORSView.MY_PROFILE_CTL, request, response);
+            return;
+        }
+		ServletUtility.forward(getView(), request, response);
 		log.debug("ChangePasswordCtl Method doPost Ended");
 	}
 
+	
 	/**
+	 * 
+	 * 
 	 * Returns the VIEW page of this Controller
 	 * 
 	 * @return
@@ -187,6 +185,3 @@ public class ChangePasswordCtl extends BaseCtl<UserBean>{
 	protected String getView() {
 		return ORSView.CHANGE_PASSWORD_VIEW;
 	}
-	
-
-}

@@ -1,6 +1,12 @@
 package com.rays.pro4.Bean;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.rays.pro4.Util.DataUtility;
 
 /**
  * Student JavaBean encapsulates Student attributes.
@@ -10,13 +16,13 @@ import java.util.Date;
  */
 public class StudentBean extends BaseBean {
 
-	private String firstName;
-	private String lastName;
-	private Date dob;
-	private String mobileNo;
-	private String email;
-	private long collegeId;
-	private String collegeName;
+	private String firstName; 
+	private String lastName; 
+	private Date dob; 
+	private String mobileNo; 
+	private String email; 
+	private long collegeId; 
+	private String collegeName; 
 
 	/**
 	 * Gets the first name of the student.
@@ -151,7 +157,7 @@ public class StudentBean extends BaseBean {
 	 */
 	@Override
 	public String getkey() {
-		return String.valueOf(id);
+		return String.valueOf(getKey());
 	}
 
 	/**
@@ -174,5 +180,28 @@ public class StudentBean extends BaseBean {
 				+ mobileNo + ", email=" + email + ", collegeId=" + collegeId + ", collegeName=" + collegeName + ", id="
 				+ id + ", createdBy=" + createdBy + ", modifiedBy=" + modifiedBy + ", createdDatetime="
 				+ createdDatetime + ", modifiedDatetime=" + modifiedDatetime + "]";
+	}
+	
+	@Override
+	public void populate(HttpServletRequest request) {
+	    try {
+		setId(DataUtility.getLong(request.getParameter("id")));
+	        setFirstName(DataUtility.getString(request.getParameter("firstname")));
+	        setLastName(DataUtility.getString(request.getParameter("lastname")));
+	         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+	         try {
+	             setDob(format.parse(request.getParameter("dob")));
+	          } catch (ParseException e) {
+	             // Handle parsing exception
+	              e.printStackTrace();
+	          }
+	        
+	        setMobileNo(DataUtility.getString(request.getParameter("mobile")));
+	        setEmail(DataUtility.getString(request.getParameter("email")));
+	        setCollegeId(DataUtility.getLong(request.getParameter("collegename")));
+	        setCreatedBy(DataUtility.getString(request.getParameter("createdby")));
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
 	}
 }

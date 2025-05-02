@@ -131,14 +131,18 @@
 						<td align="center">
 							<label for="subjectId"><b>Subject Name :</b></label> 
 							<select name="subjectId" id="subjectId">
-								<option value="">Select Subject</option>
+								<option value=""
+									<%=(request.getAttribute("bean") != null && ((com.rays.pro4.Bean.SubjectBean) request.getAttribute("bean")).getId() == 0) ? "selected" : ""%>>Select
+									Subject</option>
 								<c:forEach items="${slist}" var="s">
-									<option value="${s.id}" ${s.id == bean.id ? 'selected' : ''}>${s.subjectName}</option>
+									<option value="${s.id}"
+										${s.id == bean.id ? 'selected' : ''}>${s.subjectName}</option>
 								</c:forEach>
 							</select>
 							<label for="courseId"><b>Course Name :</b></label> 
 							<select name="courseId" id="courseId">
-								<option value="">Select Course</option>
+								<option value=""
+									<%=(request.getAttribute("bean") != null && ((com.rays.pro4.Bean.SubjectBean) request.getAttribute("bean")).getCourseId() == 0) ? "selected" : ""%>>Select Course</option>
 								<c:forEach items="${clist}" var="c">
 									<option value="${c.id}" ${c.id == bean.courseId ? 'selected' : ''}>${c.courseName}</option>
 								</c:forEach>

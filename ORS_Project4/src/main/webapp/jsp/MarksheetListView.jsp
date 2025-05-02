@@ -1,65 +1,67 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@page import="com.rays.pro4.controller.ORSView"%>
-<%@page import="com.rays.pro4.controller.MarksheetListCtl"%>
-<%@page import="com.rays.pro4.Util.HTMLUtility"%>
-<%@page import="com.rays.pro4.Bean.MarksheetBean"%>
-<%@page import="java.util.Iterator"%>
-<%@page import="com.rays.pro4.Util.ServletUtility"%>
-<%@page import="java.util.List"%>
-<%@page import="com.rays.pro4.Model.MarksheetModel"%>
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@page import="com.rays.pro4.controller.ORSView" %>
+<%@page import="com.rays.pro4.controller.MarksheetListCtl" %>
+<%@page import="com.rays.pro4.Util.HTMLUtility" %>
+<%@page import="com.rays.pro4.Bean.MarksheetBean" %>
+<%@page import="com.rays.pro4.Util.ServletUtility" %>
+<%@page import="java.util.List" %>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1" %>
 <html>
+<c:set var="ctx" value="${pageContext.request.contextPath}"/>
 <head>
-<link rel="icon" type="image/png" href="<%=ORSView.APP_CONTEXT%>/img/logo.png" sizes="16*16"/>
-<link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
-<title> Marksheet List</title>
+    <link rel="icon" type="image/png" href="${ctx}/img/logo.png" sizes="16*16"/>
+    <link rel="stylesheet" href="${ctx}/css/style.css">
+    <title>
+        <c:choose>
+            <c:when test="${not empty list}">Marksheet List</c:when>
+            <c:otherwise>Marksheet List</c:otherwise>
+        </c:choose>
+    </title>
 
-<script src="<%=ORSView.APP_CONTEXT %>/js/jquery.min.js"></script>
-<script src="<%=ORSView.APP_CONTEXT %>/js/Checkbox11.js"></script>
+    <script src="${ctx}/js/jquery.min.js"></script>
+    <script src="${ctx}/js/Checkbox11.js"></script>
 
 </head>
 <body class="bg-light">
-	<jsp:useBean id="bean" class="com.rays.pro4.Bean.MarksheetBean"
-		scope="request"></jsp:useBean>
-	<form action="${pageContext.request.contextPath}${ORSView.MARKSHEET_LIST_CTL}"
-		method="POST">
-		<%@include file="Header.jsp"%>
-		<c:set var="list" value="${requestScope.list}" />
-		<c:set var="rollNoList" value="${requestScope.rollNo}" />
-		<c:set var="next" value="${requestScope.nextlist}" />
-		<c:set var="pageNo" value="${requestScope.pageNo}" />
-		<c:set var="pageSize" value="${requestScope.pageSize}" />
-		<c:set var="index" value="${(pageNo - 1) * pageSize + 1}" />
-		<div class="container">
-			<div class="text-center">
-				<h1>Marksheet List</h1>
-				<c:if test="${not empty requestScope.errorMessage}">
-					<div class="alert alert-danger" role="alert">
-						${requestScope.errorMessage}</div>
-				</c:if>
-				<c:if test="${not empty requestScope.successMessage}">
-					<div class="alert alert-success" role="alert">
-						${requestScope.successMessage}</div>
-				</c:if>
-			</div>
-			<c:if test="${not empty list}">
-				<table class="w-100">
-					<tr>
-						<td class="text-center"><label for="name"> Student Name
-								:</label> <input type="text" id="name" name="name"
-							placeholder="Enter Student Name" class="form-control-inline"
-							value="${param.name}"> <label for="rollNo123">RollNo
-								:</label> ${HTMLUtility.getList("rollNo123", bean.id, rollNoList)}
-							&nbsp; <input type="submit" name="operation"
-							class="btn btn-primary"
-							value="${MarksheetListCtl.OP_SEARCH}"> <input
-							type="submit" name="operation" class="btn btn-secondary"
-							value="${MarksheetListCtl.OP_RESET}"></td>
-					</tr>
-				</table>
-				<br>
-				<table class="table table-bordered table-striped w-100">
-					<thead class="thead-dark">
+<jsp:useBean id="bean" class="com.rays.pro4.Bean.MarksheetBean"
+    scope="request"></jsp:useBean>
+<form action="${ctx}${ORSView.MARKSHEET_LIST_CTL}" method="POST">
+<%@include file="Header.jsp" %>
+<c:set var="list" value="${requestScope.list}"/>
+
+    <c:set var="rollNoList" value="${requestScope.rollNo}"/>
+    <c:set var="next" value="${requestScope.nextlist}"/>
+    <c:set var="pageNo" value="${requestScope.pageNo}"/>
+    <c:set var="pageSize" value="${requestScope.pageSize}"/>
+    <c:set var="index" value="${(pageNo - 1) * pageSize + 1}"/>
+    <div class="container">
+        <div class="text-center">
+            <h1>Marksheet List</h1>
+            <c:if test="${not empty requestScope.errorMessage}">
+                <div class="alert alert-danger" role="alert">${requestScope.errorMessage}</div>
+            </c:if>
+            <c:if test="${not empty requestScope.successMessage}">
+                <div class="alert alert-success" role="alert">${requestScope.successMessage}</div>
+            </c:if>
+        </div>
+        <c:if test="${not empty list}">
+            <table class="w-100">
+                <tr>
+                    <td class="text-center"><label for="name"> Student Name :</label>
+                        <input type="text" id="name" name="name"
+                            placeholder="Enter Student Name" class="form-control-inline"
+                            value="${param.name}">
+                        <label for="rollNo123">RollNo :</label>
+                        ${HTMLUtility.getList("rollNo123", bean.id, rollNoList)}
+                        &nbsp; <input type="submit" name="operation" class="btn btn-primary"
+                            value="${MarksheetListCtl.OP_SEARCH}">
+                        <input type="submit" name="operation" class="btn btn-secondary"
+                            value="${MarksheetListCtl.OP_RESET}"></td>
+                </tr>
+            </table>
+        <br>
+            <table class="table table-bordered table-striped w-100">
+                <thead class="table-header">
 						<tr>
 							<th><input type="checkbox" id="select_all" name="select">
 								Select All.</th>
@@ -82,7 +84,7 @@
 							<c:set var="math" value="${marksheet.maths}" />
 							<c:set var="total" value="${phy + chem + math}" />
 							<c:set var="perc" value="${total / 3}" />
-							<tr class="text-center">
+							<tr class="text-center table-row">
 								<td><input type="checkbox" class="checkbox" name="ids"
 									value="${marksheet.id}"></td>
 								<td>${index}</td>
@@ -101,8 +103,7 @@
 											<span class="text-danger"> Fail</span>
 										</c:otherwise>
 									</c:choose></td>
-								<td><a
-									href="${pageContext.request.contextPath}/MarksheetCtl?id=${marksheet.id}"
+								<td><a href="${ctx}/MarksheetCtl?id=${marksheet.id}"
 									class="btn btn-link">Edit</a></td>
 							</tr>
 							<c:set var="index" value="${index + 1}" />
@@ -113,8 +114,7 @@
 					<tr>
 						<td><input type="submit" name="operation"
 							class="btn btn-secondary"
-							value="${MarksheetListCtl.OP_PREVIOUS}"
-							${pageNo == 1 ? 'disabled' : ''}></td>
+							value="${MarksheetListCtl.OP_PREVIOUS}" ${pageNo == 1 ? 'disabled' : ''}></td>
 						<td><input type="submit" name="operation"
 							class="btn btn-danger" value="${MarksheetListCtl.OP_DELETE}"></td>
 						<td><input type="submit" name="operation"
@@ -128,19 +128,19 @@
 			</c:if>
 			<c:if test="${empty list}">
 				<div class="text-center">
-					<input type="submit" name="operation" class="btn btn-secondary" value="${MarksheetListCtl.OP_BACK}">
+					<h3>No Marksheet Found</h3>
 				</div>
 			</c:if>
-			<input type="hidden" name="pageNo" value="${pageNo}"> <input
-				type="hidden" name="pageSize" value="${pageSize}">
-		</div>
-	</form>
-	<br/>
-	<br/>
-	<br/>
-	<br/>
-	<br/>
-	<br/>
-	<%@include file="Footer.jsp"%>
+        <input type="hidden" name="pageNo" value="${pageNo}">
+        <input type="hidden" name="pageSize" value="${pageSize}">
+    </div>
+</form>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<%@include file="Footer.jsp" %>
 </body>
 </html>

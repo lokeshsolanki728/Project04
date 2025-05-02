@@ -25,6 +25,7 @@ import java.util.ArrayList;
 public class CollegeModel {
 
 	private static Logger log = Logger.getLogger(CollegeModel.class);
+	private ResultSet rs = null;
 
 	/**
 	 * Generates the next primary key for the College table.
@@ -155,7 +156,6 @@ public class CollegeModel {
 			log.error("Error", e);
 			throw new ApplicationException("Exception: Exception in getting College by name - " + e.getMessage());
 
-
 		}
 		log.debug("modal findByName End");
 		return bean;
@@ -190,7 +190,10 @@ public class CollegeModel {
 		} catch (Exception e) {
 			log.error("Database Exception ", e);
 			throw new ApplicationException("Exception: Error in getting College by PK");
-		} finally {
+		} 
+		
+		finally
+		{
             try {
                 if (rs != null) rs.close();
             } catch (SQLException ex) {}
@@ -251,36 +254,37 @@ public class CollegeModel {
 		ArrayList<CollegeBean> list = new ArrayList<>();
 		int index = 1;
 
+        if (pageNo < 0) {
+            pageNo = 1;
+        }
+        if (pageSize < 0) {
+            pageSize = 10;
+        }
+
         if (bean != null) {
             if (bean.getId() > 0) {
-                sql.append(" AND id = " + bean.getId());
+                sql.append(" AND id = ?");
             }
             if (bean.getName() != null && bean.getName().length() > 0) {
                 sql.append(" AND NAME like ?");
             }
             if (bean.getAddress() != null && bean.getAddress().length() > 0) {
                 sql.append(" AND ADDRESS like ?");
-			}
-			if (bean.getState() != null && bean.getState().length() > 0) {
-				sql.append("AND STATE like'" + bean.getState() + "%'");
-			}
-			if (bean.getCity() != null && bean.getCity().length() > 0) {
-				sql.append(" AND CITY like '" + bean.getCity() + "%'");
-			}
-			if (bean.getPhoneNo() != null && bean.getPhoneNo().length() > 0) {
-				sql.append(" AND PHONE_NO = " + bean.getPhoneNo());
-			}
-		}
+            }
+             if (bean.getCity() != null && !bean.getCity().isEmpty()) {
+                sql.append(" AND CITY like ?");
+            }
+        }
 
-		// if page size is greater than zero then apply pagination
-		if (pageSize > 0) {
-			// Calculate start record index
-			pageNo = (pageNo - 1) * pageSize;
-			sql.append(" LIMIT " + pageNo + "," + pageSize);
-		}
+        if (pageSize > 0) {
+            pageNo = (pageNo - 1) * pageSize;
+            sql.append(" LIMIT " + pageNo + ", " + pageSize);
+        }
 
-		try (Connection conn = JDBCDataSource.getConnection();
-			 PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+        try (Connection conn = JDBCDataSource.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+
+            if (bean != null) {
 
 			if (bean.getName() != null && !bean.getName().isEmpty()) {
 				pstmt.setString(index++, bean.getName() + "%");
@@ -288,12 +292,17 @@ public class CollegeModel {
 			if (bean.getAddress() != null && !bean.getAddress().isEmpty()) {
 				pstmt.setString(index++, bean.getAddress() + "%");
 			}
-			if (bean.getCity() != null && !bean.getCity().isEmpty()) {
-				pstmt.setString(index++, bean.getCity() + "%");
-			}
-
-			try (ResultSet rs = pstmt.executeQuery()) {
-				while (rs.next()) {
+                 if (bean.getId() > 0) {
+                     pstmt.setLong(index++, bean.getId());
+                 }
+                 if (bean.getName() != null && !bean.getName().isEmpty()) {
+                     pstmt.setString(index++, bean.getName() + "%");
+                 }
+                 if (bean.getAddress() != null && !bean.getAddress().isEmpty()) {
+                     pstmt.setString(index++, bean.getAddress() + "%");
+                 }
+                  if (bean.getCity() != null && !bean.getCity().isEmpty()) {
+                     pstmt.setString(index++, bean.getCity() + "%");
 					bean = new CollegeBean();
 					bean.setId(rs.getLong(1));
 					bean.setName(rs.getString(2));

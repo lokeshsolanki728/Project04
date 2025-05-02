@@ -1,10 +1,8 @@
 package com.rays.pro4.Bean;
 
 import java.io.Serializable;
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.sql.Timestamp;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 
 /**
@@ -29,45 +27,15 @@ public abstract class BaseBean implements Serializable, DropdownListBean {
      *
      * @return key
      */
-    public long getKey() {
+    public  long getKey() {
         return id;
     }
 
-    /**
-     * Returns display name of Bean. It is used to create option list in
-     * HTML dropdown list.
-     *
-     * @return value
-     */
-    public String getValue() {
-
-        try {
-            Field field = this.getClass().getDeclaredField("name");
-            if (field != null) {
-
-                try {
-                    AccessibleObject.setAccessible(new Field[] { field }, true);
-                    Object o = field.get(this);
-                    return (String) o;
-                } catch (IllegalAccessException e) {
-                    log.error("BaseBean getValue IllegalAccessException ", e);
-                    return "Can not get the value";
-                }
-
-            } else {
-                return "Value is not present";
-            }
-        } catch (NoSuchFieldException e) {
-            log.error("BaseBean getValue NoSuchFieldException ", e);
-            return "Value is not present";
-        } catch (SecurityException e) {
-            log.error("BaseBean getValue SecurityException ", e);
-            return "Can not access";
-        } catch (IllegalArgumentException e) {
-            log.error("BaseBean getValue IllegalArgumentException ", e);
-            return "Can not get the value";
-        }
-    }
+     public abstract String getValue() ;
+    
+     public abstract void populate(HttpServletRequest request);
+     
+     public abstract String getkey() ;
 	public long getId() {
 		return id;
 	}

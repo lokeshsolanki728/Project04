@@ -5,38 +5,39 @@
 <%@page import="com.rays.pro4.controller.ORSView" %>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1" isErrorPage="true"%>
+<c:set var="ctx" value="${pageContext.request.contextPath}"/>
 <html>
 <head>
 <link rel="icon" type="image/png"
-	href="${pageContext.request.contextPath}/img/customLogo.png"
+	href="${ctx}/img/customLogo.png"
 	sizes="16*16" />
-<title>Error Page</title>
-<link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
+<title>Error</title>
+<link rel="stylesheet" href="${ctx}/css/style.css">
 </head>
 <body>
-	<div class="error-container">
-		<img src="${pageContext.request.contextPath}/img/Error.jpg"
-			class="error-image" alt="Error Image">
-		<div class="error-header">
-			<h1 class="error-message">Ooops! Something went wrong..</h1>
+	<div class="errorContainer">
+		<img src="${ctx}/img/Error.jpg"
+			class="errorImage" alt="Error Image">
+		<div class="errorHeader">
+			<h1 class="errorMessage">Ooops! Something went wrong..</h1>
 		</div>
-		<div class="error-code">
+		<div class="errorCode">
 			<span><b>500</b> : Requested resources is not available</span>
 		</div>
-		<div class="error-suggestions">
+		<div class="errorSuggestions">
 			<div>
 				<h3>Try :</h3>
 			</div>
 			<div>
-				<ul class="error-list">
-					<li class="error-list-item">Check the network cables, modem,
+				<ul class="errorList">
+					<li class="errorListItem">Check the network cables, modem,
 						and router</li>
-					<li class="error-list-item">Reconnect to network or wi-fi</li>
+					<li class="errorListItem">Reconnect to network or wi-fi</li>
 				</ul>
 			</div>
 		</div>
-		<div class="error-link-container">
-			<a href="${pageContext.request.contextPath}${ORSView.WELCOME_CTL}" class="error-link">*Click here to Go Back*</a>
+		<div class="errorLinkContainer">
+			<a href="${ctx}${ORSView.WELCOME_CTL}" class="errorLink">*Click here to Go Back*</a>
 		</div>
 	</div>
 </body>

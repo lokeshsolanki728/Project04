@@ -6,23 +6,24 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+
 
 import org.apache.log4j.Logger;
 
+import com.rays.pro4.util.LoginValidator;
 import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Bean.RoleBean;
 import com.rays.pro4.Bean.UserBean;
+import com.rays.pro4.Exception.DatabaseException;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Model.RoleModel;
 import com.rays.pro4.Model.UserModel;
 import com.rays.pro4.Util.DataUtility;
-import com.rays.pro4.Util.DataValidator;
-import com.rays.pro4.Util.PropertyReader;
+import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.ServletUtility;
 
 /**
- * Servlet implementation class LoginCtl
+ * Login functionality Controller. Performs operation for Login
  * 
  * @author Lokesh SOlanki
  */
@@ -30,173 +31,197 @@ import com.rays.pro4.Util.ServletUtility;
 public class LoginCtl extends BaseCtl<UserBean> {
 	private static final long serialVersionUID = 1L;
 	public static final String OP_REGISTER = "Register";
-	public static final String OP_SIGN_IN = "SignIn";
+	public static final String OP_SIGN_IN = "SignIn";	
+	public static final String OP_LOG_OUT = "Logout";
 	public static final String OP_SIGN_UP = "SignUp";
-	public static final String OP_LOG_OUT = "logout";
 
 	private static Logger log = Logger.getLogger(LoginCtl.class);
+	
+	private final static UserModel model = new UserModel();
+	private final static RoleModel roleModel = new RoleModel();
 
 	/**
-	 * Validates input data entered by User
+	 * Validates the data input by user
 	 * 
-	 * @param request
-	 * @return
+	 * @param request the request
+	 * @return true, if successful
+	 * @see com.rays.pro4.controller.BaseCtl#validate(javax.servlet.http.HttpServletRequest)
 	 */
-	
 	@Override
 	protected boolean validate(HttpServletRequest request) {
 		log.debug("LoginCtl Method validate Started");
-
-		boolean pass = true;
-
-		String op = request.getParameter("operation");
-	    if (OP_SIGN_UP.equalsIgnoreCase(op) || OP_LOG_OUT.equalsIgnoreCase(op)) {
-	        return pass;
-	    }
-		String login = request.getParameter("login");
-		if (DataValidator.isNull(login)) {
-			request.setAttribute("login", PropertyReader.getValue("error.require", "Login Id"));
-			pass = false;
-		} else if (!DataValidator.isEmail(login)) {
-			System.out.println("loginctl 22");
-			request.setAttribute("login", PropertyReader.getValue("error.email", "Login Id"));
-			pass = false;
+		
+		final boolean pass = LoginValidator.validate(request);
+		
+		if (OP_SIGN_UP.equalsIgnoreCase(DataUtility.getString(request.getParameter("operation"))) || OP_LOG_OUT.equalsIgnoreCase(DataUtility.getString(request.getParameter("operation")))) {
+			log.debug("LoginCtl validate Ended with no validation");
+			return true;
 		}
-		if (DataValidator.isNull(request.getParameter("password"))) {
-			request.setAttribute("password", PropertyReader.getValue("error.require", "Password"));
-			pass = false;
-		}
-
+		log.debug("LoginCtl validate Ended");
 		log.debug("LoginCtl Method validate Ended");
-
+		
 		return pass;
 	}
 
 	/**
 	 * Populates bean object from request parameters
-	 * 
-	 * @param request
-	 * @return
+	 * @param request the request
+	 * @return the user bean
+	 * @see com.rays.pro4.controller.BaseCtl#populateBean(javax.servlet.http.HttpServletRequest)
 	 */
-	
 	@Override
-	protected UserBean populateBean(HttpServletRequest request) {
-
+	protected BaseBean populateBean(final HttpServletRequest request) {
 		log.debug("LoginCtl Method populatebean Started");
-
-		UserBean bean = new UserBean();
-
-		bean.setId(DataUtility.getLong(request.getParameter("id")));// get kiya loginctl
+		final UserBean bean = new UserBean();
+		bean.populate(request);
+		
 		bean.setLogin(DataUtility.getString(request.getParameter("login")));
 		bean.setPassword(DataUtility.getString(request.getParameter("password")));
-
+		bean.setId(DataUtility.getLong(request.getParameter("id")));
+		
 		log.debug("LoginCtl Method populatebean Ended");
 
 		return bean;
 	}
 
 	/**
-	 * Contains Display logics
-	 * 
-	 * @param request
-	 * @param response
-	 * @throws ServletException
-	 * @throws IOException
-	 *
+	 * display logics
+	 * @param request the request
+	 * @param response the response
+	 * @throws ServletException the servlet exception
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @see com.rays.pro4.controller.BaseCtl#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+	@Override
+	protected final void doGet(final HttpServletRequest request, final HttpServletResponse response)
 			throws ServletException, IOException {
-		HttpSession session = request.getSession(false);
-		String op = DataUtility.getString(request.getParameter("operation"));
+		log.debug("doGet method start");
 		
-		if (OP_LOG_OUT.equalsIgnoreCase(op)) {
-			session.invalidate();
-			ServletUtility.setSuccessMessage("User Logout Succesfully", request);
-			ServletUtility.forward(getView(), request, response);
+		final String operation = DataUtility.getString(request.getParameter("operation"));
+		if(OP_LOG_OUT.equalsIgnoreCase(operation)){
+			request.getSession().invalidate();
+            ServletUtility.setSuccessMessage("You have logout Succesfully", request);
+			ServletUtility.forward(getView(),request,response);
 			return;
 		}
 		
-		ServletUtility.forward(getView(), request, response);
-
+		ServletUtility.forward(getView(),request,response);
+		log.debug("doGet method end");
 	}
-
+	
+	
 	/**
-	 * Contains Submit logics
-	 * 
-	 * @param request
-	 * @param response
-	 * @throws ServletException
-	 * @throws IOException
+	 * Login.
 	 *
+	 * @param bean the bean
+	 * @param request the request
+	 * @param response the response
+	 * @throws ApplicationException the application exception
+	 * @throws ServletException the servlet exception
+	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-
-		HttpSession session = request.getSession(true);
-		log.debug(" Method doPost Started");
-
-		String op = DataUtility.getString(request.getParameter("operation"));
-
-		UserModel model = new UserModel();
-		RoleModel role = new RoleModel();
-
-		// long id = DataUtility.getLong(request.getParameter("id"));
-
-		if (OP_SIGN_IN.equalsIgnoreCase(op)) {
-			
-			UserBean bean = (UserBean) populateBean(request);
-
-			try {
-
-				bean = model.authenticate(bean.getLogin(), bean.getPassword());
-
-				String uri = request.getParameter("URI");
-
-				if (bean != null) {
-					session.setAttribute("user", bean);
-					long rollId = bean.getRoleId();
-
-					RoleBean rolebean = role.findByPK(rollId);
-
-					if (rolebean != null) {
-						session.setAttribute("role", rolebean.getName());
-					}
-
-					if ("null".equalsIgnoreCase(uri)) {
-						ServletUtility.redirect(ORSView.WELCOME_CTL, request, response);
-						return;
-					} else {
-						ServletUtility.redirect(uri, request, response);
-						return;
-					}
-
-				} else {
-					
-					bean = (UserBean) populateBean(request);
-					ServletUtility.setBean(bean, request);
-					ServletUtility.setErrorMessage("Invalid LoginId And Password", request);
+	private final void login(final UserBean bean, final HttpServletRequest request,final HttpServletResponse response) throws ApplicationException, ServletException, IOException {	
+		log.debug("login method start");
+		
+		final javax.servlet.http.HttpSession session = request.getSession(true);
+		try {
+			final UserBean uBean = model.authenticate(bean.getLogin(), bean.getPassword());
+			if (uBean != null) {
+				session.setAttribute("user", uBean);
+				final RoleBean rolebean = roleModel.findByPK(uBean.getRoleId());
+				if (rolebean != null) {
+					session.setAttribute("role", rolebean.getName());
 				}
-
-			} catch (ApplicationException e) {
-				log.error(e);
-				ServletUtility.handleException(e, request, response);
-				return;
+				final String uri = request.getParameter("URI");
+				if (DataUtility.getString(uri).equalsIgnoreCase("null")) {
+					ServletUtility.redirect(ORSView.WELCOME_CTL, request, response);
+					return;
+				} else {
+					ServletUtility.redirect(uri, request, response);
+					return;
+				}
+			}else{
+				ServletUtility.setErrorMessage("Invalid LoginId And Password",request);
+				ServletUtility.forward(getView(),request,response);
 			}
-		} else if (OP_SIGN_UP.equalsIgnoreCase(op)) {
-
-			
-			
-			ServletUtility.redirect(ORSView.USER_REGISTRATION_CTL, request, response);
-			return;
-
+		}catch(DatabaseException e) {
+			handleDatabaseException(e, request, response);
 		}
+		log.debug("login method end");
+		
+	}
+	
+	
+	/**
+     * Save user.
+     *
+     * @param bean the bean
+     * @param request the request
+     * @throws DuplicateRecordException the duplicate record exception
+     * @throws ApplicationException the application exception
+     */
+    private void signUp(UserBean bean, HttpServletRequest request)
+            throws ApplicationException {
+    	log.debug("save method start");
+    	
+        ServletUtility.redirect(ORSView.USER_REGISTRATION_CTL, request, response);
+        
+        log.debug("save method end");
+    }
 
-		ServletUtility.forward(getView(), request, response);
+	
+	/**
+	 * submit logics
+	 * @param request the request
+	 * @param response the response
+	 * @throws ServletException the servlet exception
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @see com.rays.pro4.controller.BaseCtl#doPost(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+	 */
+	
+	
 
-		log.debug("UserCtl Method doPost Ended");
+	
+	
+	
+
+	
+
+	
+	
+
+	
+	
+	
 	}
 
+	@Override
+	protected final void doPost(final HttpServletRequest request, final HttpServletResponse response)
+			throws ServletException, IOException {
+
+		log.debug("LoginCtl Method doPost Started");
+		
+		final String operation = DataUtility.getString(request.getParameter("operation"));
+		final UserBean bean = (UserBean) populateBean(request);
+		
+		if (OP_SIGN_IN.equalsIgnoreCase(operation)) {
+			if (validate(request)) {
+					try {
+						login(bean, request, response);
+					} catch (final ApplicationException e) {
+						log.error(e);
+						handleDatabaseException(e, request, response);
+					}
+					return;
+				}
+		}else if (OP_SIGN_UP.equalsIgnoreCase(operation)){
+			signUp(bean, request);
+			return;
+		}
+		
+		ServletUtility.forward(getView(), request, response);
+		log.debug("LoginCtl Method doPost Ended");
+	}
 	/**
 	 * Returns the VIEW page of this Controller
 	 * 

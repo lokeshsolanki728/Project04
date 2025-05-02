@@ -4,6 +4,7 @@
 <%@page import="java.util.List"%>
 <%@page import="com.rays.pro4.Util.DataUtility"%>
 <%@ page import="com.rays.pro4.Util.HTMLUtility"%>
+<%@page import="java.util.HashMap"%>
 <%@page import="com.rays.pro4.controller.ORSView"%>
 <%@page import="com.rays.pro4.controller.SubjectCtl"%>
 <%@page import="com.rays.pro4.Util.ServletUtility"%>
@@ -18,6 +19,7 @@
 </head>
 <body>
 <jsp:useBean id="bean" class="com.rays.pro4.Bean.SubjectBean" scope="request" />
+<% HashMap map = new HashMap(); %>
 <form action="${pageContext.request.contextPath}${ORSView.SUBJECT_CTL}" method="post">
 
 	<%@include file="Header.jsp"%>
@@ -49,17 +51,17 @@
 
 			<tr>
 				<th align="left"><label for="coursename">Course Name<span class="required">*</span> :</label></th>
-				<td>${HTMLUtility.getList("coursename", bean.courseId, CourseList)}</td>
+				<td>${HTMLUtility.getList("courseId", bean.courseId, CourseList)}</td>
 				<td><font color="red"><div class="error-message">${requestScope.coursename}</div></font></td>
 			</tr>
 
 			<tr>
 				<th style="padding: 3px"></th>
 			</tr>
-
+			
 			<tr>
 				<th align="left"><label for="name">Subject Name <span class="required">*</span> :</label></th>
-				<td><input type="text" name="name" id="name"
+				<td><input type="text" name="subjectName" id="name"
 					placeholder="Enter Subject Name" class="form-control" value="${bean.subjectName}"></td>
 				<td><font color="red"><div class="error-message">${requestScope.name}</div></font></td>
 			</tr>

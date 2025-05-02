@@ -1,8 +1,11 @@
 package com.rays.pro4.Bean;
 
-import java.util.Date;
+
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.servlet.http.HttpServletRequest;
+import com.rays.pro4.Util.DataUtility;
 /**
  * Faculty JavaBean encapsulates Faculty attributes.
  * 
@@ -12,23 +15,24 @@ import java.util.Date;
 public class FacultyBean extends BaseBean{
 
 	private String firstName;
-	private String lastName;
-	private String gender;
-	private String emailId;
-	private String mobileNo;
-	private long collegeId;
-	private String collegeName;
-	private long courseId;
-	private String courseName;
-	private Date dob;
-	private long subjectId; 
-	private String subjectName;
+	private String lastName;// last name
+	private String gender;//gender
+	private String emailId;//email
+	private String mobileNo;//phone
+	private long collegeId;//id of the college
+	private String collegeName;//name of the college
+	private long courseId;//id of the course
+	private String courseName;//name of the course
+	private Date dob;//date of birth
+	private long subjectId;//id of the subject
+	private String subjectName;// name of the subject
 	
 	/**
 	 * Gets the first name of the faculty member.
 	 *
 	 * @return The first name of the faculty member.
 	 */
+	
 	public String getFirstName() {
 		return firstName;
 	}
@@ -223,6 +227,7 @@ public class FacultyBean extends BaseBean{
 	 */
 	@Override
 	public String getkey() {
+		
 		return id+"";
 	}
 	/**
@@ -244,7 +249,23 @@ public class FacultyBean extends BaseBean{
 				+ emailId + ", mobileNo=" + mobileNo + ", collegeId=" + collegeId + ", collegeName=" + collegeName
 				+ ", courseId=" + courseId + ", courseName=" + courseName + ", dob=" + dob + ", subjectId=" + subjectId
 				+ ", subjectName=" + subjectName + ", id=" + id + ", createdBy=" + createdBy + ", modifiedBy="
-				+ modifiedBy + ", createdDatetime=" + createdDatetime + ", modifiedDatetime=" + modifiedDatetime + "]";
+				+ modifiedBy + ", createdDatetime=" + createdDatetime + ", modifiedDatetime=" + modifiedDatetime + "]";	
 	}
-	
+	@Override
+	public void populate(HttpServletRequest request) {
+		// TODO Auto-generated method stub
+		setId(DataUtility.getLong(request.getParameter("id")));
+        setFirstName(DataUtility.getString(request.getParameter("firstName")));
+        setLastName(DataUtility.getString(request.getParameter("lastName")));
+        setGender(DataUtility.getString(request.getParameter("gender")));
+        setMobileNo(DataUtility.getString(request.getParameter("mobileNo")));
+        setEmailId(DataUtility.getString(request.getParameter("emailId")));
+        setCollegeId(DataUtility.getLong(request.getParameter("collegeId")));
+        setCourseId(DataUtility.getLong(request.getParameter("courseId")));
+        setSubjectId(DataUtility.getLong(request.getParameter("subjectId")));
+        try {
+        	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        	setDob(format.parse(request.getParameter("dob")));
+        }catch (Exception e) {}
+	}
 }

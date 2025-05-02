@@ -1,3 +1,149 @@
+package com.rays.pro4.validator;
+
+import java.util.Date;
+
+import com.rays.pro4.Util.DataUtility;
+import java.text.SimpleDateFormat;
+
+
+/**
+ * This class validates input data
+ * @author Lokesh SOlanki
+ *
+ */
+public class DataValidator {
+
+	/**
+	 * Checks if value is Null
+	 * @param val
+	 * @return boolean
+	 */
+	public static boolean isNull(String val) {
+		if (val == null || val.trim().length() == 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Checks if value is NOT Null
+	 * @param val
+	 * @return boolean
+	 */
+	public static boolean isNotNull(String val) {
+		return !isNull(val);
+	}
+
+	/**
+	 * Checks if value is an Integer
+	 * @param val
+	 * @return boolean
+	 */
+	public static boolean isInteger(String val) {
+
+		if (isNotNull(val)) {
+			try {
+				int i = Integer.parseInt(val);
+				return true;
+			} catch (NumberFormatException e) {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Checks if value is Long
+	 * @param val
+	 * @return boolean
+	 */
+	public static boolean isLong(String val) {
+		if (isNotNull(val)) {
+			try {
+				long i = Long.parseLong(val);
+				return true;
+			} catch (NumberFormatException e) {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Checks if value is valid Email ID
+	 * @param val
+	 * @return boolean
+	 */
+	public static boolean isEmail(String val) {
+
+		String emailreg = "^[_A-Za-z0-9-]+(.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(.[A-Za-z0-9]+)*(.[A-Za-z]{2,})$";
+
+		if (isNotNull(val)) {
+			try {
+				return val.matches(emailreg);
+			} catch (NumberFormatException e) {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Checks if value is Date
+	 * @param val
+	 * @return boolean
+	 */
+	public static boolean isDate(String val) {
+
+		Date d = null;
+		if (isNotNull(val)) {
+			d = DataUtility.getDate(val);
+		}
+		return d != null;
+	}
+
+	/**
+	 * Checks if value is Name
+	 * @param val
+	 * @return boolean
+	 */
+	public static boolean isName(String val) {
+
+		String namereg = "^[a-zA-Z]+([\\s][a-zA-Z]+)*$";
+		if (isNotNull(val)) {
+			try {
+
+				return val.matches(namereg);
+			} catch (NumberFormatException e) {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+	/**
+	 * Check if the phone number is correct
+	 * @param val
+	 * @return boolean
+	 */
+	public static boolean isPhoneNo(String val) {
+		String phonereg = "^[6-9][0-9]{9}$";
+		if (isNotNull(val)) {
+			try {
+				return val.matches(phonereg);
+			} catch (NumberFormatException e) {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+
+}
 package com.rays.pro4.Util;
 
 import java.util.Calendar;

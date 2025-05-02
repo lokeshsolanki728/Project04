@@ -1,6 +1,5 @@
 package com.rays.pro4.controller;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
@@ -9,17 +8,19 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.rays.pro4.Bean.CourseBean;
 import org.apache.log4j.Logger;
 
+import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Bean.SubjectBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Model.CourseModel;
 import com.rays.pro4.Model.SubjectModel;
 import com.rays.pro4.Util.DataUtility;
-import com.rays.pro4.Util.DataValidator;
-import com.rays.pro4.Util.PropertyReader;
+import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.ServletUtility;
+import com.rays.pro4.Util.SubjectValidator;
 
 /**
 * The Class SubjectCtl.
@@ -34,183 +35,171 @@ public class SubjectCtl extends BaseCtl{
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
 	
-	/** The log. */
-	private static Logger log = Logger.getLogger(SubjectCtl.class);
+	private static final Logger log = Logger.getLogger(SubjectCtl.class);
+
+	private final SubjectModel model = new SubjectModel();
 	
-	
-	/* (non-Javadoc)
-	 * @see in.co.rays.ors.controller.BaseCtl#preload(javax.servlet.http.HttpServletRequest)
+	/**
+	 * Preload.
+	 *
+	 * @param request the request
 	 */
-	protected void preload(HttpServletRequest request){
-		
-		 
-		CourseModel cmodel = new CourseModel();
-	//	List<CourseBean> cList = new ArrayList<CourseBean>();
-		
+	@Override
+	protected void preload(HttpServletRequest request) {
+		log.debug("preload method of SubjectCtl Started");
+		final CourseModel courseModel = new CourseModel();
 		try {
-		List cList = cmodel.list();
-			request.setAttribute("CourseList", cList);
-		} catch (ApplicationException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			log.error(e);
+			final List<CourseBean> courseList = courseModel.list();
+			request.setAttribute("CourseList", courseList);
+		} catch (final ApplicationException e) {
+			log.error("Error getting course list during preload", e);
 		}
+		log.debug("preload method of SubjectCtl Ended");
 	}
-	
-	
-	/* (non-Javadoc)
-	 * @see in.co.rays.ors.controller.BaseCtl#validate(javax.servlet.http.HttpServletRequest)
+
+	/**
+	 * Validate.
+	 *
+	 * @param request the request
+	 * @return true, if successful
 	 */
-	protected boolean validate(HttpServletRequest request){
+	@Override
+	protected boolean validate(HttpServletRequest request) {
 		log.debug("validate Method of Subject Ctl start");
-		boolean pass= true;
-		
-		if(DataValidator.isNull(request.getParameter("name"))){
-			request.setAttribute("name", PropertyReader.getValue("error.require", "Subject Name"));
-			 pass = false;
-		}else if (!DataValidator.isName(request.getParameter("name"))) {
-			request.setAttribute("name", PropertyReader.getValue("error.name", "Subject name"));
-			pass = false;
-		}
-		if(DataValidator.isNull(request.getParameter("description"))){
-			request.setAttribute("description", PropertyReader.getValue("error.require", "Description"));
-			 pass = false;
-		}
-		
-		if(DataValidator.isNull(request.getParameter("coursename"))){
-			request.setAttribute("coursename", PropertyReader.getValue("error.require", "Course Name"));
-			 pass = false;
+		boolean pass = SubjectValidator.validate(request);
+		if(!pass){
+			return false;
 		}
 		log.debug("validate Method of Subject Ctl  End");
 		return pass;
 	}
-	
-	/* (non-Javadoc)
-	 * @see in.co.rays.ors.controller.BaseCtl#populateBean(javax.servlet.http.HttpServletRequest)
+
+	/**
+	 * Populate bean.
+	 *
+	 * @param request the request
+	 * @return the base bean
 	 */
-	protected SubjectBean populateBean(HttpServletRequest request){
+	@Override
+	protected BaseBean populateBean(HttpServletRequest request) {
 		log.debug("Populate bean Method of Subject Ctl start");
-		SubjectBean bean = new SubjectBean();
-		
-		bean.setId(DataUtility.getLong(request.getParameter("id")));
-		bean.setSubjectName(DataUtility.getString(request.getParameter("name")));
-		bean.setDescription(DataUtility.getString(request.getParameter("description")));
-		bean.setCourseId(DataUtility.getLong(request.getParameter("coursename")));
-		
-		populateDTO(bean, request);
-		
+		final SubjectBean bean = new SubjectBean();
+		bean.populate(request);
 		log.debug("PopulateBean Method of Subject Ctl End");
 		return bean;
-		
 	}
-    
-    /**
-     * Contains Display logics.
-     *
-     * @param request the request
-     * @param response the response
-     * @throws ServletException the servlet exception
-     * @throws IOException Signals that an I/O exception has occurred.
-     */
 
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
+	/**
+	 * Do get.
+	 *
+	 * @param request the request
+	 * @param response the response
+	 * @throws ServletException the servlet exception
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
+	@Override
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		log.debug("Do get Method of Subject Ctl start ");
-		String op = DataUtility.getString(request.getParameter("operation"));
-		
-		SubjectModel model = new SubjectModel();
-		SubjectBean bean = null;
-		long id =DataUtility.getLong(request.getParameter("id"));
-		
-		if(id > 0 || op != null){
+		final long id = DataUtility.getLong(request.getParameter("id"));
+		if (id > 0) {
+			SubjectBean bean;
 			try {
-				bean = model.FindByPK(id);
-				ServletUtility.setBean(bean, request);
-			} 
-				catch (ApplicationException e) {
-			log.error(e);
-			ServletUtility.handleException(e, request, response);
-				return;
+				bean = model.findByPK(id);
+				if (bean == null) {
+					ServletUtility.setErrorMessage("Subject not found", request);
 				}
+				ServletUtility.setBean(bean, request);
+			} catch (final ApplicationException e) {
+				log.error("Error finding Subject by ID", e);
+				handleDatabaseException(e, request, response);
+				return;
+			}
 		}
 		log.debug("Do get Method of Subject Ctl End");
 		ServletUtility.forward(getView(), request, response);
 	}
-    
-    /**
-     * Contains Submit logics.
-     *
-     * @param request the request
-     * @param response the response
-     * @throws ServletException the servlet exception
-     * @throws IOException Signals that an I/O exception has occurred.
-     */
 
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
+	/**
+	 * Save.
+	 *
+	 * @param bean the bean
+	 * @param model the model
+	 * @param request the request
+	 * @throws DuplicateRecordException the duplicate record exception
+	 * @throws ApplicationException the application exception
+	 */
+	private void save(SubjectBean bean, SubjectModel model, HttpServletRequest request) throws DuplicateRecordException, ApplicationException {
+		log.debug("save method start");
+		model.add(bean);
+		ServletUtility.setSuccessMessage(MessageConstant.SUBJECT_ADD, request);
+		log.debug("save method end");
+	}
+
+	/**
+	 * Update.
+	 *
+	 * @param bean the bean
+	 * @param model the model
+	 * @param request the request
+	 * @throws DuplicateRecordException the duplicate record exception
+	 * @throws ApplicationException the application exception
+	 */
+	private void update(SubjectBean bean, SubjectModel model, HttpServletRequest request) throws DuplicateRecordException, ApplicationException {
+		log.debug("update method start");
+		model.update(bean);
+		ServletUtility.setSuccessMessage(MessageConstant.SUBJECT_UPDATE, request);
+		log.debug("update method end");
+	}
+
+	/**
+	 * Do post.
+	 *
+	 * @param request the request
+	 * @param response the response
+	 * @throws ServletException the servlet exception
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
+	@Override
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		log.debug("Do post Method of Subject Ctl start");
-		String op = DataUtility.getString(request.getParameter("operation"));
-		long id = DataUtility.getLong(request.getParameter("id"));
-		
-		SubjectModel model = new SubjectModel();		
-		
-		if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {	
-			SubjectBean bean = (SubjectBean)populateBean(request);
-		try{	
-			if(id > 0){
-				model.update(bean);
-				ServletUtility.setSuccessMessage(PropertyReader.getValue("success.subject.update"), request);
-			
-			}else{
-				model.add(bean);
-				ServletUtility.setSuccessMessage(PropertyReader.getValue("success.subject.add"), request);
-		
+		final String op = DataUtility.getString(request.getParameter("operation"));
+		final long id = DataUtility.getLong(request.getParameter("id"));
+		if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
+			final SubjectBean bean = (SubjectBean) populateBean(request);
+			try {
+				if (id > 0) {
+					update(bean, model, request);
+				} else {
+					save(bean, model, request);
+				}
+				ServletUtility.setBean(bean, request);
+			} catch (final ApplicationException e) {
+				log.error("Application exception", e);
+				handleDatabaseException(e, request, response);
+				return;
+			} catch (final DuplicateRecordException e) {
+				ServletUtility.setBean(bean, request);
+				ServletUtility.setErrorMessage("Subject name already exists", request);
 			}
 			ServletUtility.setBean(bean, request);
-			ServletUtility.forward(getView(), request, response);
-			return;
-		}catch(ApplicationException e){
-			log.error(e);
-			ServletUtility.handleException(e, request, response);
-			return;
-		} catch (DuplicateRecordException e) {
-			log.error(e);
-			ServletUtility.setBean(bean, request);
-			ServletUtility.setErrorMessage(PropertyReader.getValue("error.subject.duplicate"), request);
-			}
-		}
-		else if (OP_RESET.equalsIgnoreCase(op)) {
+		} else if (OP_RESET.equalsIgnoreCase(op)) {
 			ServletUtility.redirect(ORSView.SUBJECT_CTL, request, response);
 			return;
-		}
-		else if (OP_CANCEL.equalsIgnoreCase(op) ) {
+		} else if (OP_CANCEL.equalsIgnoreCase(op)) {
 			ServletUtility.redirect(ORSView.SUBJECT_LIST_CTL, request, response);
 			return;
 		}
-/*		else if (OP_DELETE.equalsIgnoreCase(op)) {
-			SubjectBean bean =  populateBean(request);
-			try {
-				model.delete(bean);
-			ServletUtility.redirect(ORSView.SUBJECT_CTL, request, response);
-			return;
-			} catch (ApplicationException e) {
-				log.error(e);
-				ServletUtility.handleException(e, request, response);
-				return ; 
-			}
-		}*/
-		
-	
+		ServletUtility.forward(getView(), request, response);
 		log.debug("Do post Method of Subject Ctl End");
 	}
-	
-	/* (non-Javadoc)
-	 * @see in.co.rays.ors.controller.BaseCtl#getView()
+
+	/**
+	 * Gets the view.
+	 *
+	 * @return the view
 	 */
 	@Override
 	protected String getView() {
 		return ORSView.SUBJECT_VIEW;
 	}
-	
 }

@@ -1,7 +1,6 @@
  package com.rays.pro4.controller;
 
 import java.util.MissingResourceException;
-import java.util.Objects;
 import java.util.ResourceBundle;
 
 import javax.servlet.ServletException;
@@ -36,55 +35,55 @@ public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
 	/**
 	 * Save operation constant
 	 */
-	public static final String OP_SAVE = "Save";
+	public static final String OP_SAVE = "Save"; //Save
 	/**
 	 * Cancel operation constant
 	 */
-	public static final String OP_CANCEL = "Cancel";
+	public static final String OP_CANCEL = "Cancel"; // Cancel
 	/**
 	 * Delete operation constant
 	 */
-	public static final String OP_DELETE = "Delete";
+	public static final String OP_DELETE = "Delete"; // Delete
 	/**
 	 * List operation constant
 	 */
-	public static final String OP_LIST = "List";
+	public static final String OP_LIST = "List"; //List
 	/**
 	 * Search operation constant
 	 */
-	public static final String OP_SEARCH = "Search";
+	public static final String OP_SEARCH = "Search"; //Search
 	/**
 	 * View operation constant
 	 */
-	public static final String OP_VIEW = "View";
+	public static final String OP_VIEW = "View"; // View
 	/**
 	 * Next operation constant
 	 */
-	public static final String OP_NEXT = "Next";
+	public static final String OP_NEXT = "Next"; // Next
 	/**
 	 * Previous operation constant
 	 */
-	public static final String OP_PREVIOUS = "Previous";
+	public static final String OP_PREVIOUS = "Previous"; //Previous
 	/**
 	 * New operation constant
 	 */
-	public static final String OP_NEW = "New";
+	public static final String OP_NEW = "New"; //New
 	/**
 	 * Go operation constant
 	 */
-	public static final String OP_GO = "Go";
+	public static final String OP_GO = "Go"; // Go
 	/**
 	 * Back operation constant
 	 */
-	public static final String OP_BACK = "Back";
+	public static final String OP_BACK = "Back"; // Back
 	/**
 	 * Logout operation constant
 	 */
-	public static final String OP_LOG_OUT = "Logout";
+	public static final String OP_LOG_OUT = "Logout"; //Logout
 	/**
 	 * Reset operation constant
 	 */
-	public static final String OP_RESET = "Reset";
+	public static final String OP_RESET = "Reset"; //Reset
 	/**
 	 * Update operation constant
 	 */
@@ -93,12 +92,12 @@ public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
 	/**
 	 * Success message key constant
 	 */
-	public static final String MSG_SUCCESS = "success";
+	public static final String MSG_SUCCESS = "success"; // Success
 	/**
 	 * Error message key constant
 	 */
-	public static final String MSG_ERROR = "error";
-
+	public static final String MSG_ERROR = "error"; // Error
+    
 	/**
 	 * Loads list and other data required to display at HTML form
 	 * 
@@ -125,48 +124,20 @@ public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
 	 * @param request http request
 	 * @return
 	 */
-	protected abstract T populateBean(HttpServletRequest request);
-
+	protected abstract T populateBean(HttpServletRequest request); 
+    
 	/**
-	 * Populates Generic attributes in DTO
-	 *
-	 * @param dto Bean object
-	 * @param request  http request
-	 * @return
+	 * Method to handle database exceptions.
+	 * @param e       the exception
+	 * @param request the request
+	 * @param response the response
 	 */
-	protected BaseBean populateDTO(BaseBean dto, HttpServletRequest request) {
-		
-		String createdBy = "";
-		String modifiedBy = "";
-		try {
-			createdBy = RESOURCE_BUNDLE.getString("DEFAULT_USER");
-			modifiedBy = RESOURCE_BUNDLE.getString("DEFAULT_USER");
-		} catch (MissingResourceException e) {
-			System.out.println("default user not found");
-		}
-		Objects.requireNonNull(modifiedBy, "default user can not be null");
-		
-		//String createdBy = request.getParameter("createdBy");
-		
-		String createdBy = request.getParameter("createdBy");
-		String modifiedBy = defaultUser;
-
-		UserBean userbean = (UserBean) request.getSession().getAttribute("user");
-
-		if (userbean == null) {
-		} else {
-
-			modifiedBy = userbean.getLogin();		
-
-			// If record is created first time
-			if (DataValidator.isNull(createdBy)) {
-				createdBy = modifiedBy;
-			}
-
-		}
-
-		dto.setCreatedBy(createdBy);		
-		dto.setModifiedBy(modifiedBy);
+    protected void handleDatabaseException(Exception e, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+        ServletUtility.setErrorMessage(PropertyReader.getValue("error.default"), request);
+        ServletUtility.forward(getView(), request, response);
+    }
+	
+    
 
 		long cdt = DataUtility.getLong(request.getParameter("createdDatetime"));
 
@@ -177,7 +148,6 @@ public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
 		}
 
 		dto.setModifiedDatetime(DataUtility.getCurrentTimestamp());
-
 		return dto;
 	}
 
@@ -196,8 +166,8 @@ public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
 			
 			if (!validate(request)) {
 				
-				BaseBean bean = (BaseBean) populateBean(request); 
-				//wapis se inserted data dikhe jo phle in put kiya tha
+				T bean =  populateBean(request); 
+				//the data that the user inserted is still display in the view
 				ServletUtility.setBean(bean, request);
 				ServletUtility.forward(getView(), request, response);
 				return;
@@ -215,6 +185,5 @@ public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
 	 * @return
 	 */
 	protected abstract String getView();
-	
-	
+		
 }

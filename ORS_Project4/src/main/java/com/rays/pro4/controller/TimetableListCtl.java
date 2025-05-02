@@ -1,5 +1,6 @@
 package com.rays.pro4.controller;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.util.List;
 
@@ -10,24 +11,23 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.rays.pro4.Bean.BaseBean;
-import com.rays.pro4.Bean.CourseBean;
-import com.rays.pro4.Bean.SubjectBean;
-import com.rays.pro4.Bean.TimeTableBean;
+import com.rays.pro4.Bean.*;
 import com.rays.pro4.Exception.ApplicationException;
+import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Model.CourseModel;
 import com.rays.pro4.Model.SubjectModel;
 import com.rays.pro4.Model.TimeTableModel;
 import com.rays.pro4.Util.DataUtility;
+import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;
 
-//TODO: Auto-generated Javadoc
+
 /**
 * The Class TimeTableListCtl.
-* 
+*
 *  @author Lokesh SOlanki
-* 
+*
 */
 @WebServlet(name = "TimeTableListCtl", urlPatterns = {"/ctl/TimeTableListCtl"})
 public class TimetableListCtl extends BaseCtl{
@@ -37,22 +37,25 @@ public class TimetableListCtl extends BaseCtl{
 	private static Logger log = Logger.getLogger(TimeTableListCtl.class);
 
 	/* (non-Javadoc)
-	 * @see in.co.rays.ors.controller.BaseCtl#preload(javax.servlet.http.HttpServletRequest)
+	 * @see com.rays.pro4.controller.BaseCtl#preload(javax.servlet.http.HttpServletRequest)
 	 */
+	private final TimeTableModel model=new TimeTableModel();
 	protected void preload(HttpServletRequest request) {
-
-		CourseModel model = new CourseModel();
-		SubjectModel smodel = new SubjectModel();
-		TimeTableModel tmodel = new TimeTableModel();
-		List<CourseBean> list = null;
-		List<SubjectBean> list2 = null;
-		List<TimeTableBean>list3=null;
+		log.debug("preload method of TimetableListCtl Started");
+        final CourseModel courseModel = new CourseModel();
+        final SubjectModel subjectModel = new SubjectModel();
 		try {
-			list = model.list();
-			list2 = smodel.list();
-			list3 = tmodel.list();
-		} catch (Exception e) {
-			e.printStackTrace();
+			final List<CourseBean> courseList = courseModel.list();
+			final List<SubjectBean> subjectList = subjectModel.list();
+			
+			if(courseList.isEmpty()||subjectList.isEmpty()) {
+				ServletUtility.setErrorMessage("No Record Found", request);
+			}
+			request.setAttribute("courseList", courseList);
+			request.setAttribute("subjectList", subjectList);
+		} catch (final ApplicationException e) {
+			log.error("Error getting course or subject list during preload", e);
+			handleDatabaseException(e, request, null);
 		}
 		request.setAttribute("courseList", list);
 		request.setAttribute("subjectList", list2);
@@ -61,45 +64,34 @@ public class TimetableListCtl extends BaseCtl{
 	}
 
 	/* (non-Javadoc)
-	 * @see in.co.rays.ors.controller.BaseCtl#populateBean(javax.servlet.http.HttpServletRequest)
+	 * @see com.rays.pro4.controller.BaseCtl#populateBean(javax.servlet.http.HttpServletRequest)
 	 */
 	protected BaseBean populateBean(HttpServletRequest request) {
-		TimeTableBean bean = new TimeTableBean();
+		log.debug("TimetableListCtl Method populatebean Started");
 
-       //bean.setId(DataUtility.getLong(request.getParameter("id")));
+        final TimeTableBean bean = new TimeTableBean();
+        bean.populate(request);
 		
-		bean.setCourseId(DataUtility.getLong(request.getParameter("clist")));
-		
-		bean.setSubjectId(DataUtility.getInt(request.getParameter("slist")));
-		
-		//bean.setSubjectName(DataUtility.getString(request.getParameter("slist")));
-		
-		bean.setExamDate(DataUtility.getDate(request.getParameter("Exdate")));
-		bean.setExamTime(DataUtility.getString(request.getParameter("elist")));
-
-	//	System.out.println(request.getParameter("Exdate"));
-		
-		//System.out.println("populate bean==========>>>> " + bean.getExamDate());
-		populateDTO(bean, request);
+        log.debug("TimetableListCtl Method populatebean Ended");
 		return bean;
 	}
-    
+
     /**
      * Contains display logics.
      *
      * @param request the request
      * @param response the response
-     * @throws ServletException the servlet exception
-     * @throws IOException Signals that an I/O exception has occurred.
+     * @throws javax.servlet.ServletException the servlet exception
+     * @throws java.io.IOException Signals that an I/O exception has occurred.
      */
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		List list  = null ;
-       
+		log.debug("TimetableListCtl Method doGet Started");
+		List<TimeTableBean> list  = null ;
 		List nextList=null;
 		
-		int pageNo = 1;
+		int pageNo = DataUtility.getInt(request.getParameter("pageNo"));
 		
 		int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));
           
@@ -110,68 +102,60 @@ public class TimetableListCtl extends BaseCtl{
        TimeTableBean bean =(TimeTableBean) populateBean(request);
 
 		String op = DataUtility.getString(request.getParameter("operation"));
-      String[] ids = request.getParameterValues("ids");
-	    
-
-		try {
-			list = model.search(bean, pageNo, pageSize);
-			System.out.println("listgjdj----------<<<<<"+list);
-		
-			nextList=model.search(bean,pageNo+1,pageSize);
-			
-			request.setAttribute("nextlist", nextList.size());
-			
-			ServletUtility.setBean(bean, request);
-			
-			ServletUtility.setList(list, request);
-			
-			if (list==null && list.size()==0) {
-				
-				ServletUtility.setErrorMessage("No record Found", request);
-			}
-			ServletUtility.setList(list, request);
-			ServletUtility.setPageNo(pageNo, request);
-			ServletUtility.setPageSize(pageSize, request);
-			ServletUtility.forward(getView(), request, response);
-
-
-		} catch (ApplicationException e) {
-			e.printStackTrace();
-			/*
-			 * log.error(e);
-			 */	ServletUtility.handleException(e, request, response);
-		}
-	}
-    
-    /**
-     * Contains Submit logics.
-     *
-     * @param request the request
-     * @param response the response
-     * @throws ServletException the servlet exception
-     * @throws IOException Signals that an I/O exception has occurred.
-     */
-
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-
-		List list=null;
-		List nextList=null;
-		
-		String op = DataUtility.getString(request.getParameter("operation"));
-
-		int pageNo = DataUtility.getInt(request.getParameter("pageNo"));
-		
-		int pageSize = DataUtility.getInt(request.getParameter("pageSize"));
 		
 		pageNo = (pageNo == 0) ? 1 : pageNo;
 		
 		pageSize = (pageSize == 0) ? DataUtility.getInt(PropertyReader.getValue("page.size")) : pageSize;
 
+		if(OP_RESET.equalsIgnoreCase(op)||OP_BACK.equalsIgnoreCase(op)) {
+			ServletUtility.redirect(ORSView.TIMETABLE_LIST_CTL, request, response);
+			return;
+		}
+	    
 
-		TimeTableBean bean = (TimeTableBean) populateBean(request);	
-		
-		TimeTableModel model = new TimeTableModel();
+		try {
+			list = model.search(bean, pageNo, pageSize);
+
+			nextList=model.search(bean,pageNo+1,pageSize);
+			
+			request.setAttribute("nextlist", nextList.size());
+			
+			if (list.isEmpty()) {
+				ServletUtility.setErrorMessage("No record Found", request);
+	        }
+			ServletUtility.setBean(bean, request);
+	        ServletUtility.setList(list, request);
+	        ServletUtility.setPageNo(pageNo, request);
+	        ServletUtility.setPageSize(pageSize, request);
+	        ServletUtility.forward(getView(), request, response);
+	        log.debug("TimetableListCtl Method doGet Ended");
+		} catch (ApplicationException e) {
+			log.error("Error searching timetable", e);
+			handleDatabaseException(e, request, response);
+			return;
+		}
+	}
+
+    /**
+     * Contains Submit logics.
+     *
+     * @param request the request
+     * @param response the response
+     * @throws javax.servlet.ServletException the servlet exception
+     * @throws java.io.IOException Signals that an I/O exception has occurred.
+     */
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		log.debug("TimetableListCtl Method doPost Started");
+		List<TimeTableBean> list = null;
+		List<TimeTableBean> nextList=null;
+
+		final String op = DataUtility.getString(request.getParameter("operation"));
+		int pageNo = DataUtility.getInt(request.getParameter("pageNo"));
+		int pageSize = DataUtility.getInt(request.getParameter("pageSize"));
+		pageNo = (pageNo == 0) ? 1 : pageNo;
+		pageSize = (pageSize == 0) ? DataUtility.getInt(PropertyReader.getValue("page.size")) : pageSize;
+
+		final TimeTableBean bean = (TimeTableBean) populateBean(request);
 		
 		String[] ids = (String[]) request.getParameterValues("ids");
 				
@@ -189,60 +173,57 @@ public class TimetableListCtl extends BaseCtl{
 						ServletUtility.redirect(ORSView.TIMETABLE_CTL, request, response);
 						return ;
 					}
-					
-					else if (OP_RESET.equalsIgnoreCase(op)||OP_BACK.equalsIgnoreCase(op)) {
-						ServletUtility.redirect(ORSView.TIMETABLE_LIST_CTL, request, response);
-						return;
-					}
 					else if (OP_DELETE.equalsIgnoreCase(op)) {
 						pageNo=1;
 						if (ids != null && ids.length > 0) {
-							TimeTableBean bean3 = new TimeTableBean();
-
 							for (String id2 : ids) {
-								int id1 = DataUtility.getInt(id2);
-								bean3.setId(id1);
-								try {
-									model.delete(bean3);
-								} catch (ApplicationException e) {
-									e.printStackTrace();
-									ServletUtility.handleException(e, request, response);
-									return;
-								}
-								ServletUtility.setSuccessMessage("Data Deleted Succesfully", request);
+                                try {
+                                    final TimeTableBean bean3 = new TimeTableBean();
+                                    bean3.setId(DataUtility.getLong(id2));
+                                    model.delete(bean3);
+                                    ServletUtility.setSuccessMessage(MessageConstant.DATA_DELETE_SUCCESSFUL, request);
+                                } catch (final ApplicationException e) {
+                                    log.error("Error deleting timetable", e);
+                                    handleDatabaseException(e, request, response);
+                                    return;
+                                }
 							}
-						
 						}else{
 							ServletUtility.setErrorMessage("Select at least one Record", request);
 						}
 					}
-			    	try {
-						list = model.search(bean, pageNo, pageSize);
-						System.out.println("list---------------->>>>>>>>"+list);
-						
-						nextList=model.search(bean,pageNo+1,pageSize);
-						
-						request.setAttribute("nextlist", nextList.size());
-						
-						ServletUtility.setBean(bean, request);
-					}
-					catch(ApplicationException e){	
-						ServletUtility.handleException(e, request, response);
-						return;
-					}
-			   if(list==null || list.size()==0 && !OP_DELETE.equalsIgnoreCase(op)) 
-			{
-				ServletUtility.setErrorMessage("No Record Found", request);
-			}
-			ServletUtility.setBean(bean, request);
-			ServletUtility.setList(list, request);
-			ServletUtility.setPageNo(pageNo, request);
-			ServletUtility.setPageSize(pageSize, request);
-	        ServletUtility.forward(getView(), request, response);			
+					
+				try {
+                    list = model.search(bean, pageNo, pageSize);
+                    nextList=model.search(bean,pageNo+1,pageSize);
+                    request.setAttribute("nextlist", nextList.size());
+                    ServletUtility.setBean(bean, request);
+                }
+                catch(final ApplicationException e){
+                    log.error("Error searching timetable", e);
+                    handleDatabaseException(e, request, response);
+                    return;
+                }
+                if(list.isEmpty() && !OP_DELETE.equalsIgnoreCase(op))
+                {
+                    ServletUtility.setErrorMessage("No Record Found", request);
+                }
+                ServletUtility.setBean(bean, request);
+                ServletUtility.setList(list, request);
+                ServletUtility.setPageNo(pageNo, request);
+                ServletUtility.setPageSize(pageSize, request);
+                ServletUtility.forward(getView(), request, response);
+                log.debug("TimetableListCtl Method doPost Ended");
 		}
 
-	/* (non-Javadoc)
-	 * @see in.co.rays.ors.controller.BaseCtl#getView()
+	/**
+     * Returns the VIEW page of this Controller
+     *
+     * @return
+     * @see com.rays.pro4.controller.BaseCtl#getView()
+     *
+     *
+     */
 	 */
 	@Override
 	protected String getView() {

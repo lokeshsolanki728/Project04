@@ -9,20 +9,21 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import com.rays.pro4.Bean.BaseBean;
-import com.rays.pro4.Bean.MarksheetBean;
-import com.rays.pro4.Exception.ApplicationException;
-import com.rays.pro4.Model.MarksheetModel;
-import com.rays.pro4.Util.DataUtility;
-import com.rays.pro4.Util.PropertyReader;
-import com.rays.pro4.Util.ServletUtility;
+
+import com.rays.pro4.Bean.*;
+import com.rays.pro4.Exception.*;
+import com.rays.pro4.Model.*;
+import com.rays.pro4.Util.*;
 
 //TODO: Auto-generated Javadoc
 /**
-* Marksheet List functionality Controller. Performs operation for list, search
-* and delete operations of Marksheet
-* 
-* @author SunilOS
+ * Marksheet List functionality Controller. Performs operation for list, search
+ * and delete operations of Marksheet
+ *
+ * @author SunilOS
+ * @author Lokesh SOlanki
+ * @version 1.0
+ *
 * @version 1.0
 * @Copyright (c) SunilOS
 */
@@ -33,14 +34,11 @@ import com.rays.pro4.Util.ServletUtility;
 */
 @WebServlet(name = "MarksheetListCtl", urlPatterns = { "/ctl/MarksheetListCtl" })
 public class MarksheetListCtl extends BaseCtl<MarksheetBean> {
-
+	private final MarksheetModel model = new MarksheetModel();
 	/** The log. */
-	private static Logger log = Logger.getLogger(MarksheetListCtl.class);
+	private static final Logger log = Logger.getLogger(MarksheetListCtl.class);
 
-	/**
-	 * 
-	 */
-	/**
+	/**	
 	 * Populates bean object from request parameters
 	 * 
 	 * @param request
@@ -50,19 +48,14 @@ public class MarksheetListCtl extends BaseCtl<MarksheetBean> {
 
 	@Override
 	protected MarksheetBean populateBean(HttpServletRequest request) {
-		log.debug("populateBean method of MarksheetListCtl Started");
-		MarksheetBean bean = new MarksheetBean();
-		bean.setRollNo(DataUtility.getString(request.getParameter("rollNo")));
-		bean.setName(DataUtility.getString(request.getParameter("name")));
-		bean.setPhysics(DataUtility.getInt(request.getParameter("physics")));
-		bean.setChemistry(DataUtility.getInt(request.getParameter("chemistry")));
-		bean.setMaths(DataUtility.getInt(request.getParameter("maths")));
-		
-		populateDTO(bean, request);
-		log.debug("populateBean method of MarksheetListCtl End");
+		log.debug("populateBean method start");
+		final MarksheetBean bean = new MarksheetBean();
+		bean.populate(request);
+		log.debug("populateBean method end");
 		return bean;
 	}
-	
+
+	/**
 	public MarksheetListCtl() {
 		
 	}
@@ -73,116 +66,113 @@ public class MarksheetListCtl extends BaseCtl<MarksheetBean> {
 		 * @param request
 		 * @param response
 		 * @throws ServletException
-		 * @throws IOException
+		 * @throws IOException     
 		 */
 
-	
+
+	@Override
+	protected void preload(HttpServletRequest request) {
+		log.debug("preload method started");
+		log.debug("preload method end");
+	}
+
+	/**
+	 * Contains Display logics
+	 *
+	 * @param request  the request
+	 * @param response the response
+	 * @throws ServletException the servlet exception
+	 * @throws IOException      Signals that an I/O exception has occurred.
+	 * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest,
+	 *      javax.servlet.http.HttpServletResponse)
+	 */
+
+	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-
-		List nextList = null;
-
-		int pageNo = 1;
+		log.debug("doGet method started");
+		int pageNo = DataUtility.getInt(request.getParameter("pageNo"));
 		int pageSize = DataUtility.getInt(request.getParameter("pageSize"));
-
 		pageNo = (pageNo == 0) ? 1 : pageNo;
 		pageSize = (pageSize == 0) ? DataUtility.getInt(PropertyReader.getValue("page.size")) : pageSize;
-
-		MarksheetBean bean = (MarksheetBean) populateBean(request);
+		final MarksheetBean bean = (MarksheetBean) populateBean(request);
 		List list;
-		MarksheetModel model = new MarksheetModel();
 		try {
 			list = model.search(bean, pageNo, pageSize);
-
-			nextList = model.search(bean, pageNo + 1, pageSize);
-
-			request.setAttribute("nextlist", nextList.size());
-
+			final List nextList = model.search(bean, pageNo + 1, pageSize);
+			request.setAttribute("nextlist", !nextList.isEmpty());
 			if (list == null || list.size() == 0) {
 				ServletUtility.setErrorMessage("No record found ", request);
 			}
 			ServletUtility.setList(list, request);
-			ServletUtility.setPageNo(pageNo, request);
-			ServletUtility.setPageSize(pageSize, request);
-			ServletUtility.forward(getView(), request, response);
-			log.debug("MarksheetListCtl doGet End");
-
-		} catch (ApplicationException e) {
-			
-			log.error(e);
-			ServletUtility.handleException(e, request, response);
+		} catch (final ApplicationException e) {
+			log.error("Application exception in doGet", e);
+			handleDatabaseException(e, request, response);
 			return;
+		}
+		ServletUtility.setPageNo(pageNo, request);
+		ServletUtility.setPageSize(pageSize, request);
+		ServletUtility.forward(getView(), request, response);
+		log.debug("doGet method end");
+	}
+
+	/**
+	 * Contains Submit logics
+	 *
+	 * @param request  the request
+	 * @param response the response
+	 * @throws ServletException the servlet exception
+	 * @throws IOException      Signals that an I/O exception has occurred.
+	 * @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest,
+	 *      javax.servlet.http.HttpServletResponse)
+	 */
+
+	private void deleteMarksheet(String[] ids,HttpServletRequest request) throws ApplicationException {
+		log.debug("delete method start");
+		if (ids != null && ids.length > 0) {
+			MarksheetBean deletebean = new MarksheetBean();
+			for (String id : ids) {
+				deletebean.setId(DataUtility.getInt(id));
+					model.delete(deletebean);
+			}
+			ServletUtility.setSuccessMessage(" Marksheet Data Successfully Deleted ", request);
+		} else {
+			ServletUtility.setErrorMessage("Select at least one record", request);
 		}
 	}
 
-	
-		/**
-		 * Contains Submit logics
-		 * @param request
-		 * @param response
-		 * @throws ServletException
-		 * @throws IOException
-		 */
-	
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-
-		log.debug("MarksheetListCtl doPost Start");
-
+		log.debug("doPost method started");
 		List list = null;
-
-		List nextList = null;
-		String op = DataUtility.getString(request.getParameter("operation"));
-
+		final String operation = DataUtility.getString(request.getParameter("operation"));
 		int pageNo = DataUtility.getInt(request.getParameter("pageNo"));
 		int pageSize = DataUtility.getInt(request.getParameter("pageSize"));
-
 		pageNo = (pageNo == 0) ? 1 : pageNo;
-
 		pageSize = (pageSize == 0) ? DataUtility.getInt(PropertyReader.getValue("page.size")) : pageSize;
-
-		MarksheetBean bean = (MarksheetBean) populateBean(request);
-
-		// get the selected checkbox ids array for delete list
-		String[] ids = request.getParameterValues("ids");
-
-		MarksheetModel model = new MarksheetModel();
-
-		if (OP_SEARCH.equalsIgnoreCase(op)) {
+		final MarksheetBean bean = (MarksheetBean) populateBean(request);
+		final String[] ids = request.getParameterValues("ids");
+		if (OP_SEARCH.equalsIgnoreCase(operation)) {
 			pageNo = 1;
-		} else if (OP_NEXT.equalsIgnoreCase(op)) {
+		} else if (OP_NEXT.equalsIgnoreCase(operation)) {
 			pageNo++;
-		} else if (OP_PREVIOUS.equalsIgnoreCase(op) && pageNo > 1) {
+		} else if (OP_PREVIOUS.equalsIgnoreCase(operation) && pageNo > 1) {
 			pageNo--;
-		}
-
-		else if (OP_NEW.equalsIgnoreCase(op)) {
+		} else if (OP_NEW.equalsIgnoreCase(operation)) {
 			ServletUtility.redirect(ORSView.MARKSHEET_CTL, request, response);
 			return;
-		}
-
-		else if (OP_RESET.equalsIgnoreCase(op) || OP_BACK.equalsIgnoreCase(op)) {
+		} else if (OP_RESET.equalsIgnoreCase(operation) || OP_BACK.equalsIgnoreCase(operation)) {
 			ServletUtility.redirect(ORSView.MARKSHEET_LIST_CTL, request, response);
 			return;
-
-		} else if (OP_DELETE.equalsIgnoreCase(op)) {
+		} else if (OP_DELETE.equalsIgnoreCase(operation)) {
 			pageNo = 1;
-			if (ids != null && ids.length > 0) {
-				MarksheetBean deletebean = new MarksheetBean();
-				for (String id : ids) {
-					deletebean.setId(DataUtility.getInt(id));
-					try {
-						model.delete(deletebean);
-					} catch (ApplicationException e) {
-						
-						ServletUtility.handleException(e, request, response);
-						return;
-					}
-					ServletUtility.setSuccessMessage(" Marksheet Data Successfully Deleted ", request);
-				}
-			} else {
-				ServletUtility.setErrorMessage("Select at least one record", request);
+			try{
+				deleteMarksheet(ids, request);
+			}catch(ApplicationException e){
+				log.error("Application exception in doPost", e);
+				handleDatabaseException(e, request, response);
+				return;
 			}
 		}
 		try {
@@ -190,16 +180,15 @@ public class MarksheetListCtl extends BaseCtl<MarksheetBean> {
 
 			nextList = model.search(bean, pageNo + 1, pageSize);
 
-			request.setAttribute("nextlist", nextList.size());
-
-			ServletUtility.setBean(bean, request);
-		} catch (ApplicationException e) {
-			
-			ServletUtility.handleException(e, request, response);
+			request.setAttribute("nextlist", !nextList.isEmpty());
+		} catch (final ApplicationException e) {
+			log.error("Application exception in doPost", e);
+			handleDatabaseException(e, request, response);
 			return;
 		}
+		ServletUtility.setBean(bean, request);
 		ServletUtility.setList(list, request);
-		if (list == null || list.size() == 0 && !OP_DELETE.equalsIgnoreCase(op)) {
+		if (list == null || list.size() == 0 && !OP_DELETE.equalsIgnoreCase(operation)) {
 			ServletUtility.setErrorMessage("No record found ", request);
 		}
 		ServletUtility.setList(list, request);
@@ -207,14 +196,13 @@ public class MarksheetListCtl extends BaseCtl<MarksheetBean> {
 		ServletUtility.setPageNo(pageNo, request);
 		ServletUtility.setPageSize(pageSize, request);
 		ServletUtility.forward(getView(), request, response);
-
-		log.debug("Marksheet List Ctl do post End");
+		log.debug("doPost method end");
 	}
 
 	/**
 	 * Returns the VIEW page of this Controller
 	 * 
-	 * @return
+	 * @return the view
 	 */
 	@Override
 

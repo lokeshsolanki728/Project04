@@ -1,20 +1,26 @@
 package com.rays.pro4.Bean;
 
+
+import com.rays.pro4.Util.DataUtility;
+
 /**
  * Marksheet JavaBean encapsulates Marksheet attributes.
  * 
  * @author Lokesh SOlanki
  *
  */
+import javax.servlet.http.HttpServletRequest;
+ */
 public class MarksheetBean extends BaseBean{
 
 	private String rollNo;
 	private long studentId;
 	private String name;
-	private Integer physics;
-	private Integer chemistry;
-	private Integer maths;
-	/**
+	private int physics;
+    private int chemistry;
+	private int maths;
+	
+    /**
 	 * Gets the roll number of the marksheet.
 	 *
 	 * @return The roll number of the marksheet.
@@ -67,7 +73,7 @@ public class MarksheetBean extends BaseBean{
 	 *
 	 * @return The marks in physics.
 	 */
-	public Integer getPhysics() {
+	public int getPhysics() {
 		return physics;
 	}
 	/**
@@ -75,7 +81,7 @@ public class MarksheetBean extends BaseBean{
 	 *
 	 * @param physics The marks in physics to set.
 	 */
-	public void setPhysics(Integer physics) {
+	public void setPhysics(int physics) {
 		this.physics = physics;
 	}
 	/**
@@ -83,7 +89,7 @@ public class MarksheetBean extends BaseBean{
 	 *
 	 * @return The marks in chemistry.
 	 */
-	public Integer getChemistry() {
+	public int getChemistry() {
 		return chemistry;
 	}
 	/**
@@ -91,7 +97,7 @@ public class MarksheetBean extends BaseBean{
 	 *
 	 * @param chemistry The marks in chemistry to set.
 	 */
-	public void setChemistry(Integer chemistry) {
+	public void setChemistry(int chemistry) {
 		this.chemistry = chemistry;
 	}
 	/**
@@ -99,7 +105,7 @@ public class MarksheetBean extends BaseBean{
 	 *
 	 * @return The marks in maths.
 	 */
-	public Integer getMaths() {
+	public int getMaths() {
 		return maths;
 	}
 	/**
@@ -107,7 +113,7 @@ public class MarksheetBean extends BaseBean{
 	 *
 	 * @param maths The marks in maths to set.
 	 */
-	public void setMaths(Integer maths) {
+	public void setMaths(int maths) {
 		this.maths = maths;
 	}
 	/**
@@ -136,10 +142,28 @@ public class MarksheetBean extends BaseBean{
 	@Override
 	public String toString() {
 		return "MarksheetBean [rollNo=" + rollNo + ", studentId=" + studentId + ", name=" + name + ", physics="
-				+ physics + ", chemistry=" + chemistry + ", maths=" + maths + ", id=" + id + ", createdBy=" + createdBy
-				+ ", modifiedBy=" + modifiedBy + ", createdDatetime=" + createdDatetime + ", modifiedDatetime="
-				+ modifiedDatetime + "]";
+				+ physics + ", chemistry=" + chemistry + ", maths=" + maths + ", id=" + id + ", createdBy="
+				+ createdBy + ", modifiedBy=" + modifiedBy + ", createdDatetime=" + createdDatetime
+				+ ", modifiedDatetime=" + modifiedDatetime + "]";
 	}
-
-
+	/**
+     * Populate bean object from request parameters
+     * @param request the request
+     */
+    @Override
+    public void populate(HttpServletRequest request) {
+        setId(DataUtility.getLong(request.getParameter("id")));
+        
+        setRollNo(DataUtility.getString(request.getParameter("rollNo")));
+        setStudentId(DataUtility.getLong(request.getParameter("studentId")));
+        setName(DataUtility.getString(request.getParameter("name")));
+        setPhysics(DataUtility.getInt(request.getParameter("physics")));
+        setChemistry(DataUtility.getInt(request.getParameter("chemistry")));
+        setMaths(DataUtility.getInt(request.getParameter("maths")));
+        setCreatedBy(DataUtility.getString(request.getParameter("createdBy")));
+        setModifiedBy(DataUtility.getString(request.getParameter("modifiedBy")));
+        setCreatedDatetime(DataUtility.getTimestamp(request.getParameter("createdDatetime")));
+        setModifiedDatetime(DataUtility.getTimestamp(request.getParameter("modifiedDatetime")));
+       
+    }
 }

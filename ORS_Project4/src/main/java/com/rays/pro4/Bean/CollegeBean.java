@@ -1,5 +1,9 @@
 package com.rays.pro4.Bean;
 
+import javax.servlet.http.HttpServletRequest;
+
+import com.rays.pro4.Util.DataUtility;
+
 /**
  * College JavaBean encapsulates College attributes.
  * @author Lokesh SOlanki
@@ -48,13 +52,22 @@ public class CollegeBean extends BaseBean{
 	}
 	@Override
 	public String getkey() {
-		return String.valueOf(id);
+		return id + "";
 	}
 	@Override
 	public String getValue() {
 		return name;
 	}
-	@Override
+
+    @Override
+    public void populate(HttpServletRequest request) {
+        setId(DataUtility.getLong(request.getParameter("id")));
+        setName(DataUtility.getString(request.getParameter("name")));
+        setAddress(DataUtility.getString(request.getParameter("address")));
+        setState(DataUtility.getString(request.getParameter("state")));
+        setCity(DataUtility.getString(request.getParameter("city")));
+        setPhoneNo(DataUtility.getString(request.getParameter("phoneNo")));
+    }	@Override
 	public String toString() {
 		return "CollegeBean [name=" + name + ", address=" + address + ", state=" + state + ", city=" + city
 				+ ", phoneNo=" + phoneNo + ", id=" + id + ", createdBy=" + createdBy + ", modifiedBy=" + modifiedBy
