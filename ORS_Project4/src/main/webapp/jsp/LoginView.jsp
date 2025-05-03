@@ -10,65 +10,61 @@
 <%@page import="com.rays.pro4.controller.ORSView" %>
 
 <!DOCTYPE html>
-<html>
-<c:set var="ctx" value="${pageContext.request.contextPath}"/>
-<head>
+<html lang="en">
+    <c:set var="ctx" value="${pageContext.request.contextPath}"/>
+    <head>
+        <meta charset="ISO-8859-1">
+        <link rel="icon" type="image/png" href="${ctx}/img/logo.png" sizes="16*16"/>
+        <title>Login</title>
+        <link rel="stylesheet" href="${ctx}/css/style.css">
+    </head>
+    <body>
+        <form action="${ctx}${ORSView.LOGIN_CTL}" method="post">
+            <%@ include file="Header.jsp" %>
+            <jsp:useBean id="bean" class="com.rays.pro4.Bean.UserBean" scope="request"></jsp:useBean>
+            <input type="hidden" name="URI" value="${URI}">
+            <div class="container">
+                <h1>Login</h1>
+                <div class="message-container">
+                    <c:if test="${not empty successMessage}">
+                        <div class="alert alert-success" role="alert">${successMessage}</div>
+                    </c:if>
+                    <c:if test="${not empty errorMessage}">
+                        <div class="alert alert-danger" role="alert">${errorMessage}</div>
+                    </c:if>
+                </div>
+                <div class="hidden-inputs">
+                    <input type="hidden" name="id" value="${bean.id}">
+                    <input type="hidden" name="createdBy" value="${bean.createdBy}">
+                    <input type="hidden" name="modifiedBy" value="${bean.modifiedBy}">
+                    <input type="hidden" name="createdDatetime" value="${bean.createdDatetime}">
+                    <input type="hidden" name="modifiedDatetime" value="${bean.modifiedDatetime}">
+                </div>
 
-    <meta charset="ISO-8859-1">
-    <link rel="icon" type="image/png" href="${ctx}/img/logo.png" sizes="16*16"/>
-    <title>Login</title>
-    <link rel="stylesheet" href="${ctx}/css/style.css">
-</head>
-<body>
-<form action="${ctx}${ORSView.LOGIN_CTL}" method="post">
-    <%@ include file="Header.jsp" %>
+                <div class="input-container">
+                    <label for="login">LoginId <span class="required">*</span></label>
+                    <input type="text" id="login" name="login" placeholder="Enter valid Email-Id"
+                           value="${bean.login}" class="form-control">
+                    <div class="error">${requestScope.login}</div>
+                </div>
 
-    <jsp:useBean id="bean" class="com.rays.pro4.Bean.UserBean" scope="request"></jsp:useBean>
+                <div class="input-container">
+                    <label for="password">Password <span class="required">*</span></label>
+                    <input type="password" id="password" name="password" placeholder="Enter Password"
+                           value="${bean.password}" class="form-control">
+                    <div class="error">${requestScope.password}</div>
+                </div>
 
-    <input type="hidden" name="URI" value="${URI}">
-    <div class="container">
-        <h1>Login</h1>
-        <c:if test="${not empty successMessage}">
-            <div class="success">${successMessage}</div>
-        </c:if>
-        <c:if test="${not empty errorMessage}">
-            <div class="error">${errorMessage}</div>
-        </c:if>
+                <div class="button-container">
+                    <input type="submit" name="operation" class="btn btn-primary" value="${LoginCtl.OP_SIGN_IN}">
+                    <input type="submit" name="operation" class="btn btn-success" value="${LoginCtl.OP_SIGN_UP}">
+                </div>
 
-        <div class="hidden-inputs">
-            <input type="hidden" name="id" value="${bean.id}">
-            <input type="hidden" name="createdBy" value="${bean.createdBy}">
-            <input type="hidden" name="modifiedBy" value="${bean.modifiedBy}">
-            <input type="hidden" name="createdDatetime" value="${bean.createdDatetime}">
-            <input type="hidden" name="modifiedDatetime" value="${bean.modifiedDatetime}">
-        </div>
-
-            <div class="row">
-                <label for="login">LoginId <span class="required">*</span> </label>
-                <input type="text" id="login" name="login"  placeholder="Enter valid Email-Id" value="${bean.login}" class="form-control">
-              
-                <div class="error">${requestScope.login}</div>
+                <div>
+                    <a href="${ctx}${ORSView.FORGET_PASSWORD_CTL}">Forget my password</a>
+                </div>
             </div>
-
-            <div class="row">
-                <label for="password">Password <span class="required">*</span></label>
-                <input type="password" id="password" name="password"  placeholder="Enter Password" value="${bean.password}" class="form-control">
-              
-               <div class="error">${requestScope.password}</div>
-            </div>
-
-            <div class="button-container">
-                <input type="submit" name="operation" value="${LoginCtl.OP_SIGN_IN}">
-                <input type="submit" name="operation" value="${LoginCtl.OP_SIGN_UP}">
-            </div>
-
-            <div>
-                <a href="${ctx}${ORSView.FORGET_PASSWORD_CTL}">Forget my password</a>
-            </div>
-        </div>
         </form>
         <%@ include file="Footer.jsp" %>
-
-
-</body>
+    </body>
 </html>

@@ -3,6 +3,8 @@ package com.rays.pro4.Bean;
 import javax.servlet.http.HttpServletRequest;
 
 
+import com.rays.pro4.Util.DataUtility;
+
 /**
  * Subject JavaBean encapsulates Subject attributes.
  *
@@ -126,10 +128,10 @@ public class SubjectBean extends BaseBean {
      */
     @Override
     public void populate(HttpServletRequest request) {
-        setId(Long.parseLong(request.getParameter("id")));
-        setSubjectName(request.getParameter("subjectName"));
-        setDescription(request.getParameter("description"));
-        setCourseId(Long.parseLong(request.getParameter("courseId")));
-        setCourseName(request.getParameter("courseName"));
+        setId(DataUtility.getLong(request.getParameter("id")));
+        setSubjectName(DataUtility.getString(request.getParameter("subjectName")));
+        setDescription(DataUtility.getString(request.getParameter("description")));
+        setCourseId(DataUtility.getLong(request.getParameter("courseId")));
+        setCourseName(DataUtility.getString(request.getParameter("courseName")));
     }
 }

@@ -78,14 +78,16 @@ public class RoleModel {
                 pstmt.executeUpdate();
                 conn.commit();
             }
+        } catch (DuplicateRecordException e){
+            throw new DuplicateRecordException(e.getMessage());
         } catch (SQLException e) {
             log.error("Database Exception in add", e);
-            JDBCDataSource.trnRollback();
+            conn.rollback();
             throw new ApplicationException("Exception: Exception in add Role - " + e.getMessage());
-        } finally {
         }
         log.debug("Model add End");
         return pk;
+
     }
 
     /**
@@ -106,7 +108,7 @@ public class RoleModel {
 
         } catch (SQLException e) {
             log.error("Database Exception in delete", e);
-            JDBCDataSource.trnRollback();
+            conn.rollback();
             throw new ApplicationException("Exception : Exception in delete Role - " + e.getMessage());
         }
         log.debug("Model delete End");
@@ -210,7 +212,7 @@ public class RoleModel {
             }
         } catch (SQLException e) {
             log.error("Database Exception in update", e);
-            JDBCDataSource.trnRollback();
+            conn.rollback();
             throw new ApplicationException("Exception in updating Role - " + e.getMessage());
         }
         log.debug("Model update End");
@@ -238,34 +240,42 @@ public class RoleModel {
      */
     public List search(RoleBean bean, int pageNo, int pageSize) throws ApplicationException {
         log.debug("Model search Started");
-        StringBuffer sql = new StringBuffer("SELECT * FROM ST_ROLE WHERE 1=1");
+        StringBuilder sql = new StringBuilder("SELECT * FROM ST_ROLE WHERE 1=1");
         ArrayList<RoleBean> list = new ArrayList<>();
+        int paramCount = 1;
 
         if (pageNo < 0) {
             pageNo = 1;
         }
         if (pageSize < 0) {
-            pageSize = 10; // Default page size
+            pageSize = 10;
         }
+        
         if (bean != null) {
             if (bean.getId() > 0) {
-                sql.append(" AND id= " + bean.getId());
+                sql.append(" AND id = ?");
             }
             if (bean.getName() != null && !bean.getName().isEmpty()) {
-                sql.append(" AND NAME like '" + bean.getName() + "%'");
+                sql.append(" AND NAME like ?");
             }
             if (bean.getDescription() != null && !bean.getDescription().isEmpty()) {
-                sql.append(" AND DESCRIPTION like '" + bean.getDescription() + "%'");
+                sql.append(" AND DESCRIPTION like ?");
             }
         }
+        
         if (pageSize > 0) {
             pageNo = (pageNo - 1) * pageSize;
-            sql.append(" LIMIT " + pageNo + "," + pageSize);
+            sql.append(" LIMIT ?, ?");
         }
 
-        try (Connection conn = JDBCDataSource.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql.toString());
-             ResultSet rs = pstmt.executeQuery()) {
+        try (Connection conn = JDBCDataSource.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+            if (bean != null) {
+                if (bean.getId() > 0) {pstmt.setLong(paramCount++, bean.getId());}
+                if (bean.getName() != null && !bean.getName().isEmpty()) {pstmt.setString(paramCount++, bean.getName() + "%");}
+                if (bean.getDescription() != null && !bean.getDescription().isEmpty()) {pstmt.setString(paramCount++, bean.getDescription() + "%");}
+            }
+            if (pageSize > 0) {pstmt.setInt(paramCount++, pageNo);pstmt.setInt(paramCount++, pageSize);}
+            try (ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {
                 bean = new RoleBean();
                 bean.setId(rs.getLong(1));
@@ -277,6 +287,8 @@ public class RoleModel {
                 bean.setModifiedDatetime(rs.getTimestamp(7));
                 list.add(bean);
             }
+            }
+
         } catch (SQLException e) {
             log.error("Database Exception in search", e);
             throw new ApplicationException("Exception: Exception in search Role - " + e.getMessage());
@@ -314,24 +326,26 @@ public class RoleModel {
         if (pageSize < 0) {
             pageSize = 10; // Default page size
         }
+
         if (pageSize > 0) {
             pageNo = (pageNo - 1) * pageSize;
-            sql.append(" LIMIT " + pageNo + " , " + pageSize);
+            sql.append(" LIMIT ?, ?");
         }
 
-        try (Connection conn = JDBCDataSource.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql.toString());
-             ResultSet rs = pstmt.executeQuery()) {
-            while (rs.next()) {
-                RoleBean bean = new RoleBean();
-                bean.setId(rs.getLong(1));
-                bean.setName(rs.getString(2));
-                bean.setDescription(rs.getString(3));
-                bean.setCreatedBy(rs.getString(4));
-                bean.setModifiedBy(rs.getString(5));
-                bean.setCreatedDatetime(rs.getTimestamp(6));
-                bean.setModifiedDatetime(rs.getTimestamp(7));
-                list.add(bean);
+        try (Connection conn = JDBCDataSource.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+            if (pageSize > 0) {pstmt.setInt(1, pageNo);pstmt.setInt(2, pageSize);}
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    RoleBean bean = new RoleBean();
+                    bean.setId(rs.getLong(1));
+                    bean.setName(rs.getString(2));
+                    bean.setDescription(rs.getString(3));
+                    bean.setCreatedBy(rs.getString(4));
+                    bean.setModifiedBy(rs.getString(5));
+                    bean.setCreatedDatetime(rs.getTimestamp(6));
+                    bean.setModifiedDatetime(rs.getTimestamp(7));
+                    list.add(bean);
+                }
             }
         } catch (SQLException e) {
             log.error("Database Exception in list", e);

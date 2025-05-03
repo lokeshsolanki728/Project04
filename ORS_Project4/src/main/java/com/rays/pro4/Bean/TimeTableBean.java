@@ -7,6 +7,8 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 
 import com.rays.pro4.Util.DataUtility;
+import org.apache.log4j.Logger;
+
 
 /**
  * TimeTable JavaBean encapsulates TimeTable attributes.
@@ -15,6 +17,8 @@ import com.rays.pro4.Util.DataUtility;
  *
  */
 public class TimeTableBean extends BaseBean{
+
+    private static Logger log = Logger.getLogger(TimeTableBean.class);
 
     private long courseId;
     private String courseName;
@@ -206,7 +210,7 @@ public class TimeTableBean extends BaseBean{
      */
     @Override
     public void populate(HttpServletRequest request) {
-        setId(Long.parseLong(request.getParameter("id")));
+        setId(DataUtility.getLong(request.getParameter("id")));
         setCourseId(DataUtility.getLong(request.getParameter("courseId")));
         setCourseName(DataUtility.getString(request.getParameter("courseName")));
         setSubjectId(DataUtility.getLong(request.getParameter("subjectId")));
@@ -218,7 +222,7 @@ public class TimeTableBean extends BaseBean{
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             setExamDate(sdf.parse(request.getParameter("examDate")));
         } catch (Exception e) {
-            
+            log.error("Populate Exception", e);
         }
     }
 

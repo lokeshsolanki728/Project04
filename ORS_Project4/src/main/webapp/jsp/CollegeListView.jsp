@@ -2,99 +2,122 @@
 <%@page import="com.rays.pro4.controller.ORSView"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <html>
-<c:set var="ctx" value="${pageContext.request.contextPath}" />
-<head>
-    <link rel="icon" type="image/png" href="${ctx}/img/logo.png" sizes="16*16" />
-    <title>
-        <c:choose>
-            <c:when test="${not empty list}">College List</c:when>
-            <c:otherwise>College List</c:otherwise>
-        </c:choose>
-    </title>
-    <link rel="stylesheet" href="${ctx}/css/style.css">
-    <link rel="stylesheet" href="${ctx}/resources/demos/style.css">
-    <script src="${ctx}/js/jquery.min.js"></script>
-    <script src="${ctx}/js/Checkbox11.js"></script>
-</head>
-<body>
-    <jsp:useBean id="bean" class="com.rays.pro4.Bean.CollegeBean" scope="request"></jsp:useBean>
-    <%@ include file="Header.jsp"%>
-    <c:set var="nextlist" value="${requestScope.nextlist}" />
-    <c:set var="collegeList" value="${requestScope.CollegeList}" />
-    <c:set var="list" value="${requestScope.list}" />
-    <c:set var="pageNo" value="${requestScope.pageNo}" />
-    <c:set var="pageSize" value="${requestScope.pageSize}" />
-    <c:set var="index" value="${(pageNo-1) * pageSize + 1}" />
-    <form action="${ctx}${ORSView.COLLEGE_LIST_CTL}" method="POST">
-        <div class="container">
-            <h1 align="center">College List</h1>
-            <div>
-                <span class="error-message">${requestScope.errorMessage}</span>
-                <span class="success-message">${requestScope.successMessage}</span>
-            </div>
-            <c:if test="${not empty list}">
-                <div class="search-container">
-                    <label for="collegeid">College Name :</label>
-                    <select name="collegeid">
-                        <option value="">Select College</option>
-                        <c:forEach items="${collegeList}" var="col">
-                            <option value="${col.id}" ${col.id == bean.id ? 'selected' : ''}>${col.name}</option>
-                        </c:forEach>
-                    </select>
-                    <label for="city">City :</label>
-                    <input type="text" id="city" name="city" placeholder="Enter City Name" value="${param.city}">
-                    <input type="submit" name="operation" value="${CollegeListCtl.OP_SEARCH}">
-                    <input type="submit" name="operation" value="${CollegeListCtl.OP_RESET}">
+    <head>
+        <c:set var="ctx" value="${pageContext.request.contextPath}" />
+        <link rel="icon" type="image/png" href="${ctx}/img/logo.png" sizes="16*16" />
+        <title>
+            <c:choose>
+                <c:when test="${not empty list}">College List</c:when>
+                <c:otherwise>College List</c:otherwise>
+            </c:choose>
+        </title>
+        <link rel="stylesheet" href="${ctx}/css/style.css">
+        <link rel="stylesheet" href="${ctx}/resources/demos/style.css">
+        <script src="${ctx}/js/jquery.min.js"></script>
+        <script src="${ctx}/js/Checkbox11.js"></script>
+    </head>
+    <body>
+        <jsp:useBean id="bean" class="com.rays.pro4.Bean.CollegeBean" scope="request"></jsp:useBean>
+        <form action="${ctx}${ORSView.COLLEGE_LIST_CTL}" method="POST">
+            <%@ include file="Header.jsp"%>
+            <c:set var="nextlist" value="${requestScope.nextlist}" />
+            <c:set var="collegeList" value="${requestScope.CollegeList}" />
+            <c:set var="list" value="${requestScope.list}" />
+            <c:set var="pageNo" value="${requestScope.pageNo}" />
+            <c:set var="pageSize" value="${requestScope.pageSize}" />
+            <c:set var="index" value="${(pageNo-1) * pageSize + 1}" />
+            <div class="container">
+                <h1 class="text-center">College List</h1>
+                <div class="message-container">
+                    <c:if test="${not empty requestScope.errorMessage}">
+                        <div class="alert alert-danger" role="alert">${requestScope.errorMessage}</div>
+                    </c:if>
+                    <c:if test="${not empty requestScope.successMessage}">
+                        <div class="alert alert-success" role="alert">${requestScope.successMessage}</div>
+                    </c:if>
                 </div>
-                <table class="list-table">
-                    <thead>
+                <c:if test="${not empty list}">
+                    <table class="search-table w-100">
                         <tr>
-                            <th><input type="checkbox" id="select_all" name="select">Select All</th>
-                            <th>S.No.</th>
-                            <th>Name</th>
-                            <th>Address</th>
-                            <th>State</th>
-                            <th>City</th>
-                            <th>PhoneNo</th>
-                            <th>Edit</th>
+                            <td class="text-center">
+                                <label for="collegeid">College Name :</label>
+                                <select name="collegeid" class="form-control-inline">
+                                    <option value="">Select College</option>
+                                    <c:forEach items="${collegeList}" var="col">
+                                        <option value="${col.id}" ${col.id == bean.id ? 'selected' : ''}>
+                                            ${col.name}
+                                        </option>
+                                    </c:forEach>
+                                </select>
+                                <label for="city">City :</label>
+                                <input type="text" id="city" name="city" placeholder="Enter City Name" class="form-control-inline"
+                                    value="${param.city}">
+                                <input type="submit" name="operation" class="btn btn-primary" value="${CollegeListCtl.OP_SEARCH}">
+                                <input type="submit" name="operation" class="btn btn-secondary" value="${CollegeListCtl.OP_RESET}">
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        <c:forEach items="${list}" var="bean" varStatus="loop">
-                            <tr align="center">
-                                <td><input type="checkbox" class="checkbox" name="ids" value="${bean.id}"></td>
-                                <td><c:out value="${index + loop.index}" /></td>
-                                <td>${bean.name}</td>
-                                <td>${bean.address}</td>
-                                <td>${bean.state}</td>
-                                <td>${bean.city}</td>
-                                <td>${bean.phoneNo}</td>
-                                <td><a href="CollegeCtl?id=${bean.id}">Edit</a></td>
+                    </table>
+                    <table class="table table-bordered table-striped w-100">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" id="select_all" name="select">Select All</th>
+                                <th>S.No.</th>
+                                <th>Name</th>
+                                <th>Address</th>
+                                <th>State</th>
+                                <th>City</th>
+                                <th>PhoneNo</th>
+                                <th>Edit</th>
                             </tr>
-                        </c:forEach>
-                    </tbody>
-                </table>
-                <div class="button-container">
-                    <input type="submit" name="operation" value="${CollegeListCtl.OP_PREVIOUS}" ${pageNo == 1 ? "disabled" : ""}>
-                    <input type="submit" name="operation" value="${CollegeListCtl.OP_DELETE}">
-                    <input type="submit" name="operation" value="${CollegeListCtl.OP_NEW}">
-                    <input type="submit" name="operation" value="${CollegeListCtl.OP_NEXT}" ${(list.size() < pageSize || nextlist == 0) ? "disabled" : ""}>
-                </div>
-            </c:if>
-            <c:if test="${empty list}">
-                <div class="button-container">
-                  No data found
-                </div>
-            </c:if>
-            <input type="hidden" name="pageNo" value="${pageNo}">
-            <input type="hidden" name="pageSize" value="${pageSize}">
-        </div>
-    </form>
-    <%@ include file="Footer.jsp"%>
-</body>
+                        </thead>
+                        <tbody>
+                            <c:forEach items="${list}" var="bean" varStatus="loop">
+                                <tr class="text-center">
+                                    <td class="table-row">
+                                        <input type="checkbox" class="checkbox" name="ids" value="${bean.id}">
+                                    </td>
+                                    <td class="table-row">${index+loop.index}</td>
+                                    <td class="table-row"><c:out value="${bean.name}" /></td>
+                                    <td class="table-row"><c:out value="${bean.address}" /></td>
+                                    <td class="table-row"><c:out value="${bean.state}" /></td>
+                                    <td class="table-row"><c:out value="${bean.city}" /></td>
+                                    <td class="table-row"><c:out value="${bean.phoneNo}" /></td>
+                                    <td class="table-row">
+                                        <a href="CollegeCtl?id=${bean.id}" class="btn btn-link">Edit</a>
+                                    </td>
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                    </table>
+                    <table class="w-100">
+                        <tr>
+                            <td class="text-left">
+                                <input type="submit" name="operation" class="btn btn-secondary"
+                                    value="${CollegeListCtl.OP_PREVIOUS}" ${pageNo == 1 ? 'disabled' : ''}>
+                            </td>
+                            <td>
+                                <input type="submit" name="operation" class="btn btn-danger" value="${CollegeListCtl.OP_DELETE}">
+                            </td>
+                            <td>
+                                <input type="submit" name="operation" class="btn btn-success" value="${CollegeListCtl.OP_NEW}">
+                            </td>
+                            <td class="text-right">
+                                <input type="submit" class="btn btn-primary" name="operation" value="${CollegeListCtl.OP_NEXT}"
+                                    ${list.size() < pageSize || nextlist == 0 ? 'disabled' : ''}>
+                            </td>
+                        </tr>
+                    </table>
+                </c:if>
+                <c:if test="${empty list}">
+                    <div class="text-center">
+                        <h3>No Result Found</h3>
+                    </div>
+                </c:if>
+                <input type="hidden" name="pageNo" value="${pageNo}">
+                <input type="hidden" name="pageSize" value="${pageSize}">
+            </div>
+        </form>
+        <%@ include file="Footer.jsp"%>
+    </body>
 </html>

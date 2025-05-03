@@ -62,13 +62,15 @@ public class MarksheetModel {
 		log.debug("Model add Started");
 		Connection conn = null;
 		long pk = 0;
-		// Fetch student details
-		StudentModel sModel = new StudentModel();
-		StudentBean studentbean = sModel.findByPK(bean.getStudentld());
-		if (studentbean == null) {
-            throw new ApplicationException("Student not found with ID: " + bean.getStudentld());
-        }
-		String studentname = (studentbean.getFirstName() + " " + studentbean.getLastName());
+
+
+
+		try {
+			conn = JDBCDataSource.getConnection();
+			conn.setAutoCommit(false); // Begin transaction
+			// Fetch student details
+			StudentModel sModel = new StudentModel();
+			
 
 		// Check for duplicate roll number
 		MarksheetBean duplicateMarksheet = findByRollNo(bean.getRollNo());
@@ -76,11 +78,16 @@ public class MarksheetModel {
 			throw new DuplicateRecordException("Roll Number already exists");
 		}
 
-		try {
-			conn = JDBCDataSource.getConnection();
-			conn.setAutoCommit(false); // Begin transaction
+		
+			StudentBean studentbean = sModel.findByPK(bean.getStudentld());
+			if (studentbean == null) {
+	            throw new ApplicationException("Student not found with ID: " + bean.getStudentld());
+	        }
+			String studentname = (studentbean.getFirstName() + " " + studentbean.getLastName());
+
+		
 			pk = nextPK();
-			try (PreparedStatement pstmt = conn.prepareStatement("INSERT INTO ST_MARKSHEET VALUES(?,?,?,?,?,?,?,?,?,?,?)")) {
+			try (PreparedStatement pstmt = conn.prepareStatement("INSERT INTO ST_MARKSHEET VALUES(?,?,?,?,?,?,?,?,?,?,?)"))  {
 				pstmt.setLong(1, pk);
 				pstmt.setString(2, bean.getRollNo());
 				pstmt.setLong(3, bean.getStudentld());
@@ -115,13 +122,12 @@ public class MarksheetModel {
      * @throws ApplicationException
      */
     public void delete(long id) throws ApplicationException {
-        log.debug("Model delete Started");
-        try (Connection conn = JDBCDataSource.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement("DELETE FROM ST_MARKSHEET WHERE ID=?")) {
-            conn.setAutoCommit(false);
-            pstmt.setLong(1, id);
-            pstmt.executeUpdate();
-            conn.commit();
+        log.debug("Model delete Started");       
+        try (Connection conn = JDBCDataSource.getConnection()) {
+             conn.setAutoCommit(false);
+            try (PreparedStatement pstmt = conn.prepareStatement("DELETE FROM ST_MARKSHEET WHERE ID=?")) {
+                pstmt.setLong(1, id);
+                pstmt.executeUpdate();
         } catch (SQLException e) {
             log.error("Database Exception in delete", e);
             try (Connection conn = JDBCDataSource.getConnection()) {
@@ -227,20 +233,22 @@ public class MarksheetModel {
 		if (beanExist != null && beanExist.getId() != bean.getId()) {
 			throw new DuplicateRecordException("Roll No is already exist");
 		}
-
-		// Fetch and set Student Name
-		StudentModel sModel = new StudentModel();
-		StudentBean studentbean = sModel.findByPK(bean.getStudentld());
-		if(studentbean==null) {
-			throw new ApplicationException("Student not found");
-		}
-		bean.setName(studentbean.getFirstName() + " " + studentbean.getLastName());
-
 		try {
 			conn = JDBCDataSource.getConnection();
 			conn.setAutoCommit(false); // Begin transaction
-			try (PreparedStatement pstmt = conn.prepareStatement(
-					"UPDATE ST_MARKSHEET SET ROLL_NO=?,STUDENT_ID=?,NAME=?,PHYSICS=?,CHEMISTRY=?,MATHS=?,CREATED_BY=?,MODIFIED_BY=?,CREATED_DATETIME=?,MODIFIED_DATETIME=? WHERE ID=?")) {
+		// Fetch and set Student Name
+			StudentModel sModel = new StudentModel();
+			
+		
+			
+				StudentBean studentbean = sModel.findByPK(bean.getStudentld());
+				if(studentbean==null) {
+					throw new ApplicationException("Student not found");
+				}
+				bean.setName(studentbean.getFirstName() + " " + studentbean.getLastName());
+
+			try (PreparedStatement pstmt = conn.prepareStatement("UPDATE ST_MARKSHEET SET ROLL_NO=?,STUDENT_ID=?,NAME=?,PHYSICS=?,CHEMISTRY=?,MATHS=?,CREATED_BY=?,MODIFIED_BY=?,CREATED_DATETIME=?,MODIFIED_DATETIME=? WHERE ID=?")) {
+				
 				pstmt.setString(1, bean.getRollNo());
 				pstmt.setLong(2, bean.getStudentld());
 				pstmt.setString(3, bean.getName());
@@ -281,86 +289,78 @@ public class MarksheetModel {
 	public List search(MarksheetBean bean, int pageNo, int pageSize) throws ApplicationException {
 		log.debug("Model search Started");
 		StringBuffer sql = new StringBuffer("SELECT * FROM ST_MARKSHEET WHERE 1=1");
+        int index = 1;
 		ArrayList<MarksheetBean> list = new ArrayList<>();
 
-        int index = 1;
-        if (bean != null) {
-            if (bean.getId() > 0) {
-                sql.append(" AND id = " + bean.getId());
+
+        if(bean != null){
+            if(bean.getId() > 0){
+                sql.append(" AND ID = ?");
             }
-            if (bean.getRollNo() != null && !bean.getRollNo().isEmpty()) {
-                sql.append(" AND roll_no like ?");
+            if(bean.getRollNo() != null && bean.getRollNo().trim().length() > 0){
+                sql.append(" AND ROLL_NO like ?");
             }
-            if (bean.getName() != null && !bean.getName().isEmpty()) {
-                sql.append(" AND name like ?");
+            if(bean.getName() != null && bean.getName().trim().length() > 0){
+                sql.append(" AND NAME like ?");
             }
-            if (bean.getPhysics() > 0) {
-                sql.append(" AND physics = ?");
+            if(bean.getPhysics() > 0){
+                sql.append(" AND PHYSICS = ?");
             }
-            if (bean.getChemistry() > 0) {
-                sql.append(" AND chemistry = ?");
+            if(bean.getChemistry() > 0){
+                sql.append(" AND CHEMISTRY = ?");
             }
-            if (bean.getMaths() > 0) {
-                sql.append(" AND maths = ?");
+            if(bean.getMaths() > 0){
+                sql.append(" AND MATHS = ?");
             }
-        }
+		}
+		
 
         // if page size is greater than zero then apply pagination
         if (pageSize > 0) {
             // Calculate start record index
             pageNo = (pageNo - 1) * pageSize;
             sql.append(" LIMIT " + pageNo + ", " + pageSize);
-        }
-
-        try (Connection conn = JDBCDataSource.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
-
-            if (bean != null) {
+        }       
+        try (Connection conn = JDBCDataSource.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+			
+            index = 1;
+			if (bean != null) {
+                if (bean.getId() > 0) {
+                    pstmt.setLong(index++, bean.getId());
+                }
                 if (bean.getRollNo() != null && !bean.getRollNo().isEmpty()) {
                     pstmt.setString(index++, bean.getRollNo() + "%");
                 }
                 if (bean.getName() != null && !bean.getName().isEmpty()) {
                     pstmt.setString(index++, bean.getName() + "%");
                 }
-			if (bean.getPhysics() > 0) {
-				sql.append(" AND physics = " + bean.getPhysics());
+                if (bean.getPhysics() > 0) {
+                    pstmt.setInt(index++, bean.getPhysics());
+                }
+                if (bean.getChemistry() > 0) {
+                    pstmt.setInt(index++, bean.getChemistry());
+                }
+                if (bean.getMaths() > 0) {
+                    pstmt.setInt(index++, bean.getMaths());
+                }
 			}
-			if (bean.getChemistry() > 0) {
-				sql.append(" AND chemistry = " + bean.getChemistry());
+			try(ResultSet rs = pstmt.executeQuery()){
+				while (rs.next()) {
+					bean = new MarksheetBean();
+					bean.setId(rs.getLong(1));
+					bean.setRollNo(rs.getString(2));
+					bean.setStudentld(rs.getLong(3));
+					bean.setName(rs.getString(4));
+					bean.setPhysics(rs.getInt(5));
+					bean.setChemistry(rs.getInt(6));
+					bean.setMaths(rs.getInt(7));
+					bean.setCreatedBy(rs.getString(8));
+					bean.setModifiedBy(rs.getString(9));
+					bean.setCreatedDatetime(rs.getTimestamp(10));
+					bean.setModifiedDatetime(rs.getTimestamp(11));
+					list.add(bean);
+				}
 			}
-			if (bean.getMaths() > 0) {
-				sql.append(" AND maths = " + bean.getMaths());
-			}
-			while (rs.next()) {
-				bean = new MarksheetBean();
-				bean.setId(rs.getLong(1));
-				bean.setRollNo(rs.getString(2));
-				bean.setStudentld(rs.getLong(3));
-				bean.setName(rs.getString(4));
-				bean.setPhysics(rs.getInt(5));
-				bean.setChemistry(rs.getInt(6));
-				bean.setMaths(rs.getInt(7));
-				bean.setCreatedBy(rs.getString(8));
-				bean.setModifiedBy(rs.getString(9));
-				bean.setCreatedDatetime(rs.getTimestamp(10));
-				bean.setModifiedDatetime(rs.getTimestamp(11));
-				list.add(bean);
-			}
-		} catch (SQLException e) {
-			log.error("Database Exception in search", e);
-			throw new ApplicationException("Exception: Exception in searching marksheet - " + e.getMessage());
-		}
-		log.debug("Model search End");
-            if (bean.getPhysics() > 0) {
-                pstmt.setInt(index++, bean.getPhysics());
-            }
-            if (bean.getChemistry() > 0) {
-                pstmt.setInt(index++, bean.getChemistry());
-            }
-            if (bean.getMaths() > 0) {
-                pstmt.setInt(index++, bean.getMaths());
-            }
-        }
 
         try (ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {
@@ -368,6 +368,11 @@ public class MarksheetModel {
 		return list;
 	}
 
+		} catch (SQLException e) {
+			log.error("Database Exception in search", e);
+			throw new ApplicationException("Exception: Exception in searching marksheet - " + e.getMessage());
+		}
+		log.debug("Model search End");
 	/**
 	 * Retrieves a list of all marksheets.
 	 *

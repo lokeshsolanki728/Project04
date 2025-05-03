@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
+import org.apache.log4j.Logger;
 
 import com.rays.pro4.Util.DataUtility;
 
@@ -17,6 +18,8 @@ import com.rays.pro4.Util.DataUtility;
 public class StudentBean extends BaseBean {
 
 	private String firstName; 
+	private static Logger log = Logger.getLogger(StudentBean.class);
+
 	private String lastName; 
 	private Date dob; 
 	private String mobileNo; 
@@ -184,19 +187,15 @@ public class StudentBean extends BaseBean {
 	
 	@Override
 	public void populate(HttpServletRequest request) {
-	    try {
-		setId(DataUtility.getLong(request.getParameter("id")));
-	        setFirstName(DataUtility.getString(request.getParameter("firstname")));
-	        setLastName(DataUtility.getString(request.getParameter("lastname")));
-	         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-	         try {
-	             setDob(format.parse(request.getParameter("dob")));
-	          } catch (ParseException e) {
-	             // Handle parsing exception
-	              e.printStackTrace();
-	          }
-	        
-	        setMobileNo(DataUtility.getString(request.getParameter("mobile")));
+	    log.debug("StudentBean populate method start");
+
+	    setId(DataUtility.getLong(request.getParameter("id")));
+	    setFirstName(DataUtility.getString(request.getParameter("firstname")));
+	    setLastName(DataUtility.getString(request.getParameter("lastname")));
+	    setDob(DataUtility.getDate(request.getParameter("dob")));
+
+	    setMobileNo(DataUtility.getString(request.getParameter("mobile")));
+	    try{
 	        setEmail(DataUtility.getString(request.getParameter("email")));
 	        setCollegeId(DataUtility.getLong(request.getParameter("collegename")));
 	        setCreatedBy(DataUtility.getString(request.getParameter("createdby")));
@@ -204,4 +203,5 @@ public class StudentBean extends BaseBean {
 	        e.printStackTrace();
 	    }
 	}
+	log.debug("StudentBean populate method end");
 }

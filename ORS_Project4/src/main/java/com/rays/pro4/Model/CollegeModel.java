@@ -167,11 +167,14 @@ public class CollegeModel {
 		CollegeBean bean = null;
 		try (Connection conn = JDBCDataSource.getConnection();
 			 PreparedStatement pstmt = conn.prepareStatement(sql)) {
-			pstmt.setLong(1, pk);// set parameter in pstmt
+			pstmt.setLong(1, pk);
 			try (ResultSet rs = pstmt.executeQuery()) {
 				while (rs.next()) {
 					bean = new CollegeBean();
 					bean.setId(rs.getLong(1));
+					
+			try (ResultSet rs = pstmt.executeQuery()) {
+				while (rs.next()) {
 					bean.setName(rs.getString(2));
 					bean.setAddress(rs.getString(3));
 					bean.setState(rs.getString(4));
@@ -188,10 +191,10 @@ public class CollegeModel {
 			throw new ApplicationException("Exception: Error in getting College by PK - " + e.getMessage());
 			}
 		} catch (Exception e) {
-			log.error("Database Exception ", e);
-			throw new ApplicationException("Exception: Error in getting College by PK");
+			log.error("Exception ", e);
+			throw new ApplicationException("Exception: Error in getting College by PK - "+e.getMessage());
 		} 
-		
+		catch (Throwable e) {}
 		finally
 		{
             try {
@@ -253,45 +256,30 @@ public class CollegeModel {
 		StringBuffer sql = new StringBuffer("SELECT * FROM ST_COLLEGE WHERE 1=1");
 		ArrayList<CollegeBean> list = new ArrayList<>();
 		int index = 1;
-
-        if (pageNo < 0) {
-            pageNo = 1;
-        }
-        if (pageSize < 0) {
-            pageSize = 10;
-        }
-
-        if (bean != null) {
-            if (bean.getId() > 0) {
-                sql.append(" AND id = ?");
+		
+        if(bean!=null){
+            if(bean.getId()>0){
+                sql.append(" AND id=?");
+                
             }
-            if (bean.getName() != null && bean.getName().length() > 0) {
-                sql.append(" AND NAME like ?");
+            if(bean.getName()!=null && bean.getName().length()>0){
+                sql.append(" AND Name like ?");
             }
-            if (bean.getAddress() != null && bean.getAddress().length() > 0) {
-                sql.append(" AND ADDRESS like ?");
+            if(bean.getAddress()!=null && bean.getAddress().length()>0){
+                sql.append(" AND Address like ?");
             }
-             if (bean.getCity() != null && !bean.getCity().isEmpty()) {
-                sql.append(" AND CITY like ?");
+            if(bean.getCity()!=null && bean.getCity().length()>0){
+                sql.append(" AND City like ?");
             }
-        }
+        }        
 
-        if (pageSize > 0) {
-            pageNo = (pageNo - 1) * pageSize;
-            sql.append(" LIMIT " + pageNo + ", " + pageSize);
-        }
-
+		if (pageSize > 0) {
+			pageNo = (pageNo - 1) * pageSize;
+			sql.append(" limit " + pageNo + "," + pageSize);
+		}
         try (Connection conn = JDBCDataSource.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
-
-            if (bean != null) {
-
-			if (bean.getName() != null && !bean.getName().isEmpty()) {
-				pstmt.setString(index++, bean.getName() + "%");
-			}
-			if (bean.getAddress() != null && !bean.getAddress().isEmpty()) {
-				pstmt.setString(index++, bean.getAddress() + "%");
-			}
+        	if(bean!=null){
                  if (bean.getId() > 0) {
                      pstmt.setLong(index++, bean.getId());
                  }
@@ -299,17 +287,14 @@ public class CollegeModel {
                      pstmt.setString(index++, bean.getName() + "%");
                  }
                  if (bean.getAddress() != null && !bean.getAddress().isEmpty()) {
-                     pstmt.setString(index++, bean.getAddress() + "%");
+					pstmt.setString(index++, bean.getAddress() + "%");
                  }
-                  if (bean.getCity() != null && !bean.getCity().isEmpty()) {
+                 if (bean.getCity() != null && !bean.getCity().isEmpty()) {
                      pstmt.setString(index++, bean.getCity() + "%");
-					bean = new CollegeBean();
-					bean.setId(rs.getLong(1));
-					bean.setName(rs.getString(2));
-					bean.setAddress(rs.getString(3));
-					bean.setState(rs.getString(4));
-					bean.setCity(rs.getString(5));
-					bean.setPhoneNo(rs.getString(6));
+                 }
+            try (ResultSet rs = pstmt.executeQuery()) {
+					while (rs.next()) {
+					CollegeBean bean = new CollegeBean();
 					bean.setCreatedBy(rs.getString(7));
 					bean.setModifiedBy(rs.getString(8));
 					bean.setCreatedDatetime(rs.getTimestamp(9));
@@ -317,6 +302,7 @@ public class CollegeModel {
 					list.add(bean);
 				}
 			}
+        	}
 		} catch (SQLException e) {
 			log.error("Database Exception in search", e);
 			throw new ApplicationException("Exception: Exception in searching college - " + e.getMessage());

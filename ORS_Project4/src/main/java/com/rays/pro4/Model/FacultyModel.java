@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -105,7 +106,7 @@ public class FacultyModel {
 			conn.commit();
 		}catch(DuplicateRecordException e) {
 			log.error("Duplicate record Exception in add faculty",e);
-			JDBCDataSource.trnRollback();
+			conn.rollback();
 			throw new DuplicateRecordException("Exception : Faculty already exists"+e.getMessage());
 		} catch (SQLException e) {
 				log.error("Database Exception in add faculty", e);
@@ -133,11 +134,11 @@ public class FacultyModel {
 	    	PreparedStatement pstmt = conn.prepareStatement("DELETE FROM ST_FACULTY WHERE ID=?");
 	        pstmt.setLong(1, id);
 	        pstmt.executeUpdate();
-	        conn.commit();
+	        conn.commit();// End transaction
 	    } catch (SQLException e) {
 	        log.error("Database Exception in delete faculty", e);
-	        try (Connection conn = JDBCDataSource.getConnection()) {
-	        	conn.rollback();
+	        try  {
+				conn.rollback();//Begin Transaction
 	        } catch (SQLException ex) {
 	            throw new ApplicationException("Exception : delete rollback exception - " + ex.getMessage());
 	        }
@@ -186,14 +187,10 @@ public class FacultyModel {
                 conn.commit();
             }
         } catch (DuplicateRecordException e) {
-            log.error("Duplicate Record exception in update faculty", e);
-            try (Connection conn = JDBCDataSource.getConnection()){
-            	conn.rollback();
-            } catch (SQLException ex) {
-                throw new ApplicationException("Exception : update rollback exception - " + ex.getMessage());
-            }
+             log.error("Duplicate Record exception in update faculty", e);
             throw new DuplicateRecordException("Exception : Faculty already exists" + e.getMessage());
         } catch (SQLException e) {
+			conn.rollback();
             log.error("Database Exception in update faculty", e);
             try (Connection conn = JDBCDataSource.getConnection()){
             	conn.rollback();
@@ -451,8 +448,13 @@ public class FacultyModel {
                 if (bean.getCourseName() != null && !bean.getCourseName().isEmpty()) {
                     pstmt.setString(paramIndex++, bean.getCourseName() + "%");
                 }
-            }
-            
+				 if (bean.getSubjectId() > 0) {
+                    pstmt.setLong(paramIndex++, bean.getSubjectId());
+                }
+				 if (bean.getSubjectName() != null && !bean.getSubjectName().isEmpty()) {
+                    pstmt.setString(paramIndex++, bean.getSubjectName() + "%");
+                }
+			}
 			while(rs.next()){
                 bean=new FacultyBean();
                 bean.setId(rs.getLong(1));

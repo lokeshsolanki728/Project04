@@ -17,8 +17,12 @@ import javax.servlet.http.HttpServletRequest;
 
 public class UserBean extends BaseBean {
 
-	public static final String ACTIVE = "Active";
-	public static final String INACTIVE = "inactive";
+	private static final String ACTIVE = "Active";
+	private static final String INACTIVE = "inactive";
+	
+	private static final String DATE_FORMAT = "MM/dd/yyyy";
+	
+	private static final SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
 	/**
 	 * Active User Constant
 	 */
@@ -275,16 +279,16 @@ public class UserBean extends BaseBean {
      */
     @Override
     public void populate(HttpServletRequest request) {
-        setId(DataUtility.getLong(request.getParameter("id")));        
-        setFirstName(DataUtility.getString(request.getParameter("firstName")));        
-        setLastName(DataUtility.getString(request.getParameter("lastName")));        
-        setLogin(DataUtility.getString(request.getParameter("login")));        
-        setDob(DataUtility.getDate(request.getParameter("dob")));        
-        setMobileNo(DataUtility.getString(request.getParameter("mobileNo")));        
-        setRoleId(DataUtility.getLong(request.getParameter("roleId")));        
-        setGender(DataUtility.getString(request.getParameter("gender")));        
-        setCreatedBy(request.getParameter("createdBy"));        
-        setModifiedBy(request.getParameter("modifiedBy"));
+        setId(DataUtility.getLong(request.getParameter("id")));
+        setFirstName(DataUtility.getString(request.getParameter("firstName")));
+        setLastName(DataUtility.getString(request.getParameter("lastName")));
+        setLogin(DataUtility.getString(request.getParameter("login")));
+        setDob(DataUtility.getDate(request.getParameter("dob")));
+        setMobileNo(DataUtility.getString(request.getParameter("mobileNo")));
+        setRoleId(DataUtility.getLong(request.getParameter("roleId")));
+        setGender(DataUtility.getString(request.getParameter("gender")));
+        setCreatedBy(DataUtility.getString(request.getParameter("createdBy")));
+        setModifiedBy(DataUtility.getString(request.getParameter("modifiedBy")));
     }
 
 	/**
@@ -293,15 +297,12 @@ public class UserBean extends BaseBean {
 	 */
 	@Override
 	public String toString() {
-		DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
 		return "UserBean [firstName=" + firstName + ", lastName=" + lastName + ", login=" + login + ", password=" + password + ", dob="
-                + (dob != null ? df.format(dob) : null) + ", mobileNo=" + mobileNo
+                + (dob != null ? sdf.format(dob) : null) + ", mobileNo=" + mobileNo
 				+ ", roleId=" + roleId + ", unSuccessfulLogin="
 				+ unSuccessfulLogin + ", gender=" + gender
 				+ ", lastLogin=" + lastLogin + ", lock=" + lock + ", registerdIP=" + registerdIP + ", lastLoginIP="
 				+ lastLoginIP + ", id=" + id + ", createdBy=" + createdBy + ", modifiedBy=" + modifiedBy
 				+ ", createdDatetime=" + createdDatetime + ", modifiedDatetime=" + modifiedDatetime + "]";
 	}
-    final SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-
 }

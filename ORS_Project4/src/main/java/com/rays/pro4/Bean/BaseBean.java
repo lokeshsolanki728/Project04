@@ -6,30 +6,17 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 
 /**
- * Parent class of all Beans in application. It contains generic attributes.
- *
- * @author Lokesh SOlanki
+ * Parent class of all Beans in application. It contains generic attributes. *
+ * @author Lokesh SOlanki *
  */
 public abstract class BaseBean implements Serializable, DropdownListBean {
 
-    /**
-     * Log to log the error
-     */
-    private static Logger log = Logger.getLogger(BaseBean.class);
     protected long id;
     protected String createdBy;
     protected String modifiedBy;
     protected Timestamp createdDatetime;
     protected Timestamp modifiedDatetime;
 
-    /**
-     * Returns primary key of Bean.
-     *
-     * @return key
-     */
-    public  long getKey() {
-        return id;
-    }
 
      public abstract String getValue() ;
     
@@ -81,5 +68,5 @@ public abstract class BaseBean implements Serializable, DropdownListBean {
         return "BaseBean [id=" + id + ", createdBy=" + createdBy + ", modifiedBy=" + modifiedBy + ", createdDatetime="
                 + createdDatetime + ", modifiedDatetime=" + modifiedDatetime + "]";
     }
-    
+
 }
