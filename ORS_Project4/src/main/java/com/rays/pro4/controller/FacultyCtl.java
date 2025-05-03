@@ -1,10 +1,7 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.HashMap;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -15,11 +12,9 @@ import org.apache.log4j.Logger;
 import com.rays.pro4.Bean.CourseBean;
 import com.rays.pro4.Bean.SubjectBean;
 import com.rays.pro4.Exception.ApplicationException;
-import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Bean.CollegeBean;
 import com.rays.pro4.Bean.FacultyBean;
 import com.rays.pro4.Model.CollegeModel;
-import com.rays.pro4.Model.CourseModel;
 import com.rays.pro4.Model.FacultyModel;
 import com.rays.pro4.Model.SubjectModel;
 import com.rays.pro4.Util.DataUtility;
@@ -33,12 +28,11 @@ import com.rays.pro4.Exception.DuplicateRecordException;
 * The Class FacultyCtl.
 *  @author Lokesh SOlanki
 */
-@WebServlet(name = "FacultyCtl", urlPatterns = { "/ctl/FacultyCtl" })
+@WebServlet(name = "FacultyCtl", urlPatterns = {"/ctl/FacultyCtl"})
 public class FacultyCtl extends BaseCtl<FacultyBean>{
 
 
-	
-    /** The log. */
+    /** The log. */	
 	private static Logger log = Logger.getLogger(FacultyCtl.class);
 
 	/**
@@ -49,13 +43,13 @@ public class FacultyCtl extends BaseCtl<FacultyBean>{
 	/**
      * Loads pre-load data
      * @param request
-     */
+     */	
 	@Override
 	protected void preload(final HttpServletRequest request) {
-		final CourseModel courseModel = new CourseModel();
+		final com.rays.pro4.Model.CourseModel courseModel = new com.rays.pro4.Model.CourseModel();
 		final CollegeModel comodel = new CollegeModel();
-		
-		final SubjectModel smodel = new SubjectModel();
+	    final SubjectModel smodel = new SubjectModel();
+
 
         
 		try {
@@ -66,13 +60,12 @@ public class FacultyCtl extends BaseCtl<FacultyBean>{
 			List<SubjectBean> slist = smodel.list();
 			request.setAttribute("SubjectList", slist);
 		} catch (final Exception e) {
-			log.error("Error in preload method : ",e);
+			log.error("Error in preload method : ", e);
 			handleDatabaseException(e, request, response);
 		}
 	}
-	
-	
-	
+
+
 	
 	/**
      * Validates input data entered by the user.
@@ -88,48 +81,12 @@ public class FacultyCtl extends BaseCtl<FacultyBean>{
 	}
 
 	/**
-	 * Save the Faculty
-	 * @param bean the bean
-	 * @param request the request
-	 * @throws ApplicationException
-	 * @throws DuplicateRecordException
-	 */
-	private final void save(final FacultyBean bean,final HttpServletRequest request) throws  DuplicateRecordException, Exception {
-        log.debug("save method start");
-        try {
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
-		try {
-        model.add(bean);
-        ServletUtility.setSuccessMessage(MessageConstant.FACULTY_ADD_SUCCESS, request);
-        log.debug("save method end");
-	}
-	
-	/**
-	 * Update the Faculty
-	 *
-	 * @param bean
-	 *            the bean
-	 * @param request the request
-	 * @throws ApplicationException
-	 * @throws DuplicateRecordException
-	 */
-	private final void updateFaculty(final FacultyBean bean, final HttpServletRequest request) throws ApplicationException, DuplicateRecordException {
-		try {
-			model.update(bean);
-			ServletUtility.setErrorMessage("Error updating faculty", request);
-			ServletUtility.setSuccessMessage(MessageConstant.FACULTY_UPDATE_SUCCESS, request);
-		}catch (Exception e) {
-			handleDatabaseException(e, request, response);
-		}		
-	}
-
-	/**
      * Populates bean object from request parameters
-     *
-     * @param request
-     * @return
+	 * @param request the request
+	 * @return the faculty bean
+	 * @throws DuplicateRecordException
+	 *             the duplicate record exception
+	 * @throws ApplicationException the application exception
      */
 	@Override
 	protected FacultyBean populate(final HttpServletRequest request) {
@@ -143,11 +100,10 @@ public class FacultyCtl extends BaseCtl<FacultyBean>{
 	/**
 	 * Contains Display logics.
 	 * @param request the request
-	 *            the request
 	 * @param response
 	 *            the response
-	 * @throws ServletException
-	 *             the servlet exception
+	 * @throws ServletException the servlet exception
+	 *            
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 */
@@ -158,7 +114,7 @@ public class FacultyCtl extends BaseCtl<FacultyBean>{
 		final long id = DataUtility.getLong(request.getParameter("id"));		
 		
 		if (id > 0) {
-			FacultyBean bean;
+			final FacultyBean bean;
 			try {
 				bean = model.findByPK(id);
 				if(bean == null) {
@@ -176,12 +132,9 @@ public class FacultyCtl extends BaseCtl<FacultyBean>{
 		}
         log.debug("Do get of  faculty ctl Ended");
 		ServletUtility.forward(getView(), request, response);
-	}
+	}	
 
-	/**
-	 * Contains Submit logics.
-	 *
-	 * @param request
+	/**	 * @param request
 	 *            the request
 	 * @param response
 	 *            the response
@@ -200,26 +153,23 @@ public class FacultyCtl extends BaseCtl<FacultyBean>{
 		final FacultyBean bean = populate(request);		
 		
 		if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
-            if(validate(request)) {
-            	try {                	
-            		if (id > 0) {
-                        updateFaculty(bean, request);
+            if (validate(request)) {
+                try {
+                    if (id > 0) {
+                        model.update(bean);
+                        ServletUtility.setSuccessMessage(MessageConstant.FACULTY_UPDATE_SUCCESS, request);
                     } else {
-                    	save(bean, request);
+                        model.add(bean);
+                        ServletUtility.setSuccessMessage(MessageConstant.FACULTY_ADD_SUCCESS, request);
                     }
-				} catch (final Exception e) {					
-					handleDatabaseException(e, request, response);
-	                return;
-				} catch (final DuplicateRecordException e) {
-					ServletUtility.setErrorMessage(PropertyReader.getValue("error.faculty.duplicate"), request);
-					ServletUtility.setBean(bean, request);
-					ServletUtility.forward(getView(), request, response);
-					return;
-				}
-            }else {
-            	ServletUtility.forward(getView(), request, response);
+                } catch (ApplicationException | DuplicateRecordException e) {
+                    log.error("Error in save method : ", e);
+                    ServletUtility.setErrorMessage(PropertyReader.getValue("error.faculty.duplicate"), request);
+                }
+            } else {
+                ServletUtility.forward(getView(), request, response);
             }
-        }else if (OP_CANCEL.equalsIgnoreCase(op)) {
+        } else if (OP_CANCEL.equalsIgnoreCase(op)) {
 				ServletUtility.redirect(ORSView.FACULTY_LIST_CTL, request, response);		
 				return;
 		}else if (OP_RESET.equalsIgnoreCase(op)) {
@@ -228,10 +178,11 @@ public class FacultyCtl extends BaseCtl<FacultyBean>{
 		}		
 		ServletUtility.setBean(bean, request);		
 		ServletUtility.forward(getView(), request, response);
-		log.debug("Do post of  faculty ctl Ended");
+		log.debug("Do post of  faculty ctl Ended");	
 	}
+	
 	/**
-     * Returns the VIEW page of this Controller
+     * Returns the VIEW page of this Controller     
      *
      * @return
      */

@@ -123,8 +123,10 @@ public class LoginCtl extends BaseCtl<UserBean> {
 	private final void login(final UserBean bean, final HttpServletRequest request,final HttpServletResponse response) throws ApplicationException, ServletException, IOException {	
 		log.debug("login method start");
 		
-		final javax.servlet.http.HttpSession session = request.getSession(true);
+		String forward = getView();
+		
 		try {
+			final javax.servlet.http.HttpSession session = request.getSession(true);
 			final UserBean uBean = model.authenticate(bean.getLogin(), bean.getPassword());
 			if (uBean != null) {
 				session.setAttribute("user", uBean);
@@ -135,13 +137,14 @@ public class LoginCtl extends BaseCtl<UserBean> {
 				final String uri = request.getParameter("URI");
 				if (DataUtility.getString(uri).equalsIgnoreCase("null")) {
 					ServletUtility.redirect(ORSView.WELCOME_CTL, request, response);
-					return;
 				} else {
 					ServletUtility.redirect(uri, request, response);
-					return;
 				}
+				return;
+				
 			}else{
 				ServletUtility.setErrorMessage("Invalid LoginId And Password",request);
+				
 				ServletUtility.forward(getView(),request,response);
 			}
 		}catch(DatabaseException e) {
@@ -199,18 +202,18 @@ public class LoginCtl extends BaseCtl<UserBean> {
 	protected final void doPost(final HttpServletRequest request, final HttpServletResponse response)
 			throws ServletException, IOException {
 
-		log.debug("LoginCtl Method doPost Started");
-		
+		log.debug("LoginCtl Method doPost Started");		
 		final String operation = DataUtility.getString(request.getParameter("operation"));
-		final UserBean bean = (UserBean) populateBean(request);
+		UserBean bean = (UserBean) populateBean(request);
+		
 		
 		if (OP_SIGN_IN.equalsIgnoreCase(operation)) {
 			if (validate(request)) {
 					try {
 						login(bean, request, response);
-					} catch (final ApplicationException e) {
+						return;
+					}catch (final ApplicationException e) {
 						log.error(e);
-						handleDatabaseException(e, request, response);
 					}
 					return;
 				}

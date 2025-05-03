@@ -1,4 +1,3 @@
-java
 package com.rays.pro4.controller;
 
 import java.io.IOException;
@@ -11,7 +10,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.rays.pro4.Bean.RoleBean;
 import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Bean.UserBean;
 import com.rays.pro4.Exception.ApplicationException;
@@ -19,228 +17,148 @@ import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Model.RoleModel;
 import com.rays.pro4.Model.UserModel;
 import com.rays.pro4.Util.DataUtility;
-import com.rays.pro4.Util.DataValidator;
-import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.PropertyReader;
-import com.rays.pro4.Util.UserValidator;
 import com.rays.pro4.Util.ServletUtility;
+import com.rays.pro4.validator.UserValidator;
 
-//TODO: Auto-generated Javadoc
-/**
- * The Class UserCtl.
- *
- * @author Lokesh SOlanki
- *
- */
-@WebServlet(name = "UserCtl", urlPatterns = {"/ctl/UserCtl"})
-public class UserCtl extends BaseCtl<UserBean> {
+@WebServlet(name = "UserCtl", urlPatterns = { "/ctl/UserCtl" })
+public class UserCtl extends BaseCtl {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    /**
-     * The log.
-     */
-    private static Logger log = Logger.getLogger(UserCtl.class);
-    private final UserModel model = new UserModel();
+	private final UserModel model = new UserModel();
+	private final RoleModel roleModel = new RoleModel();
+	private static final Logger log = Logger.getLogger(UserCtl.class);
 
-    /**
-     * Loads pre-load data
-     *
-     * @param request the request
-     */
-    @Override
-    protected void preload(HttpServletRequest request) {
-        log.debug("preload method of UserCtl Started");
+	@Override
+	protected void preload(final HttpServletRequest request) {
+		try {
+			final List l = roleModel.list();
+			request.setAttribute("roleList", l);
+		} catch (final ApplicationException e) {
+			log.error(e);
+		}
+	}
 
-        RoleModel roleModel = new RoleModel();
-        try {
-            List<RoleBean> roleList = roleModel.list();
-            request.setAttribute("roleList", roleList);
-        } catch (final Exception e) {
-            log.error("Error while loading role list", e);
-        }
-        log.debug("preload method of UserCtl Ended");
-    }
+	@Override
+	protected boolean validate(final HttpServletRequest request) {
+		log.debug("UserCtl Method validate Started");
 
-    /**
-     * @param request the request
-     * @return true, if successful
-     * @throws ServletException the servlet exception
-     */
-    @Override
-    protected boolean validate(HttpServletRequest request) {
+		final boolean pass = UserValidator.validate(request);
 
-        log.debug("UserCtl Method validate Started");
-        final boolean pass = UserValidator.validate(request);
+		log.debug("UserCtl Method validate Ended");
+		return pass;
+	}
 
-        if (!pass) {
-            log.debug("UserCtl Method validate Ended with error");
-        }
-        return pass;
-    }
+	@Override
+	protected BaseBean populateBean(final HttpServletRequest request) {
+		log.debug("UserCtl Method populateBean Started");
 
-    /**
-     * Populates bean object from request parameters.
-     *
-     * @param request the request
-     * @param request the request
-     * @return the base bean
-     * @throws ServletException the servlet exception
-     */
-    @Override
-    protected UserBean populateBean(HttpServletRequest request) {
-        log.debug("UserCtl Method populatebean Started");
+		final UserBean bean = new UserBean();
+		bean.setId(DataUtility.getLong(request.getParameter("id")));
+		bean.setRoleId(DataUtility.getLong(request.getParameter("roleId")));
+		bean.setFirstName(DataUtility.getString(request.getParameter("firstName")));
+		bean.setLastName(DataUtility.getString(request.getParameter("lastName")));
+		bean.setLogin(DataUtility.getString(request.getParameter("login")));
+		bean.setPassword(DataUtility.getString(request.getParameter("password")));
+		bean.setConfirmPassword(DataUtility.getString(request.getParameter("confirmPassword")));
+		bean.setGender(DataUtility.getString(request.getParameter("gender")));
+		bean.setMobileNo(DataUtility.getString(request.getParameter("mobileNo")));
+		bean.setDob(DataUtility.getDate(request.getParameter("dob")));
+		populateDTO(bean, request);
 
-        final UserBean bean = new UserBean();
-        bean.populate(request);
+		log.debug("UserCtl Method populateBean Ended");
+		return bean;
+	}
 
-        log.debug("UserCtl Method populatebean Ended");
-        return bean;
+	/**
+	 * Contains Display logics
+	 */
+	protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
+			throws ServletException, IOException {
+		log.debug("UserCtl Method doGet Started");
 
-    }
+		final String op = DataUtility.getString(request.getParameter("operation"));
 
-    /**
-     * Contains Display logics.
-     *
-     * @param request the request javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest,
-     *                Contains display logic.
-     * @param request  the request
-     * @param response the response
-     * @throws ServletException the servlet exception
-     * @throws IOException      Signals that an I/O exception has occurred.
-     *                           javax.servlet.http.HttpServletResponse)
-     */
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        log.debug("UserCtl Method doGet Started");
-        final long id = DataUtility.getLong(request.getParameter("id"));
-        if (id <= 0) {
-            ServletUtility.setErrorMessage("Invalid User ID", request);
-            ServletUtility.forward(ORSView.ERROR_VIEW, request, response);
-            return;
-        }
-        if (id > 0) {
+		final long id = DataUtility.getLong(request.getParameter("id"));
 
-            UserBean bean;
-            try {
-                bean = model.findByPK(id);
-                ServletUtility.setBean(bean, request);
-            } catch (ApplicationException e) {
-                log.error(e);
-                ServletUtility.handleException(e, request, response);
-                return;
-            }
-        }
-        log.debug("UserCtl Method doGet Ended");
-        ServletUtility.forward(getView(), request, response);
+		if (id == 0 && op!= null) {
+			ServletUtility.setErrorMessage(PropertyReader.getValue("error.invalid","User ID"), request);
+			ServletUtility.forward(ORSView.ERROR_VIEW, request, response);
+			return;
+		}
+		if (id > 0 || op != null) {
+			UserBean bean;
+			try {
+				bean = model.findByPK(id);
+				if (bean == null) {
+					ServletUtility.setErrorMessage(PropertyReader.getValue("error.notfound","User"), request);
+				}
+				ServletUtility.setBean(bean, request);
 
-    }
+			} catch (final ApplicationException e) {
+				log.error("Application Exception", e);
+				handleDatabaseException(e, request, response);
+				return;
+			}
+		}
 
-    /**
-     * Save role.
-     *
-     * @param bean    the bean
-     * @param model   the model
-     * @param request the request
-     * @throws DuplicateRecordException the duplicate record exception
-     * @throws ApplicationException     the application exception
-     */
-    private void save(UserBean bean, UserModel model, HttpServletRequest request)
-            throws DuplicateRecordException, ApplicationException {
-        log.debug("save method start");
-        model.add(bean);
-        ServletUtility.setSuccessMessage(MessageConstant.USER_ADD, request);
-        log.debug("save method end");
-    }
+		ServletUtility.forward(getView(), request, response);
 
-    /**
-     * Update role.
-     *
-     * @param bean    the bean
-     * @param model   the model
-     * @param request the request
-     * @throws DuplicateRecordException the duplicate record exception
-     * @throws ApplicationException     the application exception
-     */
-    private void update(UserBean bean, UserModel model, HttpServletRequest request)
-            throws DuplicateRecordException, ApplicationException {
-        log.debug("update method start");
-        model.update(bean);
-        ServletUtility.setSuccessMessage(MessageConstant.USER_UPDATE, request);
-        log.debug("update method end");
-    }
+		log.debug("UserCtl Method doGet Ended");
+	}
 
-    /**
-     * Contains submit logic.
-     *
-     * @param request  the request
-     * @param response the response
-     * @throws ServletException the servlet exception
-     * @throws IOException      Signals that an I/O exception has occurred.
-     */
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+	/**
+	 * Contains Submit logics
+	 */
+	@Override
+	protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
+			throws ServletException, IOException {
+		log.debug("UserCtl Method doPost Started");
 
+		final String op = DataUtility.getString(request.getParameter("operation"));
 
-        log.debug("UserCtl Method doPost Started");
+		final long id = DataUtility.getLong(request.getParameter("id"));
 
-        String op = DataUtility.getString(request.getParameter("operation"));
-        long id = DataUtility.getLong(request.getParameter("id"));
-        UserBean bean = (UserBean) populateBean(request);
+		final UserBean bean = (UserBean) populateBean(request);
 
-        try {
-        	if (!validate(request)) {
-                ServletUtility.setBean(bean, request);
-                ServletUtility.forward(getView(), request, response);
-                return;
-            }
-            if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
-                UserBean existBean = model.findByLogin(bean.getLogin());
-               if (existBean != null && (id == 0 || existBean.getId() != id)) {
-                    ServletUtility.setBean(bean, request);
-                    ServletUtility.setErrorMessage(PropertyReader.getValue("error.user.login.duplicate"), request);
-                    ServletUtility.forward(getView(), request, response);
-                    return;
-                }
+		try {
+			if (OP_SAVE.equalsIgnoreCase(op)) {
+				if (validate(request)) {
+						if (id > 0) {
+							model.update(bean);							
+						} else {
+							model.add(bean);
+							
+						}
+					ServletUtility.setSuccessMessage(PropertyReader.getValue("success.save", "User"), request);
+			}else{
+				ServletUtility.setBean(bean,request);
+				}
+			} else if (OP_CANCEL.equalsIgnoreCase(op)) {
+				ServletUtility.redirect(ORSView.USER_LIST_CTL, request, response);
+				return;
+			} else {
+				ServletUtility.redirect(ORSView.USER_CTL, request, response);
+				return;
+			}
+		} catch (final ApplicationException e) {
+			log.error("Application Exception", e);
+			handleDatabaseException(e, request, response);
+			return;
+		} catch (final DuplicateRecordException e) {
+			ServletUtility.setBean(bean, request);
+			ServletUtility.setErrorMessage(e.getMessage(), request);
+		}
 
-                if (id > 0) {
-                    update(bean, model, request);
-                } else {
-                    save(bean, model, request);
-                }
-            } else if (OP_DELETE.equalsIgnoreCase(op)) {
-                model.delete(bean);
-                ServletUtility.redirect(ORSView.USER_LIST_CTL, request, response);
-                return;
-            } else if (OP_CANCEL.equalsIgnoreCase(op)) {
-                ServletUtility.redirect(ORSView.USER_LIST_CTL, request, response);
-                return;
-            }
+		ServletUtility.forward(getView(), request, response);
 
-        } catch (ApplicationException e) {
-            log.error(e);
-            ServletUtility.handleException(e, request, response);
-            return;
-        } catch (DuplicateRecordException e) {
-            log.error(e);
-            ServletUtility.setErrorMessage(PropertyReader.getValue("error.user.login.duplicate"), request);
-        } finally {
-            ServletUtility.setBean(bean, request);
-            ServletUtility.forward(getView(), request, response);
-        }
+		log.debug("UserCtl Method doPost Ended");
+	}
 
+	@Override
+	protected String getView() {
+		return ORSView.USER_VIEW;
+	}
 
-    }
-
-
-    /**
-     * Returns the VIEW page of this Controller
-     *
-     * @return the view
-     */
-    @Override
-    protected String getView() {
-        return ORSView.USER_VIEW;
-    }
 }

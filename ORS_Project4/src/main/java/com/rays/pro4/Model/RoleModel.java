@@ -1,14 +1,12 @@
 package com.rays.pro4.Model;
 
-import java.sql.Timestamp;
+import java.sql.DatabaseMetaData;
+import java.sql.Statement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.log4j.Logger;
 
 import com.rays.pro4.Bean.RoleBean;
 import com.rays.pro4.Exception.ApplicationException;
@@ -23,22 +21,29 @@ import com.rays.pro4.Util.JDBCDataSource;
  *
  */
 public class RoleModel extends BaseModel {
-    private  String name;
-    private  String description;
-    public String getName() {return name;}
-    public void setName(String name) {this.name = name;}
-    public String getDescription() {return description;}
-    public void setDescription(String description) {this.description = description;}
+
+    private  long nextPK() throws DatabaseException {
+        BaseModel.log.debug("Model nextPK Started");
+        long pk = 0;
+        try (Connection conn = JDBCDataSource.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement("SELECT MAX(ID) FROM ST_ROLE")) {
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                pk = rs.getLong(1);
+            }
+        } catch (SQLException e) {
+            BaseModel.log.error("Database Exception in nextPK", e);
+            throw new DatabaseException("Exception: Unable to get PK - " + e.getMessage());
+        }
+        return pk + 1;
+    }
 
     /**
      * add method to add role in database
      * @throws DuplicateRecordException 
      */
+    
     public long add(RoleBean bean) throws ApplicationException, DuplicateRecordException {
-        
-        
-        
-        
         
         long pk = 0;
         RoleBean duplicateRole = findByName(bean.getName());
@@ -46,95 +51,80 @@ public class RoleModel extends BaseModel {
             throw new DuplicateRecordException("Role Name already exists");
         }
 
-        try (Connection conn = JDBCDataSource.getConnection()) {
-            conn.setAutoCommit(false);
-            pk = nextPK(); 
+        Connection conn = null;;
+        try {
+            conn=JDBCDataSource.getConnection();
+             conn.setAutoCommit(false);
+                pk = nextPK();
+                bean.setId(pk);
+                bean.setCreatedDatetime(new java.sql.Timestamp(new java.util.Date().getTime()));
+                bean.setModifiedDatetime(new java.sql.Timestamp(new java.util.Date().getTime()));
             try (PreparedStatement pstmt = conn.prepareStatement("INSERT INTO ST_ROLE VALUES(?,?,?,?,?,?,?)")) {
-                pstmt.setLong(1, pk);
-                pstmt.setString(2, bean.getName());
-                pstmt.setString(3, bean.getDescription());
-                pstmt.setString(4, bean.getCreatedBy());
-                pstmt.setString(5, bean.getModifiedBy());
-                pstmt.setTimestamp(6, bean.getCreatedDatetime());
-                pstmt.setTimestamp(7, bean.getModifiedDatetime());
-                pstmt.executeUpdate();
+                    pstmt.setLong(1, pk);
+                    pstmt.setString(2, bean.getName());
+                    pstmt.setString(3, bean.getDescription());
+                    pstmt.setString(4, bean.getCreatedBy());
+                    pstmt.setString(5, bean.getModifiedBy());
+                    pstmt.setTimestamp(6, bean.getCreatedDatetime());
+                    pstmt.setTimestamp(7, bean.getModifiedDatetime());
+                    pstmt.executeUpdate();
                 conn.commit();
             }
-        } catch (DuplicateRecordException e){
-            throw new DuplicateRecordException(e.getMessage());
-        } catch (SQLException e) {
+            updateCreatesInfo(bean);
+        } catch (Exception e) {
             BaseModel.log.error("Database Exception in add", e);
-            conn.rollback();
+            JDBCDataSource.trnRollback();
             throw new ApplicationException("Exception: Exception in add Role - " + e.getMessage());
+        }finally {
+            JDBCDataSource.closeConnection(conn);
         }
-        BaseModel.log.debug("Model add End");
         return pk;
-
     }
-
+    
     public void delete(RoleBean bean) throws ApplicationException {
-        if(findByPK(bean.getId())==null){
+         if(findByPK(bean.getId())==null){
             throw new ApplicationException("Record not found");
         }
-        try (Connection conn = JDBCDataSource.getConnection()) {
+        Connection conn = null;
+        try {
+             conn=JDBCDataSource.getConnection();
             conn.setAutoCommit(false);
             try (PreparedStatement pstmt = conn.prepareStatement("DELETE FROM ST_ROLE WHERE ID=?")) {
                 pstmt.setLong(1, bean.getId());
                 pstmt.executeUpdate();
                 conn.commit();
             }
-        } catch (SQLException e) {
+
+        } catch (Exception e) {
             BaseModel.log.error("Database Exception in delete", e);
-            conn.rollback();
-            throw new ApplicationException("Exception : Exception in delete Role - " + e.getMessage());
+            JDBCDataSource.trnRollback();
+           throw new ApplicationException("Exception : Exception in delete Role - " + e.getMessage());
+        }finally {
+            JDBCDataSource.closeConnection(conn);
         }
-        BaseModel.log.debug("Model delete End");
     }
 
-    /**
-     * find by name method to get the role by name
-     */
     public RoleBean findByName(String name) throws ApplicationException {
         BaseModel.log.debug("Model findByName Started");
         StringBuffer sql = new StringBuffer("SELECT * FROM ST_ROLE WHERE NAME=?");
 
         RoleBean bean = null;
         try (Connection conn = JDBCDataSource.getConnection();PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
-            pstmt.setString(1, name);
+            pstmt.setString(1,name);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    bean = populate(new RoleBean(),pstmt,rs);
+                bean=new RoleBean();
+                    populate(rs, bean);
                 }
             }
         } catch (SQLException e) {
             BaseModel.log.error("Database Exception in findByName", e);
             throw new ApplicationException("Exception: Exception in getting Role by name - " + e.getMessage());
-        }
-        BaseModel.log.debug("Model findByName End");
+        } 
         return bean;
     }
-    
-     @Override
-    public String getTableName() {
-        return "ST_ROLE";
-    }
-    
-     @Override
-    protected <T extends BaseModel> T populate(T model, PreparedStatement pstmt, ResultSet rs) throws SQLException {
-        RoleBean bean = (RoleBean) model;
-        bean.setId(rs.getLong(1));
-        bean.setName(rs.getString(2));
-        bean.setDescription(rs.getString(3));
-        bean.setCreatedBy(rs.getString(4));
-        bean.setModifiedBy(rs.getString(5));
-        bean.setCreatedDatetime(rs.getTimestamp(6));
-        bean.setModifiedDatetime(rs.getTimestamp(7));
-        return (T) bean;
-    }
 
-    /**
-     * find by pk method to get the role by pk
-     *
+
      * @param pk
      * @return RoleBean
      * @throws ApplicationException
@@ -142,14 +132,15 @@ public class RoleModel extends BaseModel {
     public RoleBean findByPK(long pk) throws ApplicationException {
         BaseModel.log.debug("Model findByPK Started");
         StringBuffer sql = new StringBuffer("SELECT * FROM ST_ROLE WHERE ID=?");
-        RoleBean bean = null;
+         RoleBean bean=null;
         try (Connection conn = JDBCDataSource.getConnection();PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
-            pstmt.setLong(1, pk);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                   bean = populate(new RoleBean(),pstmt,rs);
+            pstmt.setLong(1,pk);
+                ResultSet rs=pstmt.executeQuery();
+                while(rs.next()) {
+                bean=new RoleBean();
+                    populate(rs, bean);
                 }
-            }
+           
         } catch (SQLException e) {
             BaseModel.log.error("Database Exception in findByPK", e);
             throw new ApplicationException("Exception: Exception in getting Role by pk - " + e.getMessage());
@@ -171,11 +162,13 @@ public class RoleModel extends BaseModel {
         if (duplicateRole != null && duplicateRole.getId() != bean.getId()) {
             throw new DuplicateRecordException("Role Name already exists");
         }
-        try (Connection conn = JDBCDataSource.getConnection()) {
-            conn.setAutoCommit(false);
+         Connection conn=null;
+        try {
+             conn=JDBCDataSource.getConnection();
+             conn.setAutoCommit(false);
             try (PreparedStatement pstmt = conn.prepareStatement(
                     "UPDATE ST_ROLE SET NAME=?,DESCRIPTION=?,CREATED_BY=?,MODIFIED_BY=?,CREATED_DATETIME=?,MODIFIED_DATETIME=? WHERE ID=?")) {
-                pstmt.setString(1, bean.getName());
+                 pstmt.setString(1, bean.getName());
                 pstmt.setString(2, bean.getDescription());
                 pstmt.setString(3, bean.getCreatedBy());
                 pstmt.setString(4, bean.getModifiedBy());
@@ -185,14 +178,15 @@ public class RoleModel extends BaseModel {
                 pstmt.executeUpdate();
                 conn.commit();
             }
-        } catch (SQLException e) {
+            updateModifiedInfo(bean);
+        } catch (Exception e) {
             BaseModel.log.error("Database Exception in update", e);
-            conn.rollback();
+            JDBCDataSource.trnRollback();
             throw new ApplicationException("Exception in updating Role - " + e.getMessage());
+        }finally {
+            JDBCDataSource.closeConnection(conn);
         }
-        BaseModel.log.debug("Model update End");
     }
-
     /**
      * search method to search the role by values
      *
@@ -225,15 +219,14 @@ public class RoleModel extends BaseModel {
         if (pageSize < 0) {
             pageSize = 10;
         }
-        
+
         if (bean != null) {
             if (bean.getId() > 0) {
                 sql.append(" AND id = ?");
             }
             if (bean.getName() != null && !bean.getName().isEmpty()) {
                 sql.append(" AND NAME like ?");
-            }
-            if (bean.getDescription() != null && !bean.getDescription().isEmpty()) {
+             }  if (bean.getDescription() != null && !bean.getDescription().isEmpty()) {
                 sql.append(" AND DESCRIPTION like ?");
             }
         }
@@ -250,10 +243,14 @@ public class RoleModel extends BaseModel {
                 if (bean.getDescription() != null && !bean.getDescription().isEmpty()) {pstmt.setString(paramCount++, bean.getDescription() + "%");}
             }
             if (pageSize > 0) {pstmt.setInt(paramCount++, pageNo);pstmt.setInt(paramCount++, pageSize);}
-            try (ResultSet rs = pstmt.executeQuery()) {
+             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
-                bean = populate(new RoleBean(),pstmt,rs);
-                list.add(bean);
+                RoleBean roleBean=new RoleBean();
+                populate(rs,roleBean);       
+                    list.add(roleBean);             
+
+
+                 
             }
             }
 
@@ -297,16 +294,36 @@ public class RoleModel extends BaseModel {
         try (Connection conn = JDBCDataSource.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
             if (pageSize > 0) {pstmt.setInt(1, pageNo);pstmt.setInt(2, pageSize);}
             try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    RoleBean bean = populate(new RoleBean(),pstmt,rs);
+                while (rs.next()) {  RoleBean bean=new RoleBean();                  
+                    populate(rs,bean);                    
                     list.add(bean);
                 }
             }
         } catch (SQLException e) {
-            BaseModel.log.error("Database Exception in list", e);
+             BaseModel.log.error("Database Exception in list", e);
             throw new ApplicationException("Exception: Exception in getting list of Role - " + e.getMessage());
         }
         BaseModel.log.debug("Model list End");
         return list;
+    }
+     @Override
+    public String getTableName() {
+        return "ST_ROLE";
+    }
+
+    private void populate(ResultSet rs, RoleBean bean) throws SQLException {
+        bean.setId(rs.getLong(1));
+        bean.setName(rs.getString(2));
+        bean.setDescription(rs.getString(3));
+        bean.setCreatedBy(rs.getString(4));
+        bean.setModifiedBy(rs.getString(5));
+        bean.setCreatedDatetime(rs.getTimestamp(6));
+        bean.setModifiedDatetime(rs.getTimestamp(7));
+    }
+    private void updateCreatesInfo(RoleBean bean) throws ApplicationException{
+        updateCreatesInfo();
+    }
+     private void updateModifiedInfo(RoleBean bean) throws ApplicationException{
+        updateModifiedInfo();
     }
 }

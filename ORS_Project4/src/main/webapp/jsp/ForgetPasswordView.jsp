@@ -36,7 +36,7 @@
                     <input type="text" id="login" name="login" placeholder="Enter Email Address"
                            value="${bean.login}"
                            class="form-control">
-                    <div class="error">${requestScope.login}</div>
+                    <span class="error-message">${requestScope.login}</span>
                 </div>
                 <div class="button-container">
                     <input type="submit" name="operation" class="btn btn-primary"

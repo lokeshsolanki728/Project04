@@ -11,14 +11,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
-
 import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Bean.CourseBean;
 import com.rays.pro4.Bean.SubjectBean;
 import com.rays.pro4.Bean.TimeTableBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
-import com.rays.pro4.Model.CourseModel;
 import com.rays.pro4.Model.TimeTableModel;
 import com.rays.pro4.Model.SubjectModel;
 import com.rays.pro4.Util.DataUtility;
@@ -26,8 +24,10 @@ import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.TimeTableValidator;
 import com.rays.pro4.Util.ServletUtility;
+import com.rays.pro4.Model.CourseModel;
 
 //TODO: Auto-generated Javadoc
+
 /**
 * The Class TimeTableCtl.
 **  @author Lokesh SOlanki
@@ -44,32 +44,30 @@ public class TimetableCtl extends BaseCtl{
     
     private final TimeTableModel model = new TimeTableModel();
     
-    /**
-	 * Loads pre-load data.
+	/** Loads pre-load data.
 	 *
 	 * @param request the request
 	 */
-	@Override
-	protected void preload(HttpServletRequest request) {
-	    log.debug("preload method of TimetableCtl Started");
-	    
-	    final CourseModel cmodel = new CourseModel();
-	    final SubjectModel smodel = new SubjectModel();
-	    
-	    try {
-	        final List<CourseBean> clist = cmodel.list();
-	        request.setAttribute("CourseList", clist);
-	    } catch (final ApplicationException e) {
-	        log.error("Error getting course list during preload", e);
-	    }
-	    
-	    try {
-	        final List<SubjectBean> slist = smodel.list();
-	        request.setAttribute("SubjectList", slist);              
-	    } catch (final ApplicationException e) {
-	        log.error("Error getting subject list during preload", e);            
-	    }
-	    log.debug("preload method of TimetableCtl Ended");
+	@Override protected void preload(HttpServletRequest request) {
+		log.debug("preload method of TimetableCtl Started");
+
+		final CourseModel cmodel = new CourseModel();
+		final SubjectModel smodel = new SubjectModel();
+
+		try {
+			final List<CourseBean> clist = cmodel.list();
+			request.setAttribute("CourseList", clist);
+		} catch (final ApplicationException e) {
+			log.error("Error getting course list during preload", e);
+		}
+
+		try {
+			final List<SubjectBean> slist = smodel.list();
+			request.setAttribute("SubjectList", slist);
+		} catch (final ApplicationException e) {
+			log.error("Error getting subject list during preload", e);
+		}
+		log.debug("preload method of TimetableCtl Ended");
 	}
 	
 	/**
@@ -81,7 +79,7 @@ public class TimetableCtl extends BaseCtl{
 	@Override
 	protected boolean validate(HttpServletRequest request) {
 	    log.debug("validate method of TimeTable Ctl started");
-	    final boolean pass = TimeTableValidator.validate(request);
+	    boolean pass = TimeTableValidator.validate(request);
 	    if(!pass){
 	        log.debug("TimetableCtl Method validate Ended with error");
 	    }
@@ -158,16 +156,16 @@ public class TimetableCtl extends BaseCtl{
             try {
                 bean = model.findByPK(id);
                 if(bean == null){
-                    ServletUtility.setErrorMessage("Timetable not found", request);
+                    ServletUtility.setErrorMessage(MessageConstant.NOT_FOUND, request);
+                }if(bean != null) {
+                  ServletUtility.setBean(bean, request);  
                 }
-                ServletUtility.setBean(bean, request);
             } catch (final ApplicationException e) {
                 log.error("Error finding timetable by ID", e);
                 handleDatabaseException(e, request, response);
                 return;
             }
         }
-
         log.debug("do Get method of TimeTable Ctl End");
 		ServletUtility.forward(getView(), request, response);
 	}
@@ -185,7 +183,7 @@ public class TimetableCtl extends BaseCtl{
         log.debug("do post method of TimeTable Ctl start");
         
         final String op = DataUtility.getString(request.getParameter("operation"));
-        final long id = DataUtility.getLong(request.getParameter("id"));
+        long id = DataUtility.getLong(request.getParameter("id"));
 
         if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
             final TimeTableBean bean = (TimeTableBean) populateBean(request);
@@ -195,12 +193,14 @@ public class TimetableCtl extends BaseCtl{
                 } else {
                     save(bean, model, request);
                 }
-                ServletUtility.setBean(bean, request);
+                
+               ServletUtility.setBean(bean, request);
             } catch (final ApplicationException e) {
                 log.error("Application exception", e);
                 handleDatabaseException(e, request, response);
                 return;
             } catch (final DuplicateRecordException e) {
+                
                 ServletUtility.setBean(bean, request);
                 ServletUtility.setErrorMessage("TimeTable already exists", request);
             }
@@ -211,7 +211,9 @@ public class TimetableCtl extends BaseCtl{
             ServletUtility.redirect(ORSView.TIMETABLE_CTL, request, response);
             return;
         }
+        
         ServletUtility.forward(getView(), request, response);
+        
 	}
 
 	/* (non-Javadoc)

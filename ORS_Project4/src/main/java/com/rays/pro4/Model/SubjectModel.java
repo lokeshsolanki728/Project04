@@ -14,7 +14,6 @@ import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Util.JDBCDataSource;
 import java.util.ArrayList;
 import java.util.List;
-import com.rays.pro4.Bean.BaseBean;
 import java.sql.Timestamp;
 
 public class SubjectModel extends BaseModel {
@@ -86,8 +85,10 @@ public class SubjectModel extends BaseModel {
              PreparedStatement pstmt = conn.prepareStatement(sql.toString());
              pstmt.setString(1, name);
              ResultSet rs = pstmt.executeQuery();
-             while (rs.next()) {
-                 bean = new SubjectBean();
+            if(rs.next()){
+                bean=new SubjectBean();
+                bean.setId(rs.getLong(1));
+                bean.setSubjectName(rs.getString(2));
                  populate(bean, rs);
              }
          } catch (Exception e) {
@@ -114,12 +115,12 @@ public class SubjectModel extends BaseModel {
 		     CourseModel cModel = new CourseModel();
 		     CourseBean CourseBean = cModel.FindByPK(bean.getCourseId());
 		     bean.setCourseName(CourseBean.getName());	 
-			 SubjectBean duplicateName = findByName(bean.getSubjectName());
-			 if (duplicateName != null && duplicateName.getId() != bean.getId()) {
-				 throw new DuplicateRecordException("Subject Name already exists");
-			 }
-			 update(bean,conn);
-		 }catch(DuplicateRecordException e) {
+			  SubjectBean duplicateName = findByName(bean.getSubjectName());
+			  if (duplicateName != null && duplicateName.getId() != bean.getId()) {
+				  throw new DuplicateRecordException("Subject Name already exists");
+			  }
+			  update(bean,conn);
+		}catch(DuplicateRecordException e) {
 				log.error("Duplicate record exception",e);
 				throw e;
 			} catch (Exception e) {
@@ -178,19 +179,6 @@ public class SubjectModel extends BaseModel {
 		 return bean;
 	 }
 	 
-	 protected BaseBean populate(BaseBean baseBean, ResultSet rs) throws Exception {
-	        SubjectBean bean = (SubjectBean) baseBean;
-	        bean.setId(rs.getLong(1));
-	        bean.setSubjectName(rs.getString(2));
-	        bean.setDescription(rs.getString(3));
-	        bean.setCourseId(rs.getLong(4));
-	        bean.setCourseName(rs.getString(5));
-	        bean.setCreatedBy(rs.getString(6));
-	        bean.setModifiedBy(rs.getString(7));
-	        bean.setCreatedDatetime(rs.getTimestamp(8));
-	        bean.setModifiedDatetime(rs.getTimestamp(9));
-	        return bean;
-	    }
 	 
 	 public long add(SubjectBean bean, Connection conn) throws ApplicationException, DuplicateRecordException,Exception {
 		 PreparedStatement pstmt = conn.prepareStatement("INSERT INTO ST_SUBJECT VALUES(?,?,?,?,?,?,?,?,?)");
@@ -270,7 +258,16 @@ public class SubjectModel extends BaseModel {
 	         }
 	         while (rs.next()) {
 	            bean = new SubjectBean();
-                 populate(bean, rs);
+	            bean.setId(rs.getLong(1));
+                bean.setSubjectName(rs.getString(2));
+                bean.setDescription(rs.getString(3));
+                bean.setCourseId(rs.getLong(4));
+                bean.setCourseName(rs.getString(5));
+                bean.setCreatedBy(rs.getString(6));
+                bean.setModifiedBy(rs.getString(7));
+                bean.setCreatedDatetime(rs.getTimestamp(8));
+                bean.setModifiedDatetime(rs.getTimestamp(9));
+                
 	             list.add(bean);
 	     } catch (Exception e) {
 	         log.error("Database Exception...", e);
@@ -305,7 +302,16 @@ public class SubjectModel extends BaseModel {
 	         SubjectBean bean;
 	         while (rs.next()) {
 	           bean = new SubjectBean();
-                 populate(bean, rs);
+	           bean.setId(rs.getLong(1));
+                bean.setSubjectName(rs.getString(2));
+                bean.setDescription(rs.getString(3));
+                bean.setCourseId(rs.getLong(4));
+                bean.setCourseName(rs.getString(5));
+                bean.setCreatedBy(rs.getString(6));
+                bean.setModifiedBy(rs.getString(7));
+                bean.setCreatedDatetime(rs.getTimestamp(8));
+                bean.setModifiedDatetime(rs.getTimestamp(9));
+                
                 list.add(bean);
 	        }
 	     } catch (Exception e) {
@@ -316,46 +322,5 @@ public class SubjectModel extends BaseModel {
 	 public String getTableName() {
         return "ST_SUBJECT";
     }
-
-	
-	
-}
-	        if (pageNo < 0) {
-	            pageNo = 1;
-	        }
-	        if (pageSize < 0) {
-	            pageSize = 10; // Default page size
-	        }
-	        
-	     ArrayList list = new ArrayList();
-	     String sql = "SELECT * FROM ST_SUBJECT";
-
-	     try (Connection connection = JDBCDataSource.getConnection();
-	            PreparedStatement preparedStatement = connection.prepareStatement(sql);){
-	          if (pageSize > 0) {
-                sql += " LIMIT " + ((pageNo - 1) * pageSize) + ", " + pageSize;
-            }
-	         ResultSet rs= preparedStatement.executeQuery(sql);
-	         SubjectBean bean;
-	         while (rs.next()) {
-	             bean = new SubjectBean();
-	             bean.setId(rs.getLong(1));
-	             bean.setSubjectName(rs.getString(2));
-	             bean.setDescription(rs.getString(3));
-	             bean.setCourseId(rs.getLong(4));
-	             bean.setCourseName(rs.getString(5));
-	             bean.setCreatedBy(rs.getString(6));
-	             bean.setModifiedBy(rs.getString(7));
-	             bean.setCreatedDatetime(rs.getTimestamp(8));
-	             bean.setModifiedDatetime(rs.getTimestamp(9));
-	             list.add(bean);
-	         }
-	         log.debug("Model list End");
-	         return list;
-	     } catch (Exception e) {
-	         log.error("Database Exception in list Subject", e);
-	         throw new ApplicationException("Exception : Exception in list Subject - " + e.getMessage());
-	     }
-	     return list;
-	 }
+ }
 }

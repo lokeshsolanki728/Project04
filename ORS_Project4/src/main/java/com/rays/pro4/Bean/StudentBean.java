@@ -160,7 +160,7 @@ public class StudentBean extends BaseBean {
 	 */
 	@Override
 	public String getkey() {
-		return String.valueOf(getKey());
+		return String.valueOf(id);
 	}
 
 	/**

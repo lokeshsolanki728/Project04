@@ -1,5 +1,7 @@
  package com.rays.pro4.controller;
 
+import org.apache.log4j.Logger;
+import com.rays.pro4.Exception.ApplicationException;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
@@ -32,6 +34,7 @@ public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("com.rays.pro4.resources.System");
 
+    protected Logger log = Logger.getLogger(this.getClass());
 	/**
 	 * Save operation constant
 	 */
@@ -133,6 +136,7 @@ public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
 	 * @param response the response
 	 */
     protected void handleDatabaseException(Exception e, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+        log.error(e);
         ServletUtility.setErrorMessage(PropertyReader.getValue("error.default"), request);
         ServletUtility.forward(getView(), request, response);
     }
@@ -154,30 +158,33 @@ public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
 	@Override
 	protected void service(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-
+		log.debug("Base Ctl service method start");
 		// Load the preloaded data required to display at HTML form
-		preload(request); 
-
-		String op = DataUtility.getString(request.getParameter("operation")); 
-		// Check if operation is not DELETE, VIEW, CANCEL, and NULL then
-		// perform input data validation		
-		if (DataValidator.isNotNull(op) && !OP_CANCEL.equalsIgnoreCase(op) && !OP_VIEW.equalsIgnoreCase(op) && !OP_DELETE.equalsIgnoreCase(op) && !OP_RESET.equalsIgnoreCase(op)) {		
-			// messages
-			
+		preload(request);
+		String op = DataUtility.getString(request.getParameter("operation"));
+		T bean = populateBean(request);
+		if (DataValidator.isNotNull(op) && !OP_CANCEL.equalsIgnoreCase(op)
+				&& !OP_VIEW.equalsIgnoreCase(op) && !OP_DELETE.equalsIgnoreCase(op)
+				&& !OP_RESET.equalsIgnoreCase(op)) {
 			if (!validate(request)) {
-				
-				T bean =  populateBean(request); 
-				//the data that the user inserted is still display in the view
 				ServletUtility.setBean(bean, request);
 				ServletUtility.forward(getView(), request, response);
 				return;
 			}
-		}try {
-				super.service(request, response);
-		}catch (Exception e) {
-			ServletUtility.setErrorMessage(PropertyReader.getValue("error.default"), request);
-			ServletUtility.forward(getView(), request, response);
 		}
+		ServletUtility.setBean(bean, request);
+		try {
+			super.service(request, response);
+		} catch (ApplicationException e) {
+            log.error(e);
+            ServletUtility.setErrorMessage(e.getMessage(), request);
+            ServletUtility.forward(getView(), request, response);
+        } catch (Exception e) {
+            log.error(e);
+            ServletUtility.setErrorMessage(PropertyReader.getValue("error.default"), request);
+            ServletUtility.forward(getView(), request, response);
+		}
+		log.debug("Base Ctl service method end");
 	}
 	/**
 	 * Returns the VIEW page of this Controller 

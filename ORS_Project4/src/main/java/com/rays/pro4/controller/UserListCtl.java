@@ -1,6 +1,7 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -14,7 +15,6 @@ import com.rays.pro4.Bean.RoleBean;
 import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Bean.UserBean;
 import com.rays.pro4.Exception.ApplicationException;
-import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Model.RoleModel;
 import com.rays.pro4.Model.UserModel;
 import com.rays.pro4.Util.DataUtility;
@@ -32,8 +32,6 @@ public class UserListCtl extends BaseCtl {
 	private static final long serialVersionUID = 1L;
 	private static Logger log = Logger.getLogger(UserListCtl.class);
 
-	
-	
 
 	/**
 	 * Populates bean object from request parameters
@@ -45,13 +43,12 @@ public class UserListCtl extends BaseCtl {
 	@Override
 	protected BaseBean populateBean(HttpServletRequest request) {
 		log.debug("populateBean method of UserListCtl Started");
-
 		final UserBean bean = new UserBean();
 		bean.populate(request);
 		log.debug("populateBean method of UserListCtl Ended");
 		return bean;
-		
-	}
+
+	}	
 	
 	/**
 	 * Contains display logics.
@@ -85,11 +82,10 @@ public class UserListCtl extends BaseCtl {
 
 			request.setAttribute("nextlist", nextList.size());
 
-			ServletUtility.setList(list, request);
 			if (list == null || list.size() == 0) {
 				ServletUtility.setErrorMessage("No record found ", request);
 			}
-			ServletUtility.setList(list, request);
+			ServletUtility.setList(list, request);			
 			ServletUtility.setPageNo(pageNo, request);
 			ServletUtility.setPageSize(pageSize, request);
 			
@@ -118,11 +114,10 @@ public class UserListCtl extends BaseCtl {
 		pageSize = (pageSize == 0) ? DataUtility.getInt(PropertyReader.getValue("page.size")) : pageSize;
 
 		String op = DataUtility.getString(request.getParameter("operation"));
-		UserBean bean = (UserBean) populateBean(request);
+		
 		// get the selected checkbox ids array for delete list
 		String[] ids = request.getParameterValues("ids");
-       
-		UserModel model = new UserModel();
+        List<String> errorMessages = new ArrayList<>();
 
 		if (OP_SEARCH.equalsIgnoreCase(op)) {
 			
@@ -141,26 +136,30 @@ public class UserListCtl extends BaseCtl {
 			pageNo = 1;
 
 			if (ids != null && ids.length > 0) {
-                boolean errorOccurred = false;
+                
 				for (String id : ids) {
 					try {
+						UserModel model = new UserModel();
 						UserBean deletebean = new UserBean();
 						deletebean.setId(DataUtility.getInt(id));
 						model.delete(deletebean);
 					} catch (ApplicationException e) {
 						log.error(e);
-                        errorOccurred = true;
-                        ServletUtility.setErrorMessage("Error while deleting record", request);
-                        break;
+                        errorMessages.add("Error while deleting record Id : " + id);                       
 					}
-				}if(!errorOccurred){
-                    ServletUtility.setSuccessMessage(MessageConstant.DATA_DELETE_SUCCESS, request);
 				}
-				ServletUtility.setSuccessMessage(MessageConstant.DATA_DELETE_SUCCESS, request);
+                if (!errorMessages.isEmpty()) {
+                    ServletUtility.setErrorMessage(String.join("<br>", errorMessages), request);
+                } else {
+                    ServletUtility.setSuccessMessage(MessageConstant.DATA_DELETE_SUCCESS, request);
+                }
+
 			} else {
 				ServletUtility.setErrorMessage("Select at least one record", request);
 			}
 		}
+		UserModel model = new UserModel();
+		UserBean bean = (UserBean) populateBean(request);
 		try {
 
 			list = model.search(bean, pageNo, pageSize);
@@ -169,11 +168,9 @@ public class UserListCtl extends BaseCtl {
 
 			request.setAttribute("nextlist", nextList.size());
 		} catch (ApplicationException e) {
-			log.error(e);
-			ServletUtility.setErrorMessage(PropertyReader.getValue("error.norrecord"), request);
-			ServletUtility.handleException(e, request, response);
-			
-			return;
+			log.error("Application Exception", e);
+            handleDatabaseException(e, request, response);
+            return;
 		}
 		if (list == null || list.size() == 0 && !OP_DELETE.equalsIgnoreCase(op)) {
 			ServletUtility.setErrorMessage(PropertyReader.getValue("error.norrecord"), request);
@@ -184,7 +181,7 @@ public class UserListCtl extends BaseCtl {
 		ServletUtility.setPageSize(pageSize, request);
 		ServletUtility.forward(getView(), request, response);
 		log.debug("UserListCtl doGet End");
-
+		
 	}	
 	
 

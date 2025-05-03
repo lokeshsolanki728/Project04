@@ -45,14 +45,14 @@
                     <label for="login">LoginId <span class="required">*</span></label>
                     <input type="text" id="login" name="login" placeholder="Enter valid Email-Id"
                            value="${bean.login}" class="form-control">
-                    <div class="error">${requestScope.login}</div>
+                    <span class="error-message">${requestScope.login}</span>
                 </div>
 
                 <div class="input-container">
                     <label for="password">Password <span class="required">*</span></label>
                     <input type="password" id="password" name="password" placeholder="Enter Password"
                            value="${bean.password}" class="form-control">
-                    <div class="error">${requestScope.password}</div>
+                    <span class="error-message">${requestScope.password}</span>
                 </div>
 
                 <div class="button-container">

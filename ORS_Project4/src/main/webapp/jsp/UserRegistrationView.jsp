@@ -17,9 +17,6 @@
         <script type="text/javascript" src="${pageContext.request.contextPath}/resources/jquery-3.5.1.min.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/resources/jquery-ui.min.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/js/UserRegistration.js"></script>
-        <style type="text/css">
-
-        </style>
     </head>
     <body>
 
@@ -53,14 +50,14 @@
             <div class="container">
                 <table>
                     <tr>
-                        <th align="left"><label for="firstName">First Name <span class="required">*</span>:</label></th>
+                        <th class="text-left"><label for="firstName">First Name <span class="required">*</span>:</label></th>
                         <td>
                             <input type="text" id="firstName" name="firstName" placeholder="Enter First Name"
                                    class="form-control" value="${bean.firstName}">
                         </td>
                         <td>
-                            <div class="error-message">${requestScope.firstName}</div>
-                        </td>
+                            <span class="error-message">${requestScope.firstName}</span>
+                        </td>                       
                     </tr>
 
                     <tr>
@@ -70,7 +67,7 @@
                                    class="form-control" value="${bean.lastName}">
                         </td>
                         <td>
-                            <div class="error-message">${requestScope.lastName}</div>
+                            <span class="error-message">${requestScope.lastName}</span>
                         </td>
                     </tr>
 
@@ -81,11 +78,11 @@
                                    class="form-control" value="${bean.login}">
                         </td>
                         <td>
-                            <div class="error-message">${requestScope.login}</div>
+                            <span class="error-message">${requestScope.login}</span>
                         </td>
                     </tr>
 
-                    <tr>
+                    <tr>  
                         <th align="left"><label for="gender">Gender <span class="required">*</span>:</label></th>
                         <td>
                             <select id="gender" name="gender" class="form-control">
@@ -94,35 +91,32 @@
                             <option value="Female" ${bean.gender == 'Female' ? 'selected' : ''}>Female</option>
                         </select>
                         </td>
-                        <td>
-                            <div class="error-message">${requestScope.gender}</div>
-                        </td>
+                        <td>                           
+                            <span class="error-message">${requestScope.gender}</span>
+                        </td>                      
                     </tr>
 
                     <tr>
-                        <th align="left"><label for="udate">Date Of Birth <span class="required">*</span>:</label></th>
+                        <th class="text-left"><label for="udate">Date Of Birth <span class="required">*</span>:</label></th>
                         <td>
-                            <input type="text" name="dob" id="udate" readonly="readonly" class="form-control"
-                                   placeholder="Enter Dob " value="${bean.dob}">
-                        </td>
-                        <td>
-                            <div class="error-message">${requestScope.dob}</div>
-                        </td>
-                    </tr>
+                            <input type="text" name="dob" id="udate"  class="form-control"
+                                   placeholder="Enter Dob " value="${bean.dob}" readonly="readonly">
+                            <span class="error-message">${requestScope.dob}</span>
+                        </td>                      
+                       
+                    </tr>                 
 
                     <tr>
-                        <th align="left"><label for="mobileNo">Mobile No <span class="required">*</span>:</label></th>
+                        <th class="text-left"><label for="mobileNo">Mobile No <span class="required">*</span>:</label></th>
                         <td>
                             <input type="text" name="mobileNo" id="mobileNo" placeholder="Enter Mobile No"
                                    class="form-control" maxlength="10" value="${bean.mobileNo}">
-                        </td>
-                        <td>
-                            <div class="error-message">${requestScope.mobileNo}</div>
+                           <span class="error-message">${requestScope.mobileNo}</span>
                         </td>
                     </tr>
 
                     <tr>
-                        <th align="left"><label for="password">Password <span class="required">*</span>:</label></th>
+                        <th class="text-left"><label for="password">Password <span class="required">*</span>:</label></th>
                         <td>
                             <input type="password" name="password" id="password" placeholder="Enter Password"
                                    class="form-control" value="${bean.password}">
@@ -132,20 +126,20 @@
                         </td>
                     </tr>
 
-                    <tr>
-                        <th align="left"><label for="confirmPassword">Confirm Password <span class="required">*</span>:</label></th>
+                    <tr>                      
+                        <th class="text-left"><label for="confirmPassword">Confirm Password <span class="required">*</span>:</label></th>
                         <td>
                             <input type="password" name="confirmPassword" id="confirmPassword"
                                    placeholder="Re-Enter password" class="form-control" value="${bean.confirmPassword}">
                         </td>
                         <td>
-                            <div class="error-message">${requestScope.confirmPassword}</div>
+                           <span class="error-message">${requestScope.confirmPassword}</span>
                         </td>
                     </tr>
                     <tr>
                         <th></th>
                         <td colspan="2"> &nbsp; &emsp;
-                            <input type="submit" name="operation" value="<%=UserRegistrationCtl.OP_SIGN_UP%>">
+                            <input type="submit" name="operation" value="<%=UserRegistrationCtl.OP_SIGN_UP%>" class="btn btn-primary">
                             &nbsp;
                             <input type="submit" name="operation" value="<%=UserRegistrationCtl.OP_RESET%>">
                         </td>

@@ -1,5 +1,6 @@
 package com.rays.pro4.controller;
 
+import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -7,22 +8,19 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
+import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Bean.CourseBean;
-import com.rays.pro4.Bean.RoleBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Model.CourseModel;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.CourseValidator;
 import com.rays.pro4.Util.MessageConstant;
+import com.rays.pro4.Util.ORSView;
 import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;
-import java.io.IOException;
 
-/**
- * The Class CourseCtl.
- * @author Lokesh Solanki
- */
+
 @WebServlet(name="CourseCtl", urlPatterns={"/ctl/CourseCtl"})
 public class CourseCtl extends BaseCtl<CourseBean>{
 
@@ -76,40 +74,11 @@ public class CourseCtl extends BaseCtl<CourseBean>{
 		bean = model.findByPK(id);
 		return bean;
 	}
-	/**
-	 * Save Course.
-	 *
-	 * @param bean the bean
-	 * @param request the request
-	 * @throws DuplicateRecordException the duplicate record exception
-	 * @throws ApplicationException the application exception
-	 */
-    private void save(CourseBean bean, HttpServletRequest request)
-            throws DuplicateRecordException, ApplicationException {
-        log.debug("save method start");
-        
-        model.add(bean);
-        ServletUtility.setSuccessMessage(MessageConstant.COURSE_ADD, request);
-        
-        log.debug("save method end");
-    }
-    /**
-     * Update Course.
-     *
-     * @param bean the bean
-     * @param request the request
-     * @throws DuplicateRecordException the duplicate record exception
-     * @throws ApplicationException the application exception
-     */
-    private void update(CourseBean bean, HttpServletRequest request)
-            throws DuplicateRecordException, ApplicationException {
-        log.debug("update method start");
-        
-        model.update(bean);
-        ServletUtility.setSuccessMessage(MessageConstant.COURSE_UPDATE, request);
-        
-        log.debug("update method end");
-    }
+
+
+
+	
+
 
 	
 
@@ -164,17 +133,19 @@ public class CourseCtl extends BaseCtl<CourseBean>{
 		
 		if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
 	        if (validate(request)) {
-	            try {
-	                if (bean.getId() > 0) {
-	                    update(bean, request);
+	            try {	                
+	            	if (bean.getId() > 0) {
+	            		model.update(bean);
+	                    ServletUtility.setSuccessMessage(MessageConstant.COURSE_UPDATE, request);
 	                } else {
-	                    save(bean, request);
+	                	long pk= model.add(bean);
+	                	bean.setId(pk);
+	                    ServletUtility.setSuccessMessage(MessageConstant.COURSE_ADD, request);
 	                }
-	            } catch (final ApplicationException e) {
-	                handleDatabaseException(e, request, response);
-	                return;
-	            } catch (final DuplicateRecordException e) {
-	                ServletUtility.setErrorMessage(PropertyReader.getValue("error.course.duplicate"), request);
+	            } catch (ApplicationException | DuplicateRecordException e) {
+	            	if(e instanceof ApplicationException) {
+	            		handleDatabaseException((ApplicationException)e, request, response);
+	            	} else ServletUtility.setErrorMessage(PropertyReader.getValue("error.course.duplicate"), request);	               
 	            }
 	            ServletUtility.setBean(bean, request);
 	        }

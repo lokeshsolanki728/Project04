@@ -19,7 +19,7 @@ jsp
 <jsp:useBean id="bean" class="com.rays.pro4.Bean.MarksheetBean"
              scope="request"></jsp:useBean>
 <%@ include file="Header.jsp" %>
-<form action="<%=ORSView.MARKSHEET_CTL%>" method="post">
+<form action="<%=ORSView.MARKSHEET_CTL%>" method="post" class="container">
     <c:set var="studentList" value="${requestScope.studentList}"/>
 
     <div class="text-center">
@@ -37,7 +37,7 @@ jsp
             <div class="alert alert-success" role="alert">${successMessage}</div>
         </c:if>
     </div>
-    <div class="container">
+    <div>
         <input type="hidden" name="id" value="${bean.id}">
         <input type="hidden" name="createdBy" value="${bean.createdBy}">
         <input type="hidden" name="modifiedBy" value="${bean.modifiedBy}">
@@ -45,54 +45,54 @@ jsp
         <input type="hidden" name="modifiedDatetime" value="${bean.modifiedDatetime}">
         <table>
             <tr>
-                <th align="left"><label for="rollNo">Rollno<span class="required">*</span> :</label>
+                <th class="text-left"><label for="rollNo">Roll No <span class="required">*</span> :</label>
                 </th>
-                <td><input type="text" id="rollNo" name="rollNo" placeholder="Enter RollNo"
+                <td><input type="text" id="rollNo" name="rollNo" placeholder="Enter Roll No"
                            class="form-control" value="${bean.rollNo}"></td>
                 <td>
-                    <div class="error-message">${requestScope.rollNo}</div>
+                    <span class="error-message">${requestScope.rollNo}</span>
                 </td>
             </tr>
 
             <tr>
-                <th align="left"><label for="studentld">Name <span class="required">*</span> :</label>
+                <th class="text-left"><label for="studentld">Name <span class="required">*</span> :</label>
                 </th>
                 <td>${HTMLUtility.getList("studentld", bean.studentld, studentList)}</td>
                 <td>
-                    <div class="error-message">${requestScope.studentId}</div>
+                    <span class="error-message">${requestScope.studentId}</span>
                 </td>
             </tr>
 
             <tr>
-                <th align="left"><label for="physics">Physics<span class="required">*</span> :</label>
+                <th class="text-left"><label for="physics">Physics<span class="required">*</span> :</label>
                 </th>
                 <td><input type="number" id="physics" name="physics" maxlength="3"
-                           placeholder="Enter Physics Marks" class="form-control"
+                           placeholder="Enter Physics" class="form-control"
                            value="${bean.physics eq '0' ? '' : bean.physics}"></td>
                 <td>
-                    <div class="error-message">${requestScope.physics}</div>
+                    <span class="error-message">${requestScope.physics}</span>
                 </td>
             </tr>
 
             <tr>
-                <th align="left"><label for="chemistry">Chemistry<span class="required">*</span> :</label>
+                <th class="text-left"><label for="chemistry">Chemistry<span class="required">*</span> :</label>
                 </th>
                 <td><input type="number" id="chemistry" name="chemistry" maxlength="3"
-                           placeholder="Enter Chemistry Marks" class="form-control"
+                           placeholder="Enter Chemistry" class="form-control"
                            value="${bean.chemistry eq '0' ? '' : bean.chemistry}"></td>
                 <td>
-                    <div class="error-message">${requestScope.chemistry}</div>
+                    <span class="error-message">${requestScope.chemistry}</span>
                 </td>
             </tr>
 
             <tr>
-                <th align="left"><label for="maths">Maths <span class="required">*</span> :</label>
+                <th class="text-left"><label for="maths">Maths <span class="required">*</span> :</label>
                 </th>
                 <td><input type="number" id="maths" name="maths" maxlength="3"
-                           placeholder="Enter Maths Marks" class="form-control"
+                           placeholder="Enter Maths" class="form-control"
                            value="${bean.maths eq '0' ? '' : bean.maths}"></td>
                 <td>
-                    <div class="error-message">${requestScope.maths}</div>
+                    <span class="error-message">${requestScope.maths}</span>
                 </td>
             </tr>
 
@@ -105,8 +105,8 @@ jsp
                             <input type="submit" name="operation" value="<%=MarksheetCtl.OP_CANCEL%>">
                         </c:when>
                         <c:otherwise>
-                            &nbsp; &emsp; <input type="submit" name="operation" value="<%=MarksheetCtl.OP_SAVE%>">
-                            &nbsp;&nbsp; <input type="submit" name="operation" value="<%=MarksheetCtl.OP_RESET%>">
+                             <input type="submit" name="operation" value="<%=MarksheetCtl.OP_SAVE%>">
+                             <input type="submit" name="operation" value="<%=MarksheetCtl.OP_RESET%>">
                         </c:otherwise>
                     </c:choose>
                 </td>

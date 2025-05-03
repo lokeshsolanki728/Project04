@@ -12,6 +12,15 @@
     <title>My Profile</title>
     <link rel="stylesheet" href="${ctx}/css/style.css">
     <meta charset="utf-8">
+    <link rel="stylesheet"
+          href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+        $(function () {
+            $("#dob").datepicker({changeMonth: true, changeYear: true, yearRange: '1980:2002'});
+        });
+    </script>
 </head>
 <body>
     <form action="${ctx}${ORSView.MY_PROFILE_CTL}" method="post">
@@ -34,7 +43,7 @@
                 <input type="hidden" name="createdDatetime" value="${bean.createdDatetime}">
                 <input type="hidden" name="modifiedDatetime" value="${bean.modifiedDatetime}">
             </div>
-            <table class="table table-borderless w-50">
+            <table class="table table-borderless w-50 mx-auto">
                 <tr>
                     <th align="left">
                         <label for="login">Login Id <span class="required">*</span></label>
@@ -42,7 +51,7 @@
                     <td>
                         <input type="text" id="login" name="login" class="form-control"
                                value="${bean.login}" readonly="readonly">
-                        <div class="error">${requestScope.login}</div>
+                        <span class="error-message">${requestScope.login}</span>
                     </td>
                 </tr>
                 <tr>
@@ -52,7 +61,7 @@
                     <td>
                         <input type="text" id="firstName" name="firstName" class="form-control"
                                value="${bean.firstName}">
-                        <div class="error">${requestScope.firstName}</div>
+                        <span class="error-message">${requestScope.firstName}</span>
                     </td>
                 </tr>
                 <tr>
@@ -62,25 +71,26 @@
                     <td>
                         <input type="text" id="lastName" name="lastName" class="form-control"
                                value="${bean.lastName}">
-                        <div class="error">${requestScope.lastName}</div>
+                        <span class="error-message">${requestScope.lastName}</span>
                     </td>
                 </tr>
                 <tr>
-                    <th align="left">
-                        <label for="gender">Gender</label>
+                    <th class="text-left">
+                        <label for="gender">Gender <span class="required">*</span></label>
                     </th>
                     <td>
-                        <input type="text" name="gender" id="gender" class="form-control" value="${bean.gender}">
+                       <input type="text" name="gender" id="gender" class="form-control" value="${bean.gender}">
+                       <span class="error-message">${requestScope.gender}</span>
                     </td>
                 </tr>
                 <tr>
-                    <th align="left">
+                    <th class="text-left">
                         <label for="mobileNo">Mobile No <span class="required">*</span></label>
                     </th>
                     <td>
                         <input type="text" id="mobileNo" name="mobileNo" class="form-control"
                                value="${bean.mobileNo}">
-                        <div class="error">${requestScope.mobileNo}</div>
+                       <span class="error-message">${requestScope.mobileNo}</span>
                     </td>
                 </tr>
                 <tr>
@@ -89,7 +99,7 @@
                     </th>
                     <td>
                         <input type="text" id="dob" name="dob" readonly="readonly" class="form-control"
-                               value="${bean.dob}">
+                               value="${bean.dob}" placeholder="Enter Date Of Birth">
                         <div class="error">${requestScope.dob}</div>
                     </td>
                 </tr>

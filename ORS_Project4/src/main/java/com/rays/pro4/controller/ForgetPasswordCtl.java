@@ -8,11 +8,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 
+import com.rays.pro4.Exception.DatabaseException;
 import org.apache.log4j.Logger;
 import com.rays.pro4.util.ForgetPasswordValidator;
-import com.rays.pro4.Bean.UserBean;
-import com.rays.pro4.Exception.ApplicationException;
-import com.rays.pro4.Exception.RecordNotFoundException;
 import com.rays.pro4.Model.UserModel;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.PropertyReader;
@@ -67,22 +65,6 @@ public class ForgetPasswordCtl extends BaseCtl<UserBean> {
         return bean;
     }
 
-     /**
-      * Send password to the user email
-      *
-      * @param bean the bean
-      * @param request the request
-      * @throws ApplicationException the application exception
-      * @throws RecordNotFoundException the record not found exception
-      */
-    private void sendPassword(UserBean bean, HttpServletRequest request) throws ApplicationException, RecordNotFoundException {
-        log.debug("sendPassword method start");
-        model.forgetPassword(bean.getLogin());
-        ServletUtility.setSuccessMessage(PropertyReader.getValue("success.forget"), request);
-        log.debug("sendPassword method end");
-    }
-
-    
     /**
      * Contains Display logics.
      *
@@ -118,32 +100,26 @@ public class ForgetPasswordCtl extends BaseCtl<UserBean> {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         log.debug("ForgetPasswordCtl Method doPost Started");
-
         final String op = DataUtility.getString(request.getParameter("operation"));
-        final UserBean bean = (UserBean) populateBean(request);
-
-        if (OP_RESET.equalsIgnoreCase(op)) {
-
-            ServletUtility.redirect(ORSView.FORGET_PASSWORD_CTL, request, response);
-            return;
-        }
-        if (OP_GO.equalsIgnoreCase(op)) {
-            if(validate(request)) {
-                try {
-                    forgetPassword(bean, request, response);
-                }catch (DatabaseException | ApplicationException | RecordNotFoundException e) {
-                    log.error(e);
-                    handleDatabaseException(e, request, response);
-                    return;
-                }
-                 catch (final RecordNotFoundException e) {
-                    ServletUtility.setErrorMessage(PropertyReader.getValue("error.loginNotExist"), request);
-                    log.error("Record not found: ", e);
-                } catch (final ApplicationException e) {
-                   log.error("Application exception: ", e);
-                ServletUtility.handleException(e, request, response);
+        final UserBean bean = populateBean(request);
+        try {
+            if (OP_RESET.equalsIgnoreCase(op)) {
+                ServletUtility.redirect(ORSView.FORGET_PASSWORD_CTL, request, response);
                 return;
+            } else if (OP_GO.equalsIgnoreCase(op) && validate(request)) {
+                model.forgetPassword(bean.getLogin());
+                ServletUtility.setSuccessMessage(PropertyReader.getValue("success.forget"), request);
             }
+        } catch (DatabaseException | ApplicationException | RecordNotFoundException e) {
+            log.error(e);
+            handleDatabaseException(e, request, response);
+            return;
+        } finally {
+                try {
+                    ServletUtility.forward(getView(), request, response);
+                } catch (ServletException | IOException e) {
+                    throw new RuntimeException(e);
+                }
         }
         
         log.debug("ForgetPasswordCtl Method doPost Ended");
@@ -158,4 +134,5 @@ public class ForgetPasswordCtl extends BaseCtl<UserBean> {
         return ORSView.FORGET_PASSWORD_VIEW;
     }
 
+    private void forgetPassword(UserBean bean, HttpServletRequest request, HttpServletResponse response) {}
 }

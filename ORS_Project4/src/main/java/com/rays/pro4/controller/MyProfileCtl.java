@@ -11,11 +11,9 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 
 import com.rays.pro4.Bean.BaseBean;
-import com.rays.pro4.Bean.RoleBean;
 import com.rays.pro4.Bean.UserBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
-import com.rays.pro4.Model.RoleModel;
 import com.rays.pro4.Model.UserModel;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.DataValidator;
@@ -50,8 +48,8 @@ public class MyProfileCtl extends BaseCtl<UserBean>{
      */
     @Override
     protected boolean validate(HttpServletRequest request) {
-        log.debug("MyProfileCtl Method validate Started");       
-        final boolean pass = UserValidator.validate(request);
+    	boolean pass = true;
+        log.debug("MyProfileCtl Method validate Started");
        
 
         if (DataValidator.isNull(request.getParameter("lastName"))) {
@@ -75,10 +73,11 @@ public class MyProfileCtl extends BaseCtl<UserBean>{
             request.setAttribute("dob",
                     PropertyReader.getValue("error.require", "Date Of Birth"));
             pass = false;
-        }
+        }        
         if(!pass){
         	log.debug("MyProfileCtl Method validate Ended with error");
         }
+        
         return pass;
     }
 
@@ -157,34 +156,28 @@ public class MyProfileCtl extends BaseCtl<UserBean>{
         final long id = userBean.getId();
         String op = DataUtility.getString(request.getParameter("operation"));
         
-        if(OP_CHANGE_MY_PASSWORD.equalsIgnoreCase(op)){
-        	ServletUtility.redirect(ORSView.CHANGE_PASSWORD_CTL, request,
-                    response);
+        if(OP_CHANGE_MY_PASSWORD.equalsIgnoreCase(op)) {
+        	ServletUtility.redirect(ORSView.CHANGE_PASSWORD_CTL, request, response);
             return;
         }
         
-        if (OP_SAVE.equalsIgnoreCase(op)) {       	
-            final UserBean bean = populateBean(request);
-           try {
-                updateUser(bean, model, userBean, request);
-            } catch (final ApplicationException e) {
-                log.error("Application exception", e);
-                handleDatabaseException(e, request, response);
-                return;
-            } catch (final DuplicateRecordException e) {
-                ServletUtility.setBean(bean, request);
-                ServletUtility.setErrorMessage(PropertyReader.getValue(\"error.email\"), request);
-                log.error(\"Duplicate record exception\", e);
-            }           
-            ServletUtility.setBean(bean, request);           
-        }
+        if (OP_SAVE.equalsIgnoreCase(op)) {
+        	
+        	if(validate(request)) {
+        		final UserBean bean = populateBean(request);
+        		try {
+        			updateUser(bean, model, userBean, request);
+        		} catch (final ApplicationException | DuplicateRecordException e) {
+        			log.error("Application exception", e);
+        			handleDatabaseException(e, request, response);
+        		}  
+        	}         
+        }        
        ServletUtility.forward(getView(), request, response);
-
         log.debug("MyProfileCtl Method doPost Ended");
     }
     
-    /**
-     * Update user.
+    /** Update user.
      *
      * @param bean the bean
      * @param model the model
@@ -195,21 +188,17 @@ public class MyProfileCtl extends BaseCtl<UserBean>{
      */
     private void updateUser(UserBean bean, UserModel model,UserBean userBean, HttpServletRequest request)
             throws DuplicateRecordException, ApplicationException {
-        if (userBean.getId() > 0) {
-            model.update(bean);
-            ServletUtility.setSuccessMessage(MessageConstant.USER_UPDATE, request);
-            }
-        } else if (OP_CHANGE_MY_PASSWORD.equalsIgnoreCase(op)) {
-
-            ServletUtility.redirect(ORSView.CHANGE_PASSWORD_CTL, request,
-                    response);
-            return;
-
-        }
-
-        ServletUtility.forward(getView(), request, response);
-
-        log.debug("MyProfileCtl Method doPost Ended");
+    	bean.setId(userBean.getId());
+    	bean.setLogin(userBean.getLogin());
+    	bean.setRoleId(userBean.getRoleId());
+    	model.update(bean);
+    	userBean.setFirstName(bean.getFirstName());
+    	userBean.setLastName(bean.getLastName());
+    	userBean.setGender(bean.getGender());
+    	userBean.setDob(bean.getDob());
+    	userBean.setMobileNo(bean.getMobileNo());
+    	ServletUtility.setSuccessMessage(MessageConstant.USER_UPDATE, request);
+    	
     }
 
     /**

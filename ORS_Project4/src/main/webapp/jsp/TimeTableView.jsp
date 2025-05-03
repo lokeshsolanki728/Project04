@@ -62,8 +62,8 @@
 				<c:if test="${not empty requestScope.errorMessage}">
 					<div class="alert alert-danger" role="alert">
 						${requestScope.errorMessage}</div>
-				</c:if>
-				<c:if test="${not empty requestScope.successMessage}">
+                </c:if>
+                <c:if test="${not empty requestScope.successMessage}">
 					<div class="alert alert-success" role="alert">
 						${requestScope.successMessage}</div>
 				</c:if>
@@ -77,23 +77,22 @@
 				name="modifiedby" value="${bean.modifiedDatetime}">
 			<table class="table table-borderless w-50">
 				<tr>
-					<th align="left"><label for="courseId">Course <span
-							class="required">*</span> :</label></th>
+					<th class="text-left"><label for="courseId">Course <span class="required">*</span>:</label></th>
 					<td>${HTMLUtility.getList("courseId", bean.courseId, courseList)}
-						<div class="error">${requestScope.courseId}</div></td>
+						<span class="error">${requestScope.courseId}</span></td>
 				</tr>
 
 				<tr>
-					<th align="left"><label for="subjectId">Subject <span
-							class="required">*</span> :</label></th>
+					<th class="text-left"><label for="subjectId">Subject <span class="required">*</span>:</label></th>
 					<td>${HTMLUtility.getList("subjectId", bean.subjectId,
 						subjectList)}
-						<div class="error">${requestScope.subjectId}</div></td>
+						<span class="error">${requestScope.subjectId}</span></td>
 				</tr>
 
 				<tr>
-					<th align="left"><label for="semester">Semester<span
+                <th class="text-left"><label for="semester">Semester<span
 							class="required">*</span> :</label></th>
+
 					<td><select name="semester" id="semester"
 						class="form-control">
 							<option value="">Select Semester</option>
@@ -114,16 +113,16 @@
 							<option value="8th"
 								${bean.semester == '8th' ? 'selected' : ''}>8th</option>
 					</select>
-						<div class="error">${requestScope.semester}</div></td>
+						<span class="error">${requestScope.semester}</span></td>
 				</tr>
 				<tr>
-					<th align="left"><label for="udate5">Exam Date <span
+                <th class="text-left"><label for="udate5">Exam Date <span
 							class="required">*</span> :</label></th>
-					<td><input type="text" readonly="readonly" id="udate5"
-						size="25" placeholder="Select Date" name="ExDate"
-						value="${bean.examDate}" class="form-control">
-						<div class="error">${requestScope.ExDate}</div></td>
-				</tr>
+                    <td><input type="text" readonly="readonly" id="udate5"
+                               placeholder="Select Exam Date" name="ExDate"
+                               value="${bean.examDate}" class="form-control">
+                        <span class="error">${requestScope.ExDate}</span></td>
+                </tr>
 				<tr>
 					<th align="left"><label for="ExTime">Exam Time <span
 							class="required">*</span> :</label></th>
@@ -139,7 +138,7 @@
 								${bean.examTime == '04:00 PM to 07:00 PM' ? 'selected' : ''}>04:00
 								PM to 07:00 PM</option>
 					</select>
-						<div class="error">${requestScope.ExTime}</div></td>
+						<span class="error">${requestScope.ExTime}</span></td>
 				</tr>
 				<tr>
 					<th></th>

@@ -14,6 +14,7 @@ import com.rays.pro4.Bean.RoleBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Util.DataUtility;
+import com.rays.pro4.Util.DataValidator;
 import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.DataValidator;
 import com.rays.pro4.Util.PropertyReader;
@@ -114,7 +115,7 @@ public class RoleCtl extends BaseCtl{
 	                ServletUtility.setBean(bean, request);
 	            } catch (ApplicationException e) {
 	                log.error(e);
-	                ServletUtility.handleException(e, request, response);
+	                ServletUtility.handleDatabaseException(e, request, response);
 	                return;
 	            }
 	        }
@@ -134,7 +135,6 @@ public class RoleCtl extends BaseCtl{
 	            throws DuplicateRecordException, ApplicationException {
 	        log.debug("save method start");
 	        model.add(bean);
-	        ServletUtility.setSuccessMessage(MessageConstant.ROLE_ADD, request);
 	        log.debug("save method end");
 	    }
 
@@ -150,7 +150,6 @@ public class RoleCtl extends BaseCtl{
 	            throws DuplicateRecordException, ApplicationException {
 	        log.debug("update method start");
 	        model.update(bean);
-	        ServletUtility.setSuccessMessage(MessageConstant.ROLE_UPDATE, request);
 	        log.debug("update method end");
 	    }
 
@@ -168,32 +167,34 @@ public class RoleCtl extends BaseCtl{
 	        final String op = DataUtility.getString(request.getParameter("operation"));	       
 	        final long id = DataUtility.getLong(request.getParameter("id"));
 
-	        if (OP_SAVE.equalsIgnoreCase(op)|| OP_UPDATE.equalsIgnoreCase(op)) {
+	         RoleBean bean = (RoleBean) populateBean(request);
 
-	            final RoleBean bean = (RoleBean) populateBean(request);
+	          if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
+	              if (!validate(request)) {
+	                  ServletUtility.setBean(bean, request);
+	                  ServletUtility.forward(getView(), request, response);
+	                  return;
+	              }
 
-	            try {
-	                if (id > 0) {
-	                	update(bean, model, request);
-	                } else {
-	                	save(bean, model, request);	                  
-	                }
-	                
-	                ServletUtility.setSuccessMessage("Role is successfully saved",
-	                        request);
+	              try {
+	                  if (id > 0) {
+	                      update(bean, model, request);
+	                       ServletUtility.setSuccessMessage(MessageConstant.ROLE_UPDATE, request);
+	                  } else {
+	                      save(bean, model, request);
+	                       ServletUtility.setSuccessMessage(MessageConstant.ROLE_ADD, request);
+	                  }
 
-	            } catch (final ApplicationException e) {
-	                log.error("Application exception in save/update", e);	                
-	                handleDatabaseException(e, request, response);
-	                return;                
-	            } catch (DuplicateRecordException e) {
-	                ServletUtility.setBean(bean, request);
-	                ServletUtility.setErrorMessage("Role already exists", request);
-	            }
-	            
-	        } else if (OP_DELETE.equalsIgnoreCase(op)) {	        	
+	              } catch (final ApplicationException e) {
+	                  log.error("Application exception in save/update", e);
+	                  handleDatabaseException(e, request, response);
+	                  return;
+	              } catch (DuplicateRecordException e) {
+	                   ServletUtility.setErrorMessage("Role already exists", request);
+	                   ServletUtility.setBean(bean, request);
+	              }
+	          } else if (OP_DELETE.equalsIgnoreCase(op)) {
 
-	            RoleBean bean = (RoleBean) populateBean(request);
 	            try {
 	                model.delete(bean);
 	                ServletUtility.redirect(ORSView.ROLE_LIST_CTL, request,
@@ -201,7 +202,7 @@ public class RoleCtl extends BaseCtl{
 	                return;
 	            } catch (ApplicationException e) {
 	                log.error(e);
-	                ServletUtility.handleException(e, request, response);
+	                ServletUtility.handleDatabaseException(e, request, response);
 	                return;
 	            }
 	        } else if (OP_CANCEL.equalsIgnoreCase(op)) {	        	
@@ -209,7 +210,9 @@ public class RoleCtl extends BaseCtl{
 	            ServletUtility.redirect(ORSView.ROLE_LIST_CTL, request, response);
 	            return;	            
 	        }	        
-
+             
+	       
+	        ServletUtility.setBean(bean, request);
 	        ServletUtility.forward(getView(), request, response);
 
 	        log.debug("RoleCtl Method doPOst Ended");

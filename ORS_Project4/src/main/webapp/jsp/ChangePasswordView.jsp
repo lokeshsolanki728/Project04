@@ -41,7 +41,7 @@
                     <td>
                         <input type="password" id="oldPassword" name="oldPassword" placeholder="Enter Old Password"
                             value="${param.oldPassword}" class="form-control">
-                        <div class="error-message">${requestScope.oldPassword}</div>
+                        <span class="error-message">${requestScope.oldPassword}</span>
                     </td>
                 </tr>
                 <tr>
@@ -51,7 +51,7 @@
                     <td>
                         <input type="password" id="newPassword" name="newPassword" placeholder="Enter New Password"
                             value="${param.newPassword}" class="form-control">
-                        <div class="error-message">${requestScope.newPassword}</div>
+                        <span class="error-message">${requestScope.newPassword}</span>
                     </td>
                 </tr>
                 <tr>
@@ -61,7 +61,7 @@
                     <td>
                         <input type="password" id="confirmPassword" name="confirmPassword"
                             placeholder="Enter Confirm Password" value="${param.confirmPassword}" class="form-control">
-                        <div class="error-message">${requestScope.confirmPassword}</div>
+                        <span class="error-message">${requestScope.confirmPassword}</span>
                     </td>
                 </tr>
                 <tr>

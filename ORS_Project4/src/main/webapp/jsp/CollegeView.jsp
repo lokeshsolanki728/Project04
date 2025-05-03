@@ -25,6 +25,7 @@
 
 		<jsp:useBean id="bean" class="com.rays.pro4.Bean.CollegeBean" scope="request"></jsp:useBean>
 
+        <c:set var="error" value="${requestScope.error}" scope="request" />
 		<div class="container">
 			<h1>
 				<c:choose>
@@ -55,36 +56,39 @@
                     <th class="text-left">
                         <label for="name">Name<span class="required">*</span></label>
                     </th>
-                    <td>  
-                        <input type="text" id="name" name="name" placeholder="Enter College Name" class="form-control" value="${bean.name}" />
-                        <div class="error-message">${requestScope.name}</div>
+                    <td>
+                        <input type="text" id="name" name="name" placeholder="Enter College Name" class="form-control" value="${bean.name}"
+                        <%if (request.getAttribute("name") != null) {%>
+                                 autofocus
+                            <%}%>" maxlength="50" />
+                        <span class="error-message">${requestScope.name}</span>
                     </td>
                 </tr>
                 <tr>
                     <th class="text-left">
-                        <label for="address">Address<span class="required">*</span></label> 
+                        <label for="address">Address<span class="required">*</span></label>
                     </th>
                     <td>
-                        <input type="text" id="address" name="address" class="form-control" placeholder="Enter Address" value="${bean.address}" />
-                        <div class="error-message">${requestScope.address}</div>
+                        <input type="text" id="address" name="address" class="form-control" placeholder="Enter Address" value="${bean.address}" maxlength="50" />
+                        <span class="error-message">${requestScope.address}</span>
                     </td>
                 </tr>
                 <tr>
                     <th class="text-left">
-                        <label for="state">State<span class="required">*</span></label> 
+                        <label for="state">State<span class="required">*</span></label>
                     </th>
                     <td>
-                        <input type="text" id="state" name="state" class="form-control" placeholder="Enter State" value="${bean.state}" />
-                        <div class="error-message">${requestScope.state}</div>
+                        <input type="text" id="state" name="state" class="form-control" placeholder="Enter State" value="${bean.state}" maxlength="50"/>
+                        <span class="error-message">${requestScope.state}</span>
                     </td>
                 </tr>
                 <tr>
                     <th class="text-left">
-                        <label for="city">City<span class="required">*</span></label> 
+                        <label for="city">City<span class="required">*</span></label>
                     </th>
                     <td>
-                        <input type="text" id="city" name="city" class="form-control" placeholder="Enter City" value="${bean.city}" />
-                        <div class="error-message">${requestScope.city}</div>
+                        <input type="text" id="city" name="city" class="form-control" placeholder="Enter City" value="${bean.city}" maxlength="50"/>
+                        <span class="error-message">${requestScope.city}</span>
                     </td>
                 </tr>
                 <tr>
@@ -92,8 +96,8 @@
                         <label for="phoneNo">Phone No<span class="required">*</span></label> 
                     </th>
                     <td>
-                        <input type="number" id="phoneNo" name="phoneNo" class="form-control" maxlength="10" placeholder="Enter Phone No." value="${bean.phoneNo}" />
-                        <div class="error-message">${requestScope.phoneNo}</div>
+                        <input type="number" id="phoneNo" name="phoneNo" class="form-control" placeholder="Enter Phone No." value="${bean.phoneNo}" maxlength="10"/>
+                        <span class="error-message">${requestScope.phoneNo}</span>
                     </td>
                 </tr>
                 <tr>
@@ -111,6 +115,7 @@
             </table>
         </div>
     </form>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
 
     <%@ include file="Footer.jsp"%>
 </body>

@@ -45,10 +45,10 @@ jsp
                 <h1 class="text-center">TimeTable List</h1>
                 <div class="message-container">
                     <c:if test="${not empty requestScope.error}">
-                        <div class="alert alert-danger">${requestScope.error}</div>
+                        <span class="alert alert-danger">${requestScope.error}</span>
                     </c:if>
                     <c:if test="${not empty requestScope.success}">
-                        <div class="alert alert-success">${requestScope.success}</div>
+                        <span class="alert alert-success">${requestScope.success}</span>
                     </c:if>
                 </div>
                 <c:set var="cList" value="${requestScope.courseList}"/>
@@ -61,11 +61,13 @@ jsp
                 <c:if test="${not empty list}">
                     <table class="search-table w-100">
                         <tr>
-                            <td class="text-center">
-                                <label for="clist">Course Name :</label>
-                                    ${HTMLUtility.getList("clist", bean.courseId, cList)}
-                                <label for="slist">Subject Name :</label>
-                                    ${HTMLUtility.getList("slist", bean.subjectId, sList)}
+                            <td class="text-center d-flex gap-2 justify-content-center align-items-center">
+                                <label for="clist">Course Name : </label>
+                                    ${HTMLUtility.getList("clist", bean.courseId, cList, "Select Course")}
+                                
+                                <label for="slist">Subject Name : </label>
+                                    ${HTMLUtility.getList("slist", bean.subjectId, sList,"Select Subject")}
+                               
                                 <input type="submit" name="operation" value="<%=TimetableListCtl.OP_SEARCH%>"
                                        class="btn btn-primary">
                                 <input type="submit" name="operation" value="<%=TimetableListCtl.OP_RESET %>"
@@ -103,15 +105,15 @@ jsp
                     </table>
                     <table class="w-100">
                         <tr>
-                            <td class="text-left"><input type="submit" name="operation"
+                            <td class="text-start"><input type="submit" name="operation"
                                                           value="<%=TimetableListCtl.OP_PREVIOUS%>"
                                                           class="btn btn-secondary" ${pageNo == 1 ? 'disabled' : ''}>
                             </td>
-                            <td><input type="submit" name="operation" value="<%=TimetableListCtl.OP_DELETE%>"
-                                       class="btn btn-danger"></td>
-                            <td><input type="submit" name="operation" value="<%=TimetableListCtl.OP_NEW%>"
+                            <td class="text-center"><input type="submit" name="operation" value="<%=TimetableListCtl.OP_DELETE%>"
+                                       class="btn btn-danger">
+                               <input type="submit" name="operation" value="<%=TimetableListCtl.OP_NEW%>"
                                        class="btn btn-success"></td>
-                            <td class="text-right"><input type="submit" name="operation"
+                            <td class="text-end"><input type="submit" name="operation"
                                                            value="<%=TimetableListCtl.OP_NEXT%>"
                                                            class="btn btn-primary"
                                     ${list.size() < pageSize || next == 0 ? 'disabled' : ''}></td>

@@ -34,10 +34,10 @@
 				<div class="text-center">
 					<h1>Marksheet List</h1>
 					<c:if test="${not empty requestScope.errorMessage}">
-						<div class="alert alert-danger" role="alert">${requestScope.errorMessage}</div>
+						<span class="alert alert-danger" role="alert">${requestScope.errorMessage}</span>
 					</c:if>
 					<c:if test="${not empty requestScope.successMessage}">
-						<div class="alert alert-success" role="alert">${requestScope.successMessage}</div>
+						<span class="alert alert-success" role="alert">${requestScope.successMessage}</span>
 					</c:if>
 				</div>
 				<c:if test="${not empty list}">
@@ -45,13 +45,13 @@
 						<tr>
 							<td class="text-center">
 								<label for="name"> Student Name :</label>
-								<input type="text" id="name" name="name"
-									placeholder="Enter Student Name" class="form-control-inline"
-									value="${param.name}"> <label for="rollNo">RollNo
-									:</label> ${HTMLUtility.getList("rollNo", param.rollNo, rollNoList)}
-								<input type="submit" name="operation" class="btn btn-primary"
-								value="${MarksheetListCtl.OP_SEARCH}"> <input
-								type="submit" name="operation" class="btn btn-secondary"
+								<input type="text" id="name" name="name" placeholder="Enter Student Name"
+                                       class="form-control-inline" value="${param.name}">
+                                <label for="rollNo">RollNo :</label>
+                                ${HTMLUtility.getList("rollNo", param.rollNo, rollNoList)}
+                                <input type="submit" name="operation" class="btn btn-primary"
+                                       value="${MarksheetListCtl.OP_SEARCH}"> <input
+                                    type="submit" name="operation" class="btn btn-secondary"
 								value="${MarksheetListCtl.OP_RESET}">
 							</td>
 						</tr>
@@ -105,15 +105,16 @@
 								<c:set var="index" value="${index + 1}" />
 							</c:forEach>
 						</tbody>
-					</table>
-					<table class="w-100">
+					</table>					
+					<table class="w-100">						
 						<tr>
+							<td class="float-start">
+								<input type="submit" name="operation" class="btn btn-secondary"
+                                       value="${MarksheetListCtl.OP_PREVIOUS}"
+                                       ${pageNo == 1 ? 'disabled' : ''}>
+							</td>
 							<td><input type="submit" name="operation"
-								class="btn btn-secondary"
-								value="${MarksheetListCtl.OP_PREVIOUS}"
-								${pageNo == 1 ? 'disabled' : ''}></td>
-							<td><input type="submit" name="operation"
-								class="btn btn-danger" value="${MarksheetListCtl.OP_DELETE}"></td>
+                                       class="btn btn-danger" value="${MarksheetListCtl.OP_DELETE}"></td>
 							<td><input type="submit" name="operation"
 								class="btn btn-success" value="${MarksheetListCtl.OP_NEW}"></td>
 							<td class="text-right"><input type="submit"

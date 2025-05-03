@@ -58,7 +58,7 @@
                     <td>
                         <input type="text" id="name" name="name" placeholder="Enter Course Name" class="form-control"
                                value="${bean.name}">
-                        <div class="error-message">${requestScope.name}</div>
+                        <span class="error-message">${requestScope.name}</span>
                     </td>
                 </tr>
                 <tr>
@@ -87,7 +87,7 @@
                                 1 Year
                             </option>
                         </select>
-                        <div class="error-message">${requestScope.duration}</div>
+                        <span class="error-message">${requestScope.duration}</span>
                     </td>
                 </tr>
                 <tr>
@@ -97,7 +97,7 @@
                     <td>
                         <input type="text" id="description" name="description" placeholder="Enter Description"
                                class="form-control" value="${bean.description}">
-                        <div class="error-message">${requestScope.description}</div>
+                        <span class="error-message">${requestScope.description}</span>
                     </td>
                 </tr>
                 <tr>

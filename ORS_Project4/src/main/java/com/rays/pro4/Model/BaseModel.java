@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Timestamp;
 
 import com.rays.pro4.Bean.DropdownListBean;
@@ -12,6 +13,8 @@ import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DatabaseException;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.JDBCDataSource;
+
+import org.apache.log4j.Logger;
 
 /**
  * The Class BaseModel.
@@ -22,6 +25,7 @@ public abstract class BaseModel implements Serializable, DropdownListBean,Compar
 
 	private long id;
 	private String createdBy;
+	protected static Logger log = Logger.getLogger(BaseModel.class);
 	private String modifiedBy;
 	private Timestamp createdDatetime;
 	private Timestamp modifiedDateTime;
@@ -29,14 +33,22 @@ public abstract class BaseModel implements Serializable, DropdownListBean,Compar
 	public abstract String getTableName();
 	public abstract long nextPK() throws DatabaseException;
 
-	
-	public abstract void populate(ResultSet rs) throws SQLException;
+	public long nextPK() throws DatabaseException {
+		log.debug("Model nextPK Started");
+		long pk = 0;
+		try (Connection conn = JDBCDataSource.getConnection();
+				PreparedStatement pstmt = conn.prepareStatement("SELECT MAX(ID) FROM " + getTableName())) {
+			ResultSet rs = pstmt.executeQuery();
+			if (rs.next()) {
+				pk = rs.getLong(1);
 
-
-
-
-
-		return id;
+			}
+			
+		} catch (SQLException e) {
+			log.error("Database Exception in nextPK", e);
+		}
+		log.debug("Model nextPK End");
+		return pk + 1;	
 	}
 	public void setId(long id) {
 		this.id = id;
@@ -76,14 +88,7 @@ public abstract class BaseModel implements Serializable, DropdownListBean,Compar
 	 * @return The next primary key.
 	 * @throws DatabaseException If a database error occurs.
 	 */
-	/*public long nextPK() throws DatabaseException {
-	    getLog().debug("Model nextPK Started");
-	    long pk = 0;
-	    try (Connection conn = JDBCDataSource.getConnection();
-	         PreparedStatement pstmt = conn.prepareStatement("SELECT MAX(ID) FROM " + getTableName())) {
-	        ResultSet rs = pstmt.executeQuery();
-	        if (rs.next()) {
-	            pk = rs.getLong(1);
+	/*
 	        } 
 	    } catch (SQLException e) {
 	        getLog().error("Database Exception in nextPK", e);
@@ -91,7 +96,7 @@ public abstract class BaseModel implements Serializable, DropdownListBean,Compar
 	    }
 	    log.debug("Model nextPK End");
 	    return pk + 1; // Increment PK and return
-	}
+	}*/
 
 	public abstract String getTableName();
 
@@ -154,5 +159,5 @@ public abstract class BaseModel implements Serializable, DropdownListBean,Compar
 	 * @return The populated BaseModel object.
 	 * @throws SQLException If a database access error occurs.
 	 */
-	public abstract  void populate( ResultSet rs) throws SQLException;
+	
 }

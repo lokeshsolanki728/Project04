@@ -15,8 +15,10 @@ import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Model.MarksheetModel;
 import com.rays.pro4.Model.StudentModel;
+import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.PropertyReader;
+
 import com.rays.pro4.Util.ServletUtility;
 import com.rays.pro4.validator.MarksheetValidator;
 import org.apache.log4j.Logger;
@@ -34,13 +36,13 @@ public class MarksheetCtl extends BaseCtl<MarksheetBean> {
 
     private static final Logger log = Logger.getLogger(MarksheetCtl.class);
 
-	/**
-	 * Loads pre-load data
-	 * 
-	 * @param request the request
-	 */
-	@Override
-    protected void preload(HttpServletRequest request) {
+    /**
+     * Loads pre-load data
+     *
+     * @param request the request
+     */
+    @Override
+    protected void preload(final HttpServletRequest request) {
         StudentModel model = new StudentModel();
         try {
             List<StudentBean> list = model.list();
@@ -51,15 +53,15 @@ public class MarksheetCtl extends BaseCtl<MarksheetBean> {
     }
 
     @Override
-    protected boolean validate(HttpServletRequest request) {
+    protected boolean validate(final HttpServletRequest request) {
         log.debug("MarksheetCtl Method validate Started");
-        boolean pass = true;
-        MarksheetBean bean=new MarksheetBean();
+        final MarksheetBean bean = new MarksheetBean();
         bean.setRollNo(DataUtility.getString(request.getParameter("rollNo")));
         bean.setStudentld(DataUtility.getLong(request.getParameter("studentId")));
         bean.setPhysics(DataUtility.getInt(request.getParameter("physics")));
         bean.setChemistry(DataUtility.getInt(request.getParameter("chemistry")));
         bean.setMaths(DataUtility.getInt(request.getParameter("maths")));
+        boolean pass = true;
         Map<String, String> map=MarksheetValidator.validate(bean);
         if(!map.isEmpty()){
             pass=false;
@@ -73,7 +75,7 @@ public class MarksheetCtl extends BaseCtl<MarksheetBean> {
     }
 
     @Override
-    protected MarksheetBean populateBean(HttpServletRequest request) {
+    protected MarksheetBean populateBean(final HttpServletRequest request) {
         log.debug("MarksheetCtl Method populatebean Started");
         MarksheetBean bean = new MarksheetBean();
         bean.populate(request);
@@ -117,18 +119,15 @@ public class MarksheetCtl extends BaseCtl<MarksheetBean> {
 
     
 	/**
-	 * Contains Display logics.
-	 *
-	 * @param request the request
-	 * @param response the response
-	 * @throws javax.servlet.ServletException the servlet exception
-	 * @throws java.io.IOException Signals that an I/O exception has occurred.
-	 * 
-	 */
-	protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
-			throws ServletException, IOException {		
-		log.debug("MarksheetCtl Method doGet Started");
-        String op = DataUtility.getString(request.getParameter("operation"));
+     * Contains Display logics.
+     *
+     * @param request  the request
+     * @param response the response
+     * @throws javax.servlet.ServletException the servlet exception
+     * @throws java.io.IOException Signals that an I/O exception has occurred.
+     */
+    protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
+            throws ServletException, IOException {
         MarksheetModel model = new MarksheetModel();
         long id = DataUtility.getLong(request.getParameter("id"));
         if (id > 0 || op != null) {
@@ -137,74 +136,62 @@ public class MarksheetCtl extends BaseCtl<MarksheetBean> {
 				bean = model.findByPK(id);
 				ServletUtility.setBean(bean, request);
             } catch (ApplicationException e) {
-                log.error("Application exception", e);
-                ServletUtility.handleException(e, request, response);
+                log.error("Error finding Marksheet by ID", e);
+                handleDatabaseException(e, request, response);
                 return;
-                }
-				ServletUtility.setBean(bean, request);
-			} catch (final ApplicationException e) {
-				log.error("Error finding Marksheet by ID", e);
-				handleDatabaseException(e, request, response);
-				return;
-			}
-		}
-		ServletUtility.forward(getView(), request, response);
-		log.debug("MarksheetCtl Method doGet Ended");
-	}
-	
-	
-	/**
-	 * Contains Submit logics.
-	 *
-	 * @param request the request
-	 * @param response the response
-	 * @throws javax.servlet.ServletException the servlet exception
-	 * @throws java.io.IOException Signals that an I/O exception has occurred.
-	 */
-	protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
-			throws ServletException, IOException {		
+            }
+        }
+        ServletUtility.forward(getView(), request, response);
+    }
 
-        log.debug("MarksheetCtl Method doPost Started");
 
-        String op = DataUtility.getString(request.getParameter("operation"));
+    /**
+     * Contains Submit logics.
+     *
+     * @param request  the request
+     * @param response the response
+     * @throws javax.servlet.ServletException the servlet exception
+     * @throws java.io.IOException Signals that an I/O exception has occurred.
+     */
+    protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
+            throws ServletException, IOException {
+
+        final String op = DataUtility.getString(request.getParameter("operation"));
         MarksheetModel model = new MarksheetModel();
-        long id = DataUtility.getLong(request.getParameter("id"));
-        MarksheetBean bean = (MarksheetBean) populateBean(request);
+        final long id = DataUtility.getLong(request.getParameter("id"));
+        final MarksheetBean bean = (MarksheetBean) populateBean(request);
 
         if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
-            if (validate(request)) {
-                try {
+            try {
+                if (validate(request)) {
                     if (id > 0) {
                         model.update(bean);
-                        ServletUtility.setSuccessMessage("Marksheet is successfully Updated", request);
+                        ServletUtility.setSuccessMessage(MessageConstant.MARKSHEET_UPDATE, request);
                     } else {
                         model.add(bean);
-                        ServletUtility.setSuccessMessage("Marksheet is successfully Added", request);
+                        ServletUtility.setSuccessMessage(MessageConstant.MARKSHEET_ADD, request);
                     }
+                }else {
                     ServletUtility.setBean(bean, request);
-
-                } catch (ApplicationException e) {
-                    log.error("Application exception", e);
-                    ServletUtility.handleException(e, request, response);
-                    return;
-                } catch (DuplicateRecordException e) {
-                    ServletUtility.setBean(bean, request);
-                    ServletUtility.setErrorMessage(e.getMessage(), request);
                 }
-            }else{
-               ServletUtility.setBean(bean, request);
+            } catch (ApplicationException e) {
+                log.error("Application exception", e);
+                handleDatabaseException(e, request, response);
+                return;
+            } catch (DuplicateRecordException e) {
+                ServletUtility.setBean(bean, request);
+                ServletUtility.setErrorMessage(e.getMessage(), request);
             }
         } else if (OP_RESET.equalsIgnoreCase(op)) {
             ServletUtility.redirect(ORSView.MARKSHEET_CTL, request, response);
             return;
         } else if (OP_CANCEL.equalsIgnoreCase(op)) {
             ServletUtility.redirect(ORSView.MARKSHEET_LIST_CTL, request, response);
-            return;
         }
-
+        if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)){
+            ServletUtility.setBean(bean, request);
+        }
         ServletUtility.forward(getView(), request, response);
-
-        log.debug("MarksheetCtl Method doPost Ended");
     }
 
 	/**

@@ -46,7 +46,7 @@
                         <td>
                             <input type="text" id="name" name="name" placeholder="Enter Role Name"
                                    class="form-control" value="${bean.name}">
-                            <div class="error-message">${requestScope.name}</div>
+                            <span class="error-message">${requestScope.name}</span>
                         </td>
                     </tr>
                     <tr>
@@ -56,17 +56,19 @@
                         <td>
                             <input type="text" id="description" name="description"
                                    placeholder="Enter Description" class="form-control" value="${bean.description}">
-                            <div class="error-message">${requestScope.description}</div>
+                            <span class="error-message">${requestScope.description}</span>
                         </td>
                     </tr>
                     <tr>
                         <th></th>
                         <td>
                             <div class="button-container">
-                                <input type="submit" name="operation" class="btn btn-primary"
-                                       value="<%=(bean.id > 0) ? RoleCtl.OP_UPDATE : RoleCtl.OP_SAVE%>">
-                                <input type="submit" name="operation" class="btn btn-secondary"
-                                       value="<%=RoleCtl.OP_RESET%>">
+                                <input type="submit" name="operation" class="btn btn-primary" value="<c:out value='${empty bean.id ? RoleCtl.OP_SAVE : RoleCtl.OP_UPDATE}'/>"/>
+                                <input type="submit" name="operation" class="btn btn-secondary" value="<c:out value='${RoleCtl.OP_RESET}'/>"/>
+                                <input type="submit" name="operation" class="btn btn-secondary" value="<c:out value='${RoleCtl.OP_CANCEL}'/>"/>
+                            
+                                
+                                
                                 <c:if test="${bean.id > 0}">
                                     <input type="submit" name="operation" class="btn btn-danger"
                                            value="<%=RoleCtl.OP_DELETE%>">

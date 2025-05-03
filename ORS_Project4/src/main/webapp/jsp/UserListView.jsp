@@ -19,14 +19,15 @@
     <script src="${pageContext.request.contextPath}/js/Checkbox11.js"></script>
 </head>
 <body>
-	<jsp:useBean id="bean" class="com.rays.pro4.Bean.UserBean" scope="request"></jsp:useBean>
-	<%@include file="Header.jsp"%>
-	<form action="${pageContext.request.contextPath}${ORSView.USER_LIST_CTL}" method="post">
-	<div class="container">
-			<h1 class="text-center">User List</h1>
+    <jsp:useBean id="bean" class="com.rays.pro4.Bean.UserBean" scope="request"></jsp:useBean>
+    <%@include file="Header.jsp"%>
+    <form action="${pageContext.request.contextPath}${ORSView.USER_LIST_CTL}" method="post">
+        <div class="container">
+            <h1 class="text-center">User List</h1>
             <div class="message-container">
                 <c:if test="${not empty requestScope.error}">
-                    <div class="alert alert-danger">${requestScope.error}</div>
+                    <span class="alert alert-danger">${requestScope.error}</span>
+
                 </c:if>
                 <c:if test="${not empty requestScope.success}">
                     <div class="alert alert-success">${requestScope.success}</div>
@@ -41,25 +42,31 @@
             <c:if test="${not empty list}">
                 <table class="search-table w-100">
                     <tr>
-                        <td class="text-center">
-                            <label for="firstName">FirstName : </label>
-                            <input type="text" id="firstName" name="firstName" class="form-control-inline"
+                        <th class="text-center"><label for="firstName">FirstName : </label></th>
+                        <td><input type="text" id="firstName" name="firstName" class="form-control-inline"
                                    placeholder="Enter First Name" value="${param.firstName}">
-                            <label for="loginid">LoginId :</label>
-                            <input type="text" id="loginid" name="loginid" class="form-control-inline"
-                                   placeholder="Enter Login-Id" value="${param.loginid}">
-                            <label for="roleid">Role : </label>
-                            <select id="roleid" name="roleid" class="form-control-inline">
-                                <option value="">Select Role</option>
-                                <c:forEach var="item" items="${rlist}">
-                                    <option value="${item.key}" ${item.key == param.roleid ? 'selected' : ''}>${item.value}</option>
-                                </c:forEach>
-                            </select>
-                            <input type="submit" name="operation" class="btn btn-primary"
-                                   value="<%=UserListCtl.OP_SEARCH%>">
-                            <input type="submit" name="operation" class="btn btn-secondary"
-                                   value="<%=UserListCtl.OP_RESET%>">
+                            <span class="error-message">${requestScope.firstName}</span>
                         </td>
+                        <th class="text-center"><label for="loginid">LoginId :</label></th>
+                        <td><input type="text" id="loginid" name="loginid" class="form-control-inline"
+                                   placeholder="Enter Login-Id" value="${param.loginid}">
+                        <span class="error-message">${requestScope.loginid}</span>
+                        </td>
+                        <th class="text-center"><label for="roleid">Role : </label></th>
+                        <td><select id="roleid" name="roleid" class="form-control-inline">
+                            <option value="">Select Role</option>
+                            <c:forEach var="item" items="${rlist}">
+                                <option value="${item.key}" ${item.key == param.roleid ? 'selected' : ''}>${item.value}</option>
+                            </c:forEach>
+                        </select>
+                        <span class="error-message">${requestScope.roleid}</span>
+                        </td>
+                         <td class="text-center">
+                             <input type="submit" name="operation" class="btn btn-primary"
+                                   value="<%=UserListCtl.OP_SEARCH%>">
+                                 <input type="submit" name="operation" class="btn btn-secondary" value="<%=UserListCtl.OP_RESET%>">
+                             <input type="submit" name="operation" class="btn btn-secondary" value="<%=UserListCtl.OP_CANCEL%>">
+                         </td>
                     </tr>
                 </table>
                 <table class="table table-bordered table-striped w-100">
@@ -67,7 +74,7 @@
                     <tr>
                         <th><input type="checkbox" id="select_all" name="select">Select
                             All</th>
-                        <th>S.No.</th>
+                        <th class="text-center">S.No.</th>
                         <th>FirstName</th>
                         <th>LastName</th>
                         <th>Role</th>
@@ -83,7 +90,7 @@
                         <c:set var="roleId" value="${user.roleId}"/>
                         <c:set var="roleModel" value="${new com.rays.pro4.Model.RoleModel()}"/>
                         <c:set var="rolebean" value="${roleModel.findByPK(roleId)}"/>
-                        <tr align="center" class="table-row">
+                        <tr  class="table-row">
                             <td>
                                 <c:choose>
                                     <c:when test="${sessionScope.userBean.id == user.id || user.roleId == 1}">
@@ -117,13 +124,14 @@
                     </tbody>
                 </table>
                 <table class="w-100">
-                    <tr>
-                        <td><input type="submit" name="operation" class="btn btn-secondary" value="<%=UserListCtl.OP_PREVIOUS%>" ${pageNo == 1 ? 'disabled' : ''}></td>
-                        <td><input type="submit" name="operation" class="btn btn-danger" value="<%=UserListCtl.OP_DELETE%>"></td>
-                        <td><input type="submit" name="operation" class="btn btn-success" value="<%=UserListCtl.OP_NEW%>"></td>
-                        <td class="text-right"><input type="submit" name="operation" class="btn btn-primary" value="<%=UserListCtl.OP_NEXT%>" ${list.size() < pageSize || next == 0 ? 'disabled' : ''}></td>
+                    <tr class="text-center">
+                        <td><input type="submit" name="operation" class="btn btn-secondary" value="<%=UserListCtl.OP_PREVIOUS%>" ${pageNo == 1 ? 'disabled' : ''}>
+                        <input type="submit" name="operation" class="btn btn-danger" value="<%=UserListCtl.OP_DELETE%>">
+                       <input type="submit" name="operation" class="btn btn-success" value="<%=UserListCtl.OP_NEW%>">
+                         <input type="submit" name="operation" class="btn btn-primary" value="<%=UserListCtl.OP_NEXT%>" ${list.size() < pageSize || next == 0 ? 'disabled' : ''}>
+                     </td>
                     </tr>
-                </table>
+                     </table>
             </c:if>
             <c:if test="${empty list}">
                 <div class="text-center"><input type="submit" name="operation" class="btn btn-primary" value="<%=UserListCtl.OP_BACK%>"></div>
@@ -132,7 +140,8 @@
             <input type="hidden" name="pageSize" value="${pageSize}">
         </div>
     
-	</form>
-	<%@include file="Footer.jsp"%>
+    </form>
+    <%@include file="Footer.jsp"%>
 </body>
+</html>
 </html>

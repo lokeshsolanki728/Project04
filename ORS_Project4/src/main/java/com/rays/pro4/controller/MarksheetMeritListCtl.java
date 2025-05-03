@@ -14,7 +14,6 @@ import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Bean.MarksheetBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Model.MarksheetModel;
-import com.rays.pro4.Util.DataBean;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.PropertyReader;
@@ -40,19 +39,6 @@ public class MarksheetMeritListCtl extends BaseCtl {
 		log.debug("preload method of MarksheetMeritListCtl End");
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.rays.pro4.controller.BaseCtl#populateBean(javax.servlet.http.
-	 * HttpServletRequest)
-	 */
-	@Override
-	protected BaseBean populateBean(HttpServletRequest request) {
-		log.debug("MarksheetMeritListCtl Method populatebean Started");
-		final MarksheetBean bean = new MarksheetBean();
-		log.debug("MarksheetMeritListCtl Method populatebean End");
-		return bean;
-	}
 
 	/**
 	 * Contains Display logics.
@@ -65,30 +51,27 @@ public class MarksheetMeritListCtl extends BaseCtl {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		log.debug("MarksheetMeritListCtl doGet Start");
+		log.debug("MarksheetMeritListCtl doGet method Start");
 
-		int pageNo = 1;
-		int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));
-		List<MarksheetBean> list;
+		final int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));		
+		final List<MarksheetBean> list;
+		String view=getView();
 		try {
-			list = model.getMeritList(pageNo, pageSize);
-			if (list == null || list.isEmpty()) {
-				ServletUtility.setErrorMessage("No record found ", request);
+			list = model.getMeritList(1, pageSize);
+			if (list.isEmpty()) {
+				ServletUtility.setErrorMessage(MessageConstant.NORECORD_MSG, request);
 			}
 			ServletUtility.setList(list, request);
 		} catch (final ApplicationException e) {
 			log.error("Application exception", e);
 			handleDatabaseException(e, request, response);
 			return;
-		}
-		ServletUtility.setList(list, request);
-		ServletUtility.setPageNo(pageNo, request);
+		}		
+		ServletUtility.setPageNo(1, request);
 		ServletUtility.setPageSize(pageSize, request);
-		ServletUtility.forward(getView(), request, response);
-
+		ServletUtility.forward(view, request, response);		
 		log.debug("MarksheetMeritListCtl doGet End");
-	}
-
+	}	
 	/**
 	 * Contains Submit logics.
 	 *
@@ -100,27 +83,27 @@ public class MarksheetMeritListCtl extends BaseCtl {
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		log.debug("MarksheetMeritListCtl doGet Start");
+		log.debug("MarksheetMeritListCtl doPost method Start");
 
-		String op = DataUtility.getString(request.getParameter("operation"));
-		int pageNo = DataUtility.getInt(request.getParameter("pageNo"));
+		final String op = DataUtility.getString(request.getParameter("operation"));
+		final int pageNo = DataUtility.getInt(request.getParameter("pageNo"));
 		int pageSize = DataUtility.getInt(request.getParameter("pageSize"));
-
-		pageNo = (pageNo == 0) ? 1 : pageNo;
+		final String view = ORSView.MARKSHEET_MERIT_LIST_VIEW;
+		int pNo = (pageNo == 0) ? 1 : pageNo;
 		pageSize = (pageSize == 0) ? DataUtility.getInt(PropertyReader.getValue("page.size")) : pageSize;
-		List<MarksheetBean> list;
+		final List<MarksheetBean> list;
 
+		
 		try {
 			if (OP_BACK.equalsIgnoreCase(op)) {
 				ServletUtility.redirect(ORSView.WELCOME_CTL, request, response);
 				return;
 			}
-			list = model.getMeritList(pageNo, pageSize);
-
-			if (list == null || list.isEmpty()) {
-				ServletUtility.setErrorMessage("No record found ", request);
+			list=model.getMeritList(pNo, pageSize);
+			if (list.isEmpty()) {
+				ServletUtility.setErrorMessage(MessageConstant.NORECORD_MSG, request);
 			}
-			ServletUtility.setList(list, request);
+			ServletUtility.setList(list, request);			
 		} catch (final ApplicationException e) {
 			log.error("Application exception", e);
 			handleDatabaseException(e, request, response);
@@ -128,8 +111,8 @@ public class MarksheetMeritListCtl extends BaseCtl {
 		}
 
 		ServletUtility.setPageNo(pageNo, request);
-		ServletUtility.setPageSize(pageSize, request);
-		ServletUtility.forward(ORSView.MARKSHEET_MERIT_LIST_VIEW, request, response);
+		ServletUtility.setPageSize(pageSize, request);		
+		ServletUtility.forward(view, request, response);
 		log.debug("MarksheetMeritListCtl doPost End");
 	}
 

@@ -15,6 +15,7 @@ import com.rays.pro4.Bean.RoleBean;
 import com.rays.pro4.Bean.UserBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
+import com.rays.pro4.Exception.DatabaseException;
 import com.rays.pro4.Model.UserModel;
 import com.rays.pro4.Util.DataValidator;
 import com.rays.pro4.Util.DataUtility;
@@ -170,20 +171,24 @@ public class UserRegistrationCtl extends BaseCtl {
 
 		final String op = DataUtility.getString(request.getParameter("operation"));
         
-
+        final UserBean bean = (UserBean) populateBean(request);
+        
 		if (OP_SIGN_UP.equalsIgnoreCase(op)) {
-            final UserBean bean = (UserBean) populateBean(request);
-            try {
-                save(bean, request);
-                ServletUtility.forward(getView(), request, response);
-                return;
-            } catch (final ApplicationException e) {
-            } catch (final DuplicateRecordException e) {
-                log.error("Duplicate record exception", e);
-                ServletUtility.setBean(bean, request);
-                ServletUtility.setErrorMessage("Login Id Already Exists", request);
-            }
-            
+            if(validate(request)){
+                try {
+                    save(bean, request);                   
+                } catch (final DuplicateRecordException e) {
+                    log.error("Duplicate record exception", e);
+                    ServletUtility.setErrorMessage("Login Id Already Exists", request);
+                }catch (final ApplicationException | DatabaseException e) {
+                    log.error(e);
+                    handleDatabaseException(e, request, response);
+                    return;
+                }           
+            }          
+        } else if (OP_RESET.equalsIgnoreCase(op)) {
+            ServletUtility.redirect(ORSView.USER_REGISTRATION_CTL, request, response);
+        }
             ServletUtility.forward(getView(), request, response);
             return;
         } else if (OP_RESET.equalsIgnoreCase(op)) {

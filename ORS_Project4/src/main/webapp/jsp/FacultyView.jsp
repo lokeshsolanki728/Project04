@@ -65,57 +65,57 @@
                 <tr>
                     <th class="text-left"><label for="firstname">First Name <span class="required">*</span>:</label></th>
                     <td><input type="text" id="firstname" name="firstname" placeholder="Enter First Name"
-                               class="form-control" value="${bean.firstName}" />
-                        <div class="error-message">${requestScope.firstname}</div>
+                               class="form-control" value="${bean.firstName}" maxlength="45" />
+                        <span class="error-message">${requestScope.firstname}</span>
                     </td>
                 </tr>
                 <tr>
                     <th class="text-left"><label for="lastname">Last Name <span class="required">*</span>:</label></th>
                     <td><input type="text" id="lastname" name="lastname" placeholder="Enter Last Name"
-                               class="form-control" value="${bean.lastName}" />
-                        <div class="error-message">${requestScope.lastname}</div>
+                               class="form-control" value="${bean.lastName}" maxlength="45" />
+                        <span class="error-message">${requestScope.lastname}</span>
                     </td>
                 </tr>
                 <tr>
                     <th class="text-left"><label for="gender">Gender <span class="required">*</span>:</label></th>
                     <td>
                         <select id="gender" name="gender" class="form-control">
-                            <option value="">Select Gender</option>
+                            <option value="" selected>Select Gender</option>
                             <option value="Male" ${bean.gender == 'Male' ? 'selected' : ''}>Male</option>
-                            <option value="Female" ${bean.gender == 'Female' ? 'selected' : ''}>Female</option>
+                            <option value="Female" ${bean.gender == 'Female' ? 'selected' : ''}>Female</option>\
                         </select>
-                        <div class="error-message">${requestScope.gender}</div>
+                        <span class="error-message">${requestScope.gender}</span>
                     </td>
                 </tr>
                 <tr>
                     <th class="text-left"><label for="collegeId">College Name <span class="required">*</span>:</label></th>
                     <td>
                         <select id="collegeId" name="collegeId" class="form-control">
-                            <option value="">Select College</option>
+                            <option value="" selected>Select College</option>
                             <c:forEach var="college" items="${CollegeList}">
                                 <option value="${college.id}" ${bean.collegeId == college.id ? 'selected' : ''}>${college.name}</option>
                             </c:forEach>
                         </select>
-                        <div class="error-message">${requestScope.collegeId}</div>
+                        <span class="error-message">${requestScope.collegeId}</span>
                     </td>
                 </tr>
                 <tr>
                     <th class="text-left"><label for="courseId">Course Name <span class="required">*</span>:</label></th>
                     <td>
                         <select id="courseId" name="courseId" class="form-control">
-                            <option value="">Select Course</option>
+                            <option value="" selected>Select Course</option>
                             <c:forEach var="course" items="${CourseList}">
                                 <option value="${course.id}" ${bean.courseId == course.id ? 'selected' : ''}>${course.name}</option>
                             </c:forEach>
                         </select>
-                        <div class="error-message">${requestScope.courseId}</div>
+                        <span class="error-message">${requestScope.courseId}</span>
                     </td>
                 </tr>
                 <tr>
                     <th class="text-left"><label for="subjectId">Subject Name <span class="required">*</span>:</label></th>
                     <td>
                         <select id="subjectId" name="subjectId" class="form-control">
-                            <option value="">Select Subject</option>
+                            <option value="" selected>Select Subject</option>
                             <c:forEach var="subject" items="${SubjectList}">
                                 <option value="${subject.id}" ${bean.subjectId == subject.id ? 'selected' : ''}>${subject.subjectName}</option>
                             </c:forEach>
@@ -128,21 +128,21 @@
                     <td><input type="text" name="dob" id="date" placeholder="Enter Date Of Birth"
                                class="form-control" readonly="readonly"
                                value="<fmt:formatDate type='date' value='${bean.dob}' pattern='MM/dd/yyyy'/>" />
-                        <div class="error-message">${requestScope.dob}</div>
+                        <span class="error-message">${requestScope.dob}</span>
                     </td>
                 </tr>
                 <tr>
-                    <th class="text-left"><label for="loginid">Login ID <span class="required">*</span>:</label></th>
-                    <td><input type="text" id="loginid" name="loginid" class="form-control"
+                    <th class="text-left"><label for="emailId">Login ID <span class="required">*</span>:</label></th>
+                    <td><input type="text" id="emailId" name="emailId" class="form-control" maxlength="50"
                                placeholder="Enter Email ID" value="${bean.emailId}" />
-                        <div class="error-message">${requestScope.emailId}</div>
+                        <span class="error-message">${requestScope.emailId}</span>
                     </td>
                 </tr>
                 <tr>
                     <th class="text-left"><label for="mobileno">Mobile No <span class="required">*</span>:</label></th>
                     <td><input type="text" id="mobileno" name="mobileno" class="form-control" maxlength="10"
                                placeholder="Enter Mobile No" value="${bean.mobileNo}" />
-                        <div class="error-message">${requestScope.mobileno}</div>
+                        <span class="error-message">${requestScope.mobileno}</span>
                     </td>
                 </tr>
                 <tr>
