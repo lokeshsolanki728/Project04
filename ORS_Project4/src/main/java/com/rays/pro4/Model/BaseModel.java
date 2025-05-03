@@ -1,37 +1,41 @@
 package com.rays.pro4.Model;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 import com.rays.pro4.Bean.DropdownListBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DatabaseException;
-import com.rays.pro4.Util.JDBCDataSource;
 import com.rays.pro4.Util.DataUtility;
-
-import org.apache.log4j.Logger;
+import com.rays.pro4.Util.JDBCDataSource;
 
 /**
  * The Class BaseModel.
  *
  * @author Lokesh SOlanki
  */
-public abstract class BaseModel implements Serializable, DropdownListBean {
+public abstract class BaseModel implements Serializable, DropdownListBean,Comparable<BaseModel> {
 
-	private static Logger log = Logger.getLogger(BaseModel.class);
+	private long id;
+	private String createdBy;
+	private String modifiedBy;
+	private Timestamp createdDatetime;
+	private Timestamp modifiedDateTime;
 
-	protected long id;
-	protected String createdBy;
-	protected String modifiedBy;
-	protected Timestamp createdDatetime;
-	protected Timestamp modifiedDateTime;
-	public static Logger getLog() {
-	    return log;
-	}
+	public abstract String getTableName();
+	public abstract long nextPK() throws DatabaseException;
+
+	
+	public abstract void populate(ResultSet rs) throws SQLException;
+
+
+
+
+
 		return id;
 	}
 	public void setId(long id) {
@@ -61,29 +65,29 @@ public abstract class BaseModel implements Serializable, DropdownListBean {
 	public void setModifiedDateTime(Timestamp modifiedDateTime) {
 		this.modifiedDateTime = modifiedDateTime;
 	}
-
-	public int compareTo(BaseModel next) {
-		return (int) (id - next.getId());
-	}
-
+	@Override
+    public int compareTo(BaseModel other) {
+        return Long.compare(this.id, other.getId());
+    }
+	
 	/**
 	 * Generates and returns the next primary key.
 	 *
 	 * @return The next primary key.
 	 * @throws DatabaseException If a database error occurs.
 	 */
-	public long nextPK() throws DatabaseException {
-	    log.debug("Model nextPK Started");
+	/*public long nextPK() throws DatabaseException {
+	    getLog().debug("Model nextPK Started");
 	    long pk = 0;
 	    try (Connection conn = JDBCDataSource.getConnection();
 	         PreparedStatement pstmt = conn.prepareStatement("SELECT MAX(ID) FROM " + getTableName())) {
 	        ResultSet rs = pstmt.executeQuery();
 	        if (rs.next()) {
 	            pk = rs.getLong(1);
-	        }
+	        } 
 	    } catch (SQLException e) {
-	        log.error("Database Exception in nextPK", e);
-	        throw new DatabaseException("Exception: Exception in getting PK - " + e.getMessage());
+	        getLog().error("Database Exception in nextPK", e);
+	        throw new DatabaseException("Exception : Exception in getting PK"+ e.getMessage());
 	    }
 	    log.debug("Model nextPK End");
 	    return pk + 1; // Increment PK and return
@@ -150,5 +154,5 @@ public abstract class BaseModel implements Serializable, DropdownListBean {
 	 * @return The populated BaseModel object.
 	 * @throws SQLException If a database access error occurs.
 	 */
-	protected abstract <T extends BaseModel> T populate(T model, PreparedStatement pstmt, ResultSet rs) throws SQLException;
+	public abstract  void populate( ResultSet rs) throws SQLException;
 }

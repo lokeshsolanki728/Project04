@@ -2,6 +2,8 @@ package com.rays.pro4.Util;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.Base64;
+import java.util.UUID;
 import java.util.Date;
 
 /**
@@ -19,6 +21,8 @@ public class DataUtility {
 	public static final String APP_DATE_FORMAT = "MM/dd/yyyy";
 	//dd/mm/yyyy
 
+    public static final String SALT = "ORS";
+
 	public static final String APP_TIME_FORMAT = "MM/dd/yyyy HH:mm:ss";
 
 	/**
@@ -26,6 +30,26 @@ public class DataUtility {
 	 */
 	private static final SimpleDateFormat formatter = new SimpleDateFormat(APP_DATE_FORMAT);
 
+	/**
+	 * return hashed password with salt
+	 *
+	 * @param password
+	 * @return String
+	 */
+	public static String getHashedPassword(String password) {
+		return getHashedPassword(password, SALT);
+	}
+	
+	/**
+	 * return hashed password with salt
+	 *
+	 * @param password
+	 * @param salt
+	 * @return String
+	 */
+	public static String getHashedPassword(String password, String salt) {
+		return Base64.getEncoder().encodeToString((password + salt).getBytes());
+	}
 	private static final SimpleDateFormat timeFormatter = new SimpleDateFormat(APP_TIME_FORMAT);
 
 	/**
@@ -174,6 +198,15 @@ public class DataUtility {
 
 	public static void main(String[] args) {
 		System.out.println(getInt("124"));
+		String s="lokesh";
+		
+		String salt=UUID.randomUUID().toString();
+		System.out.println("salt"+salt);
+		System.out.println(getHashedPassword(s,salt));
+		System.out.println(getHashedPassword(s));
+		System.out.println(getHashedPassword(s,salt));
+		System.out.println(getHashedPassword(s));
+		System.out.println(getHashedPassword(s,salt));
 	}
-
+	
 }
