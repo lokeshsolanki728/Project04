@@ -1,17 +1,16 @@
 package com.rays.pro4.Bean;
 
-
-import com.rays.pro4.Util.DataUtility;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Marksheet JavaBean encapsulates Marksheet attributes.
- * 
+ *
  * @author Lokesh SOlanki
  *
  */
-import javax.servlet.http.HttpServletRequest;
- */
-public class MarksheetBean extends BaseBean{
+import com.rays.pro4.Util.DataUtility;
+
+public class MarksheetBean extends BaseBean {
 
 	private String rollNo;
 	private long studentId;
@@ -19,7 +18,7 @@ public class MarksheetBean extends BaseBean{
 	private int physics;
     private int chemistry;
 	private int maths;
-	
+
     /**
 	 * Gets the roll number of the marksheet.
 	 *
@@ -148,7 +147,7 @@ public class MarksheetBean extends BaseBean{
 	}
 	/**
      * Populate bean object from request parameters
-     * @param request the request
+     * @param request
      */
     @Override
     public void populate(HttpServletRequest request) {
@@ -164,6 +163,6 @@ public class MarksheetBean extends BaseBean{
         setModifiedBy(DataUtility.getString(request.getParameter("modifiedBy")));
         setCreatedDatetime(DataUtility.getTimestamp(request.getParameter("createdDatetime")));
         setModifiedDatetime(DataUtility.getTimestamp(request.getParameter("modifiedDatetime")));
-       
+
     }
 }

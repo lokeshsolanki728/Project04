@@ -3,6 +3,7 @@ package com.rays.pro4.Model;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import com.rays.pro4.Bean.CollegeBean;
+import com.rays.pro4.Bean.UserBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DatabaseException;
 import com.rays.pro4.Exception.DuplicateRecordException;
@@ -93,7 +94,7 @@ public class CollegeModel extends BaseModel {
 	 * @param bean The CollegeBean object to be deleted.
 	 * @throws ApplicationException If a database error occurs.
 	 */	
-	public void delete(CollegeBean bean) throws ApplicationException {
+public void delete(CollegeBean bean) throws ApplicationException {
 		log.debug("Model delete Started");
 		try (Connection conn = JDBCDataSource.getConnection()) {
             conn.setAutoCommit(false); // Start transaction
@@ -122,18 +123,15 @@ public class CollegeModel extends BaseModel {
         CollegeBean bean = null;
         try (Connection conn = JDBCDataSource.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
-                pstmt.setString(1, name);// Set parameter for name
-                try (ResultSet rs = pstmt.executeQuery()) {
-                    while (rs.next()) {
-                        bean = new CollegeBean();
-                        populate(rs,bean);
-                    }
+            pstmt.setString(1, name);// Set parameter for name
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    bean = new CollegeBean();
+                    populate(rs, bean);
                 }
             }
-        } catch (SQLException e) {
-            log.error("Database Exception in find by Name", e);
-            throw new ApplicationException("Exception: Exception in getting College by name - " + e.getMessage());
-        } finally {
+        } catch (Exception e) {
+            log.error("Database Exception in find by Name " + e);
 
         log.debug("modal findByName End");
         return bean;
@@ -150,12 +148,11 @@ public class CollegeModel extends BaseModel {
                     bean = new CollegeBean();
                     populate(rs, bean);
                 }
-            }
-        } catch (SQLException e) {
-            log.error("Database Exception in findByPK", e);
-            throw new ApplicationException("Exception: Error in getting College by PK - " + e.getMessage());
-        } finally {
-        }
+              }
+          } catch (Exception e) {
+              log.error("Database Exception in findByPK" + e);
+              throw new ApplicationException("Exception: Error in getting College by PK - " + e.getMessage());
+          }
         log.debug("Find By PK End");
         return bean;
     }
@@ -213,9 +210,10 @@ public class CollegeModel extends BaseModel {
 	public List search(CollegeBean bean, int pageNo, int pageSize,String orderBy, String sortOrder) throws ApplicationException {
 		ArrayList<CollegeBean> list = new ArrayList<>();
 		int index = 1;       
+        Connection conn = null;
 		log.debug("model search Started");
         StringBuffer sql = new StringBuffer("SELECT * FROM ST_COLLEGE WHERE 1=1 ");
-
+        
         if (bean != null) {
             if (bean.getId() > 0) sql.append(" AND id=?");
             if (bean.getName() != null && !bean.getName().isEmpty()) sql.append(" AND Name like ?");
@@ -236,31 +234,34 @@ public class CollegeModel extends BaseModel {
         }
 		if (pageSize > 0) {
             pageNo = (pageNo - 1) * pageSize;
-            sql.append(" limit " + pageNo + "," + pageSize);
+            sql.append(" LIMIT " + pageNo + "," + pageSize);
         }
-		try (Connection conn = JDBCDataSource.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
-            if (bean != null) {
-                if (bean.getId() > 0) {
-                    pstmt.setLong(index++, bean.getId());
-                }
-                if (bean.getName() != null && !bean.getName().isEmpty()) {
-                    pstmt.setString(index++, bean.getName() + "%");
-                }
-                if (bean.getAddress() != null && !bean.getAddress().isEmpty()) {
-                    pstmt.setString(index++, bean.getAddress() + "%");
-                }
-	            if (bean.getCity() != null && !bean.getCity().isEmpty()){pstmt.setString(index++, bean.getCity() + "%");}
-	            }
-        }
-        try (ResultSet rs = pstmt.executeQuery()) {
-            while (rs.next()) {
-                CollegeBean collegeBean = new CollegeBean();
-					populate(rs,collegeBean);
-					list.add(collegeBean);
-
+        try {
+            conn = JDBCDataSource.getConnection();
+            try (PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+                if (bean != null) {
+                    if (bean.getId() > 0) {
+                        pstmt.setLong(index++, bean.getId());
+                    }
+                    if (bean.getName() != null && !bean.getName().isEmpty()) {
+                        pstmt.setString(index++, bean.getName() + "%");
+                    }
+                    if (bean.getAddress() != null && !bean.getAddress().isEmpty()) {
+                        pstmt.setString(index++, bean.getAddress() + "%");
+                    }
+                    if (bean.getCity() != null && !bean.getCity().isEmpty()) {
+                        pstmt.setString(index++, bean.getCity() + "%");
+                    }
+                    try (ResultSet rs = pstmt.executeQuery()) {
+                        while (rs.next()) {
+                            CollegeBean collegeBean = new CollegeBean();
+                            populate(rs, collegeBean);
+                            list.add(collegeBean);
+                        }
+                    }
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception e){
 			log.error("Database Exception in search college", e);
 			throw new ApplicationException("Exception: Exception in searching college - " + e.getMessage());
 		}
@@ -295,7 +296,7 @@ public class CollegeModel extends BaseModel {
 		try (Connection conn = JDBCDataSource.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
 			try (ResultSet rs = pstmt.executeQuery()) {
                 ArrayList<CollegeBean> list = new ArrayList<CollegeBean>();
-				while (rs.next()) {
+				while (rs.next()){
 					CollegeBean bean = new CollegeBean();
 					populate(rs, bean);
 					list.add(bean);

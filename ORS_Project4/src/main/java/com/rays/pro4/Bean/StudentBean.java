@@ -185,23 +185,17 @@ public class StudentBean extends BaseBean {
 				+ createdDatetime + ", modifiedDatetime=" + modifiedDatetime + "]";
 	}
 	
-	@Override
+    @Override
 	public void populate(HttpServletRequest request) {
-	    log.debug("StudentBean populate method start");
-
-	    setId(DataUtility.getLong(request.getParameter("id")));
-	    setFirstName(DataUtility.getString(request.getParameter("firstname")));
-	    setLastName(DataUtility.getString(request.getParameter("lastname")));
-	    setDob(DataUtility.getDate(request.getParameter("dob")));
-
-	    setMobileNo(DataUtility.getString(request.getParameter("mobile")));
-	    try{
-	        setEmail(DataUtility.getString(request.getParameter("email")));
-	        setCollegeId(DataUtility.getLong(request.getParameter("collegename")));
-	        setCreatedBy(DataUtility.getString(request.getParameter("createdby")));
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
+		log.debug("StudentBean populate method start");
+		setId(DataUtility.getLong(request.getParameter("id")));
+		setFirstName(DataUtility.getString(request.getParameter("firstname")));
+		setLastName(DataUtility.getString(request.getParameter("lastname")));
+		setDob(DataUtility.getDate(request.getParameter("dob")));
+		setMobileNo(DataUtility.getString(request.getParameter("mobile")));
+		setEmail(DataUtility.getString(request.getParameter("email")));
+		setCollegeId(DataUtility.getLong(request.getParameter("collegename")));
+		setCreatedBy(DataUtility.getString(request.getParameter("createdby")));
+		log.debug("StudentBean populate method end");
 	}
-	log.debug("StudentBean populate method end");
 }

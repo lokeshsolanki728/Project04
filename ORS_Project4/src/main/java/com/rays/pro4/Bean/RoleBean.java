@@ -10,7 +10,9 @@ import com.rays.pro4.Util.DataValidator;
  *
  */
 import javax.servlet.http.HttpServletRequest;public class RoleBean extends BaseBean{
-
+	
+	
+	
 	/**
 	 * ADMIN role constant value = 1
 	 */
@@ -86,7 +88,7 @@ import javax.servlet.http.HttpServletRequest;public class RoleBean extends BaseB
 	@Override
 	public String getkey() {
 		return String.valueOf(getId());
-	 */
+	}
 	@Override
 	public String getValue() {
 		return name;

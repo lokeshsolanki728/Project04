@@ -118,33 +118,30 @@ public class MarksheetCtl extends BaseCtl<MarksheetBean> { // Start of class
         }
         ServletUtility.forward(getView(), request, response);
     }
-
-
     /**
      * Contains Submit logics.
      *
-     * @param request  the request
+     * @param request  the request        
      * @param response the response
      * @throws javax.servlet.ServletException the servlet exception
      * @throws java.io.IOException Signals that an I/O exception has occurred.
      */
     protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
-		String op = null;
-        {
-
-            final String op = DataUtility.getString(request.getParameter("operation"));
+            String op = null;
+        
+            op = DataUtility.getString(request.getParameter("operation"));
+            final MarksheetBean bean = (MarksheetBean) populateBean(request);
             MarksheetModel model = new MarksheetModel();
             final long id = DataUtility.getLong(request.getParameter("id"));
-            final MarksheetBean bean = (MarksheetBean) populateBean(request);
 
             if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
                 try {
                     if (validate(request)) {
                         if (id > 0) {
+                             ServletUtility.setSuccessMessage(MessageConstant.MARKSHEET_UPDATE, request);
                             model.update(bean);
-                            ServletUtility.setSuccessMessage(MessageConstant.MARKSHEET_UPDATE, request);
-                        } else {
+                           } else {
                             model.add(bean);
                             ServletUtility.setSuccessMessage(MessageConstant.MARKSHEET_ADD, request);
                         }
@@ -168,25 +165,23 @@ public class MarksheetCtl extends BaseCtl<MarksheetBean> { // Start of class
                 ServletUtility.redirect(ORSView.MARKSHEET_LIST_CTL, request, response);
                 return;
             }
-
+            
             if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
-                ServletUtility.setBean(bean, request);
-        	}
-		}
-        ServletUtility.forward(getView(), request, response);
-    }
-    }
-
-	/**
-	 * Returns the VIEW page of this Controller
-	 * 
-	 * @return
-	 */	
+                 ServletUtility.setBean(bean, request);  
+            }         
+              ServletUtility.forward(getView(), request, response);
+           
+        }
+    
+    /**
+     * Returns the VIEW page of this Controller
+     *
+     * @return
+     */
     @Override
     protected String getView() {
         return ORSView.MARKSHEET_VIEW;
     }
-
 
 }// End of class
 

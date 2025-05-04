@@ -1,7 +1,9 @@
---- /dev/null
-+++ b/ORS_Project4/src/main/java/com/rays/pro4/validator/StudentValidator.java
 
 
+package com.rays.pro4.validator;
+
+
+import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 
 import com.rays.pro4.Util.DataValidator;
@@ -10,7 +12,10 @@ import com.rays.pro4.Util.PropertyReader;
 public class StudentValidator {
 
     public static boolean validate(HttpServletRequest request) {
+    	
         boolean pass = true;
+        
+        
 
         if (DataValidator.isNull(request.getParameter("firstname"))) {
             request.setAttribute("firstname", PropertyReader.getValue("error.require", "First Name"));
