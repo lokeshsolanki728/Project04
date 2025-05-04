@@ -2,6 +2,7 @@ package com.rays.pro4.Model;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+
 import java.util.ArrayList;
 import java.util.List;
 import com.rays.pro4.DTO.CollegeDTO;
@@ -12,10 +13,18 @@ import com.rays.pro4.Exception.DatabaseException;
 import com.rays.pro4.Exception.DuplicateRecordException;
 
 import java.sql.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import com.rays.pro4.Bean.CollegeBean;
+
+import com.rays.pro4.Exception.ApplicationException;
+import com.rays.pro4.Exception.DatabaseException;
+import com.rays.pro4.Exception.DuplicateRecordException;
+
+import com.rays.pro4.Bean.CollegeBean;
+
 import com.rays.pro4.Util.JDBCDataSource;
 
 
@@ -100,20 +109,20 @@ public void delete(CollegeBean bean) throws ApplicationException {
         log.debug("Model delete by ID End ");
     }
 
-	public CollegeBean findByName(String name) throws ApplicationException {
+	public CollegeDTO findByName(String name) throws ApplicationException {
         log.debug("Model findByName Started");
-        try (Connection conn = JDBCDataSource.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+        CollegeDTO dto = null;
+        try (Connection conn = JDBCDataSource.getConnection();PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM ST_COLLEGE WHERE NAME=?")) {
             pstmt.setString(1, name);// Set parameter for name
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    bean = new CollegeBean();
-                    populate(rs, bean);
+                    dto = new CollegeDTO();
+                    populateBean(rs, dto);
                 }
             }
         } catch (SQLException e) {
             log.error("Database Exception in find by Name ",e);
-			throw new ApplicationException("Exception: Exception in getting College by name - " + e.getMessage());
+			throw new ApplicationException("Exception : Exception in getting College by Name");
         }
         return null;
     }
@@ -126,8 +135,9 @@ public void delete(CollegeBean bean) throws ApplicationException {
             pstmt.setLong(1, pk);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    dto = new CollegeDTO();
-                    populateBean(rs,dto);
+
+                   dto = new CollegeDTO();
+                   populateBean(rs,dto);
                 }
               }
           } catch (SQLException e) {
@@ -135,7 +145,9 @@ public void delete(CollegeBean bean) throws ApplicationException {
               throw new ApplicationException("Exception: Error in getting College by PK - " + e.getMessage());
           }
         log.debug("Find By PK End");
-        return dto;
+
+        return bean;
+
     }
 
     public void update(CollegeDTO dto) throws ApplicationException, DuplicateRecordException {
@@ -175,11 +187,11 @@ public void delete(CollegeBean bean) throws ApplicationException {
         log.debug("Model update End");
     }
 
-    public List<CollegeBean> search(CollegeBean bean) throws ApplicationException {
+    public List<CollegeDTO> search(CollegeBean bean) throws ApplicationException {
         return search(bean, 1, 0, null, null);
     }
 
-    public List<CollegeBean> search(CollegeBean bean, int pageNo, int pageSize, String orderBy, String sortOrder)
+    public List<CollegeDTO> search(CollegeBean bean, int pageNo, int pageSize, String orderBy, String sortOrder)
             throws ApplicationException {
         log.debug("Model search Started");
         List<CollegeBean> list = new ArrayList<>();
@@ -216,9 +228,9 @@ public void delete(CollegeBean bean) throws ApplicationException {
             }
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    CollegeBean cb = new CollegeBean();
-                    populate(rs, cb);
-                    list.add(cb);
+                   CollegeDTO dto = new CollegeDTO();
+                    populateBean(rs, dto);
+                    list.add(dto);
                 }
             }
         } catch (SQLException e) {
@@ -230,11 +242,11 @@ public void delete(CollegeBean bean) throws ApplicationException {
         return list;
     }
 
-    public List<CollegeBean> list() throws ApplicationException {
+    public List<CollegeDTO> list() throws ApplicationException {
         return list(1, 0, null, null);
     }
 
-    public List<CollegeBean> list(int pageNo, int pageSize, String orderBy, String sortOrder) throws ApplicationException {
+    public List<CollegeDTO> list(int pageNo, int pageSize, String orderBy, String sortOrder) throws ApplicationException {
         log.debug("Model list Started");
         List<CollegeBean> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT * FROM ST_COLLEGE");
@@ -256,9 +268,9 @@ public void delete(CollegeBean bean) throws ApplicationException {
              PreparedStatement pstmt = conn.prepareStatement(sql.toString());
              ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {
-                CollegeBean bean = new CollegeBean();
-                populate(rs, bean);
-                list.add(bean);
+               CollegeDTO dto = new CollegeDTO();
+                populateBean(rs, dto);
+                list.add(dto);
             }
         } catch (SQLException e) {
 			log.error("Database Exception in list ", e);
@@ -273,6 +285,7 @@ public void delete(CollegeBean bean) throws ApplicationException {
 		return "ST_COLLEGE";
 	}
 
+
 	private void populateBean(ResultSet rs, CollegeDTO dto) throws SQLException {
 		dto.setId(rs.getLong(1));
 		dto.setName(rs.getString(2));
@@ -284,6 +297,18 @@ public void delete(CollegeBean bean) throws ApplicationException {
 		dto.setModifiedBy(rs.getString(8));
 		dto.setCreatedDatetime(rs.getTimestamp(9));
 		dto.setModifiedDatetime(rs.getTimestamp(10));
+=======
+	private void populate(ResultSet rs, CollegeBean bean) throws SQLException {
+		bean.setId(rs.getLong(1));
+		bean.setName(rs.getString(2));
+		bean.setAddress(rs.getString(3));
+		bean.setState(rs.getString(4));
+		bean.setCity(rs.getString(5));
+		bean.setPhoneNo(rs.getString(6));
+		bean.setCreatedBy(rs.getString(7));
+		bean.setModifiedBy(rs.getString(8));
+		bean.setCreatedDatetime(rs.getTimestamp(9));
+		bean.setModifiedDatetime(rs.getTimestamp(10));
+
 	}
-}
 }

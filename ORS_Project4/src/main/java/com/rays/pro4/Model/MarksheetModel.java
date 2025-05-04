@@ -3,10 +3,14 @@ package com.rays.pro4.Model;
 import java.sql.Timestamp;
 import java.sql.ResultSet;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.rays.pro4.Bean.MarksheetDTO;
 import com.rays.pro4.Bean.MarksheetBean;
 import com.rays.pro4.Bean.StudentBean;
 import com.rays.pro4.Exception.ApplicationException;
@@ -14,7 +18,6 @@ import com.rays.pro4.DTO.MarksheetDTO;
 import com.rays.pro4.Exception.DatabaseException;
 import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Util.JDBCDataSource;
-import java.util.*;
 import java.util.List;
 import java.sql.Connection;
 
@@ -32,8 +35,7 @@ public class MarksheetModel extends BaseModel {
         try (Connection conn = JDBCDataSource.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement("SELECT MAX(ID) FROM " + getTableName())) {
             ResultSet rs = pstmt.executeQuery();
-            while (rs.next()) {
-                pk = rs.getLong(1);
+            while (rs.next()) { pk = rs.getLong(1);
             }
         } catch (SQLException e) {
             log.error("Database Exception in nextPK", e);
@@ -54,7 +56,7 @@ public class MarksheetModel extends BaseModel {
             if (duplicateMarksheet != null) {
                 throw new DuplicateRecordException("Roll Number already exists");
             }
-            StudentBean studentbean = sModel.findByPK(bean.getStudentld());
+            StudentBean studentbean = sModel.findByPK(dto.getStudentld());
             if (studentbean == null) {
                 throw new ApplicationException("Exception: Student not found with ID " + bean.getStudentld());
             }
@@ -84,7 +86,7 @@ public class MarksheetModel extends BaseModel {
                 conn.rollback();
             }
             throw new ApplicationException("Exception: Exception in adding marksheet - " + e.getMessage());
-        }
+        } finally { JDBCDataSource.closeConnection(conn); }
         log.debug("Model add End");
         return pk;
     }
@@ -106,6 +108,8 @@ public class MarksheetModel extends BaseModel {
                 conn.rollback();
             }
             throw new ApplicationException("Exception : Exception in deleting marksheet - " + e.getMessage());
+        }finally{
+            JDBCDataSource.closeConnection(conn);
         }
         log.debug("Model delete End");
     }
@@ -127,9 +131,8 @@ public class MarksheetModel extends BaseModel {
         } catch (SQLException e) {
             log.error("Database Exception in findByRollNo", e);
             throw new ApplicationException("Exception: Exception in getting marksheet by roll no - " + e.getMessage());
-        }
-        log.debug("Model findByRollNo End");
-        return bean;
+        }finally {JDBCDataSource.closeConnection(conn);}
+        log.debug("Model findByRollNo End");        return dto;
     }
 
     public MarksheetDTO findByPK(Long pk) throws ApplicationException {
@@ -148,9 +151,11 @@ public class MarksheetModel extends BaseModel {
         } catch (SQLException e) {
             log.error("Database Exception in findByPK", e);
             throw new ApplicationException("Exception: Exception in getting marksheet by pk - " + e.getMessage());
+        } finally {
+            JDBCDataSource.closeConnection(conn);
         }
         log.debug("Model findByPK End");
-        return bean;
+        return dto;
     }
 
     public void update(MarksheetDTO dto) throws ApplicationException, DuplicateRecordException {
@@ -165,7 +170,7 @@ public class MarksheetModel extends BaseModel {
         try (Connection conn = JDBCDataSource.getConnection()) {
             conn.setAutoCommit(false);
             StudentModel sModel = new StudentModel();
-            StudentBean studentbean = sModel.findByPK(bean.getStudentld());
+            StudentBean studentbean = sModel.findByPK(dto.getStudentld());
             if (studentbean == null) {
                 throw new ApplicationException("Exception: Student not found");
             }
@@ -194,11 +199,13 @@ public class MarksheetModel extends BaseModel {
                 conn.rollback();
             }
             throw new ApplicationException("Exception: Exception in updating Marksheet - " + e.getMessage());
+        }finally{
+            JDBCDataSource.closeConnection(conn);
         }
         log.debug("Model update End");
     }
 
-    public List<MarksheetBean> search(MarksheetBean bean, int pageNo, int pageSize) throws ApplicationException {
+    public List search(MarksheetDTO dto, int pageNo, int pageSize) throws ApplicationException {
         log.debug("Model search Started");
         StringBuffer sql = new StringBuffer("SELECT * FROM ST_MARKSHEET WHERE 1=1");
         int index = 1;
@@ -259,8 +266,8 @@ public class MarksheetModel extends BaseModel {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    MarksheetBean resultBean = new MarksheetBean();
-                    populate(rs, resultBean);
+                    MarksheetDTO resultBean = new MarksheetDTO();
+                    populateBean(rs, resultBean);
                     list.add(resultBean);
                 }
             }
