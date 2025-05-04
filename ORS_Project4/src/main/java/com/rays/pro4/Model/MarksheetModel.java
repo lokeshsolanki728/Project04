@@ -24,7 +24,7 @@ import java.util.List;
  * @author Lokesh SOlanki
  *
  */
-public class MarksheetModel {
+public class MarksheetModel extends BaseModel{
 
 	private static Logger log = Logger.getLogger(MarksheetModel.class);
 
@@ -97,12 +97,6 @@ public class MarksheetModel {
                 pstmt.setString(9, bean.getModifiedBy());
                 pstmt.setTimestamp(10, bean.getCreatedDatetime());
                 pstmt.setTimestamp(11, bean.getModifiedDatetime());
-                pstmt.setInt(7, bean.getMaths());
-                pstmt.setString(8, bean.getCreatedBy());
-                pstmt.setString(9, bean.getModifiedBy());
-
-                pstmt.setTimestamp(10, bean.getCreatedDatetime());
-                pstmt.setTimestamp(11, bean.getModifiedDatetime());
                 pstmt.executeUpdate();
                 conn.commit();
             }
@@ -110,10 +104,8 @@ public class MarksheetModel {
 			log.error("Database Exception in add", e);
 			try {
 				conn.rollback(); // Rollback on error
-			} catch (SQLException ex) {
-				JDBCDataSource.trnRollback();
-
-				throw new ApplicationException("Exception : add rollback exception - " + ex.getMessage());
+			} catch (SQLException ex) {				
+				throw new ApplicationException("Exception : add rollback exception - " + ex.getMessage());	
 				throw new ApplicationException("Exception : add rollback exception - " + ex.getMessage());
 			}
 			throw new ApplicationException("Exception: Exception in adding marksheet - " + e.getMessage());
@@ -142,7 +134,7 @@ public class MarksheetModel {
             }
         } catch (SQLException e) {
             log.error("Database Exception in delete marksheet", e);
-            JDBCDataSource.trnRollback();
+            JDBCDataSource.trnRollback(conn);
             throw new ApplicationException("Exception : Exception in deleting marksheet - " + e.getMessage());
         }finally {JDBCDataSource.closeConnection(conn);}
         log.debug("Model delete End");
@@ -151,12 +143,12 @@ public class MarksheetModel {
 
 	public MarksheetBean findByRollNo(String rollNo) throws ApplicationException {
 		log.debug("Model findByRollNo Started");		
-					bean.setId(rs.getLong(1));
+					
 		MarksheetBean bean = null;
 		try(Connection conn=JDBCDataSource.getConnection(); PreparedStatement pstmt =conn.prepareStatement("SELECT * FROM ST_MARKSHEET WHERE ROLL_NO=?")){
             pstmt.setString(1, rollNo);
             try(ResultSet rs = pstmt.executeQuery()){
-                while(rs.next()){
+                while(rs.next()){ bean.setId(rs.getLong(1));
                     bean = new MarksheetBean();
                     populate(rs, bean);
                 }
@@ -205,7 +197,7 @@ public class MarksheetModel {
 			throw new DuplicateRecordException("Roll No is already exist");
 		}
 		try (Connection conn = JDBCDataSource.getConnection()) {
-            conn.setAutoCommit(false);\
+            conn.setAutoCommit(false);
             try {
                 StudentModel sModel = new StudentModel();
                 StudentBean studentbean = sModel.findByPK(bean.getStudentld());
@@ -234,7 +226,7 @@ public class MarksheetModel {
 			log.error("Database Exception in update", e);
             try {
                 conn.rollback();
-            } catch (SQLException ex) {
+            } catch (SQLException ex) {               
                 throw new ApplicationException("Exception : update rollback exception - " + ex.getMessage());
             }
             throw new ApplicationException("Exception: Exception id updating Marksheet - " + e.getMessage());
@@ -298,9 +290,9 @@ public class MarksheetModel {
             }
 
             try (ResultSet rs = pstmt.executeQuery()) {
-
-
-            while (rs.next()) {
+                 while (rs.next()) {
+                     MarksheetBean marksheetBean = new MarksheetBean();
+                     populate(rs, marksheetBean);
 
 		return list;
 	}
@@ -311,7 +303,7 @@ public class MarksheetModel {
 		}
 		log.debug("Model search End");
 
-		return list;
+		
 	}
 
 	public List list(int pageNo, int pageSize) throws ApplicationException {
@@ -321,7 +313,7 @@ public class MarksheetModel {
 		if (pageSize > 0) {
 			// Calculate start record index
 			pageNo = (pageNo - 1) * pageSize;
-			sql.append(" LIMIT " + pageNo + "," + pageSize);
+		StringBuffer sql = new StringBuffer("SELECT * FROM ST_MARKSHEET");
 		}
         try(Connection conn = JDBCDataSource.getConnection();
             PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM ST_MARKSHEET");){
@@ -396,5 +388,6 @@ public class MarksheetModel {
 
 
 
+}
 
 }

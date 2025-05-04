@@ -17,7 +17,7 @@ import java.util.List;
 /** JDBC Implementation of College Model.
  * @author Lokesh SOlanki
  */
- *
+
 public class CollegeModel extends BaseModel {
 	
 
@@ -94,7 +94,7 @@ public class CollegeModel extends BaseModel {
 	 * @param bean The CollegeBean object to be deleted.
 	 * @throws ApplicationException If a database error occurs.
 	 */	
-public void delete(CollegeBean bean) throws ApplicationException {
+	public void delete(CollegeBean bean) throws ApplicationException {
 		log.debug("Model delete Started");
 		try (Connection conn = JDBCDataSource.getConnection()) {
             conn.setAutoCommit(false); // Start transaction
@@ -106,8 +106,8 @@ public void delete(CollegeBean bean) throws ApplicationException {
 
 		} catch (Exception e) {
 			log.error("Database Exception in delete college", e);
-			JDBCDataSource.trnRollback();
-			throw new ApplicationException("Exception :Exception in delete college " + e.getMessage());
+			JDBCDataSource.trnRollback(conn);
+			throw new ApplicationException("Exception : Exception in delete college " + e.getMessage());
 		}
 		log.debug("Modal delete End");
 	}
@@ -117,25 +117,24 @@ public void delete(CollegeBean bean) throws ApplicationException {
 		delete(bean);
 	}
 
-    public CollegeBean findByName(String name) throws ApplicationException {
+	public CollegeBean findByName(String name) throws ApplicationException {
         log.debug("Model findByName Started");
         StringBuffer sql = new StringBuffer("SELECT * FROM ST_COLLEGE WHERE NAME=?");
         CollegeBean bean = null;
         try (Connection conn = JDBCDataSource.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
-            pstmt.setString(1, name);// Set parameter for name
+            pstmt.setString(1, name);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     bean = new CollegeBean();
                     populate(rs, bean);
                 }
-            }
-        } catch (Exception e) {
+            }} catch (Exception e) {
             log.error("Database Exception in find by Name ",e);
-			throw new ApplicationException("Exception: Exception in getting College by name - " + e.getMessage());
         }finally {
 			log.debug("modal findByName End");
 		}
+		throw new ApplicationException("Exception: Exception in getting College by name - " + e.getMessage());
 		
         return bean;
     }
@@ -149,13 +148,14 @@ public void delete(CollegeBean bean) throws ApplicationException {
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     bean = new CollegeBean();
-                    populate(rs, bean);
+                    populate(rs,bean);
                 }
               }
           } catch (Exception e) {
-              log.error("Database Exception in findByPK" + e);
-              throw new ApplicationException("Exception: Error in getting College by PK - " + e.getMessage());
+              log.error("Database Exception in find by pk ",e);
+              throw new ApplicationException("Exception: Exception in getting college by PK - " + e.getMessage());
           }
+
         log.debug("Find By PK End");
         return bean;
     }
@@ -307,6 +307,7 @@ public void delete(CollegeBean bean) throws ApplicationException {
 			}
         } catch (Exception e) {
 			log.error("Database Exception in list ", e);
+
 			throw new ApplicationException("Exception: Exception in getting list of users - " + e.getMessage());
 		}
 		log.debug("Model list End");
@@ -331,15 +332,14 @@ public void delete(CollegeBean bean) throws ApplicationException {
 		bean.setModifiedDatetime(rs.getTimestamp(10));
 	}
 
-    private void updateCreatesInfo(CollegeBean bean) throws ApplicationException{
+    private void updateCreatesInfo(CollegeBean bean) throws ApplicationException {
         bean.setModifiedBy(bean.getCreatedBy());
         bean.setModifiedDatetime(bean.getCreatedDatetime());       
     }
 
-    private void updateModifiedInfo(CollegeBean bean) throws ApplicationException {
+    private void updateModifiedInfo(CollegeBean bean) throws ApplicationException{
         bean.setModifiedDatetime(new java.sql.Timestamp(new java.util.Date().getTime()));
 
     }
 
-}
 }
