@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -17,6 +16,7 @@ import com.rays.pro4.Bean.StudentBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Model.CollegeModel;
+
 import com.rays.pro4.Model.StudentModel;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.PropertyReader;
@@ -31,11 +31,11 @@ import com.rays.pro4.Util.ServletUtility;
 * 
 *  @author Lokesh SOlanki
 */
-@WebServlet (name = "StudentListCtl" , urlPatterns = {"/ctl/StudentListCtl"})
+
 public class StudentListCtl extends BaseCtl{
 
 	/** The log. */
-    private static Logger log = Logger.getLogger(StudentListCtl.class);
+  private static Logger log = Logger.getLogger(StudentListCtl.class);
     private final StudentModel model = new StudentModel();
     /**
 	 * Loads pre-load data.
@@ -84,18 +84,24 @@ public class StudentListCtl extends BaseCtl{
      * @throws ServletException the servlet exception
      * @throws IOException      Signals that an I/O exception has occurred.
      */
-    protected void doGet(HttpServletRequest request,
-            HttpServletResponse response) throws ServletException, IOException {
+  protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         log.debug("doGet method of StudentListCtl Started");
         final List<StudentBean> list;
 
-        final int pageNo = 1;
-        final int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));
+    int pageNo = 1;
+    int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));
+    final String orderBy = DataUtility.getString(request.getParameter("orderBy"));
+        final String sortOrder = DataUtility.getString(request.getParameter("sortOrder"));
+
+    
+    pageNo = (pageNo == 0) ? 1 : pageNo;
+        pageSize = (pageSize == 0) ? DataUtility.getInt(PropertyReader.getValue("page.size")) : pageSize;
         final StudentBean bean = (StudentBean) populateBean(request);
 
         try {
-            list = model.search(bean, pageNo, pageSize);
-
+      list = model.search(bean, pageNo, pageSize, orderBy, sortOrder);
+          setOrderAndSort(request,orderBy,sortOrder);
             if (list.isEmpty()) {
                 ServletUtility.setErrorMessage(PropertyReader.getValue("record.notfound"), request);
             }
@@ -141,13 +147,14 @@ public class StudentListCtl extends BaseCtl{
      * Search student.
      *
      * @param request  the request
-     * @param pageNo the page no
-     * @param pageSize the page size
+  * @param pageNo the page no
+  * @param pageSize the page size
+  * @param orderBy the order by
+  * @param sortOrder the sort order
      * @return the list
      * @throws ApplicationException the application exception
      */
-    private List<StudentBean> searchStudent(HttpServletRequest request, int pageNo, int pageSize)
-            throws ApplicationException {
+    private List<StudentBean> searchStudent(HttpServletRequest request, int pageNo, int pageSize,String orderBy,String sortOrder) throws ApplicationException {
         log.debug("searchStudent method Started");
 
         final StudentBean bean = (StudentBean) populateBean(request);
@@ -157,6 +164,18 @@ public class StudentListCtl extends BaseCtl{
     }
     /**
      * Contains Submit logics.
+  *
+  * @param request the request
+  * @param orderBy the order by
+  * @param sortOrder the sort order
+  */
+  private void setOrderAndSort(HttpServletRequest request,String orderBy,String sortOrder) {
+        String[] list = {"firstName","lastName","dob","collegeName","rollNo","mobileNo"};
+        ServletUtility.setOderByList(orderBy, sortOrder, list, request);
+    }
+    /**
+  * Contains Submit logics.
+  *
      * @param request the request
      * @param request the request
      * @param response the response
@@ -165,9 +184,12 @@ public class StudentListCtl extends BaseCtl{
      */
    @Override
     protected void doPost(HttpServletRequest request,
-            HttpServletResponse response) throws ServletException, IOException {
+            HttpServletResponse response) throws ServletException, IOException { 
         log.debug("doPost method of StudentListCtl Started");
         List<StudentBean> list = new ArrayList<>();
+        
+        final String orderBy = DataUtility.getString(request.getParameter("orderBy"));
+        final String sortOrder = DataUtility.getString(request.getParameter("sortOrder"));
         final String op = DataUtility.getString(request.getParameter("operation"));
         int pageNo = DataUtility.getInt(request.getParameter("pageNo"));
         int pageSize = DataUtility.getInt(request.getParameter("pageSize"));
@@ -194,7 +216,9 @@ public class StudentListCtl extends BaseCtl{
                 pageNo = 1;
                 deleteStudent(request);
             }
-            list = searchStudent(request, pageNo, pageSize);
+
+            list = searchStudent(request, pageNo, pageSize,orderBy,sortOrder);
+            setOrderAndSort(request,orderBy,sortOrder);
         } catch (final ApplicationException e) {
             log.error(e);
             handleDatabaseException(e, request, response);
@@ -202,11 +226,10 @@ public class StudentListCtl extends BaseCtl{
         }
         if (list.isEmpty() && !OP_DELETE.equalsIgnoreCase(op)) {
             ServletUtility.setErrorMessage(PropertyReader.getValue("record.notfound"), request);
-        }
+        }   ServletUtility.setList(list, request);
+        ServletUtility.setPageNo(pageNo, request);
+        ServletUtility.setPageSize(pageSize, request);
 
-            ServletUtility.setList(list, request);
-            ServletUtility.setPageNo(pageNo, request);
-            ServletUtility.setPageSize(pageSize, request);
             ServletUtility.forward(getView(), request, response);
 
         log.debug("StudentListCtl doGet End");

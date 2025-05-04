@@ -30,7 +30,7 @@ import org.apache.log4j.Logger;
  * @author Lokesh SOlanki
  */
 @WebServlet(name = "MarksheetCtl", urlPatterns = {"/ctl/MarksheetCtl"})
-public class MarksheetCtl extends BaseCtl<MarksheetBean> {
+public class MarksheetCtl extends BaseCtl<MarksheetBean> { // Start of class
 
     private static final long serialVersionUID = 1L;
 
@@ -43,12 +43,15 @@ public class MarksheetCtl extends BaseCtl<MarksheetBean> {
      */
     @Override
     protected void preload(final HttpServletRequest request) {
-        StudentModel model = new StudentModel();
-        try {
-            List<StudentBean> list = model.list();
-            request.setAttribute("studentList", list);
-        } catch (ApplicationException e) {
-            e.printStackTrace();
+        {
+            StudentModel model = new StudentModel();
+            try {
+                List<StudentBean> list = model.list();
+                request.setAttribute("studentList", list);
+            } catch (ApplicationException e) {
+                e.printStackTrace();
+            }
+
         }
     }
 
@@ -62,10 +65,12 @@ public class MarksheetCtl extends BaseCtl<MarksheetBean> {
         bean.setChemistry(DataUtility.getInt(request.getParameter("chemistry")));
         bean.setMaths(DataUtility.getInt(request.getParameter("maths")));
         boolean pass = true;
-        Map<String, String> map=MarksheetValidator.validate(bean);
-        if(!map.isEmpty()){
-            pass=false;
-            for(Map.Entry<String, String> entry : map.entrySet()){
+        Map<String, String> map = MarksheetValidator.validate(bean);
+        if (!map.isEmpty()) {
+            pass = false;
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+
+
                 request.setAttribute(entry.getKey(), entry.getValue());
             }
         }
@@ -76,6 +81,7 @@ public class MarksheetCtl extends BaseCtl<MarksheetBean> {
 
     @Override
     protected MarksheetBean populateBean(final HttpServletRequest request) {
+
         log.debug("MarksheetCtl Method populatebean Started");
         MarksheetBean bean = new MarksheetBean();
         bean.populate(request);
@@ -83,41 +89,6 @@ public class MarksheetCtl extends BaseCtl<MarksheetBean> {
         return bean;
     }
 
-    /**
-     * Save marksheet.
-     *
-     * @param bean the bean
-     * @param model the model
-     * @param request the request
-     * @throws DuplicateRecordException the duplicate record exception
-     * @throws ApplicationException the application exception
-     */
-    
-
-    
-
-    
-
-    }
-
-    /**
-     * Update marksheet.
-     *
-     * @param bean the bean
-     * @param model the model
-     * @param request the request
-     * @throws DuplicateRecordException the duplicate record exception
-     * @throws ApplicationException the application exception
-     */
-    
-
-    
-
-    
-
-    
-
-    
 	/**
      * Contains Display logics.
      *
@@ -128,18 +99,22 @@ public class MarksheetCtl extends BaseCtl<MarksheetBean> {
      */
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
-        MarksheetModel model = new MarksheetModel();
-        long id = DataUtility.getLong(request.getParameter("id"));
-        if (id > 0 || op != null) {
-			MarksheetBean bean;
-			try {
-				bean = model.findByPK(id);
-				ServletUtility.setBean(bean, request);
-            } catch (ApplicationException e) {
-                log.error("Error finding Marksheet by ID", e);
-                handleDatabaseException(e, request, response);
-                return;
+        {
+            MarksheetModel model = new MarksheetModel();
+            long id = DataUtility.getLong(request.getParameter("id"));
+            if (id > 0 || op != null) {
+
+                MarksheetBean bean;
+                try {
+
+                    bean = model.findByPK(id);
+                    ServletUtility.setBean(bean, request);
+                } catch (ApplicationException e) {
+                  log.error("Error finding Marksheet by ID", e);
+                  handleDatabaseException(e, request, response);
+                  return;
             }
+        }
         }
         ServletUtility.forward(getView(), request, response);
     }
@@ -155,43 +130,51 @@ public class MarksheetCtl extends BaseCtl<MarksheetBean> {
      */
     protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
+		String op = null;
+        {
 
-        final String op = DataUtility.getString(request.getParameter("operation"));
-        MarksheetModel model = new MarksheetModel();
-        final long id = DataUtility.getLong(request.getParameter("id"));
-        final MarksheetBean bean = (MarksheetBean) populateBean(request);
+            final String op = DataUtility.getString(request.getParameter("operation"));
+            MarksheetModel model = new MarksheetModel();
+            final long id = DataUtility.getLong(request.getParameter("id"));
+            final MarksheetBean bean = (MarksheetBean) populateBean(request);
 
-        if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
-            try {
-                if (validate(request)) {
-                    if (id > 0) {
-                        model.update(bean);
-                        ServletUtility.setSuccessMessage(MessageConstant.MARKSHEET_UPDATE, request);
+            if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
+                try {
+                    if (validate(request)) {
+                        if (id > 0) {
+                            model.update(bean);
+                            ServletUtility.setSuccessMessage(MessageConstant.MARKSHEET_UPDATE, request);
+                        } else {
+                            model.add(bean);
+                            ServletUtility.setSuccessMessage(MessageConstant.MARKSHEET_ADD, request);
+                        }
                     } else {
-                        model.add(bean);
-                        ServletUtility.setSuccessMessage(MessageConstant.MARKSHEET_ADD, request);
+
+                        ServletUtility.setBean(bean, request);
                     }
-                }else {
+                } catch (ApplicationException e) {
+                    log.error("Application exception", e);
+
+                    handleDatabaseException(e, request, response);
+                } catch (DuplicateRecordException e) {
                     ServletUtility.setBean(bean, request);
+                    ServletUtility.setErrorMessage(e.getMessage(), request);
                 }
-            } catch (ApplicationException e) {
-                log.error("Application exception", e);
-                handleDatabaseException(e, request, response);
+            } else if (OP_RESET.equalsIgnoreCase(op)) {
+                ServletUtility.redirect(ORSView.MARKSHEET_CTL, request, response);
                 return;
-            } catch (DuplicateRecordException e) {
-                ServletUtility.setBean(bean, request);
-                ServletUtility.setErrorMessage(e.getMessage(), request);
+            } else if (OP_CANCEL.equalsIgnoreCase(op)) {
+
+                ServletUtility.redirect(ORSView.MARKSHEET_LIST_CTL, request, response);
+                return;
             }
-        } else if (OP_RESET.equalsIgnoreCase(op)) {
-            ServletUtility.redirect(ORSView.MARKSHEET_CTL, request, response);
-            return;
-        } else if (OP_CANCEL.equalsIgnoreCase(op)) {
-            ServletUtility.redirect(ORSView.MARKSHEET_LIST_CTL, request, response);
-        }
-        if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)){
-            ServletUtility.setBean(bean, request);
-        }
+
+            if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
+                ServletUtility.setBean(bean, request);
+        	}
+		}
         ServletUtility.forward(getView(), request, response);
+    }
     }
 
 	/**
@@ -199,10 +182,11 @@ public class MarksheetCtl extends BaseCtl<MarksheetBean> {
 	 * 
 	 * @return
 	 */	
-	@Override
-	protected String getView() {
-		return ORSView.MARKSHEET_VIEW;
-	}
+    @Override
+    protected String getView() {
+        return ORSView.MARKSHEET_VIEW;
+    }
 
-	
-}
+
+}// End of class
+

@@ -1,21 +1,14 @@
 package com.rays.pro4.Model;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-
-import org.apache.log4j.Logger;
-
 import com.rays.pro4.Bean.CourseBean;
-import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Bean.SubjectBean;
 import com.rays.pro4.Bean.TimeTableBean;
-import com.rays.pro4.Exception.ApplicationException;
-import com.rays.pro4.Exception.DatabaseException;
 import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.JDBCDataSource;
@@ -32,24 +25,21 @@ public class TimeTableModel extends BaseModel {
 		return "ST_TIMETABLE";
 	}
 	
-	public TimeTableBean populate(ResultSet rs) throws ApplicationException{
-		try{
+	public TimeTableBean populate(ResultSet rs) throws SQLException{
+		
 			TimeTableBean bean = new TimeTableBean();
 			bean.setId(rs.getLong(1));
 			bean.setCourseId(rs.getLong(2));
 			bean.setCourseName(rs.getString(3));
 			bean.setSubjectId(rs.getLong(4));
 			bean.setSubjectName(rs.getString(5));
-			bean.setSemester(rs.getString(6));
+		    bean.setSemester(rs.getString(6));
 			bean.setExamDate(rs.getDate(7));
 			bean.setExamTime(rs.getString(8));
 			bean.setCreatedBy(rs.getString(9));
 			bean.setModifiedBy(rs.getString(10));
 			bean.setCreatedDatetime(rs.getTimestamp(11));
 			bean.setModifiedDatetime(rs.getTimestamp(12));
-			return bean;
-		} catch (Exception e){
-			throw new ApplicationException(e.getMessage());
 		}
 		
 	}
@@ -159,13 +149,11 @@ public class TimeTableModel extends BaseModel {
 			conn.setAutoCommit(false);
 			PreparedStatement pstmt = conn.prepareStatement(
 					"update ST_timetable set course_id=?,course_name=?,subject_id=?,subject_name=?,semester=?,exam_date=?,exam_time=?,created_by=?,modified_by=?,created_datetime=?,modified_datetime=? where ID=?");
-
 			pstmt.setLong(1, bean.getCourseId());
 			pstmt.setString(2, bean.getCourseName());
 			pstmt.setLong(3, bean.getSubjectId());
 			pstmt.setString(4, bean.getSubjectName());
 			pstmt.setString(5, bean.getSemester());
-			pstmt.setDate(6, new java.sql.Date(bean.getExamDate().getTime()));
 			pstmt.setString(7, bean.getExamTime());
 			pstmt.setString(8, bean.getCreatedBy());
 			pstmt.setString(9, bean.getModifiedBy());
@@ -173,6 +161,7 @@ public class TimeTableModel extends BaseModel {
 			pstmt.setTimestamp(11, bean.getModifiedDatetime());
 			pstmt.setLong(12, bean.getId());
 
+			pstmt.setDate(6, new java.sql.Date(bean.getExamDate().getTime()));
 			pstmt.executeUpdate();
 			conn.commit();
 		} catch (Exception e) {
@@ -211,20 +200,24 @@ public class TimeTableModel extends BaseModel {
 		return bean;
 	}
 
-	public List list() throws Exception {
-		return list(0, 0);
+	public List list() throws ApplicationException {
+		return list(0, 0,null,null);
 	}
 
-	public List list(int pageNo, int pageSize) throws Exception {
+	public List list(int pageNo, int pageSize, String orderBy, String sortOrder) throws ApplicationException {
 		log.debug("model list Started");
 		ArrayList list = new ArrayList();
 		StringBuffer sql = new StringBuffer("select * from ST_timetable");
+        if (orderBy != null && orderBy.trim().length() > 0) {
+            sql.append(" ORDER BY " + orderBy + " " + sortOrder);
+        } else {
+            sql.append(" ORDER BY CourseName ASC ");
+        }
 
 		if (pageNo > 0) {
 			pageNo = (pageNo - 1) * pageSize;
 			sql.append(" limit " + pageNo + "," + pageSize);
 		}
-
 		Connection conn = null;
 		try (Connection con = JDBCDataSource.getConnection()){
 			conn = JDBCDataSource.getConnection();
@@ -246,12 +239,12 @@ public class TimeTableModel extends BaseModel {
 		return list;
 	}
 
-	public List search(TimeTableBean bean) throws ApplicationException {
-		return search(bean, 0, 0);
-	}
-
-	public List search(TimeTableBean bean, int pageNo, int pageSize) throws ApplicationException {
+	public List search(TimeTableBean bean, int pageNo, int pageSize, String orderBy, String sortOrder) throws ApplicationException {
 		log.debug("Model search started");
+        if (orderBy != null && orderBy.length() > 0) {
+            orderBy = orderBy;
+        } else {
+            orderBy = "CourseName";
 		StringBuffer sql = new StringBuffer("select * from ST_timetable where 1=1 ");
 		if (bean != null) {
 			if (bean.getId() > 0) {
@@ -277,6 +270,11 @@ public class TimeTableModel extends BaseModel {
 			if (bean.getExamTime() != null && bean.getExamTime().length() > 0) {
 				sql.append("AND EXAM_TIME like '" + bean.getExamTime() + "%'");
 			}
+		}
+        if (orderBy != null && orderBy.trim().length() > 0) {
+            sql.append(" ORDER BY " + orderBy + " " + sortOrder);
+        } else {
+            sql.append(" ORDER BY CourseName ASC ");
 
 		}
 		if (pageNo > 0) {
@@ -290,7 +288,8 @@ public class TimeTableModel extends BaseModel {
 			conn = JDBCDataSource.getConnection();
 			PreparedStatement pstmt = conn.prepareStatement(sql.toString());
 			ResultSet rs = pstmt.executeQuery();
-
+            ArrayList list = new ArrayList();
+          
 			while (rs.next()) {
 				list.add(populate(rs));			}
 			rs.close();
@@ -338,7 +337,7 @@ public class TimeTableModel extends BaseModel {
 		TimeTableBean bean = null;
 		Date ExDate = new Date(ExamDate.getTime());
 
-		try {
+		try (Connection conn = JDBCDataSource.getConnection()){
 			Connection con = JDBCDataSource.getConnection();
 			PreparedStatement ps = con.prepareStatement(sql.toString());
 			ps.setLong(1, CourseId);
@@ -346,6 +345,7 @@ public class TimeTableModel extends BaseModel {
 			ps.setDate(3, (java.sql.Date) ExamDate);
 			ResultSet rs = ps.executeQuery();
 
+            TimeTableBean bean = null;
 			while (rs.next()) {
 				bean = populate(rs);
 			}

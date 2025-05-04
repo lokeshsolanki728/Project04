@@ -48,10 +48,6 @@ public class StudentModel extends BaseModel{
         return pk + 1;
     }
 
-    
-		return pk + 1;
-
-	}
 
 	public long add(StudentBean bean) throws ApplicationException, DuplicateRecordException {
 		log.debug("Model add Started");
@@ -99,8 +95,6 @@ public class StudentModel extends BaseModel{
 		log.debug("Model add End");
 		return pk;
 	}
-
-
 	public void delete(StudentBean bean) throws ApplicationException {
 		log.debug("Model delete Started");
         Connection conn = null;
@@ -120,7 +114,7 @@ public class StudentModel extends BaseModel{
 			JDBCDataSource.trnRollback();
             throw new ApplicationException("Exception : Exception in delete Student");
         }
-		}
+		
 		log.debug("Model delete End");
 	}
 
@@ -145,6 +139,7 @@ public class StudentModel extends BaseModel{
         log.debug("Model findBy Email End");
         return bean;
 	}
+	
 	public StudentBean findByPK(long pk) throws ApplicationException {
 		log.debug("Model findByPK Started");
 		StringBuffer sql = new StringBuffer("SELECT * FROM ST_STUDENT WHERE ID=?");
@@ -203,10 +198,10 @@ public class StudentModel extends BaseModel{
         log.debug("Model update End");
     }
 
-	public List search(StudentBean bean) throws ApplicationException {
+	public List search(StudentBean bean,String orderBy,String sortOrder) throws ApplicationException {
 		return search(bean, 1, 0);
 	}
-
+	
 	/**
 	 * Searches for students based on the provided criteria with pagination.
 	 *
@@ -215,10 +210,12 @@ public class StudentModel extends BaseModel{
 	 * @param pageSize The page size for pagination.
 	 * @return A list of StudentBean objects matching the search criteria.
 	 * @throws ApplicationException If a database error occurs.
-	 */
-	public List search(StudentBean bean, int pageNo, int pageSize) throws ApplicationException {
+	 * @throws DatabaseException 
+	 */	
+	public List search(StudentBean bean, int pageNo, int pageSize,String orderBy, String sortOrder) throws ApplicationException {
 		log.debug("Model search Started");
 		StringBuffer sql = new StringBuffer("SELECT * FROM ST_STUDENT WHERE 1=1");
+		
 		ArrayList<StudentBean> list = new ArrayList<>();
 		int index = 1;
 		if (pageNo < 0) {
@@ -249,12 +246,31 @@ public class StudentModel extends BaseModel{
             }
 		}
 
+		// Add sorting logic
+		if (orderBy != null && !orderBy.isEmpty()) {
+		    sql.append(" ORDER BY " + orderBy);
+		    if (sortOrder != null && sortOrder.equalsIgnoreCase("DESC")) {
+		        sql.append(" DESC");
+		    } else {
+		        sql.append(" ASC");
+		    }
+		}
 		if (pageSize > 0) {
 			pageNo = (pageNo - 1) * pageSize;
 			sql.append(" LIMIT " + pageNo + ", " + pageSize);		}
-		try (Connection conn = JDBCDataSource.getConnection();PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+		try (Connection conn = JDBCDataSource.getConnection();
+			 PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
 			index=1;
             if (bean != null) {
+				
+				
+			
+			
+			
+			
+			
+			
+			
                 if (bean.getId() > 0) {pstmt.setLong(index++, bean.getId());}
                 if (bean.getFirstName() != null && !bean.getFirstName().isEmpty()) {pstmt.setString(index++, bean.getFirstName() + "%");}if (bean.getLastName() != null && !bean.getLastName().isEmpty()) {pstmt.setString(index++, bean.getLastName() + "%");}if (bean.getMobileNo() != null && !bean.getMobileNo().isEmpty()) {pstmt.setString(index++, bean.getMobileNo() + "%");}if (bean.getEmail() != null && !bean.getEmail().isEmpty()) {pstmt.setString(index++, bean.getEmail() + "%");}if (bean.getCollegeId() > 0) {pstmt.setLong(index++, bean.getCollegeId());}
             }
@@ -273,10 +289,11 @@ public class StudentModel extends BaseModel{
 		return list;
 	}
 
-	public List list() throws ApplicationException {
-		return list(1, 0);
+	public List list(String orderBy,String sortOrder) throws ApplicationException {
+		return list(1, 0,orderBy,sortOrder);
 	}
-	public List list(int pageNo, int pageSize) throws ApplicationException {
+	
+	public List list(int pageNo, int pageSize,String orderBy,String sortOrder) throws ApplicationException {
 		log.debug("Model list Started");
 		ArrayList<StudentBean> list = new ArrayList<>();
 		StringBuffer sql = new StringBuffer("select * from ST_STUDENT");
@@ -290,6 +307,15 @@ public class StudentModel extends BaseModel{
             pageNo = pageNo * pageSize;
             sql.append(" LIMIT " + pageNo + " , " + pageSize);
         }
+        // Add sorting logic
+     		if (orderBy != null && !orderBy.isEmpty()) {
+     		    sql.append(" ORDER BY " + orderBy);
+     		    if (sortOrder != null && sortOrder.equalsIgnoreCase("DESC")) {
+     		        sql.append(" DESC");
+     		    } else {
+     		        sql.append(" ASC");
+        }
+		}
         try (Connection conn = JDBCDataSource.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {

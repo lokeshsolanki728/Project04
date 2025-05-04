@@ -137,21 +137,17 @@ public class RoleListCtl extends BaseCtl{
                     deletebean.setId(DataUtility.getInt(id));
                     try {
                     		for (String id : ids) {
-                        		deletebean.setId(DataUtility.getInt(id));
-                        		try {
-                        			model.delete(deletebean);
-                        		} catch (ApplicationException e) {
-                        			log.error(e);
-                        			ServletUtility.handleException(e, request, response);
-                        			ServletUtility.setErrorMessage(MessageConstant.DATA_DELETE_ERROR, request);
-                        		return;
-                            }
+                    			RoleBean rBean = new RoleBean();
+                        		rBean.setId(DataUtility.getInt(id));
+                        		model.delete(rBean);
                     		}
-                   	ServletUtility.setSuccessMessage("Role is Deleted Successfully ", request);
-                    break;
                     } catch (ApplicationException e) {
                     	log.error(e);
-                        ServletUtility.handleException(e, request, response);
+                        ServletUtility.setErrorMessage(MessageConstant.DATA_DELETE_ERROR, request);
+                        ServletUtility.handleException(e, request, response);                        
+                        return;
+                    }                   	
+                	ServletUtility.setSuccessMessage("Role is Deleted Successfully ", request);
                         return;
                     	}
                 }
@@ -170,8 +166,8 @@ public class RoleListCtl extends BaseCtl{
             ServletUtility.setPageNo(pageNo, request);
             ServletUtility.setPageSize(pageSize, request);
             ServletUtility.forward(getView(), request, response);
-
-        
+        }
+    
         log.debug("RoleListCtl doPost End");
     }
 

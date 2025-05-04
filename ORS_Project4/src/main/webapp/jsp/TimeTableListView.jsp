@@ -10,6 +10,7 @@ jsp
         <link rel="icon" type="image/png" href="${ctx}/img/logo.png" sizes="16*16"/>
         <title>TimeTable List</title>
         <link rel="stylesheet" href="${ctx}/css/style.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
         <script src="${ctx}/js/jquery.min.js"></script>
         <script src="${ctx}/js/Checkbox11.js"></script>
         <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
@@ -65,10 +66,10 @@ jsp
                                 <label for="clist">Course Name : </label>
                                     ${HTMLUtility.getList("clist", bean.courseId, cList, "Select Course")}
                                 
-                                <label for="slist">Subject Name : </label>
+                                <label for="slist">Subject Name:</label>
                                     ${HTMLUtility.getList("slist", bean.subjectId, sList,"Select Subject")}
                                
-                                <input type="submit" name="operation" value="<%=TimetableListCtl.OP_SEARCH%>"
+                                <input type="submit" name="operation" value="${TimetableListCtl.OP_SEARCH}"
                                        class="btn btn-primary">
                                 <input type="submit" name="operation" value="<%=TimetableListCtl.OP_RESET %>"
                                        class="btn btn-secondary">
@@ -80,8 +81,22 @@ jsp
                             <tr>
                                 <th><input type="checkbox" id="select_all" name="Select">Select All.</th>
                                 <th>S.No.</th>
-                                <th>Course Name.</th>
-                                <th>Subject Name.</th>
+                                <th>
+                                    <a href="${ctx}${ORSView.TIMETABLE_LIST_CTL}?orderBy=CourseName&sortOrder=${sortOrder eq 'asc' ? 'desc' : 'asc'}&pageNo=${pageNo}&pageSize=${pageSize}">
+                                        Course Name
+                                        <c:if test="${orderBy eq 'CourseName'}">
+                                            <c:choose>
+                                                <c:when test="${sortOrder eq 'asc'}"><i class="fas fa-arrow-up"></i></c:when>
+                                                <c:otherwise><i class="fas fa-arrow-down"></i></c:otherwise>
+                                            </c:choose>
+                                        </c:if>
+                                    </a>
+                                </th>
+                                <th> <a href="${ctx}${ORSView.TIMETABLE_LIST_CTL}?orderBy=SubjectName&sortOrder=${sortOrder eq 'asc' ? 'desc' : 'asc'}&pageNo=${pageNo}&pageSize=${pageSize}">Subject Name
+                                       <c:if test="${orderBy eq 'SubjectName'}">
+                                            <c:choose><c:when test="${sortOrder eq 'asc'}"><i class="fas fa-arrow-up"></i></c:when><c:otherwise><i class="fas fa-arrow-down"></i></c:otherwise></c:choose>
+                                        </c:if>
+                                    </a></th>
                                 <th>Semester.</th>
                                 <th>ExamDate.</th>
                                 <th>ExamTime.</th>
@@ -104,16 +119,15 @@ jsp
                         </tbody>
                     </table>
                     <table class="w-100">
-                        <tr>
-                            <td class="text-start"><input type="submit" name="operation"
-                                                          value="<%=TimetableListCtl.OP_PREVIOUS%>"
-                                                          class="btn btn-secondary" ${pageNo == 1 ? 'disabled' : ''}>
+                        <tr >
+                            <td class="float-start"><input type="submit" name="operation"
+                                                          value="${TimetableListCtl.OP_PREVIOUS}"
+                                                          class="btn btn-secondary" ${pageNo == 1 ? 'disabled' : ''}></td>
+                            <td class="text-center"><input type="submit" name="operation" value="${TimetableListCtl.OP_DELETE}"
+                                       class="btn btn-danger"><input type="submit" name="operation" value="${TimetableListCtl.OP_NEW}"
+                                       class="btn btn-success">
                             </td>
-                            <td class="text-center"><input type="submit" name="operation" value="<%=TimetableListCtl.OP_DELETE%>"
-                                       class="btn btn-danger">
-                               <input type="submit" name="operation" value="<%=TimetableListCtl.OP_NEW%>"
-                                       class="btn btn-success"></td>
-                            <td class="text-end"><input type="submit" name="operation"
+                            <td class="float-end"><input type="submit" name="operation"
                                                            value="<%=TimetableListCtl.OP_NEXT%>"
                                                            class="btn btn-primary"
                                     ${list.size() < pageSize || next == 0 ? 'disabled' : ''}></td>

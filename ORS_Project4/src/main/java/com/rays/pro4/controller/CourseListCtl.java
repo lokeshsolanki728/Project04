@@ -16,6 +16,7 @@ import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.util.CourseListValidator;
 import com.rays.pro4.Util.PropertyReader;;
+import com.rays.pro4.controller.BaseCtl;
 import com.rays.pro4.Util.ServletUtility;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
@@ -26,6 +27,8 @@ import javax.servlet.http.HttpServletRequest;
  */
 @WebServlet(name = "CourseListCtl", urlPatterns = { "/ctl/CourseListCtl" })
 public class CourseListCtl extends BaseCtl<CourseBean> {
+
+	private static final long serialVersionUID = 1L;
 
 	/** The log. */
 	public static final Logger log = Logger.getLogger(CourseListCtl.class);
@@ -41,16 +44,17 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 		final CourseBean bean = new CourseBean();
 		bean.populate(request);	
 		return bean;
-	}
-
+	}	
+	
 	/**
-	 * Search method.
+	 * Search Course.
 	 *
-	 * @param bean     the bean
-	 * @param pageNo   the page no
+	 * @param bean the bean
+	 * @param pageNo the page no
 	 * @param pageSize the page size
 	 * @return the list
-	 * @throws ApplicationException the application exception */
+	 * @throws ApplicationException the application exception
+	 */
 	private List<CourseBean> searchCourse(final CourseBean bean, final int pageNo, final int pageSize)
 			throws ApplicationException{
 		return model.search(bean,pageNo,pageSize);
@@ -106,28 +110,37 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 		if(!pass)
 			log.debug("validate Method End with error");
 		return pass;
+	}
 
+	
 	/**
 	 * Delete.
 	 *
-	 * @param ids      the ids
-	 * @param request  the request
+	 * @param ids the ids
+	 * @param request the request
 	 * @param response the response
 	 * @throws ApplicationException the application exception
-	 */	
-	private void delete(final String[] ids, final HttpServletRequest request, final HttpServletResponse response)
+	 */
+	private final void delete(final String[] ids, final HttpServletRequest request, final HttpServletResponse response)
 			throws ApplicationException {
 		log.debug("delete method started");
-		if (ids != null && ids.length > 0) {\n\t\t\tfinal CourseBean deletebean = new CourseBean();\n\t\t\tfor (final String id : ids) {\n\t\t\t\tdeletebean.setId(DataUtility.getInt(id));\n\t\t\t\tmodel.Delete(deletebean);\n\t\t\t}\n\t\t\tServletUtility.setSuccessMessage(MessageConstant.COURSE_SUCCESS_DELETE, request);\n\t\t} else {\n\t\t\tServletUtility.setErrorMessage(PropertyReader.getValue(\"error.select.one\"), request);\n\t\t}\n\t\tlog.debug(\"delete method end\");
+		if (ids != null && ids.length > 0) {
+			for (final String id : ids) {
+				model.delete(model.findByPK(DataUtility.getInt(id)));
+			}
+			ServletUtility.setSuccessMessage(MessageConstant.COURSE_SUCCESS_DELETE, request);
+		} else {
+			ServletUtility.setErrorMessage(PropertyReader.getValue("error.select.one"), request);
+		}
+		log.debug("delete method end");
 	}
-	
-
-
-	/** Contains Submit logics.
+	/**
+	 * Contains Submit logics.
 	 * @param request the request
 	 * @param response the response
 	 * @throws ServletException the servlet exception
-	 * @throws IOException Signals that an I/O exception has occurred. */
+	 * @throws IOException Signals that an I/O exception has occurred. 
+	 */
 	@Override
 	protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
 			throws ServletException, IOException {
@@ -137,7 +150,7 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 			int pageNo = pageData[0];
 			int pageSize = pageData[1];
 			final String op = DataUtility.getString(request.getParameter("operation"));
-			String[] ids = request.getParameterValues("ids");
+			final String[] ids = request.getParameterValues("ids");
 			final CourseBean bean = populate(request);
 			if (OP_SEARCH.equalsIgnoreCase(op)) {
 				pageNo = 1;
@@ -159,14 +172,15 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 					handleDatabaseException(e, request, response);
 					return;
 				}
+			} else {
+				showList(bean, request, response, pageNo, pageSize);
 			}
-			showList(bean, request, response, pageNo, pageSize);
 		}
 		log.debug("do Post method of CourseListCtl End");
 	}	
-	/** Contains Submit logics. 
+	/** Contains Submit logics.
 	 *
-	 * @param request  the request
+	 * @param request the request
 	 * @param response the response
 	 * @throws ServletException the servlet exception
 	 * @throws IOException      Signals that an I/O exception has occurred.
@@ -175,7 +189,7 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 	
 	
 	/** set the data in the list.
-	 *
+	 * 
 	 * @param bean     the bean
 	 * @param request  the request
 	 * @param response the response
@@ -195,12 +209,26 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 		if (list == null || list.isEmpty()&& !OP_DELETE.equalsIgnoreCase(DataUtility.getString(request.getParameter("operation")))) {
 			ServletUtility.setErrorMessage(PropertyReader.getValue("error.record.notfound"), request);
 		}
-		setListAndPagination(list, request, pageNo, pageSize);
+		setListAndPagination(list, request, pageNo, pageSize);	
 	}
-	private final void setListAndPagination(final List list, final HttpServletRequest request, final int pageNo,\n\t\t\tfinal int pageSize) {\n\t\tServletUtility.setList(list, request);\n\t\tServletUtility.setPageNo(pageNo, request);\n\t\tServletUtility.setPageSize(pageSize, request);\n\t\tServletUtility.forward(getView(), request, response);\n\t}
+	
+	/**
+	 * Sets the list and pagination.
+	 *
+	 * @param list the list
+	 * @param request the request
+	 * @param pageNo the page no
+	 * @param pageSize the page size
+	 */
+	private final void setListAndPagination(final List list, final HttpServletRequest request, final int pageNo,final int pageSize) {
+		ServletUtility.setList(list, request);
+		ServletUtility.setPageNo(pageNo, request);
+		ServletUtility.setPageSize(pageSize, request);
+		ServletUtility.forward(getView(), request, response);
+	}
 	
 	
-		
+
 	/** manage the pagination.
 	 * @param request the request
 	 * @return the page data
@@ -216,6 +244,4 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 	protected String getView() {
 		return ORSView.COURSE_LIST_VIEW;
 	}
-	
-	
 }

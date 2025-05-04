@@ -2,6 +2,7 @@
 <%@page import="com.rays.pro4.controller.ORSView"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <html>
     <head>
         <c:set var="ctx" value="${pageContext.request.contextPath}" />
@@ -27,6 +28,9 @@
             <c:set var="pageNo" value="${requestScope.pageNo}" />
             <c:set var="pageSize" value="${requestScope.pageSize}" />
             <c:set var="index" value="${(pageNo-1) * pageSize + 1}" />
+            <c:set var="orderBy" value="${requestScope.orderBy}" />
+            <c:set var="sortOrder" value="${requestScope.sortOrder}" />
+
             <div class="container">
                 <h1 class="text-center">College List</h1>
                 <div class="message-container">
@@ -41,10 +45,10 @@
                     <table class="search-table w-100">
                         <tr>
                             <td class="text-center">
-                                <label for="collegeid">College Name :</label>
-                                <select name="collegeid" class="form-control-inline">
-                                    <option value="">Select College</option>
-                                    <c:forEach items="${collegeList}" var="col">
+                                <label for="collegename">College Name :</label>
+                                <select name="collegename" class="form-control-inline">
+                                    <option value="">Select Name</option>
+                                    <c:forEach items="${collegeList}" var="col" >
                                         <option value="${col.id}" ${col.id == bean.id ? 'selected' : ''}>
                                             ${col.name}
                                         </option>
@@ -52,20 +56,33 @@
                                 </select>
                                 <label for="city">City :</label>
                                 <input type="text" id="city" name="city" placeholder="Enter City Name" class="form-control-inline"
-                                    value="${param.city}">
-                                <input type="submit" name="operation" class="btn btn-primary" value="${CollegeListCtl.OP_SEARCH}">
-                                <input type="submit" name="operation" class="btn btn-secondary" value="${CollegeListCtl.OP_RESET}">
+                                       value="${param.city}">
+                                <input type="submit" name="operation" class="btn btn-primary ms-2" value="<%=CollegeListCtl.OP_SEARCH%>">
+                                <input type="submit" name="operation" class="btn btn-secondary ms-2" value="<%=CollegeListCtl.OP_RESET%>">
                             </td>
                         </tr>
                     </table>
                     <table class="table table-bordered table-striped w-100">
                         <thead>
                             <tr>
-                                <th><input type="checkbox" id="select_all" name="select">Select All</th>
-                                <th>S.No.</th>
-                                <th>Name</th>
-                                <th>Address</th>
-                                <th>State</th>
+                                <th><input type="checkbox" id="select_all" name="select">Select</th>
+                                <th >S.No.</th>
+                                <th>
+                                    <a href="${ctx}${ORSView.COLLEGE_LIST_CTL}?orderBy=name&sortOrder=${sortOrder eq 'asc' ? 'desc' : 'asc'}&pageNo=${pageNo}&pageSize=${pageSize}&city=${param.city}">Name
+                                        <c:if test="${orderBy eq 'name'}">
+                                            <c:choose>
+                                                <c:when test="${sortOrder eq 'asc'}">
+                                                    <i class="fas fa-arrow-up"></i>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <i class="fas fa-arrow-down"></i>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </c:if>
+                                    </a>
+                                </th>
+                                <th >Address</th>
+                                <th >State</th>
                                 <th>City</th>
                                 <th>PhoneNo</th>
                                 <th>Edit</th>
@@ -91,20 +108,20 @@
                         </tbody>
                     </table>
                     <table class="w-100">
-                        <tr>
-                            <td class="text-left">
-                                <input type="submit" name="operation" class="btn btn-secondary"
-                                    value="${CollegeListCtl.OP_PREVIOUS}" ${pageNo == 1 ? 'disabled' : ''}>
+                        <tr >
+                             <td class="float-start">
+                                <input type="submit" name="operation" class="btn btn-secondary " value="<%=CollegeListCtl.OP_PREVIOUS%>"
+                                       ${pageNo == 1 ? 'disabled' : ''}>
                             </td>
-                            <td>
-                                <input type="submit" name="operation" class="btn btn-danger" value="${CollegeListCtl.OP_DELETE}">
+                            <td class="float-center">
+                                <input type="submit" name="operation" class="btn btn-danger ms-2" value="<%=CollegeListCtl.OP_DELETE%>">
                             </td>
-                            <td>
-                                <input type="submit" name="operation" class="btn btn-success" value="${CollegeListCtl.OP_NEW}">
+                            <td class="float-center">
+                                <input type="submit" name="operation" class="btn btn-success ms-2" value="<%=CollegeListCtl.OP_NEW%>">
                             </td>
-                            <td class="text-right">
-                                <input type="submit" class="btn btn-primary" name="operation" value="${CollegeListCtl.OP_NEXT}"
-                                    ${list.size() < pageSize || nextlist == 0 ? 'disabled' : ''}>
+                            <td class="float-end">
+                                <input type="submit" class="btn btn-primary ms-2" name="operation" value="<%=CollegeListCtl.OP_NEXT%>"
+                                       ${list.size() < pageSize || nextlist == 0 ? 'disabled' : ''}>
                             </td>
                         </tr>
                     </table>

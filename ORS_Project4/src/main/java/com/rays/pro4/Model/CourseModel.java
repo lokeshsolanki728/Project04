@@ -29,7 +29,7 @@ public class CourseModel extends BaseModel {
      * @throws DuplicateRecordException If a course with the same name already exists.
      */
     public long add(CourseBean bean) throws ApplicationException, DuplicateRecordException {
-        Connection conn = null;
+        Connection conn = null;       
         long pk = 0;        
         log.debug("Model add started");
         try {
@@ -189,7 +189,7 @@ public class CourseModel extends BaseModel {
                 
             }
        
-    }   
+    } 
     }
 
     /**
@@ -201,11 +201,14 @@ public class CourseModel extends BaseModel {
      * @return A list of CourseBeans matching the search criteria.
      * @throws ApplicationException If a general application exception occurs.
      */
-    public List search(CourseBean bean, int pageNo, int pageSize) throws ApplicationException {
+    public List search(CourseBean bean, int pageNo, int pageSize, String orderBy, String sortOrder) throws ApplicationException {
         log.debug("Model search Started");
         StringBuffer sql = new StringBuffer("SELECT * FROM ST_COURSE WHERE 1=1");
         ArrayList<CourseBean> list = new ArrayList<>();
         int index = 1;
+        orderBy = (orderBy == null || orderBy.trim().isEmpty()) ? "NAME" : orderBy;
+        sortOrder = (sortOrder == null || sortOrder.trim().isEmpty()) ? "ASC" : sortOrder;
+
 
         try (Connection conn = JDBCDataSource.getConnection()) {
 
@@ -215,11 +218,13 @@ public class CourseModel extends BaseModel {
                     sql.append(" AND NAME like ?");
                 }
             }
+           sql.append(" ORDER BY " + orderBy + " " + sortOrder);
             if (pageSize > 0) {
                 pageNo = (pageNo - 1) * pageSize;
                 sql.append(" LIMIT " + pageNo + ", " + pageSize);
             }
-             try (PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {          
+             try (PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+               
                 if (bean != null) {                
                     if (bean.getId() > 0) {
                         pstmt.setLong(index++, bean.getId());
@@ -231,8 +236,6 @@ public class CourseModel extends BaseModel {
                  try (ResultSet rs = pstmt.executeQuery()) {
                     while (rs.next()) {
                          bean = populate(rs);
-                       
-                         bean.setCreatedDatetime(rs.getTimestamp(7));
                          bean.setModifiedDatetime(rs.getTimestamp(8));
                         list.add(bean);
                     }
@@ -245,10 +248,15 @@ public class CourseModel extends BaseModel {
         return list;
     }
 
-    public List list(int pageNo, int pageSize) throws ApplicationException {
+    public List list(int pageNo, int pageSize,String orderBy,String sortOrder) throws ApplicationException {
         log.debug("Model list Started");
         ArrayList<CourseBean> list = new ArrayList<>();
         StringBuffer sql = new StringBuffer("SELECT * FROM ST_COURSE");
+        orderBy = (orderBy == null || orderBy.trim().isEmpty()) ? "NAME" : orderBy;
+        sortOrder = (sortOrder == null || sortOrder.trim().isEmpty()) ? "ASC" : sortOrder;
+
+        sql.append(" ORDER BY " + orderBy + " " + sortOrder);
+
         if (pageSize > 0) {
                 pageNo = (pageNo - 1) * pageSize;
                 sql.append(" LIMIT " + pageNo + "," + pageSize);

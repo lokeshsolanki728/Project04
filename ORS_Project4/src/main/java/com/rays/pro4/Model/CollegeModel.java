@@ -2,20 +2,18 @@ package com.rays.pro4.Model;
 
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.List;
 import com.rays.pro4.Bean.CollegeBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DatabaseException;
+import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Util.JDBCDataSource;
-import java.util.ArrayList;
+
+import java.sql.ResultSet;
 import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
 
-
-/**
- * JDBC Implementation of CollegeModel.
- * 
+/** JDBC Implementation of College Model.
  * @author Lokesh SOlanki
  *
  *
@@ -208,21 +206,33 @@ public class CollegeModel extends BaseModel {
 		}
 		log.debug("Model update End");
 	}
-	public List search(CollegeBean bean) throws ApplicationException {
-		return search(bean, 0, 0);
-	}
 
-	public List search(CollegeBean bean, int pageNo, int pageSize) throws ApplicationException {
+	public List search(CollegeBean bean) throws ApplicationException {
+		return search(bean, 0, 0,null,null);
+	}
+	public List search(CollegeBean bean, int pageNo, int pageSize,String orderBy, String sortOrder) throws ApplicationException {
 		ArrayList<CollegeBean> list = new ArrayList<>();
 		int index = 1;       
 		log.debug("model search Started");
-        StringBuffer sql = new StringBuffer("SELECT * FROM ST_COLLEGE WHERE 1=1");
+        StringBuffer sql = new StringBuffer("SELECT * FROM ST_COLLEGE WHERE 1=1 ");
 
         if (bean != null) {
             if (bean.getId() > 0) sql.append(" AND id=?");
             if (bean.getName() != null && !bean.getName().isEmpty()) sql.append(" AND Name like ?");
             if (bean.getAddress() != null && !bean.getAddress().isEmpty()) sql.append(" AND Address like ?");
             if (bean.getCity() != null && !bean.getCity().isEmpty()) sql.append(" AND City like ?");
+        }
+        if (orderBy != null && !orderBy.isEmpty()) {
+            sql.append(" ORDER BY " + orderBy);
+            if (sortOrder != null && sortOrder.equalsIgnoreCase("DESC")) {
+                sql.append(" DESC");
+            } else {
+                sql.append(" ASC");
+            }
+        }
+        else {
+            sql.append(" ORDER BY NAME ASC");
+
         }
 		if (pageSize > 0) {
             pageNo = (pageNo - 1) * pageSize;
@@ -239,7 +249,7 @@ public class CollegeModel extends BaseModel {
                 if (bean.getAddress() != null && !bean.getAddress().isEmpty()) {
                     pstmt.setString(index++, bean.getAddress() + "%");
                 }
-	                pstmt.setString(index++, bean.getCity() + "%");
+	            if (bean.getCity() != null && !bean.getCity().isEmpty()){pstmt.setString(index++, bean.getCity() + "%");}
 	            }
         }
         try (ResultSet rs = pstmt.executeQuery()) {
@@ -259,14 +269,26 @@ public class CollegeModel extends BaseModel {
 	}
 
 	public List list() throws ApplicationException {
-		return list(1, 0);
+		return list(1, 0, null, null);
 	}
 
-	public List list(int pageNo, int pageSize) throws ApplicationException {	
+	public List list(int pageNo, int pageSize,String orderBy, String sortOrder) throws ApplicationException {	
 		log.debug("Model list Started");
-		StringBuffer sql = new StringBuffer("select * from ST_COLLEGE");	
-			
-			
+		StringBuffer sql = new StringBuffer("select * from ST_COLLEGE");
+        if (orderBy != null && !orderBy.isEmpty()) {
+            sql.append(" ORDER BY " + orderBy);
+            if (sortOrder != null && sortOrder.equalsIgnoreCase("DESC")) {
+                sql.append(" DESC");
+            } else {
+                sql.append(" ASC");
+            }
+        }
+        else {
+            sql.append(" ORDER BY NAME ASC");
+        }
+
+        if (pageSize > 0) {
+
             pageNo = (pageNo - 1) * pageSize;
             sql.append(" LIMIT " + pageNo + "," + pageSize);
 		}
