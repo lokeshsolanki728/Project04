@@ -1,6 +1,7 @@
 package com.rays.pro4.Model;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,11 +9,15 @@ import com.rays.pro4.Bean.CollegeBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DatabaseException;
 import com.rays.pro4.Exception.DuplicateRecordException;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.rays.pro4.Bean.CollegeBean;
 import com.rays.pro4.Util.JDBCDataSource;
 
-/** JDBC Implementation of College Model.
- * @author Lokesh
- */
+
 public class CollegeModel extends BaseModel {
 
     private synchronized long nextPK() throws DatabaseException {
@@ -62,7 +67,7 @@ public class CollegeModel extends BaseModel {
                 pstmt.executeUpdate();
             }
             conn.commit();
-        } catch (Exception e) {
+        } catch (SQLException e) {
             log.error("Database Exception in add college", e);
             throw new ApplicationException("Exception: Exception in adding college - " + e.getMessage());
         }
@@ -70,53 +75,46 @@ public class CollegeModel extends BaseModel {
         return pk;
     }
 
-    public void delete(CollegeBean bean) throws ApplicationException {
-        log.debug("Model delete Started");
-        try (Connection conn = JDBCDataSource.getConnection()) {
-            conn.setAutoCommit(false);
+public void delete(CollegeBean bean) throws ApplicationException {
+		log.debug("Model delete Started");
+		try (Connection conn = JDBCDataSource.getConnection()) {
+            conn.setAutoCommit(false); // Start transaction
             try (PreparedStatement pstmt = conn.prepareStatement("DELETE FROM ST_COLLEGE WHERE ID=?")) {
                 pstmt.setLong(1, bean.getId());
                 pstmt.executeUpdate();
             }
-            conn.commit();
-        } catch (Exception e) {
-            log.error("Database Exception in delete college", e);
-            throw new ApplicationException("Exception in delete college " + e.getMessage());
-        }
-        log.debug("Model delete End");
-    }
+            conn.commit(); // Commit transaction
+		} catch (SQLException e) {
+			log.error("Database Exception in delete college", e);
+			JDBCDataSource.trnRollback();
+			throw new ApplicationException("Exception :Exception in delete college " + e.getMessage());
+		}
+		log.debug("Modal delete End");
+	}
 
     public void delete(long id) throws ApplicationException {
-        log.debug("Model delete by ID");
-        try (Connection conn = JDBCDataSource.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement("DELETE FROM ST_COLLEGE WHERE ID=?")) {
-            pstmt.setLong(1, id);
-            pstmt.executeUpdate();
-        } catch (Exception e) {
-            log.error("Database Exception in delete by ID", e);
-            throw new ApplicationException("Exception in delete by ID: " + e.getMessage());
-        }
-        log.debug("Model delete by ID End");
+        log.debug("Model delete by ID Started");
+        CollegeBean bean = findByPK(id);
+        delete(bean);
+        log.debug("Model delete by ID End ");
     }
 
-    public CollegeBean findByName(String name) throws ApplicationException {
+	public CollegeBean findByName(String name) throws ApplicationException {
         log.debug("Model findByName Started");
-        CollegeBean bean = null;
         try (Connection conn = JDBCDataSource.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM ST_COLLEGE WHERE NAME=?")) {
-            pstmt.setString(1, name);
+             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+            pstmt.setString(1, name);// Set parameter for name
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     bean = new CollegeBean();
                     populate(rs, bean);
                 }
             }
-        } catch (Exception e) {
-            log.error("Database Exception in find by Name", e);
-            throw new ApplicationException("Exception: Exception in getting College by name - " + e.getMessage());
+        } catch (SQLException e) {
+            log.error("Database Exception in find by Name ",e);
+			throw new ApplicationException("Exception: Exception in getting College by name - " + e.getMessage());
         }
-        log.debug("Model findByName End");
-        return bean;
+        return null;
     }
 
     public CollegeBean findByPK(long pk) throws ApplicationException {
@@ -128,14 +126,14 @@ public class CollegeModel extends BaseModel {
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     bean = new CollegeBean();
-                    populate(rs, bean);
+                    populate(rs,bean);
                 }
-            }
-        } catch (Exception e) {
-            log.error("Database Exception in findByPK", e);
-            throw new ApplicationException("Exception: Error in getting College by PK - " + e.getMessage());
-        }
-        log.debug("Model findByPK End");
+              }
+          } catch (SQLException e) {
+              log.error("Database Exception in findByPK" + e);
+              throw new ApplicationException("Exception: Error in getting College by PK - " + e.getMessage());
+          }
+        log.debug("Find By PK End");
         return bean;
     }
 
@@ -149,8 +147,9 @@ public class CollegeModel extends BaseModel {
         bean.setModifiedDatetime(new Timestamp(System.currentTimeMillis()));
 
         try (Connection conn = JDBCDataSource.getConnection()) {
-            conn.setAutoCommit(false);
-            try (PreparedStatement pstmt = conn.prepareStatement(
+            try {
+                conn.setAutoCommit(false);
+                try (PreparedStatement pstmt = conn.prepareStatement(
                     "UPDATE ST_COLLEGE SET NAME=?,ADDRESS=?,STATE=?,CITY=?,PHONE_NO=?,CREATED_BY=?,MODIFIED_BY=?,CREATED_DATETIME=?,MODIFIED_DATETIME=? WHERE ID=?")) {
                 pstmt.setString(1, bean.getName());
                 pstmt.setString(2, bean.getAddress());
@@ -165,10 +164,13 @@ public class CollegeModel extends BaseModel {
                 pstmt.executeUpdate();
             }
             conn.commit();
-        } catch (Exception e) {
+        } catch(SQLException e) {
             log.error("Exception in updating college", e);
+            conn.rollback();
             throw new ApplicationException("Exception: Error updating college - " + e.getMessage());
-        }
+        }  finally {
+                conn.setAutoCommit(true);
+            }
         log.debug("Model update End");
     }
 
@@ -218,7 +220,7 @@ public class CollegeModel extends BaseModel {
                     list.add(cb);
                 }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             log.error("Database Exception in search", e);
             throw new ApplicationException("Exception: Error searching college - " + e.getMessage());
         }
@@ -257,30 +259,29 @@ public class CollegeModel extends BaseModel {
                 populate(rs, bean);
                 list.add(bean);
             }
-        } catch (Exception e) {
-            log.error("Database Exception in list", e);
-            throw new ApplicationException("Exception: Error listing colleges - " + e.getMessage());
-        }
+        } catch (SQLException e) {
+			log.error("Database Exception in list ", e);
+			throw new ApplicationException("Exception: Exception in getting list of users - " + e.getMessage());
+		}
+		log.debug("Model list End");
+		
+		return list;
+	}
+	@Override
+	public String getTableName() {
+		return "ST_COLLEGE";
+	}
 
-        log.debug("Model list End");
-        return list;
-    }
-
-    @Override
-    public String getTableName() {
-        return "ST_COLLEGE";
-    }
-
-    private void populate(ResultSet rs, CollegeBean bean) throws SQLException {
-        bean.setId(rs.getLong(1));
-        bean.setName(rs.getString(2));
-        bean.setAddress(rs.getString(3));
-        bean.setState(rs.getString(4));
-        bean.setCity(rs.getString(5));
-        bean.setPhoneNo(rs.getString(6));
-        bean.setCreatedBy(rs.getString(7));
-        bean.setModifiedBy(rs.getString(8));
-        bean.setCreatedDatetime(rs.getTimestamp(9));
-        bean.setModifiedDatetime(rs.getTimestamp(10));
-    }
+	private void populate(ResultSet rs, CollegeBean bean) throws SQLException {
+		bean.setId(rs.getLong(1));
+		bean.setName(rs.getString(2));
+		bean.setAddress(rs.getString(3));
+		bean.setState(rs.getString(4));
+		bean.setCity(rs.getString(5));
+		bean.setPhoneNo(rs.getString(6));
+		bean.setCreatedBy(rs.getString(7));
+		bean.setModifiedBy(rs.getString(8));
+		bean.setCreatedDatetime(rs.getTimestamp(9));
+		bean.setModifiedDatetime(rs.getTimestamp(10));
+	}
 }
