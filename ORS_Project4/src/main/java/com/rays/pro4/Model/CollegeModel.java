@@ -16,7 +16,7 @@ import java.util.List;
 
 /** JDBC Implementation of College Model.
  * @author Lokesh SOlanki
- *
+ */
  *
 public class CollegeModel extends BaseModel {
 	
@@ -131,13 +131,16 @@ public void delete(CollegeBean bean) throws ApplicationException {
                 }
             }
         } catch (Exception e) {
-            log.error("Database Exception in find by Name " + e);
-
-        log.debug("modal findByName End");
+            log.error("Database Exception in find by Name ",e);
+			throw new ApplicationException("Exception: Exception in getting College by name - " + e.getMessage());
+        }finally {
+			log.debug("modal findByName End");
+		}
+		
         return bean;
     }
 
-    public CollegeBean findByPK(long pk) throws ApplicationException {
+	public CollegeBean findByPK(long pk) throws ApplicationException {
         log.debug("Model findByPK Started");
         StringBuffer sql = new StringBuffer("SELECT * FROM ST_COLLEGE WHERE id=?");
         CollegeBean bean = null;
@@ -193,7 +196,7 @@ public void delete(CollegeBean bean) throws ApplicationException {
 				updateModifiedInfo(bean);
 			} catch (SQLException e) {
 				log.error("Database Exception in update college", e);
-				conn.rollback();
+				JDBCDataSource.trnRollback(conn);
 				throw new ApplicationException("Exception: Exception in updating College - " + e.getMessage());
 			}
 		} catch (Exception e) {
@@ -303,10 +306,11 @@ public void delete(CollegeBean bean) throws ApplicationException {
 				}
 			}
         } catch (Exception e) {
-			log.error("Database Exception in list", e);
+			log.error("Database Exception in list ", e);
 			throw new ApplicationException("Exception: Exception in getting list of users - " + e.getMessage());
 		}
 		log.debug("Model list End");
+		
 		return list;
 	}
 	@Override
@@ -337,5 +341,5 @@ public void delete(CollegeBean bean) throws ApplicationException {
 
     }
 
-
+}
 }
