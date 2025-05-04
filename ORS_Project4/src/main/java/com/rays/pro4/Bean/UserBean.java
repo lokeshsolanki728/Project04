@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.rays.pro4.Util.DataUtility;
+import com.rays.pro4.DTO.UserDTO;
 
 /**
  *
@@ -291,6 +292,25 @@ public class UserBean extends BaseBean {
         setModifiedBy(DataUtility.getString(request.getParameter("modifiedBy")));
     }
 
+	@Override
+	public UserDTO getDTO() {
+		UserDTO userDTO = new UserDTO();
+		userDTO.setId(id);
+		userDTO.setFirstName(firstName);
+		userDTO.setLastName(lastName);
+		userDTO.setLogin(login);
+		userDTO.setPassword(password);
+		userDTO.setDob(dob);
+		userDTO.setMobileNo(mobileNo);
+		userDTO.setRoleId(roleId);
+		userDTO.setUnSuccessfulLogin(unSuccessfulLogin);
+		userDTO.setGender(gender);
+		userDTO.setLastLogin(lastLogin);
+		userDTO.setLock(lock);
+		userDTO.setRegisterdIP(registerdIP);
+		userDTO.setLastLoginIP(lastLoginIP);
+		return userDTO;
+	}
 	/**
 	 * return all the attributes of the bean
 	 * @return String

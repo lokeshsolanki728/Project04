@@ -1,8 +1,11 @@
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<%@page import="com.rays.pro4.controller.UserRegistrationCtl" %>
-<%@page import="com.rays.pro4.controller.ORSView" %>
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<%@page import="com.rays.pro4.controller.UserRegistrationCtl"%>
+<%@page import="com.rays.pro4.controller.ORSView"%>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+	pageEncoding="ISO-8859-1"%>
+<%@page import="com.rays.pro4.Bean.UserBean"%>
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -20,19 +23,25 @@
     </head>
     <body>
 
-        <jsp:useBean id="bean" class="com.rays.pro4.Bean.UserBean" scope="request"></jsp:useBean>
-        <%@include file="Header.jsp" %>
+        <jsp:useBean id="bean" class="com.rays.pro4.Bean.UserBean"
+			scope="request"></jsp:useBean>
+        <%@include file="Header.jsp"%>
 
         <form action="<%=ORSView.USER_REGISTRATION_CTL%>" method="post">
 
-            <input type="hidden" name="id" value="${bean.id}">
-            <input type="hidden" name="createdBy" value="${bean.createdBy}">
-            <input type="hidden" name="modifiedBy" value="${bean.modifiedBy}">
-            <input type="hidden" name="createdDatetime" value="${bean.createdDatetime}">
-            <input type="hidden" name="modifiedDatetime" value="${bean.modifiedDatetime}">
+            <input type="hidden" name="id" value="${bean.id}"> <input
+				type="hidden" name="createdBy" value="${bean.createdBy}">
+            <input
+				type="hidden" name="modifiedBy" value="${bean.modifiedBy}"> <input
+				type="hidden" name="createdDatetime" value="${bean.createdDatetime}">
+            <input
+				type="hidden" name="modifiedDatetime" value="${bean.modifiedDatetime}">
 
             <div class="text-center">
                 <h1>
+                    <font color="red">
+                    	<c:out value="${error}" />
+                    </font>
                     <c:choose>
                         <c:when test="${not empty bean.id}">Update User</c:when>
                         <c:otherwise>Add User</c:otherwise>
@@ -52,8 +61,9 @@
                     <tr>
                         <th class="text-left"><label for="firstName">First Name <span class="required">*</span>:</label></th>
                         <td>
-                            <input type="text" id="firstName" name="firstName" placeholder="Enter First Name"
-                                   class="form-control" value="${bean.firstName}">
+                            <input type="text" id="firstName" name="firstName"
+								placeholder="Enter First Name" class="form-control"
+								value="${bean.firstName}">
                         </td>
                         <td>
                             <span class="error-message">${requestScope.firstName}</span>
@@ -63,8 +73,9 @@
                     <tr>
                         <th align="left"><label for="lastName">Last Name <span class="required">*</span>:</label></th>
                         <td>
-                            <input type="text" id="lastName" name="lastName" placeholder="Enter last Name"
-                                   class="form-control" value="${bean.lastName}">
+                            <input type="text" id="lastName" name="lastName"
+								placeholder="Enter last Name" class="form-control"
+								value="${bean.lastName}">
                         </td>
                         <td>
                             <span class="error-message">${requestScope.lastName}</span>
@@ -74,8 +85,9 @@
                     <tr>
                         <th align="left"><label for="login">Login Id <span class="required">*</span>:</label></th>
                         <td>
-                            <input type="text" id="login" name="login" placeholder="Enter valid Email-Id"
-                                   class="form-control" value="${bean.login}">
+                            <input type="text" id="login" name="login"
+								placeholder="Enter valid Email-Id" class="form-control"
+								value="${bean.login}">
                         </td>
                         <td>
                             <span class="error-message">${requestScope.login}</span>
@@ -86,12 +98,15 @@
                         <th align="left"><label for="gender">Gender <span class="required">*</span>:</label></th>
                         <td>
                             <select id="gender" name="gender" class="form-control">
-                            <option value="">Select Gender</option>
-                            <option value="Male" ${bean.gender == 'Male' ? 'selected' : ''}>Male</option>
-                            <option value="Female" ${bean.gender == 'Female' ? 'selected' : ''}>Female</option>
-                        </select>
+                                <option value="">Select Gender</option>
+                                <option value="Male"
+                                    <c:if test="${bean.gender == 'Male'}"> selected </c:if>>Male</option>
+                                <option value="Female"
+                                    <c:if test="${bean.gender == 'Female'}"> selected </c:if>>Female</option>
+                            </select>
                         </td>
-                        <td>                           
+                        <td>
+
                             <span class="error-message">${requestScope.gender}</span>
                         </td>                      
                     </tr>
@@ -99,8 +114,9 @@
                     <tr>
                         <th class="text-left"><label for="udate">Date Of Birth <span class="required">*</span>:</label></th>
                         <td>
-                            <input type="text" name="dob" id="udate"  class="form-control"
-                                   placeholder="Enter Dob " value="${bean.dob}" readonly="readonly">
+                            <input type="text" name="dob" id="udate" class="form-control"
+								placeholder="Enter Dob " value="${bean.dob}"
+								readonly="readonly">
                             <span class="error-message">${requestScope.dob}</span>
                         </td>                      
                        
@@ -109,9 +125,10 @@
                     <tr>
                         <th class="text-left"><label for="mobileNo">Mobile No <span class="required">*</span>:</label></th>
                         <td>
-                            <input type="text" name="mobileNo" id="mobileNo" placeholder="Enter Mobile No"
-                                   class="form-control" maxlength="10" value="${bean.mobileNo}">
-                           <span class="error-message">${requestScope.mobileNo}</span>
+                            <input type="text" name="mobileNo" id="mobileNo"
+								placeholder="Enter Mobile No" class="form-control"
+								maxlength="10" value="${bean.mobileNo}"> <span
+								class="error-message">${requestScope.mobileNo}</span>
                         </td>
                     </tr>
 
@@ -119,8 +136,9 @@
                         <th class="text-left"><label for="password">Password <span class="required">*</span>:</label></th>
                         <td>
                             <input type="password" name="password" id="password" placeholder="Enter Password"
-                                   class="form-control" value="${bean.password}">
-                        </td>
+								class="form-control" value="${bean.password}">
+						</td>
+
                         <td>
                             <div class="error-message">${requestScope.password}</div>
                         </td>
@@ -130,8 +148,9 @@
                         <th class="text-left"><label for="confirmPassword">Confirm Password <span class="required">*</span>:</label></th>
                         <td>
                             <input type="password" name="confirmPassword" id="confirmPassword"
-                                   placeholder="Re-Enter password" class="form-control" value="${bean.confirmPassword}">
-                        </td>
+								placeholder="Re-Enter password" class="form-control"
+								value="${bean.confirmPassword}">
+						</td>
                         <td>
                            <span class="error-message">${requestScope.confirmPassword}</span>
                         </td>
@@ -139,16 +158,18 @@
                     <tr>
                         <th></th>
                         <td colspan="2"> &nbsp; &emsp;
-                            <input type="submit" name="operation" value="<%=UserRegistrationCtl.OP_SIGN_UP%>" class="btn btn-primary">
+                            <input type="submit" name="operation"
+								value="<%=UserRegistrationCtl.OP_SIGN_UP%>"
+								class="btn btn-primary"> &nbsp; <input type="submit"
+								name="operation" value="<%=UserRegistrationCtl.OP_RESET%>">
                             &nbsp;
-                            <input type="submit" name="operation" value="<%=UserRegistrationCtl.OP_RESET%>">
                         </td>
                     </tr>
                 </table>
             </div>
         </form>
 
-        <%@ include file="Footer.jsp" %>
+        <%@ include file="Footer.jsp"%>
 
     </body>
 </html>

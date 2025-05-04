@@ -1,14 +1,9 @@
 package com.rays.pro4.Bean;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Date;
-
+import com.rays.pro4.DTO.BaseDTO;
+import com.rays.pro4.DTO.TimeTableDTO;
 import javax.servlet.http.HttpServletRequest;
-
-import com.rays.pro4.Util.DataUtility;
-import org.apache.log4j.Logger;
-
 
 /**
  * TimeTable JavaBean encapsulates TimeTable attributes.
@@ -17,8 +12,6 @@ import org.apache.log4j.Logger;
  *
  */
 public class TimeTableBean extends BaseBean{
-
-    private static Logger log = Logger.getLogger(TimeTableBean.class);
 
     private long courseId;
     private String courseName;
@@ -173,8 +166,7 @@ public class TimeTableBean extends BaseBean{
         this.description = description;
     }
 
-	/**
-	 * return the id of the bean
+    /**
 	 * @return String
 	 */
 	@Override
@@ -204,27 +196,24 @@ public class TimeTableBean extends BaseBean{
 				+ modifiedDatetime + "]";
 	}
 
-	   /**
-     *  Populate bean object from request parameters
-     * @param request the request
-     */
-    @Override
-    public void populate(HttpServletRequest request) {
-        setId(DataUtility.getLong(request.getParameter("id")));
-        setCourseId(DataUtility.getLong(request.getParameter("courseId")));
-        setCourseName(DataUtility.getString(request.getParameter("courseName")));
-        setSubjectId(DataUtility.getLong(request.getParameter("subjectId")));
-        setSubjectName(DataUtility.getString(request.getParameter("subjectName")));
-        setSemester(DataUtility.getString(request.getParameter("semester")));
-        setExamTime(DataUtility.getString(request.getParameter("examTime")));
-        setDescription(DataUtility.getString(request.getParameter("description")));
-         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            setExamDate(sdf.parse(request.getParameter("examDate")));
-        } catch (Exception e) {
-            log.error("Populate Exception", e);
-        }
-    }
-
-
+	@Override
+	public BaseDTO getDTO() {
+		TimeTableDTO timeTableDTO = new TimeTableDTO();
+		timeTableDTO.setId(id);
+		timeTableDTO.setCourseId(courseId);
+		timeTableDTO.setSubjectId(subjectId);
+		timeTableDTO.setSemester(semester);
+		timeTableDTO.setExamDate(examDate);
+		timeTableDTO.setExamTime(examTime);
+		timeTableDTO.setDescription(description);
+		return timeTableDTO;
+	}
+    
+    
+    
+    
+    
+    
+    
+    
 }

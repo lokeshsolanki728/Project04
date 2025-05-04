@@ -1,11 +1,12 @@
---- a/ORS_Project4/src/main/webapp/jsp/FacultyView.jsp
-+++ b/ORS_Project4/src/main/webapp/jsp/FacultyView.jsp
-@@
+
 <%@ taglib uri=\"http://java.sun.com/jsp/jstl/core\" prefix=\"c\" %>
 <%@ taglib uri=\"http://java.sun.com/jsp/jstl/functions\" prefix=\"fn\" %>
 <%@ taglib uri=\"http://java.sun.com/jsp/jstl/fmt\" prefix=\"fmt\" %>
 <%@ page import=\"com.rays.pro4.controller.FacultyCtl\" %>
 <%@ page import=\"com.rays.pro4.controller.ORSView\" %>
+<%@ page import="com.rays.pro4.Bean.FacultyBean" %>
+<%@ page import="java.util.List" %>
+<%@ page import="com.rays.pro4.Bean.CollegeBean" %>
 <%@ page language=\"java\" contentType=\"text/html; charset=ISO-8859-1\" pageEncoding=\"ISO-8859-1\" %>
 
 <html>
@@ -55,7 +56,7 @@
                 </c:if>
             </div>
 
-            <input type="hidden" name="id" value="${bean.id}" />
+ <input type="hidden" name="id" value="${bean.id}" />
             <input type="hidden" name="createdBy" value="${bean.createdBy}" />
             <input type="hidden" name="modifiedBy" value="${bean.modifiedBy}" />
             <input type="hidden" name="createdDatetime" value="${bean.createdDatetime}" />
@@ -65,7 +66,7 @@
                 <tr>
                     <th class="text-left"><label for="firstname">First Name <span class="required">*</span>:</label></th>
                     <td><input type="text" id="firstname" name="firstname" placeholder="Enter First Name"
-                               class="form-control" value="${bean.firstName}" maxlength="45" />
+                               class="form-control" value="${bean.firstname}" maxlength="45" />
                         <span class="error-message">${requestScope.firstname}</span>
                     </td>
                 </tr>
@@ -116,7 +117,7 @@
                     <td>
                         <select id="subjectId" name="subjectId" class="form-control">
                             <option value="" selected>Select Subject</option>
-                            <c:forEach var="subject" items="${SubjectList}">
+ <c:forEach var="subject" items="${SubjectList}">
                                 <option value="${subject.id}" ${bean.subjectId == subject.id ? 'selected' : ''}>${subject.subjectName}</option>
                             </c:forEach>
                         </select>
@@ -134,7 +135,7 @@
                 <tr>
                     <th class="text-left"><label for="emailId">Login ID <span class="required">*</span>:</label></th>
                     <td><input type="text" id="emailId" name="emailId" class="form-control" maxlength="50"
-                               placeholder="Enter Email ID" value="${bean.emailId}" />
+                               placeholder="Enter Email ID" value="${bean.emailID}" />
                         <span class="error-message">${requestScope.emailId}</span>
                     </td>
                 </tr>

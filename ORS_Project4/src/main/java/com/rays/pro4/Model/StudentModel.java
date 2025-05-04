@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Bean.CollegeBean;
 import com.rays.pro4.Bean.StudentBean;
+import com.rays.pro4.DTO.StudentDTO;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DatabaseException;
 import com.rays.pro4.Exception.DuplicateRecordException;
@@ -49,17 +50,17 @@ public class StudentModel extends BaseModel{
     }
 
 
-	public long add(StudentBean bean) throws ApplicationException, DuplicateRecordException {
+	public long add(StudentDTO dto) throws ApplicationException, DuplicateRecordException {
 		log.debug("Model add Started");
 		long pk = 0;
 		// Fetch college details
 		CollegeModel cModel = new CollegeModel();
-		CollegeBean collegeBean = cModel.findByPK(bean.getCollegeId());
-		bean.setCollegeName(collegeBean.getName());
+		CollegeDTO collegeDTO = cModel.findByPK(dto.getCollegeId());
+		dto.setCollegeName(collegeDTO.getName());
 		Connection conn = null;
-		StudentBean duplicateName = findByEmailId(bean.getEmail());
-		if (duplicateName != null) {
-			throw new DuplicateRecordException("Email already exists");
+		StudentDTO duplicate = findByEmailId(dto.getEmail());
+		if (duplicate != null) {
+			throw new DuplicateRecordException("Email already exists"+duplicate.getEmail());
 		}
         try {
             conn = JDBCDataSource.getConnection();
@@ -67,17 +68,17 @@ public class StudentModel extends BaseModel{
             pk = nextPK();
             bean.setId(pk);
             bean.setCreatedDatetime(new java.sql.Timestamp(new java.util.Date().getTime()));
-            bean.setModifiedDatetime(new java.sql.Timestamp(new java.util.Date().getTime()));
+            dto.setModifiedDatetime(new java.sql.Timestamp(new java.util.Date().getTime()));
 
             try (PreparedStatement pstmt = conn.prepareStatement("INSERT INTO ST_STUDENT VALUES(?,?,?,?,?,?,?,?,?,?,?,?)")) {
                 pstmt.setLong(1, pk);
-                pstmt.setLong(2, bean.getCollegeId());
-                pstmt.setString(3, bean.getCollegeName());
-                pstmt.setString(4, bean.getFirstName());
-                pstmt.setString(5, bean.getLastName());
-                pstmt.setDate(6, new java.sql.Date(bean.getDob().getTime()));
-                pstmt.setString(7, bean.getMobileNo());
-                pstmt.setString(8, bean.getEmail());
+                pstmt.setLong(2, dto.getCollegeId());
+                pstmt.setString(3, dto.getCollegeName());
+                pstmt.setString(4, dto.getFirstName());
+                pstmt.setString(5, dto.getLastName());
+                pstmt.setDate(6, new java.sql.Date(dto.getDob().getTime()));
+                pstmt.setString(7, dto.getMobileNo());
+                pstmt.setString(8, dto.getEmail());
                 pstmt.setString(9, bean.getCreatedBy());
                 pstmt.setString(10, bean.getModifiedBy());
                 pstmt.setTimestamp(11, bean.getCreatedDatetime());
@@ -118,10 +119,10 @@ public class StudentModel extends BaseModel{
 		log.debug("Model delete End");
 	}
 
-	public StudentBean findByEmailId(String Email) throws ApplicationException {
+	public StudentDTO findByEmailId(String Email) throws ApplicationException {
 		log.debug("Model findBy Email Started");
 		StringBuffer sql = new StringBuffer("SELECT * FROM ST_STUDENT WHERE EMAIL_id=?");
-		StudentBean bean = null;
+		StudentDTO dto = null;
         try (Connection conn = JDBCDataSource.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
             pstmt.setString(1, Email);
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -137,27 +138,28 @@ public class StudentModel extends BaseModel{
             throw new ApplicationException("Exception: Exception in getting student by email - " + e.getMessage());
         }
         log.debug("Model findBy Email End");
-        return bean;
+        return dto;
 	}
 	
-	public StudentBean findByPK(long pk) throws ApplicationException {
+	public StudentDTO findByPK(long pk) throws ApplicationException {
 		log.debug("Model findByPK Started");
 		StringBuffer sql = new StringBuffer("SELECT * FROM ST_STUDENT WHERE ID=?");
-		StudentBean bean = null;
+		StudentDTO dto = null;
 		try (Connection conn = JDBCDataSource.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
             pstmt.setLong(1, pk);// Set the primary key parameter
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    bean = new StudentBean();
-                    populate(rs, bean);
+                    dto = new StudentDTO();
+                    populateBean(rs, dto);
                 }
             }
 		} catch (SQLException e) {
 			log.error("Database Exception in findByPK", e);
 			throw new ApplicationException("Exception: Exception in getting student by pk - " + e.getMessage());
 		}
+
 		log.debug("Model findByPK End");
-		return bean;
+		return dto;
 	}
 
 	public void Update(StudentBean bean) throws ApplicationException, DuplicateRecordException {
@@ -331,7 +333,7 @@ public class StudentModel extends BaseModel{
         log.debug("Model list End");
         return list;
     }
-    private void populate(ResultSet rs, StudentBean bean) throws SQLException {
+    private void populateBean(ResultSet rs, StudentDTO dto) throws SQLException {
         bean.setId(rs.getLong(1));
         bean.setCollegeId(rs.getLong(2));
         bean.setCollegeName(rs.getString(3));

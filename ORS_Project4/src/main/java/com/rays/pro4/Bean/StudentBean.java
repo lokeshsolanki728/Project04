@@ -1,13 +1,9 @@
 package com.rays.pro4.Bean;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import javax.servlet.http.HttpServletRequest;
-import org.apache.log4j.Logger;
+import com.rays.pro4.DTO.StudentDTO;
 
-import com.rays.pro4.Util.DataUtility;
 
 /**
  * Student JavaBean encapsulates Student attributes.
@@ -18,7 +14,6 @@ import com.rays.pro4.Util.DataUtility;
 public class StudentBean extends BaseBean {
 
 	private String firstName; 
-	private static Logger log = Logger.getLogger(StudentBean.class);
 
 	private String lastName; 
 	private Date dob; 
@@ -184,18 +179,36 @@ public class StudentBean extends BaseBean {
 				+ id + ", createdBy=" + createdBy + ", modifiedBy=" + modifiedBy + ", createdDatetime="
 				+ createdDatetime + ", modifiedDatetime=" + modifiedDatetime + "]";
 	}
-	
+
+	/**
+     * Converts the StudentBean object to a StudentDTO object.
+     *
+     * @return A new StudentDTO object populated with data from this StudentBean.
+     */
     @Override
-	public void populate(HttpServletRequest request) {
-		log.debug("StudentBean populate method start");
-		setId(DataUtility.getLong(request.getParameter("id")));
-		setFirstName(DataUtility.getString(request.getParameter("firstname")));
-		setLastName(DataUtility.getString(request.getParameter("lastname")));
-		setDob(DataUtility.getDate(request.getParameter("dob")));
-		setMobileNo(DataUtility.getString(request.getParameter("mobile")));
-		setEmail(DataUtility.getString(request.getParameter("email")));
-		setCollegeId(DataUtility.getLong(request.getParameter("collegename")));
-		setCreatedBy(DataUtility.getString(request.getParameter("createdby")));
-		log.debug("StudentBean populate method end");
-	}
+	public com.rays.pro4.DTO.BaseDTO getDTO() {
+		StudentDTO studentDTO = new StudentDTO();
+		studentDTO.setFirstName(firstName);
+		studentDTO.setLastName(lastName);
+		studentDTO.setDob(dob);
+		studentDTO.setMobileNo(mobileNo);
+		studentDTO.setEmail(email);
+		studentDTO.setCollegeId(collegeId);
+        studentDTO.setId(id);
+        studentDTO.setCreatedBy(createdBy);
+        studentDTO.setModifiedBy(modifiedBy);
+        return studentDTO;
+    }
+}
+    @Override
+    public StudentDTO getDTO() {
+        StudentDTO studentDTO = new StudentDTO();
+        studentDTO.setId(id);
+        studentDTO.setFirstName(firstName);
+        studentDTO.setLastName(lastName);
+        studentDTO.setDob(dob);
+        studentDTO.setMobileNo(mobileNo);
+        studentDTO.setEmail(email);
+        return studentDTO;
+    }
 }

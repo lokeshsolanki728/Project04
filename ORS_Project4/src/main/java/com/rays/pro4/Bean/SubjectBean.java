@@ -1,9 +1,9 @@
 package com.rays.pro4.Bean;
 
-import javax.servlet.http.HttpServletRequest;
 
+import java.util.Date;
+import com.rays.pro4.DTO.SubjectDTO;
 
-import com.rays.pro4.Util.DataUtility;
 
 /**
  * Subject JavaBean encapsulates Subject attributes.
@@ -11,6 +11,7 @@ import com.rays.pro4.Util.DataUtility;
  * @author Lokesh SOlanki
  */
 public class SubjectBean extends BaseBean {
+
 	
     private String subjectName;
     private String description;
@@ -95,12 +96,12 @@ public class SubjectBean extends BaseBean {
      * @return String
      */
     @Override
-    public String getKey() {
+    public String getkey() {
         return String.valueOf(getId());
     }
 
     /**
-     * return the name of the subject
+     * return the name of the Subject
      *
      * @return String
      */
@@ -110,28 +111,28 @@ public class SubjectBean extends BaseBean {
     }
 
     /**
-     * return the all attribute
+     * return all the attributes
      *
-     * @return String
+     * @return String of attributes
      */
     @Override
     public String toString() {
         return "SubjectBean [subjectName=" + subjectName + ", description=" + description + ", courseId=" + courseId
                 + ", courseName=" + courseName + ", id=" + id + ", createdBy=" + createdBy + ", modifiedBy="
-                + modifiedBy + ", createdDatetime=" + createdDatetime + ", modifiedDatetime=" + modifiedDatetime + "]";
-    }
-
-    /**
-     * Populates bean object from request parameters
-     *
-     * @param request the request
-     */
-    @Override
-    public void populate(HttpServletRequest request) {
-        setId(DataUtility.getLong(request.getParameter("id")));
-        setSubjectName(DataUtility.getString(request.getParameter("subjectName")));
-        setDescription(DataUtility.getString(request.getParameter("description")));
-        setCourseId(DataUtility.getLong(request.getParameter("courseId")));
-        setCourseName(DataUtility.getString(request.getParameter("courseName")));
+                + modifiedBy + ", createdDatetime=" + createdDatetime + ", modifiedDatetime=" + modifiedDatetime + "]";   
+	}
+     @Override
+	public com.rays.pro4.DTO.BaseDTO getDTO() {
+		SubjectDTO dto = new SubjectDTO();
+		dto.setId(id);
+		dto.setSubjectName(subjectName);
+		dto.setCourseId(courseId);
+		dto.setCourseName(courseName);
+		dto.setDescription(description);
+		dto.setCreatedBy(createdBy);
+		dto.setModifiedBy(modifiedBy);
+		dto.setCreatedDatetime(createdDatetime);
+		dto.setModifiedDatetime(modifiedDatetime);
+		return dto;
     }
 }

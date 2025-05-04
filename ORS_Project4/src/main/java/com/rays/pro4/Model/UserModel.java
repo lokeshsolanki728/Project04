@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 
 import com.rays.pro4.Bean.RoleBean;
 import com.rays.pro4.Bean.UserBean;
+import com.rays.pro4.DTO.UserDTO;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DatabaseException;
 import com.rays.pro4.Exception.DuplicateRecordException;import com.rays.pro4.Util.EmailMessage;
@@ -134,13 +135,13 @@ public class UserModel extends BaseModel {
      * @param login
      * @throws ApplicationException
      */
-    public UserBean findByLogin(String login) throws ApplicationException {
+    public UserDTO findByLogin(String login) throws ApplicationException {
         log.debug("Model findByLogin Started");
         Connection conn = null;
-        UserBean bean = null;
+        UserDTO dto = null;
         try {
             conn = JDBCDataSource.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM ST_USER WHERE LOGIN = ?");
+            PreparedStatement pstmt = conn.prepareStatement("SELECT ID, FIRST_NAME, LAST_NAME, LOGIN, PASSWORD, DOB, MOBILE_NO, ROLE_ID, GENDER FROM ST_USER WHERE LOGIN = ?");
             pstmt.setString(1, login);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
@@ -156,7 +157,18 @@ public class UserModel extends BaseModel {
             JDBCDataSource.closeConnection(conn);
         }
         log.debug("Model findByLogin End");
-        return bean;
+
+        dto.setId(rs.getLong(1));
+        dto.setFirstName(rs.getString(2));
+        dto.setLastName(rs.getString(3));
+        dto.setLogin(rs.getString(4));
+        dto.setPassword(rs.getString(5));
+        dto.setDob(rs.getDate(6));
+        dto.setMobileNo(rs.getString(7));
+        dto.setRoleId(rs.getLong(8));
+        dto.setGender(rs.getString(9));
+
+        return dto;
     }
 
     /**
@@ -499,7 +511,7 @@ public class UserModel extends BaseModel {
         long pk = 0;
         Connection conn = null;
         try {
-              UserBean duplicateUser = findByLogin(bean.getLogin());
+              UserDTO duplicateUser = findByLogin(bean.getLogin());
             if (duplicateUser != null) {
                 throw new DuplicateRecordException("Login id already exists");
             }
@@ -550,7 +562,7 @@ public class UserModel extends BaseModel {
         Connection conn = null;
         try {
             conn = JDBCDataSource.getConnection();
-            UserBean bean = findByLogin(login);
+            UserDTO bean = findByLogin(login);
             if (bean != null) {
                 conn.setAutoCommit(false);
                 PreparedStatement pstmt = conn.prepareStatement("UPDATE ST_USER SET PASSWORD = ? WHERE LOGIN = ?");

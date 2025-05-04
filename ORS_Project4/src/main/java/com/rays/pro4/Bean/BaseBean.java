@@ -1,11 +1,12 @@
 package com.rays.pro4.Bean;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
-import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
+import java.sql.Timestamp;
+
 
 /**
+ *
  * Parent class of all Beans in application. It contains generic attributes. *
  * @author Lokesh SOlanki *
  */
@@ -16,13 +17,13 @@ public abstract class BaseBean implements Serializable, DropdownListBean {
     protected String modifiedBy;
     protected Timestamp createdDatetime;
     protected Timestamp modifiedDatetime;
+    protected static Logger log = Logger.getLogger(BaseBean.class);
 
 
      public abstract String getValue() ;
     
-     public abstract void populate(HttpServletRequest request);
-     
      public abstract String getkey() ;
+     
 	public long getId() {
 		return id;
 	}
@@ -68,5 +69,8 @@ public abstract class BaseBean implements Serializable, DropdownListBean {
         return "BaseBean [id=" + id + ", createdBy=" + createdBy + ", modifiedBy=" + modifiedBy + ", createdDatetime="
                 + createdDatetime + ", modifiedDatetime=" + modifiedDatetime + "]";
     }
+
+    public abstract BaseDTO getDTO();
+
 
 }

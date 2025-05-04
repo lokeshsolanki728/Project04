@@ -2,6 +2,8 @@ package com.rays.pro4.controller;
 
 import java.io.IOException;
 
+import com.rays.pro4.DTO.UserDTO;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -63,20 +65,19 @@ public class LoginCtl extends BaseCtl<UserBean> {
 		return pass;
 	}
 
-	/**
-	 * Populates bean object from request parameters
-	 * @param request the request
-	 * @return the user bean
-	 * @see com.rays.pro4.controller.BaseCtl#populateBean(javax.servlet.http.HttpServletRequest)
-	 */
-	@Override
-	protected BaseBean populateBean(final HttpServletRequest request) {
-		log.debug("LoginCtl Method populatebean Started");
-		final UserBean bean = new UserBean();
-		bean.populate(request);
-		
-		bean.setLogin(DataUtility.getString(request.getParameter("login")));
-		bean.setPassword(DataUtility.getString(request.getParameter("password")));
+	protected void populateBean(final HttpServletRequest request, UserBean bean) {
+        log.debug("LoginCtl Method populatebean Started");
+
+        bean.setLogin(DataUtility.getString(request.getParameter("login")));
+        bean.setPassword(DataUtility.getString(request.getParameter("password")));
+    }
+
+    /**
+     * @see com.rays.pro4.controller.BaseCtl#populateBean(javax.servlet.http.HttpServletRequest)
+     */
+    @Override
+    protected BaseBean populateBean(final HttpServletRequest request) {
+        final UserBean bean = new UserBean();
 		bean.setId(DataUtility.getLong(request.getParameter("id")));
 		
 		log.debug("LoginCtl Method populatebean Ended");
@@ -126,15 +127,16 @@ public class LoginCtl extends BaseCtl<UserBean> {
 		String forward = getView();
 		
 		try {
-			final javax.servlet.http.HttpSession session = request.getSession(true);
-			final UserBean uBean = model.authenticate(bean.getLogin(), bean.getPassword());
-			if (uBean != null) {
-				session.setAttribute("user", uBean);
-				final RoleBean rolebean = roleModel.findByPK(uBean.getRoleId());
-				if (rolebean != null) {
-					session.setAttribute("role", rolebean.getName());
-				}
-				final String uri = request.getParameter("URI");
+            final javax.servlet.http.HttpSession session = request.getSession(true);
+            UserDTO uDTO = model.authenticate(bean.getLogin(), bean.getPassword());
+            if (uDTO != null) {
+                UserBean uBean = new UserBean();
+                uBean.getDTO().copy(uDTO);
+                session.setAttribute("user", uBean);
+                final RoleBean rolebean = roleModel.findByPK(uBean.getRoleId());
+                if (rolebean != null) {
+                    session.setAttribute("role", rolebean.getName());
+                }
 				if (DataUtility.getString(uri).equalsIgnoreCase("null")) {
 					ServletUtility.redirect(ORSView.WELCOME_CTL, request, response);
 				} else {
@@ -203,10 +205,13 @@ public class LoginCtl extends BaseCtl<UserBean> {
 			throws ServletException, IOException {
 
 		log.debug("LoginCtl Method doPost Started");		
+        UserDTO dto = new UserDTO();
 		final String operation = DataUtility.getString(request.getParameter("operation"));
-		UserBean bean = (UserBean) populateBean(request);
-		
-		
+        UserBean bean = new UserBean();
+        populateBean(request, bean);
+
+        dto = bean.getDTO();
+
 		if (OP_SIGN_IN.equalsIgnoreCase(operation)) {
 			if (validate(request)) {
 					try {

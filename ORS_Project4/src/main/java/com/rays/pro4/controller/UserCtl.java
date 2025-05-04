@@ -1,6 +1,7 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -11,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import com.rays.pro4.Bean.BaseBean;
+import com.rays.pro4.DTO.UserDTO;
 import com.rays.pro4.Bean.UserBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
@@ -50,6 +52,19 @@ public class UserCtl extends BaseCtl {
 		return pass;
 	}
 
+	protected void populateBean(final HttpServletRequest request, UserBean bean) {
+		log.debug("UserCtl Method populateBean Started");
+		bean.setRoleId(DataUtility.getLong(request.getParameter("roleId")));
+		bean.setFirstName(DataUtility.getString(request.getParameter("firstName")));
+		bean.setLastName(DataUtility.getString(request.getParameter("lastName")));
+		bean.setLogin(DataUtility.getString(request.getParameter("login")));
+		bean.setPassword(DataUtility.getString(request.getParameter("password")));
+		bean.setGender(DataUtility.getString(request.getParameter("gender")));
+		bean.setMobileNo(DataUtility.getString(request.getParameter("mobileNo")));
+		bean.setDob(DataUtility.getDate(request.getParameter("dob")));
+		log.debug("UserCtl Method populateBean Ended");
+	}
+
 	@Override
 	protected BaseBean populateBean(final HttpServletRequest request) {
 		log.debug("UserCtl Method populateBean Started");
@@ -60,12 +75,10 @@ public class UserCtl extends BaseCtl {
 		bean.setFirstName(DataUtility.getString(request.getParameter("firstName")));
 		bean.setLastName(DataUtility.getString(request.getParameter("lastName")));
 		bean.setLogin(DataUtility.getString(request.getParameter("login")));
-		bean.setPassword(DataUtility.getString(request.getParameter("password")));
-		bean.setConfirmPassword(DataUtility.getString(request.getParameter("confirmPassword")));
 		bean.setGender(DataUtility.getString(request.getParameter("gender")));
 		bean.setMobileNo(DataUtility.getString(request.getParameter("mobileNo")));
 		bean.setDob(DataUtility.getDate(request.getParameter("dob")));
-		populateDTO(bean, request);
+		
 
 		log.debug("UserCtl Method populateBean Ended");
 		return bean;
@@ -77,6 +90,7 @@ public class UserCtl extends BaseCtl {
 	protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
 			throws ServletException, IOException {
 		log.debug("UserCtl Method doGet Started");
+		UserBean bean = null;
 
 		final String op = DataUtility.getString(request.getParameter("operation"));
 
@@ -88,13 +102,17 @@ public class UserCtl extends BaseCtl {
 			return;
 		}
 		if (id > 0 || op != null) {
-			UserBean bean;
+			UserDTO userDTO;
 			try {
-				bean = model.findByPK(id);
-				if (bean == null) {
+				userDTO = model.findByPK(id);
+				if (userDTO == null) {
 					ServletUtility.setErrorMessage(PropertyReader.getValue("error.notfound","User"), request);
+				} else {
+					bean = new UserBean();
+					setBean(userDTO, bean);
+					ServletUtility.setBean(bean, request);
 				}
-				ServletUtility.setBean(bean, request);
+
 
 			} catch (final ApplicationException e) {
 				log.error("Application Exception", e);
@@ -119,16 +137,20 @@ public class UserCtl extends BaseCtl {
 		final String op = DataUtility.getString(request.getParameter("operation"));
 
 		final long id = DataUtility.getLong(request.getParameter("id"));
-
-		final UserBean bean = (UserBean) populateBean(request);
+		UserDTO dto = new UserDTO();
 
 		try {
 			if (OP_SAVE.equalsIgnoreCase(op)) {
+				UserBean bean = new UserBean();
+				populateBean(request, bean);
 				if (validate(request)) {
 						if (id > 0) {
-							model.update(bean);							
+							dto = bean.getDTO();
+							model.update(dto);							
 						} else {
-							model.add(bean);
+							dto = bean.getDTO();
+							model.add(dto);
+							
 							
 						}
 					ServletUtility.setSuccessMessage(PropertyReader.getValue("success.save", "User"), request);
@@ -161,4 +183,21 @@ public class UserCtl extends BaseCtl {
 		return ORSView.USER_VIEW;
 	}
 
+	@Override
+	protected void populateDTO(BaseBean bean, HttpServletRequest request) {
+		log.debug("UserCtl Method populateDTO Started");
+		
+		log.debug("UserCtl Method populateDTO End");
+	}
+	
+	private void setBean(UserDTO dto, UserBean bean) {
+		bean.setId(dto.getId());
+		bean.setFirstName(dto.getFirstName());
+		bean.setLastName(dto.getLastName());
+		bean.setLogin(dto.getLogin());
+		bean.setGender(dto.getGender());
+		bean.setDob(dto.getDob());
+		bean.setMobileNo(dto.getMobileNo());
+		bean.setRoleId(dto.getRoleId());
+	}
 }

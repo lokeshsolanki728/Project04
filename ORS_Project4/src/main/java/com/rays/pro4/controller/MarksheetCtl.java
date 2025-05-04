@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.rays.pro4.Bean.MarksheetBean;
+import com.rays.pro4.DTO.MarksheetDTO;
 import com.rays.pro4.Bean.StudentBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
@@ -79,6 +80,16 @@ public class MarksheetCtl extends BaseCtl<MarksheetBean> { // Start of class
         return pass;
     }
 
+    protected MarksheetDTO populateDTO(HttpServletRequest request, MarksheetDTO dto) {
+        dto.setId(DataUtility.getLong(request.getParameter("id")));
+        dto.setRollNo(DataUtility.getString(request.getParameter("rollNo")));
+        dto.setStudentId(DataUtility.getLong(request.getParameter("studentId")));
+        dto.setPhysics(DataUtility.getInt(request.getParameter("physics")));
+        dto.setChemistry(DataUtility.getInt(request.getParameter("chemistry")));
+        dto.setMaths(DataUtility.getInt(request.getParameter("maths")));
+        return dto;
+    }
+
     @Override
     protected MarksheetBean populateBean(final HttpServletRequest request) {
 
@@ -87,6 +98,15 @@ public class MarksheetCtl extends BaseCtl<MarksheetBean> { // Start of class
         bean.populate(request);
         log.debug("MarksheetCtl Method populatebean Ended");
         return bean;
+    }
+
+    protected void populateBean(HttpServletRequest request, MarksheetBean bean) {
+        bean.setId(DataUtility.getLong(request.getParameter("id")));
+        bean.setRollNo(DataUtility.getString(request.getParameter("rollNo")));
+        bean.setStudentld(DataUtility.getLong(request.getParameter("studentId")));
+        bean.setPhysics(DataUtility.getInt(request.getParameter("physics")));
+        bean.setChemistry(DataUtility.getInt(request.getParameter("chemistry")));
+        bean.setMaths(DataUtility.getInt(request.getParameter("maths")));
     }
 
 	/**
@@ -107,9 +127,11 @@ public class MarksheetCtl extends BaseCtl<MarksheetBean> { // Start of class
                 MarksheetBean bean;
                 try {
 
-                    bean = model.findByPK(id);
+                    MarksheetDTO dto = model.findByPK(id);
+                    bean = new MarksheetBean();
+                    bean.setDTO(dto);
                     ServletUtility.setBean(bean, request);
-                } catch (ApplicationException e) {
+                 } catch (ApplicationException e) {
                   log.error("Error finding Marksheet by ID", e);
                   handleDatabaseException(e, request, response);
                   return;
@@ -133,6 +155,7 @@ public class MarksheetCtl extends BaseCtl<MarksheetBean> { // Start of class
             op = DataUtility.getString(request.getParameter("operation"));
             final MarksheetBean bean = (MarksheetBean) populateBean(request);
             MarksheetModel model = new MarksheetModel();
+            MarksheetDTO dto = new MarksheetDTO();
             final long id = DataUtility.getLong(request.getParameter("id"));
 
             if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
@@ -140,10 +163,12 @@ public class MarksheetCtl extends BaseCtl<MarksheetBean> { // Start of class
                     if (validate(request)) {
                         if (id > 0) {
                              ServletUtility.setSuccessMessage(MessageConstant.MARKSHEET_UPDATE, request);
-                            model.update(bean);
+                            populateBean(request, bean);
+                            model.update(bean.getDTO());
                            } else {
-                            model.add(bean);
+                            populateBean(request, bean);
                             ServletUtility.setSuccessMessage(MessageConstant.MARKSHEET_ADD, request);
+                            model.add(bean.getDTO());
                         }
                     } else {
 

@@ -9,10 +9,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.rays.pro4.Bean.BaseBean;
-import com.rays.pro4.util.GetMarksheetValidator;
 import com.rays.pro4.Bean.MarksheetBean;
+import com.rays.pro4.Bean.BaseBean;
+import com.rays.pro4.DTO.MarksheetDTO;
 import com.rays.pro4.Exception.ApplicationException;
+import com.rays.pro4.Util.DataUtility;
+import com.rays.pro4.Util.GetMarksheetValidator;
 import com.rays.pro4.Model.MarksheetModel;
 import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.DataUtility;
@@ -48,16 +50,28 @@ public class GetMarksheetCtl extends BaseCtl<MarksheetBean> {
 		return pass;
 	}
 
+	protected void populateBean(HttpServletRequest request, MarksheetBean bean) {
+		bean.setRollNo(DataUtility.getString(request.getParameter("rollNo")));
+
+	}
 
 	/**
-	 * Populates bean object from request parameters
+	 * Populates dto object from request parameters
 	 * 
 	 * @param request
 	 * @return
 	 */
 	@Override
-	protected final BaseBean populateBean(final HttpServletRequest request) {
+	protected final void populateDTO(final HttpServletRequest request, MarksheetDTO dto) {
 		log.debug("GetMarksheetCtl Method populateBean Started");
+		dto.setRollNo(DataUtility.getString(request.getParameter("rollNo")));
+		log.debug("GetMarksheetCtl Method populatebean Ended");
+	}
+	
+	/**
+	 * Populates bean object from request parameters
+	 */
+	protected final MarksheetBean populateBean(final HttpServletRequest request) {
 		final MarksheetBean bean = new MarksheetBean();
 		bean.populate(request);
 		log.debug("GetMarksheetCtl Method populatebean Ended");
@@ -93,9 +107,9 @@ public class GetMarksheetCtl extends BaseCtl<MarksheetBean> {
 	 */
 
 
-	private void getMarksheet(final MarksheetBean bean, final HttpServletRequest request) throws ApplicationException {
+	private void getMarksheet(final MarksheetDTO dto, final HttpServletRequest request) throws ApplicationException {
 		log.debug("getMarksheet Method Started");
-        final MarksheetBean marksheetBean = model.findByRollNo(bean.getRollNo());
+        final MarksheetDTO marksheetDTO = model.findByRollNo(dto.getRollNo());
         if (marksheetBean == null) {
             ServletUtility.setErrorMessage("RollNo Does Not Exists", request);
         } else {
@@ -119,14 +133,15 @@ public class GetMarksheetCtl extends BaseCtl<MarksheetBean> {
 		log.debug("GetMarksheetCtl Method doPost Started");
 		final String operation = DataUtility.getString(request.getParameter("operation"));
 
-		final MarksheetBean bean = (MarksheetBean) populateBean(request);
+		final MarksheetDTO dto = new MarksheetDTO();
+		populateDTO(request, dto);
 
 		if (OP_GO.equalsIgnoreCase(operation)) {
 			if (validate(request)) {				
 				try {
-					getMarksheet(bean, request);					
+					getMarksheet(dto, request);					
 				} catch (final ApplicationException e) {
-					log.error("Error in get marksheet ", e);
+					log.error("Error in get marksheet", e);
 					handleDatabaseException(e, request, response);
 					return;
 				}

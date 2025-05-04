@@ -1,5 +1,7 @@
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@page import="com.rays.pro4.controller.TimetableCtl"%>
+<%@page import="com.rays.pro4.controller.TimeTableCtl"%>
 <%@page import="com.rays.pro4.controller.ORSView"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
@@ -39,7 +41,7 @@
 
 </head>
 <body>
-	<jsp:useBean id="bean" class="com.rays.pro4.Bean.TimeTableBean"
+	<jsp:useBean id="timeTableBean" class="com.rays.pro4.Bean.TimeTableBean"
 		scope="request"></jsp:useBean>
 
 	<form action="${ctx}${ORSView.TIMETABLE_CTL}" method="post">
@@ -50,7 +52,7 @@
 			<h1 class="text-center">
 				<c:choose>
 					<c:when test="${not empty bean.id && bean.id > 0}">
-						Update Time Table
+					Update Time Table
 					</c:when>
 					<c:otherwise>
 						Add Time Table
@@ -69,22 +71,22 @@
 				</c:if>
 			</div>
 
-			<input type="hidden" name="id" value="${bean.id}"> <input
-				type="hidden" name="createdby" value="${bean.createdBy}">
-			<input type="hidden" name="modifiedby" value="${bean.modifiedBy}">
+			<input type="hidden" name="id" value="${timeTableBean.id}"> <input
+				type="hidden" name="createdby" value="${timeTableBean.createdBy}">
+			<input type="hidden" name="modifiedby" value="${timeTableBean.modifiedBy}">
 			<input type="hidden" name="createddatetime"
-				value="${bean.createdDatetime}"> <input type="hidden"
-				name="modifiedby" value="${bean.modifiedDatetime}">
+				value="${timeTableBean.createdDatetime}"> <input type="hidden"
+				name="modifiedby" value="${timeTableBean.modifiedDatetime}">
 			<table class="table table-borderless w-50">
 				<tr>
 					<th class="text-left"><label for="courseId">Course <span class="required">*</span>:</label></th>
-					<td>${HTMLUtility.getList("courseId", bean.courseId, courseList)}
+					<td>${HTMLUtility.getList("courseId", timeTableBean.courseId, courseList)}
 						<span class="error">${requestScope.courseId}</span></td>
 				</tr>
 
 				<tr>
 					<th class="text-left"><label for="subjectId">Subject <span class="required">*</span>:</label></th>
-					<td>${HTMLUtility.getList("subjectId", bean.subjectId,
+					<td>${HTMLUtility.getList("subjectId", timeTableBean.subjectId,
 						subjectList)}
 						<span class="error">${requestScope.subjectId}</span></td>
 				</tr>
@@ -96,22 +98,14 @@
 					<td><select name="semester" id="semester"
 						class="form-control">
 							<option value="">Select Semester</option>
-							<option value="1st"
-								${bean.semester == '1st' ? 'selected' : ''}>1st</option>
-							<option value="2nd"
-								${bean.semester == '2nd' ? 'selected' : ''}>2nd</option>
-							<option value="3rd"
-								${bean.semester == '3rd' ? 'selected' : ''}>3rd</option>
-							<option value="4th"
-								${bean.semester == '4th' ? 'selected' : ''}>4th</option>
-							<option value="5th"
-								${bean.semester == '5th' ? 'selected' : ''}>5th</option>
-							<option value="6th"
-								${bean.semester == '6th' ? 'selected' : ''}>6th</option>
-							<option value="7th"
-								${bean.semester == '7th' ? 'selected' : ''}>7th</option>
-							<option value="8th"
-								${bean.semester == '8th' ? 'selected' : ''}>8th</option>
+							<option value="1st"${timeTableBean.semester == '1st' ? 'selected' : ''}>1st</option>
+							<option value="2nd"${timeTableBean.semester == '2nd' ? 'selected' : ''}>2nd</option>
+							<option value="3rd"${timeTableBean.semester == '3rd' ? 'selected' : ''}>3rd</option>
+							<option value="4th"${timeTableBean.semester == '4th' ? 'selected' : ''}>4th</option>
+							<option value="5th"${timeTableBean.semester == '5th' ? 'selected' : ''}>5th</option>
+							<option value="6th"${timeTableBean.semester == '6th' ? 'selected' : ''}>6th</option>
+							<option value="7th"${timeTableBean.semester == '7th' ? 'selected' : ''}>7th</option>
+							<option value="8th"${timeTableBean.semester == '8th' ? 'selected' : ''}>8th</option>
 					</select>
 						<span class="error">${requestScope.semester}</span></td>
 				</tr>
@@ -119,24 +113,16 @@
                 <th class="text-left"><label for="udate5">Exam Date <span
 							class="required">*</span> :</label></th>
                     <td><input type="text" readonly="readonly" id="udate5"
-                               placeholder="Select Exam Date" name="ExDate"
-                               value="${bean.examDate}" class="form-control">
+                               placeholder="Select Exam Date" name="ExDate" value="${timeTableBean.examDate}" class="form-control">
                         <span class="error">${requestScope.ExDate}</span></td>
                 </tr>
 				<tr>
 					<th align="left"><label for="ExTime">Exam Time <span
 							class="required">*</span> :</label></th>
 					<td><select name="ExTime" id="ExTime" class="form-control">
-							<option value="">Select Time</option>
-							<option value="08:00 AM to 11:00 AM"
-								${bean.examTime == '08:00 AM to 11:00 AM' ? 'selected' : ''}>08:00
-								AM to 11:00 AM</option>
-							<option value="12:00 PM to 03:00 PM"
-								${bean.examTime == '12:00 PM to 03:00 PM' ? 'selected' : ''}>12:00
-								PM to 03:00 PM</option>
-							<option value="04:00 PM to 07:00 PM"
-								${bean.examTime == '04:00 PM to 07:00 PM' ? 'selected' : ''}>04:00
-								PM to 07:00 PM</option>
+							<option value="">Select Time</option>	<option value="08:00 AM to 11:00 AM"${timeTableBean.examTime == '08:00 AM to 11:00 AM' ? 'selected' : ''}>08:00 AM to 11:00 AM</option>
+							<option value="12:00 PM to 03:00 PM"${timeTableBean.examTime == '12:00 PM to 03:00 PM' ? 'selected' : ''}>12:00 PM to 03:00 PM</option>
+							<option value="04:00 PM to 07:00 PM"${timeTableBean.examTime == '04:00 PM to 07:00 PM' ? 'selected' : ''}>04:00 PM to 07:00 PM</option>
 					</select>
 						<span class="error">${requestScope.ExTime}</span></td>
 				</tr>
@@ -144,7 +130,7 @@
 					<th></th>
 					<td>
 						<div class="button-container">
-							<c:choose>
+							<c:choose>	
 								<c:when test="${not empty bean.id && bean.id > 0}">
 									<input type="submit" name="operation" class="btn btn-primary"
 										value="<%=TimetableCtl.OP_UPDATE%>"> <input type="submit"
@@ -165,5 +151,6 @@
 		</div>
 	</form>
 	<%@include file="Footer.jsp"%>
+	<%@ page import="com.rays.pro4.util.HTMLUtility"%>
 </body>
 </html>

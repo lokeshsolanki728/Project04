@@ -10,11 +10,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import com.rays.pro4.Bean.CourseBean;
+import com.rays.pro4.DTO.FacultyDTO;
 import com.rays.pro4.Bean.SubjectBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Bean.CollegeBean;
 import com.rays.pro4.Bean.FacultyBean;
-import com.rays.pro4.Model.CollegeModel;
+import com.rays.pro4.DTO.CollegeDTO;
 import com.rays.pro4.Model.FacultyModel;
 import com.rays.pro4.Model.SubjectModel;
 import com.rays.pro4.Util.DataUtility;
@@ -47,7 +48,7 @@ public class FacultyCtl extends BaseCtl<FacultyBean>{
 	@Override
 	protected void preload(final HttpServletRequest request) {
 		final com.rays.pro4.Model.CourseModel courseModel = new com.rays.pro4.Model.CourseModel();
-		final CollegeModel comodel = new CollegeModel();
+		final com.rays.pro4.Model.CollegeModel comodel = new com.rays.pro4.Model.CollegeModel();
 	    final SubjectModel smodel = new SubjectModel();
 
 
@@ -55,7 +56,7 @@ public class FacultyCtl extends BaseCtl<FacultyBean>{
 		try {
 			List<CourseBean> clist = courseModel.list();
 			request.setAttribute("CourseList", clist);
-			List<CollegeBean> colist = comodel.list();
+			List colist = comodel.list();
 			request.setAttribute("CollegeList", colist);
 			List<SubjectBean> slist = smodel.list();
 			request.setAttribute("SubjectList", slist);
@@ -88,10 +89,19 @@ public class FacultyCtl extends BaseCtl<FacultyBean>{
 	 *             the duplicate record exception
 	 * @throws ApplicationException the application exception
      */
+	
+	protected void populateBean(final HttpServletRequest request, FacultyBean bean){
+		bean.setFirstName(DataUtility.getString(request.getParameter("firstName")));
+        bean.setLastName(DataUtility.getString(request.getParameter("lastName")));
+        bean.setCollegeId(DataUtility.getLong(request.getParameter("collegeId")));
+        bean.setCourseId(DataUtility.getLong(request.getParameter("courseId")));
+        bean.setSubjectId(DataUtility.getLong(request.getParameter("subjectId")));
+        bean.setEmailId(DataUtility.getString(request.getParameter("emailId")));
+        bean.setMobileNo(DataUtility.getString(request.getParameter("mobileNo")));
+    }
 	@Override
 	protected FacultyBean populate(final HttpServletRequest request) {
-		log.debug("FacultyCtl populate Start");
-		log.debug("FacultyCtl populate Started");
+		log.debug("FacultyCtl populate Start");		
 		final FacultyBean bean = new FacultyBean();		
 		bean.populate(request);
 		return bean;
@@ -115,11 +125,16 @@ public class FacultyCtl extends BaseCtl<FacultyBean>{
 		
 		if (id > 0) {
 			final FacultyBean bean;
+			FacultyDTO dto;
 			try {
-				bean = model.findByPK(id);
-				if(bean == null) {
+				dto = model.findByPK(id);
+				if(dto == null) {
 					ServletUtility.setErrorMessage("Faculty not found", request);
 					ServletUtility.forward(getView(), request, response);
+					return;
+				}
+				bean = new FacultyBean();
+				populateBean(dto,bean);
 					return;
 				}
 				ServletUtility.setBean(bean, request);
@@ -150,13 +165,16 @@ public class FacultyCtl extends BaseCtl<FacultyBean>{
 
 		final String op = DataUtility.getString(request.getParameter("operation"));		
 		final long id = DataUtility.getLong(request.getParameter("id"));		
-		final FacultyBean bean = populate(request);		
-		
+		final FacultyBean bean = new FacultyBean();
+		final FacultyDTO dto = new FacultyDTO();
+		populateBean(request, bean);		
+
 		if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
             if (validate(request)) {
                 try {
                     if (id > 0) {
-                        model.update(bean);
+                    	dto=bean.getDTO();
+                        model.update(dto);
                         ServletUtility.setSuccessMessage(MessageConstant.FACULTY_UPDATE_SUCCESS, request);
                     } else {
                         model.add(bean);
@@ -189,5 +207,16 @@ public class FacultyCtl extends BaseCtl<FacultyBean>{
 	@Override
 	protected String getView() {
 		return ORSView.FACULTY_VIEW;
+	}
+
+    /**
+	 * Populates DTO object from bean
+	 * 
+	 * @param request
+	 * @return
+	 */
+	protected void populateBean(FacultyDTO dto, FacultyBean bean) {
+		bean.setId(dto.getId());
+        bean.populate(dto);
 	}
 }

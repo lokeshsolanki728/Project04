@@ -1,6 +1,7 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -10,6 +11,7 @@ import org.apache.log4j.Logger;
 
 import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Bean.CourseBean;
+import com.rays.pro4.DTO.CourseDTO;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Model.CourseModel;
@@ -54,14 +56,28 @@ public class CourseCtl extends BaseCtl<CourseBean>{
 	 * @param request
 	 * @return
 	 */
-	@Override	
-	protected final CourseBean populateBean(final HttpServletRequest request){
+	@Override
+    protected final BaseBean populateDTO(HttpServletRequest request) {
+        log.debug("CourseCtl populateDTO method start");
+        CourseDTO dto = new CourseDTO();
+        dto.setId(DataUtility.getLong(request.getParameter("id")));
+        dto.setName(DataUtility.getString(request.getParameter("name")));
+        dto.setDescription(DataUtility.getString(request.getParameter("description")));
+        dto.setDuration(DataUtility.getString(request.getParameter("duration")));
+        populate(dto, request);
+        log.debug("CourseCtl populateDTO method end");
+        return dto;
+    }
+    
+    protected void populateBean(HttpServletRequest request, CourseBean bean){
 		log.debug("CourseCtl populate started");
-		final CourseBean bean = new CourseBean();		
+		
+		
 		bean.populate(request);
-		log.debug("CourseCtl PopulatedBean End");
-		return bean;
+		log.debug("CourseCtl populate end");
+
 	}
+
 
 	/**
 	 * Find by pk.
@@ -88,32 +104,39 @@ public class CourseCtl extends BaseCtl<CourseBean>{
 	 * @param response the response
 	 * @throws ServletException the servlet exception
 	 * @throws IOException Signals that an I/O exception has occurred.
-	 */
+	 **/
 	@Override
 	protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 		log.debug("CourseCtl Method doGet Started");
+        String op = DataUtility.getString(request.getParameter("operation"));
 		long id = DataUtility.getLong(request.getParameter("id"));
 		
-        if (id <= 0) {
-            ServletUtility.setErrorMessage("Invalid Course ID", request);
-            ServletUtility.forward(ORSView.ERROR_VIEW, request, response);
-            return;
+        if(id>0 || op != null){
+            CourseDTO bean;
+            try{
+              bean=model.findByPK(id);
+                CourseBean courseBean = new CourseBean();
+                courseBean.setId(bean.getId());
+                courseBean.setName(bean.getName());
+                courseBean.setDescription(bean.getDescription());
+                courseBean.setDuration(bean.getDuration());
+
+
+                ServletUtility.setBean(courseBean, request);
+
+
+            }catch(ApplicationException e){
+                log.error(e);
+                ServletUtility.handleException(e, request, response);
+                return;
+            }
         }
-		if (id > 0) {
-			try {
-                final CourseBean bean = findByPK(id);
-				if (bean == null) {
-					ServletUtility.setErrorMessage("Course not found", request);
-				}				
-				ServletUtility.setBean(bean, request);
-			} catch (final ApplicationException e) {
-				handleDatabaseException(e, request, response);
-				return;
-			}	
-		}
+
 		ServletUtility.forward(getView(), request, response);
 		log.debug("CourseCtl Method doGet Ended");
 	}
+	
+	
     
     
 	/**
@@ -129,22 +152,25 @@ public class CourseCtl extends BaseCtl<CourseBean>{
 			throws ServletException, IOException {
 		log.debug("CourseCtl Method doPost Started");		
 		String op = DataUtility.getString(request.getParameter("operation"));
-		final CourseBean bean = populateBean(request);
-		
+		CourseDTO dto = (CourseDTO) populateDTO(request);
+		CourseBean bean = new CourseBean();
 		if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
 	        if (validate(request)) {
-	            try {	                
-	            	if (bean.getId() > 0) {
-	            		model.update(bean);
-	                    ServletUtility.setSuccessMessage(MessageConstant.COURSE_UPDATE, request);
-	                } else {
-	                	long pk= model.add(bean);
+	        	populateBean(request, bean);
+	        	
+	            try {
+	                CourseDTO courseDTO = bean.getDTO();
+	                if(courseDTO.getId()>0){
+	                	model.update(courseDTO);
+	                	ServletUtility.setSuccessMessage("Course update Successfully", request);
+	                }else {
+	                	long pk = model.add(courseDTO);
 	                	bean.setId(pk);
-	                    ServletUtility.setSuccessMessage(MessageConstant.COURSE_ADD, request);
+	                	ServletUtility.setSuccessMessage("Course added Successfully", request);
 	                }
-	            } catch (ApplicationException | DuplicateRecordException e) {
-	            	if(e instanceof ApplicationException) {
-	            		handleDatabaseException((ApplicationException)e, request, response);
+	            } catch (ApplicationException e) {
+	            	if(e instanceof DuplicateRecordException){
+	            		ServletUtility.setErrorMessage("Course already exists", request);
 	            	} else ServletUtility.setErrorMessage(PropertyReader.getValue("error.course.duplicate"), request);	               
 	            }
 	            ServletUtility.setBean(bean, request);

@@ -1,14 +1,12 @@
---- a/ORS_Project4/src/main/webapp/jsp/CourseView.jsp
-+++ b/ORS_Project4/src/main/webapp/jsp/CourseView.jsp
-@@
+
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@page import="java.util.LinkedHashMap" %>
-<%@page import="com.rays.pro4.Util.HTMLUtility" %>
+
 <%@page import="com.rays.pro4.controller.ORSView" %>
 <%@page import="com.rays.pro4.controller.CourseCtl" %>
-<%@page import="com.rays.pro4.Util.DataUtility" %>
-<%@page import="com.rays.pro4.Util.ServletUtility" %>
+
+
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1" %>
 <html>
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
@@ -39,11 +37,11 @@
             </h1>
             <div class="message-container">
                 <c:if test="${not empty requestScope.success}">
-                    <div class="alert alert-success" role="alert">${requestScope.success}</div>
+                    <div class="alert alert-success" role="alert"><c:out value="${requestScope.success}"/></div>
                 </c:if>
                 <c:if test="${not empty requestScope.error}">
-                    <div class="alert alert-danger" role="alert">${requestScope.error}</div>
-                </c:if>
+					<div class="alert alert-danger" role="alert"><c:out value="${requestScope.error}"/></div>
+				</c:if>
             </div>
             <input type="hidden" name="id" value="${bean.id}">
             <input type="hidden" name="createdBy" value="${bean.createdBy}"/>
@@ -57,8 +55,8 @@
                     </th>
                     <td>
                         <input type="text" id="name" name="name" placeholder="Enter Course Name" class="form-control"
-                               value="${bean.name}">
-                        <span class="error-message">${requestScope.name}</span>
+                               value="<c:out value="${bean.name}"/>">
+                        <span class="error-message"><c:out value="${requestScope.name}"/></span>
                     </td>
                 </tr>
                 <tr>
@@ -68,19 +66,19 @@
                     <td>
                         <select id="duration" name="duration" class="form-control">
                             <option value="">Select Duration</option>
-                            <option value="6 Year" ${bean.duration == '6 Year' ? 'selected' : ''}>
+                            <option value="6 Year" <c:if test="${bean.duration == '6 Year'}"> selected </c:if>>
                                 6 Year
                             </option>
-                            <option value="5 Year" ${bean.duration == '5 Year' ? 'selected' : ''}>
+                            <option value="5 Year" <c:if test="${bean.duration == '5 Year'}"> selected </c:if>>
                                 5 Year
                             </option>
-                            <option value="4 Year" ${bean.duration == '4 Year' ? 'selected' : ''}>
+                            <option value="4 Year" <c:if test="${bean.duration == '4 Year'}"> selected </c:if>>
                                 4 Year
                             </option>
-                            <option value="3 Year" ${bean.duration == '3 Year' ? 'selected' : ''}>
+                            <option value="3 Year" <c:if test="${bean.duration == '3 Year'}"> selected </c:if>>
                                 3 Year
                             </option>
-                            <option value="2 Year" ${bean.duration == '2 Year' ? 'selected' : ''}>
+                            <option value="2 Year" <c:if test="${bean.duration == '2 Year'}"> selected </c:if>>
                                 2 Year
                             </option>
                             <option value="1 Year" ${bean.duration == '1 Year' ? 'selected' : ''}>
@@ -88,7 +86,7 @@
                             </option>
                         </select>
                         <span class="error-message">${requestScope.duration}</span>
-                    </td>
+					</td>
                 </tr>
                 <tr>
                     <th class="text-left">
@@ -96,8 +94,8 @@
                     </th>
                     <td>
                         <input type="text" id="description" name="description" placeholder="Enter Description"
-                               class="form-control" value="${bean.description}">
-                        <span class="error-message">${requestScope.description}</span>
+                               class="form-control" value="<c:out value="${bean.description}"/>">
+                        <span class="error-message"><c:out value="${requestScope.description}"/></span>
                     </td>
                 </tr>
                 <tr>

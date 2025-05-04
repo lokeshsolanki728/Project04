@@ -1,15 +1,13 @@
 package com.rays.pro4.Bean;
 
-import javax.servlet.http.HttpServletRequest;
+import com.rays.pro4.DTO.MarksheetDTO;
 
 /**
  * Marksheet JavaBean encapsulates Marksheet attributes.
  *
  * @author Lokesh SOlanki
  *
- */
-import com.rays.pro4.Util.DataUtility;
-
+ */ 
 public class MarksheetBean extends BaseBean {
 
 	private String rollNo;
@@ -142,27 +140,17 @@ public class MarksheetBean extends BaseBean {
 	public String toString() {
 		return "MarksheetBean [rollNo=" + rollNo + ", studentId=" + studentId + ", name=" + name + ", physics="
 				+ physics + ", chemistry=" + chemistry + ", maths=" + maths + ", id=" + id + ", createdBy="
-				+ createdBy + ", modifiedBy=" + modifiedBy + ", createdDatetime=" + createdDatetime
+				+ createdBy + ", modifiedBy=" + modifiedBy + ", createdDatetime=" + createdDatetime 
 				+ ", modifiedDatetime=" + modifiedDatetime + "]";
 	}
-	/**
-     * Populate bean object from request parameters
-     * @param request
-     */
-    @Override
-    public void populate(HttpServletRequest request) {
-        setId(DataUtility.getLong(request.getParameter("id")));
-        
-        setRollNo(DataUtility.getString(request.getParameter("rollNo")));
-        setStudentId(DataUtility.getLong(request.getParameter("studentId")));
-        setName(DataUtility.getString(request.getParameter("name")));
-        setPhysics(DataUtility.getInt(request.getParameter("physics")));
-        setChemistry(DataUtility.getInt(request.getParameter("chemistry")));
-        setMaths(DataUtility.getInt(request.getParameter("maths")));
-        setCreatedBy(DataUtility.getString(request.getParameter("createdBy")));
-        setModifiedBy(DataUtility.getString(request.getParameter("modifiedBy")));
-        setCreatedDatetime(DataUtility.getTimestamp(request.getParameter("createdDatetime")));
-        setModifiedDatetime(DataUtility.getTimestamp(request.getParameter("modifiedDatetime")));
-
-    }
+	@Override
+	public MarksheetDTO getDTO() {
+		MarksheetDTO marksheetDTO = new MarksheetDTO();
+		marksheetDTO.setId(id);
+		marksheetDTO.setRollNo(rollNo);
+        marksheetDTO.setMaths(maths);
+		marksheetDTO.setStudentId(studentId);
+		marksheetDTO.setName(name);
+		return marksheetDTO;
+	}
 }

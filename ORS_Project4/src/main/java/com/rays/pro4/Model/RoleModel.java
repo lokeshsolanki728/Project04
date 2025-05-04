@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.rays.pro4.Bean.RoleBean;
+import com.rays.pro4.DTO.RoleDTO;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DatabaseException;
 import com.rays.pro4.Exception.DuplicateRecordException;
@@ -43,10 +44,10 @@ public class RoleModel extends BaseModel {
      * @throws DuplicateRecordException 
      */
     
-    public long add(RoleBean bean) throws ApplicationException, DuplicateRecordException {
+    public long add(RoleDTO dto) throws ApplicationException, DuplicateRecordException {
         
         long pk = 0;
-        RoleBean duplicateRole = findByName(bean.getName());
+        RoleDTO duplicateRole = findByName(dto.getName());
         if (duplicateRole != null) {
             throw new DuplicateRecordException("Role Name already exists");
         }
@@ -56,17 +57,17 @@ public class RoleModel extends BaseModel {
             conn=JDBCDataSource.getConnection();
              conn.setAutoCommit(false);
                 pk = nextPK();
-                bean.setId(pk);
-                bean.setCreatedDatetime(new java.sql.Timestamp(new java.util.Date().getTime()));
-                bean.setModifiedDatetime(new java.sql.Timestamp(new java.util.Date().getTime()));
+                dto.setId(pk);
+                dto.setCreatedDatetime(new java.sql.Timestamp(new java.util.Date().getTime()));
+                dto.setModifiedDatetime(new java.sql.Timestamp(new java.util.Date().getTime()));
             try (PreparedStatement pstmt = conn.prepareStatement("INSERT INTO ST_ROLE VALUES(?,?,?,?,?,?,?)")) {
                     pstmt.setLong(1, pk);
-                    pstmt.setString(2, bean.getName());
-                    pstmt.setString(3, bean.getDescription());
-                    pstmt.setString(4, bean.getCreatedBy());
-                    pstmt.setString(5, bean.getModifiedBy());
-                    pstmt.setTimestamp(6, bean.getCreatedDatetime());
-                    pstmt.setTimestamp(7, bean.getModifiedDatetime());
+                    pstmt.setString(2, dto.getName());
+                    pstmt.setString(3, dto.getDescription());
+                    pstmt.setString(4, dto.getCreatedBy());
+                    pstmt.setString(5, dto.getModifiedBy());
+                    pstmt.setTimestamp(6, dto.getCreatedDatetime());
+                    pstmt.setTimestamp(7, dto.getModifiedDatetime());
                     pstmt.executeUpdate();
                 conn.commit();
             }
@@ -104,18 +105,18 @@ public class RoleModel extends BaseModel {
         }
     }
 
-    public RoleBean findByName(String name) throws ApplicationException {
+    public RoleDTO findByName(String name) throws ApplicationException {
         BaseModel.log.debug("Model findByName Started");
         StringBuffer sql = new StringBuffer("SELECT * FROM ST_ROLE WHERE NAME=?");
 
-        RoleBean bean = null;
+        RoleDTO dto = null;
         try (Connection conn = JDBCDataSource.getConnection();PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
             pstmt.setString(1,name);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                bean=new RoleBean();
-                    populate(rs, bean);
-                }
+                dto=new RoleDTO();
+                    populateBean(rs, dto);
+               }
             }
         } catch (SQLException e) {
             BaseModel.log.error("Database Exception in findByName", e);
@@ -129,16 +130,16 @@ public class RoleModel extends BaseModel {
      * @return RoleBean
      * @throws ApplicationException
      */
-    public RoleBean findByPK(long pk) throws ApplicationException {
+    public RoleDTO findByPK(long pk) throws ApplicationException {
         BaseModel.log.debug("Model findByPK Started");
         StringBuffer sql = new StringBuffer("SELECT * FROM ST_ROLE WHERE ID=?");
-         RoleBean bean=null;
+        RoleDTO dto = null;
         try (Connection conn = JDBCDataSource.getConnection();PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
             pstmt.setLong(1,pk);
                 ResultSet rs=pstmt.executeQuery();
                 while(rs.next()) {
-                bean=new RoleBean();
-                    populate(rs, bean);
+                dto=new RoleDTO();
+                    populateBean(rs, dto);
                 }
            
         } catch (SQLException e) {
@@ -146,7 +147,7 @@ public class RoleModel extends BaseModel {
             throw new ApplicationException("Exception: Exception in getting Role by pk - " + e.getMessage());
         }
         BaseModel.log.debug("Model findByPK End");
-        return bean;
+        return dto;
     }
 
     /**
@@ -156,25 +157,25 @@ public class RoleModel extends BaseModel {
      * @throws ApplicationException
      * @throws DuplicateRecordException
      */
-    public void update(RoleBean bean) throws ApplicationException, DuplicateRecordException {
+    public void update(RoleDTO dto) throws ApplicationException, DuplicateRecordException {
         BaseModel.log.debug("Model update Started");
-        RoleBean duplicateRole = findByName(bean.getName());
-        if (duplicateRole != null && duplicateRole.getId() != bean.getId()) {
+        RoleDTO duplicateRole = findByName(dto.getName());
+        if (duplicateRole != null && duplicateRole.getId() != dto.getId()) {
             throw new DuplicateRecordException("Role Name already exists");
         }
          Connection conn=null;
         try {
              conn=JDBCDataSource.getConnection();
              conn.setAutoCommit(false);
-            try (PreparedStatement pstmt = conn.prepareStatement(
+           try (PreparedStatement pstmt = conn.prepareStatement(
                     "UPDATE ST_ROLE SET NAME=?,DESCRIPTION=?,CREATED_BY=?,MODIFIED_BY=?,CREATED_DATETIME=?,MODIFIED_DATETIME=? WHERE ID=?")) {
-                 pstmt.setString(1, bean.getName());
-                pstmt.setString(2, bean.getDescription());
-                pstmt.setString(3, bean.getCreatedBy());
-                pstmt.setString(4, bean.getModifiedBy());
-                pstmt.setTimestamp(5, bean.getCreatedDatetime());
-                pstmt.setTimestamp(6, bean.getModifiedDatetime());
-                pstmt.setLong(7, bean.getId());
+                 pstmt.setString(1, dto.getName());
+                pstmt.setString(2, dto.getDescription());
+                pstmt.setString(3, dto.getCreatedBy());
+                pstmt.setString(4, dto.getModifiedBy());
+                pstmt.setTimestamp(5, dto.getCreatedDatetime());
+                pstmt.setTimestamp(6, dto.getModifiedDatetime());
+                pstmt.setLong(7, dto.getId());
                 pstmt.executeUpdate();
                 conn.commit();
             }
@@ -311,16 +312,16 @@ public class RoleModel extends BaseModel {
         return "ST_ROLE";
     }
 
-    private void populate(ResultSet rs, RoleBean bean) throws SQLException {
-        bean.setId(rs.getLong(1));
-        bean.setName(rs.getString(2));
-        bean.setDescription(rs.getString(3));
-        bean.setCreatedBy(rs.getString(4));
-        bean.setModifiedBy(rs.getString(5));
-        bean.setCreatedDatetime(rs.getTimestamp(6));
-        bean.setModifiedDatetime(rs.getTimestamp(7));
+    private void populateBean(ResultSet rs, RoleDTO dto) throws SQLException {
+        dto.setId(rs.getLong(1));
+        dto.setName(rs.getString(2));
+        dto.setDescription(rs.getString(3));
+        dto.setCreatedBy(rs.getString(4));
+        dto.setModifiedBy(rs.getString(5));
+        dto.setCreatedDatetime(rs.getTimestamp(6));
+        dto.setModifiedDatetime(rs.getTimestamp(7));
     }
-    private void updateCreatesInfo(RoleBean bean) throws ApplicationException{
+    private void updateCreatesInfo(RoleDTO bean) throws ApplicationException{
         updateCreatesInfo();
     }
      private void updateModifiedInfo(RoleBean bean) throws ApplicationException{

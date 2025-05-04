@@ -1,9 +1,6 @@
 package com.rays.pro4.Bean;
 
-import javax.servlet.http.HttpServletRequest;
-
-import com.rays.pro4.Util.DataUtility;
-
+import com.rays.pro4.DTO.CollegeDTO;
 /**
  * College JavaBean encapsulates College attributes.
  * @author Lokesh SOlanki
@@ -58,16 +55,20 @@ public class CollegeBean extends BaseBean{
 	public String getValue() {
 		return name;
 	}
-
     @Override
-    public void populate(HttpServletRequest request) {
-        setId(DataUtility.getLong(request.getParameter("id")));
-        setName(DataUtility.getString(request.getParameter("name")));
-        setAddress(DataUtility.getString(request.getParameter("address")));
-        setState(DataUtility.getString(request.getParameter("state")));
-        setCity(DataUtility.getString(request.getParameter("city")));
-        setPhoneNo(DataUtility.getString(request.getParameter("phoneNo")));
-    }	@Override
+	public com.rays.pro4.DTO.BaseDTO getDTO() {
+		CollegeDTO collegeDTO = new CollegeDTO();
+		collegeDTO.setName(name);
+		collegeDTO.setAddress(address);
+		collegeDTO.setCity(city);
+		collegeDTO.setState(state);
+		collegeDTO.setPhoneNo(phoneNo);
+		collegeDTO.setId(id);
+		collegeDTO.setCreatedBy(createdBy);
+		collegeDTO.setModifiedBy(modifiedBy);
+		return collegeDTO;
+	}
+	@Override
 	public String toString() {
 		return "CollegeBean [name=" + name + ", address=" + address + ", state=" + state + ", city=" + city
 				+ ", phoneNo=" + phoneNo + ", id=" + id + ", createdBy=" + createdBy + ", modifiedBy=" + modifiedBy

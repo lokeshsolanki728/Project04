@@ -1,6 +1,7 @@
+<%@page import="com.rays.pro4.util.HTMLUtility"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@page import="com.rays.pro4.controller.ORSView" %>
-<%@page import="com.rays.pro4.controller.CollegeCtl" %>
+<%@page import="com.rays.pro4.controller.ORSView"%>
+<%@page import="com.rays.pro4.controller.CollegeCtl"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1" %>
 
 <html>
@@ -20,13 +21,14 @@
 </head>
 
 <body>
-	<form action="${ctx}${ORSView.COLLEGE_CTL}" method="POST"> 
-		<%@ include file="Header.jsp"%>
+    <form action="${ctx}${ORSView.COLLEGE_CTL}" method="POST">
+        <%@ include file="Header.jsp" %>
 
-		<jsp:useBean id="bean" class="com.rays.pro4.Bean.CollegeBean" scope="request"></jsp:useBean>
+        <jsp:useBean id="bean" class="com.rays.pro4.Bean.CollegeBean" scope="request"></jsp:useBean>
 
         <c:set var="error" value="${requestScope.error}" scope="request" />
-		<div class="container">
+        <div class="container">
+
 			<h1>
 				<c:choose>
 					<c:when test="${not empty bean.id}">Update College</c:when> 
@@ -45,63 +47,57 @@
                     </div>
                 </c:if>
 			</div>
-            <input type="hidden" name="id" value="${bean.id}" />
-            <input type="hidden" name="createdBy" value="${bean.createdBy}" />
-            <input type="hidden" name="modifiedBy" value="${bean.modifiedBy}" />
-            <input type="hidden" name="createdDatetime" value="${bean.createdDatetime}" />
-            <input type="hidden" name="modifiedDatetime" value="${bean.modifiedDatetime}" />
+            <input type="hidden" name="id" value="<%= bean.getId()%>" />
+            <input type="hidden" name="createdBy" value="<%= bean.getCreatedBy() != null ? bean.getCreatedBy() : "" %>" />
+            <input type="hidden" name="modifiedBy" value="<%= bean.getModifiedBy() != null ? bean.getModifiedBy() : "" %>" />
+            <input type="hidden" name="createdDatetime" value="<%= bean.getCreatedDatetime() != null ? bean.getCreatedDatetime() : "" %>" />
+            <input type="hidden" name="modifiedDatetime" value="<%= bean.getModifiedDatetime() != null ? bean.getModifiedDatetime() : "" %>" />
 
             <table class="table table-borderless w-50 mx-auto">
                 <tr>
                     <th class="text-left">
                         <label for="name">Name<span class="required">*</span></label>
                     </th>
-                    <td>
-                        <input type="text" id="name" name="name" placeholder="Enter College Name" class="form-control" value="${bean.name}"
-                        <%if (request.getAttribute("name") != null) {%>
-                                 autofocus
-                            <%}%>" maxlength="50" />
-                        <span class="error-message">${requestScope.name}</span>
-                    </td>
+                    <td><input type="text" id="name" name="name" placeholder="Enter College Name" class="form-control"
+                               value="<%=HTMLUtility.get(bean.getName())%>"
+                               <%if (request.getAttribute("name") != null) {%> autofocus
+                            <%}%> maxlength="50" />
+                        <span class="error-message"> ${requestScope.name}</span></td>
                 </tr>
                 <tr>
                     <th class="text-left">
                         <label for="address">Address<span class="required">*</span></label>
                     </th>
-                    <td>
-                        <input type="text" id="address" name="address" class="form-control" placeholder="Enter Address" value="${bean.address}" maxlength="50" />
-                        <span class="error-message">${requestScope.address}</span>
-                    </td>
+                    <td><input type="text" id="address" name="address" class="form-control" placeholder="Enter Address"
+                               value="<%=HTMLUtility.get(bean.getAddress())%>" maxlength="50" /> <span
+                            class="error-message"> ${requestScope.address}</span></td>
                 </tr>
                 <tr>
                     <th class="text-left">
                         <label for="state">State<span class="required">*</span></label>
                     </th>
-                    <td>
-                        <input type="text" id="state" name="state" class="form-control" placeholder="Enter State" value="${bean.state}" maxlength="50"/>
-                        <span class="error-message">${requestScope.state}</span>
-                    </td>
+                    <td><input type="text" id="state" name="state" class="form-control" placeholder="Enter State"
+                               value="<%=HTMLUtility.get(bean.getState())%>" maxlength="50" /> <span
+                            class="error-message"> ${requestScope.state}</span></td>
                 </tr>
                 <tr>
                     <th class="text-left">
                         <label for="city">City<span class="required">*</span></label>
                     </th>
-                    <td>
-                        <input type="text" id="city" name="city" class="form-control" placeholder="Enter City" value="${bean.city}" maxlength="50"/>
-                        <span class="error-message">${requestScope.city}</span>
-                    </td>
+                    <td><input type="text" id="city" name="city" class="form-control" placeholder="Enter City"
+                               value="<%=HTMLUtility.get(bean.getCity())%>" maxlength="50" /> <span
+                            class="error-message"> ${requestScope.city}</span></td>
                 </tr>
                 <tr>
                     <th class="text-left">
-                        <label for="phoneNo">Phone No<span class="required">*</span></label> 
+                        <label for="phoneNo">Phone No<span class="required">*</span></label>
                     </th>
-                    <td>
-                        <input type="number" id="phoneNo" name="phoneNo" class="form-control" placeholder="Enter Phone No." value="${bean.phoneNo}" maxlength="10"/>
-                        <span class="error-message">${requestScope.phoneNo}</span>
-                    </td>
+                    <td><input type="number" id="phoneNo" name="phoneNo" class="form-control"
+                               placeholder="Enter Phone No." value="<%=HTMLUtility.get(bean.getPhoneNo())%>" maxlength="10" />
+                        <span class="error-message"> ${requestScope.phoneNo}</span></td>
                 </tr>
                 <tr>
-                    <th></th> 
+                    <th></th>
                     <td>
                         <div class="button-container">
                             <input type="submit" name="operation" class="btn btn-primary" value="<c:out value="${empty bean.id ? CollegeCtl.OP_SAVE : CollegeCtl.OP_UPDATE}" />" />
@@ -111,13 +107,13 @@
                             </c:if>
                         </div>
                     </td>
-                </tr>
+                </tr> 
             </table>
         </div>
     </form>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
 
-    <%@ include file="Footer.jsp"%>
+    <%@ include file="Footer.jsp" %>
 </body>
 
 </html>

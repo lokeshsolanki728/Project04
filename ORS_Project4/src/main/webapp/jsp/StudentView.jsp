@@ -1,3 +1,4 @@
+<%@ page import="com.rays.pro4.Bean.StudentBean" %>
 <%@ page import="com.rays.pro4.Util.MessageConstant" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
@@ -47,7 +48,7 @@
 				<c:if test="${not empty errorMessage}">
 					<div class="alert alert-danger" role="alert">${errorMessage}</div>
 				</c:if>
-			</div>
+			</div> <input type="hidden" name="collegeId" value="${bean.collegeId}">
 			<input type="hidden" name="id" value="${bean.id}"> <input
 				type="hidden" name="createdby" value="${bean.createdBy}">
 			<input type="hidden" name="modifiedby" value="${bean.modifiedBy}">

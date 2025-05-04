@@ -2,6 +2,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@page import="com.rays.pro4.controller.ORSView" %>
 <%@page import="com.rays.pro4.controller.FacultyListCtl" %>
+<%@page import="com.rays.pro4.Bean.FacultyBean" %>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
          pageEncoding="ISO-8859-1" %>
 <html>
@@ -17,7 +18,7 @@
     </title>
     <link rel="stylesheet" href="${ctx}/css/style.css" />
 	<script src="${ctx}/js/jquery.min.js"></script>
-    <script src="${ctx}/js/Checkbox11.js"></script>
+    <script src="${ctx}/js/Checkbox11.js"></script> 
 
 </head>
 <body class="bg-light main-body">
@@ -113,7 +114,7 @@
                                     ${index + loop.index}
                                 </td>
                                 <td>
-                                    <c:out value="${faculty.firstName}"/>
+                                    <c:out value="${faculty.firstName}" />
                                 </td>
                                 <td>
                                     <c:out value="${faculty.lastName}"/>

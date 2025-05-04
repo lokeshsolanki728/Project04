@@ -1,6 +1,8 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
+
+import javax.servlet.ServletException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -9,6 +11,7 @@ import org.apache.log4j.Logger;
 import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Bean.CollegeBean;
 import com.rays.pro4.Exception.ApplicationException;
+import com.rays.pro4.DTO.CollegeDTO;
 import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Model.CollegeModel;
 import com.rays.pro4.Util.DataUtility;
@@ -37,12 +40,23 @@ public class CollegeCtl extends BaseCtl {
     }
 
     @Override
-    protected BaseBean populateBean(HttpServletRequest request) {
+    protected void populateDTO(HttpServletRequest request, CollegeDTO dto) {
+        dto.setId(DataUtility.getLong(request.getParameter("id")));
+        dto.setName(DataUtility.getString(request.getParameter("name")));
+        dto.setAddress(DataUtility.getString(request.getParameter("address")));
+        dto.setState(DataUtility.getString(request.getParameter("state")));
+        dto.setCity(DataUtility.getString(request.getParameter("city")));
+        dto.setPhoneNo(DataUtility.getString(request.getParameter("phoneNo")));
+    }
+
+    protected void populateBean(HttpServletRequest request,CollegeBean bean) {
         log.debug("CollegeCtl Method populateBean Started");
-        CollegeBean bean = new CollegeBean();
         bean.populate(request);
         log.debug("CollegeCtl Method populateBean Ended");
-        return bean;
+    }
+    @Override
+    protected BaseBean populateBean(HttpServletRequest request) {
+        return new CollegeBean();
     }
 
     @Override
@@ -51,13 +65,16 @@ public class CollegeCtl extends BaseCtl {
         long id = DataUtility.getLong(request.getParameter("id"));
         if (id > 0) {
             try {
-                CollegeBean bean = model.findByPK(id);
-                if (bean == null) {
+                CollegeDTO dto = model.findByPK(id);
+                if (dto == null) {
                     ServletUtility.setErrorMessage("College not found", request);
+                } else {
+                    CollegeBean bean = new CollegeBean();
+                    bean.getDTO().setId(dto.getId());
+                    bean.getDTO().setName(dto.getName());
+                    ServletUtility.setBean(bean, request);
                 }
-                ServletUtility.setBean(bean, request);
             } catch (ApplicationException e) {
-                log.error("Error finding college by ID", e);
                 handleDatabaseException(e, request, response);
                 return;
             }
@@ -70,22 +87,24 @@ public class CollegeCtl extends BaseCtl {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         log.debug("CollegeCtl Method doPost Started");
         String op = DataUtility.getString(request.getParameter("operation"));
+        CollegeDTO dto = new CollegeDTO();
         long id = DataUtility.getLong(request.getParameter("id"));
         CollegeBean bean = (CollegeBean) populateBean(request);
 
         if (validate(request)) {
-            
             try {
                 if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
-                    if (id > 0){
-                    model.update(bean);
-                    ServletUtility.setSuccessMessage(MessageConstant.COLLEGE_UPDATE, request);
-                    }else {
-                         long pk = model.add(bean);
-                         bean.setId(pk);
-                         ServletUtility.setSuccessMessage(MessageConstant.COLLEGE_ADD, request);
+                    populateBean(request, bean);
+                    populateDTO(request, dto);
+                    CollegeDTO dtoAux = bean.getDTO();
+                    if (id > 0) {
+                        model.update(dtoAux);
+                        ServletUtility.setSuccessMessage(MessageConstant.COLLEGE_UPDATE, request);
+                    } else {
+                        long pk = model.add(dtoAux);
+                        bean.setId(pk);
+                        ServletUtility.setSuccessMessage(MessageConstant.COLLEGE_ADD, request);
                     }
-                    ServletUtility.setBean(bean, request);
                 }else if (OP_CANCEL.equalsIgnoreCase(op)) {
                     ServletUtility.redirect(ORSView.COLLEGE_LIST_CTL, request, response);
                     return;

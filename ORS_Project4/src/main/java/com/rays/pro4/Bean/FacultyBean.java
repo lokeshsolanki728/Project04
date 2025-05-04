@@ -1,11 +1,8 @@
 package com.rays.pro4.Bean;
 
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import javax.servlet.http.HttpServletRequest;
-import com.rays.pro4.Util.DataUtility;
+import com.rays.pro4.DTO.FacultyDTO;
 /**
  * Faculty JavaBean encapsulates Faculty attributes.
  * 
@@ -220,6 +217,23 @@ public class FacultyBean extends BaseBean{
 	public void setSubjectName(String subjectName) {
 		this.subjectName = subjectName;
 	}
+	
+	@Override
+	public FacultyDTO getDTO() {
+		FacultyDTO facultyDTO = new FacultyDTO();
+		facultyDTO.setId(id);
+		facultyDTO.setFirstName(firstName);
+		facultyDTO.setLastName(lastName);
+		facultyDTO.setGender(gender);
+		facultyDTO.setEmailId(emailId);
+		facultyDTO.setMobileNo(mobileNo);
+		facultyDTO.setDob(dob);
+		facultyDTO.setCollegeId(collegeId);
+		facultyDTO.setCourseId(courseId);
+		facultyDTO.setSubjectId(subjectId);
+		
+		return facultyDTO;
+	}
 	/**
 	 * Returns the key (ID) of the faculty member as a String.
 	 *
@@ -250,22 +264,5 @@ public class FacultyBean extends BaseBean{
 				+ ", courseId=" + courseId + ", courseName=" + courseName + ", dob=" + dob + ", subjectId=" + subjectId
 				+ ", subjectName=" + subjectName + ", id=" + id + ", createdBy=" + createdBy + ", modifiedBy="
 				+ modifiedBy + ", createdDatetime=" + createdDatetime + ", modifiedDatetime=" + modifiedDatetime + "]";	
-	}
-	@Override
-	public void populate(HttpServletRequest request) {
-		// TODO Auto-generated method stub
-		setId(DataUtility.getLong(request.getParameter("id")));
-        setFirstName(DataUtility.getString(request.getParameter("firstName")));
-        setLastName(DataUtility.getString(request.getParameter("lastName")));
-        setGender(DataUtility.getString(request.getParameter("gender")));
-        setMobileNo(DataUtility.getString(request.getParameter("mobileNo")));
-        setEmailId(DataUtility.getString(request.getParameter("emailId")));
-        setCollegeId(DataUtility.getLong(request.getParameter("collegeId")));
-        setCourseId(DataUtility.getLong(request.getParameter("courseId")));
-        setSubjectId(DataUtility.getLong(request.getParameter("subjectId")));
-        try {
-        	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        	setDob(format.parse(request.getParameter("dob")));
-        }catch (Exception e) {}
 	}
 }

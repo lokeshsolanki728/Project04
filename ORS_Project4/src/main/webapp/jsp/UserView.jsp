@@ -1,6 +1,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@page import="com.rays.pro4.controller.UserCtl"%>
 <%@page import="com.rays.pro4.Util.HTMLUtility"%>
-<%@page import="java.util.List"%>
 <%@page import="com.rays.pro4.controller.UserCtl"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 <html>
@@ -87,7 +88,7 @@
                         <jsp:setProperty name="map" property="Male" value="Male" />
                         <jsp:setProperty name="map" property="Female" value="Female" />
                       </c:set> ${HTMLUtility.getList("gender", bean.gender, map)} <span class="error-message">${requestScope.gender}</span>
-                    </td>
+                    </td>                  
                   </tr>
                   <tr>
                     <th style="width: 20%"><label for="roleId">Role <span class="required">*</span> :</label></th>
@@ -97,7 +98,7 @@
                     <tr>
                         <th align="left"><label for="dob">Date Of Birth <span class="required">*</span> :</label></th>
                         <td><input type="text" name="dob" id="dob" placeholder="Enter Date Of Birth" readonly="readonly" class="form-control" value="${bean.dob}">
-                            <div class="error-message">${requestScope.dob}</div>
+                            <div class="error-message">${requestScope.dob}</div>                            
                         </td>
                     </tr>
                     <tr>
@@ -106,7 +107,7 @@
                             <div class="error-message">${requestScope.mobileNo}</div>
                         </td>
                     </tr>
-                    <tr>
+                   <tr>
                         <th></th>
                         <td>
                             <div class="button-container">

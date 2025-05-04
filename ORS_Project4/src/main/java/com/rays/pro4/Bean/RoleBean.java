@@ -1,6 +1,7 @@
 package com.rays.pro4.Bean;
 
-import com.rays.pro4.Util.DataUtility;
+import com.rays.pro4.DTO.BaseDTO;
+import com.rays.pro4.DTO.RoleDTO;
 import com.rays.pro4.Util.DataValidator;
 
 /**
@@ -8,31 +9,30 @@ import com.rays.pro4.Util.DataValidator;
  * 
  * @author Lokesh SOlanki
  *
- */
-import javax.servlet.http.HttpServletRequest;public class RoleBean extends BaseBean{
-	
-	
-	
+ */public class RoleBean extends BaseBean{
+
+
+
 	/**
 	 * ADMIN role constant value = 1
 	 */
-	public static final  int ADMIN = 1; //admin
-	
+	private static final  int ADMIN = 1; //admin
+
 	/**
 	 * STUDENT role constant value = 2
 	 */
-	public static final  int STUDENT = 2; //student
-	
+	private static final  int STUDENT = 2; //student
+
 	/**
 	 * COLLEGE role constant value = 3
 	 */
-	public static final  int COLLEGE = 3; //college
-	
+	private static final  int COLLEGE = 3; //college
+
 	/**
 	 * FACULTY role constant value = 4
 	 */
-	public static final  int FACULTY = 4; //faculty
-	
+	private static final  int FACULTY = 4; //faculty
+
 	/**
 	 * KIOSK role constant value = 5
 	 */
@@ -93,23 +93,16 @@ import javax.servlet.http.HttpServletRequest;public class RoleBean extends BaseB
 	public String getValue() {
 		return name;
 	}
-	
-	
-    /**
-     * Populate bean object from request parameters.
-     * @param request the request
-     */
-	
-    @Override
-    public void populate(HttpServletRequest request) {
-        setId(DataUtility.getLong(request.getParameter("id")));
-        setName(DataUtility.getString(request.getParameter("name")));
-        setDescription(DataUtility.getString(request.getParameter("description")));
-         setCreatedBy(DataUtility.getString(request.getParameter("createdBy")));
-        setModifiedBy(DataUtility.getString(request.getParameter("modifiedBy")));
-        setCreatedDatetime(DataUtility.getTimestamp(request.getParameter("createdDatetime")));
-        setModifiedDatetime(DataUtility.getTimestamp(request.getParameter("modifiedDatetime")));
-    }
+	/**
+	 * returns a new RoleDTO object
+	 */
+	@Override
+	public RoleDTO getDTO() {
+		RoleDTO dto = new RoleDTO();
+		dto.setId(id);
+		dto.setName(name);
+		return dto;
+	}
 	@Override
 	/**
 	 * Returns a string representation of the RoleBean.

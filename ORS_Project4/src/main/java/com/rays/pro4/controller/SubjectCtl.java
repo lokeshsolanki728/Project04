@@ -1,6 +1,8 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -12,6 +14,7 @@ import com.rays.pro4.Bean.CourseBean;
 import org.apache.log4j.Logger;
 
 import com.rays.pro4.Bean.BaseBean;
+import com.rays.pro4.DTO.SubjectDTO;
 import com.rays.pro4.Bean.SubjectBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
@@ -75,13 +78,25 @@ public class SubjectCtl extends BaseCtl{
 	}
 
 	/**
-	 * Populate bean.
+	 * Populates a SubjectBean with data from the HttpServletRequest.
 	 *
-	 * @param request the request
-	 * @return the base bean
+	 * @param request The HttpServletRequest containing the data.
+	 * @param bean The SubjectBean to populate.
 	 */
-	@Override
-	protected BaseBean populateBean(HttpServletRequest request) {
+	protected void populateBean(HttpServletRequest request, SubjectBean bean) {
+		bean.setCourseId(DataUtility.getLong(request.getParameter("courseId")));
+		bean.setCourseName(DataUtility.getString(request.getParameter("courseName")));
+		bean.setSubjectName(DataUtility.getString(request.getParameter("subjectName")));
+		bean.setDescription(DataUtility.getString(request.getParameter("description")));
+		bean.setId(DataUtility.getLong(request.getParameter("id")));
+	}
+	
+	/**
+	 * Populate dto.
+	 *
+	 * @param dto the dto
+	 */
+	protected void populateDTO(HttpServletRequest request , SubjectDTO dto) {
 		log.debug("Populate bean Method of Subject Ctl start");
 		final SubjectBean bean = new SubjectBean();
 		bean.populate(request);
@@ -103,14 +118,16 @@ public class SubjectCtl extends BaseCtl{
 		final long id = DataUtility.getLong(request.getParameter("id"));
 		if (id > 0) {
 			SubjectBean bean;
+			SubjectDTO dto;
 			try {
-				bean = model.findByPK(id);
-				if (bean == null) {
+				dto = model.findByPK(id);
+				if (dto == null) {
 					ServletUtility.setErrorMessage("Subject not found", request);
 				}
+				bean = new SubjectBean();
+				populateBean(request, bean);
 				ServletUtility.setBean(bean, request);
 			} catch (final ApplicationException e) {
-				log.error("Error finding Subject by ID", e);
 				handleDatabaseException(e, request, response);
 				return;
 			}
@@ -165,14 +182,16 @@ public class SubjectCtl extends BaseCtl{
 		final String op = DataUtility.getString(request.getParameter("operation"));
 		final long id = DataUtility.getLong(request.getParameter("id"));
 		if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
-			final SubjectBean bean = (SubjectBean) populateBean(request);
+			final SubjectBean bean = new SubjectBean();
+			populateBean(request,bean);
+			final SubjectDTO dto = bean.getDTO();
 			try {
 				if (id > 0) {
-					update(bean, model, request);
+					model.update(dto);
 				} else {
-					save(bean, model, request);
+					model.add(dto);
 				}
-				ServletUtility.setBean(bean, request);
+				ServletUtility.setSuccessMessage(id > 0 ? MessageConstant.SUBJECT_UPDATE: MessageConstant.SUBJECT_ADD, request);
 			} catch (final ApplicationException e) {
 				log.error("Application exception", e);
 				handleDatabaseException(e, request, response);
@@ -181,7 +200,6 @@ public class SubjectCtl extends BaseCtl{
 				ServletUtility.setBean(bean, request);
 				ServletUtility.setErrorMessage("Subject name already exists", request);
 			}
-			ServletUtility.setBean(bean, request);
 		} else if (OP_RESET.equalsIgnoreCase(op)) {
 			ServletUtility.redirect(ORSView.SUBJECT_CTL, request, response);
 			return;

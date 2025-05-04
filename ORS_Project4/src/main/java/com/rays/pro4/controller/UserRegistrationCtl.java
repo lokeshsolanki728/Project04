@@ -1,6 +1,7 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
+import com.rays.pro4.DTO.UserDTO;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -21,6 +22,7 @@ import com.rays.pro4.Util.DataValidator;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;
+import com.rays.pro4.Util.DataUtility;
 
 //TODO: Auto-generated Javadoc
 /**
@@ -127,13 +129,23 @@ public class UserRegistrationCtl extends BaseCtl {
 	 * @see in.co.rays.ors.controller.BaseCtl#populateBean(javax.servlet.http.
 	 * HttpServletRequest)
 	 */
-	@Override
-	protected BaseBean populateBean(HttpServletRequest request) {
-
+    protected void populateBean(HttpServletRequest request, UserBean bean) {
 		log.debug("UserRegistrationCtl Method populatebean Started");
-
-		final UserBean bean = new UserBean();
-        bean.populate(request);
+        bean.setFirstName(DataUtility.getString(request.getParameter("firstName")));
+        bean.setLastName(DataUtility.getString(request.getParameter("lastName")));
+        bean.setLogin(DataUtility.getString(request.getParameter("login")));
+        bean.setDob(DataUtility.getDate(request.getParameter("dob")));
+        bean.setMobileNo(DataUtility.getString(request.getParameter("mobileNo")));
+        bean.setPassword(DataUtility.getString(request.getParameter("password")));
+        bean.setGender(DataUtility.getString(request.getParameter("gender")));
+		log.debug("UserRegistrationCtl Method populatebean Ended");
+	}
+	
+    protected void populateDTO(HttpServletRequest request, UserDTO dto) {
+		
+		
+		
+       
         bean.setRoleId(RoleBean.STUDENT);
 
 		log.debug("UserRegistrationCtl Method populatebean Ended");
@@ -171,11 +183,12 @@ public class UserRegistrationCtl extends BaseCtl {
 
 		final String op = DataUtility.getString(request.getParameter("operation"));
         
-        final UserBean bean = (UserBean) populateBean(request);
-        
+        final UserBean bean = new UserBean();
+        populateBean(request,bean);
+        final UserDTO dto = new UserDTO();
 		if (OP_SIGN_UP.equalsIgnoreCase(op)) {
             if(validate(request)){
-                try {
+                 try {
                     save(bean, request);                   
                 } catch (final DuplicateRecordException e) {
                     log.error("Duplicate record exception", e);
@@ -186,11 +199,8 @@ public class UserRegistrationCtl extends BaseCtl {
                     return;
                 }           
             }          
-        } else if (OP_RESET.equalsIgnoreCase(op)) {
-            ServletUtility.redirect(ORSView.USER_REGISTRATION_CTL, request, response);
-        }
+       
             ServletUtility.forward(getView(), request, response);
-            return;
         } else if (OP_RESET.equalsIgnoreCase(op)) {
             ServletUtility.redirect(ORSView.USER_REGISTRATION_CTL, request, response);
     }

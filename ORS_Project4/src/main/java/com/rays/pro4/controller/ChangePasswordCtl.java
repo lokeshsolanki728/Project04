@@ -8,8 +8,10 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import com.rays.pro4.util.ChangePasswordValidator; 
+import com.rays.pro4.Bean.RoleBean;
 import com.rays.pro4.Bean.UserBean;
 import com.rays.pro4.Exception.ApplicationException;
+import com.rays.pro4.DTO.UserDTO;
 import com.rays.pro4.Model.UserModel;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.MessageConstant;
@@ -73,12 +75,28 @@ public class ChangePasswordCtl extends BaseCtl<UserBean>{
      * @return The UserBean populated with request parameters.
      */
     @Override
-    protected UserBean populateBean(final HttpServletRequest request) {
-        log.debug("ChangePasswordCtl Method populate Started");
-
-        final UserBean bean = new UserBean();
-        bean.populate(request);
-        log.debug("ChangePasswordCtl Method populate Ended");
+	protected void populateDTO(HttpServletRequest request, UserDTO dto) {
+		// TODO Auto-generated method stub
+		
+	}
+    
+    
+	/**
+	 * Populates user bean object from request parameters.
+	 *
+	 * @param request the request
+	 * @param bean the bean
+	 * @return the user bean
+	 */
+	protected UserBean populateBean(HttpServletRequest request, UserBean bean) {
+		log.debug("UserCtl Method populatebean Started");
+		bean.setId(DataUtility.getLong(request.getParameter("id")));
+		bean.setPassword(DataUtility.getString(request.getParameter("oldPassword")));
+		bean.setGender(DataUtility.getString(request.getParameter("newPassword")));
+		bean.setConfirmPassword(DataUtility.getString(request.getParameter("confirmPassword")));
+		
+		log.debug("UserCtl Method populatebean Ended");
+		
 		
         return bean;
     }
@@ -118,18 +136,22 @@ public class ChangePasswordCtl extends BaseCtl<UserBean>{
 	 */
 	private final void changePassword(final UserBean bean, final String newPassword,final HttpServletRequest request, final HttpServletResponse response) throws ApplicationException, IOException, ServletException {
 		final HttpSession session = request.getSession();
-		UserBean userBean = (UserBean) session.getAttribute("user");
+		final UserBean userBean = (UserBean) session.getAttribute("user");
 		if (userBean == null) {
 			ServletUtility.setErrorMessage("User not found", request);
 			ServletUtility.forward(getView(), request, response);
 			return;
 		}
-		long id = userBean.getId();
-		
-		model.changePassword(id, bean.getPassword(), newPassword);
-		UserBean user = model.findByLogin(userBean.getLogin());
-		session.setAttribute("user", user);
-		ServletUtility.setSuccessMessage(MessageConstant.PASSWORD_CHANGE, request);
+		final long id = userBean.getId();
+		final UserDTO dto = bean.getDTO();
+		try {
+			model.changePassword(id, dto.getPassword(), newPassword);
+			final UserBean user = model.findByLogin(userBean.getLogin());
+			session.setAttribute("user", user);
+			ServletUtility.setSuccessMessage(MessageConstant.PASSWORD_CHANGE, request);
+		}catch (final Exception e){
+			ServletUtility.setErrorMessage("Password change failed.", request);
+		}
 	}
 	else {
 			ServletUtility.setErrorMessage("Password change failed.", request);
@@ -148,10 +170,14 @@ public class ChangePasswordCtl extends BaseCtl<UserBean>{
 			throws ServletException, IOException {
 			log.debug("ChangePasswordCtl Method doPost Started");
 			String op = DataUtility.getString(request.getParameter("operation"));
-			UserBean bean = populateBean(request);
+			UserDTO dto = new UserDTO();
+			UserBean bean = new UserBean();
+			populateBean(request, bean);
 			String newPassword = (String) request.getParameter("newPassword");
+			
 			try {
 				if (OP_SAVE.equalsIgnoreCase(op)) {
+					
 					if (validate(request)) {
 						changePassword(bean, newPassword, request, response);
 					}

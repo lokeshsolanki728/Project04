@@ -1,8 +1,7 @@
 package com.rays.pro4.Bean;
-import javax.servlet.http.HttpServletRequest;
 
-import com.rays.pro4.Util.DataUtility;
-
+import com.rays.pro4.DTO.CourseDTO;
+import com.rays.pro4.DTO.BaseDTO;
 /** 
  * Course JavaBean encapsulates Course attributes.
  * 
@@ -88,19 +87,16 @@ public class CourseBean extends BaseBean{
     public String getValue() {
         return name;
     }
-
-    /**
-     * Populate bean object from request parameters.
-     *
-     * @param request the request
-     */
-	@Override
-	public void populate(HttpServletRequest request) {
-		setId(DataUtility.getLong(request.getParameter("id")));
-		setName(DataUtility.getString(request.getParameter("name")));
-		setDescription(DataUtility.getString(request.getParameter("description")));
-		setDuration(DataUtility.getString(request.getParameter("duration")));
-		
+    @Override
+	public CourseDTO getDTO() {
+    	CourseDTO courseDTO= new CourseDTO();
+    	courseDTO.setName(name);
+    	courseDTO.setDescription(description);
+    	courseDTO.setDuration(duration);
+    	courseDTO.setId(id);
+    	courseDTO.setCreatedBy(createdBy);
+    	courseDTO.setModifiedBy(modifiedBy);
+		return courseDTO;
 	}
 
 	/**
