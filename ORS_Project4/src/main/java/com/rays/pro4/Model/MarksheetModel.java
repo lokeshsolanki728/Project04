@@ -18,7 +18,7 @@ import com.rays.pro4.Util.JDBCDataSource;
 import java.util.*;
 import java.util.List;
 
-public class MarksheetModel {
+public class MarksheetModel extends BaseModel {
 
     private static Logger log = Logger.getLogger(MarksheetModel.class);
 
