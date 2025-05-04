@@ -66,9 +66,10 @@ public class StudentModel extends BaseModel{
             conn = JDBCDataSource.getConnection();
             conn.setAutoCommit(false);
             pk = nextPK();
-            bean.setId(pk);
-            bean.setCreatedDatetime(new java.sql.Timestamp(new java.util.Date().getTime()));
-            dto.setModifiedDatetime(new java.sql.Timestamp(new java.util.Date().getTime()));
+            dto.setId(pk);
+            dto.setCreatedDatetime(new java.sql.Timestamp(new java.util.Date().getTime()));
+           dto.setModifiedDatetime(new java.sql.Timestamp(new java.util.Date().getTime()));
+
 
             try (PreparedStatement pstmt = conn.prepareStatement("INSERT INTO ST_STUDENT VALUES(?,?,?,?,?,?,?,?,?,?,?,?)")) {
                 pstmt.setLong(1, pk);
@@ -79,8 +80,8 @@ public class StudentModel extends BaseModel{
                 pstmt.setDate(6, new java.sql.Date(dto.getDob().getTime()));
                 pstmt.setString(7, dto.getMobileNo());
                 pstmt.setString(8, dto.getEmail());
-                pstmt.setString(9, bean.getCreatedBy());
-                pstmt.setString(10, bean.getModifiedBy());
+                pstmt.setString(9, dto.getCreatedBy());
+                pstmt.setString(10, dto.getModifiedBy());
                 pstmt.setTimestamp(11, bean.getCreatedDatetime());
                 pstmt.setTimestamp(12, bean.getModifiedDatetime());
                 pstmt.executeUpdate();
@@ -127,8 +128,8 @@ public class StudentModel extends BaseModel{
             pstmt.setString(1, Email);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    bean = new StudentBean();
-                    populate(rs, bean);
+                     dto = new StudentDTO();
+                    populateBean(rs, dto);
 
 
                 }
@@ -162,33 +163,33 @@ public class StudentModel extends BaseModel{
 		return dto;
 	}
 
-	public void Update(StudentBean bean) throws ApplicationException, DuplicateRecordException {
+	public void Update(StudentDTO dto) throws ApplicationException, DuplicateRecordException {
 		log.debug("Model update Started");
 		Connection conn = null;
-		StudentBean beanExist = findByEmailId(bean.getEmail());
-		if (beanExist != null && beanExist.getId() != bean.getId()) {
+		StudentDTO beanExist = findByEmailId(dto.getEmail());
+		if (beanExist != null && beanExist.getId() != dto.getId()) {
 			throw new DuplicateRecordException("Email already exists");
 		}
 		CollegeModel cModel = new CollegeModel();
-		CollegeBean collegeBean = cModel.findByPK(bean.getCollegeId());
-		bean.setCollegeName(collegeBean.getName());
+		CollegeBean collegeBean = cModel.findByPK(dto.getCollegeId());
+		dto.setCollegeName(collegeBean.getName());
 		try (Connection conn = JDBCDataSource.getConnection()) {
             conn.setAutoCommit(false);// Begin transaction
             try (PreparedStatement pstmt = conn.prepareStatement(
                     "UPDATE ST_STUDENT SET COLLEGE_ID=?,COLLEGE_NAME=?,FIRST_NAME=?,LAST_NAME=?,DATE_OF_BIRTH=?,MOBILE_NO=?,EMAIL_ID=?,CREATED_BY=?,MODIFIED_BY=?,CREATED_DATETIME=?,MODIFIED_DATETIME=? WHERE ID=?")) {
 
-                pstmt.setLong(1, bean.getCollegeId());
-                pstmt.setString(2, bean.getCollegeName());
-                pstmt.setString(3, bean.getFirstName());
-                pstmt.setString(4, bean.getLastName());
-                pstmt.setDate(5, new java.sql.Date(bean.getDob().getTime()));
-                pstmt.setString(6, bean.getMobileNo());
-                pstmt.setString(7, bean.getEmail());
-                pstmt.setString(8, bean.getCreatedBy());
-                pstmt.setString(9, bean.getModifiedBy());
-                pstmt.setTimestamp(10, bean.getCreatedDatetime());
-                pstmt.setTimestamp(11, bean.getModifiedDatetime());
-                pstmt.setLong(12, bean.getId());
+                pstmt.setLong(1, dto.getCollegeId());
+                pstmt.setString(2, dto.getCollegeName());
+                pstmt.setString(3, dto.getFirstName());
+                pstmt.setString(4, dto.getLastName());
+                pstmt.setDate(5, new java.sql.Date(dto.getDob().getTime()));
+                pstmt.setString(6, dto.getMobileNo());
+                pstmt.setString(7, dto.getEmail());
+                 pstmt.setString(8, dto.getCreatedBy());
+                pstmt.setString(9, dto.getModifiedBy());
+                pstmt.setTimestamp(10, dto.getCreatedDatetime());
+                pstmt.setTimestamp(11, dto.getModifiedDatetime());
+                pstmt.setLong(12, dto.getId());
                 pstmt.executeUpdate();
                 conn.commit();// End transaction
             }
@@ -200,8 +201,8 @@ public class StudentModel extends BaseModel{
         log.debug("Model update End");
     }
 
-	public List search(StudentBean bean,String orderBy,String sortOrder) throws ApplicationException {
-		return search(bean, 1, 0);
+	public List search(StudentBean bean,String orderBy,String sortOrder) throws ApplicationException {		
+		return search(bean, 1, 0,orderBy,sortOrder);
 	}
 	
 	/**
@@ -217,7 +218,7 @@ public class StudentModel extends BaseModel{
 	public List search(StudentBean bean, int pageNo, int pageSize,String orderBy, String sortOrder) throws ApplicationException {
 		log.debug("Model search Started");
 		StringBuffer sql = new StringBuffer("SELECT * FROM ST_STUDENT WHERE 1=1");
-		
+		StudentDTO dto = null;
 		ArrayList<StudentBean> list = new ArrayList<>();
 		int index = 1;
 		if (pageNo < 0) {
@@ -263,12 +264,12 @@ public class StudentModel extends BaseModel{
 		try (Connection conn = JDBCDataSource.getConnection();
 			 PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
 			index=1;
+			
             if (bean != null) {
-				
-				
-			
-			
-			
+				if (bean.getId() > 0) {pstmt.setLong(index++, bean.getId());}
+                if (bean.getFirstName() != null && !bean.getFirstName().isEmpty()) {pstmt.setString(index++, bean.getFirstName() + "%");}
+				if (bean.getLastName() != null && !bean.getLastName().isEmpty()) {pstmt.setString(index++, bean.getLastName() + "%");}
+				if (bean.getMobileNo() != null && !bean.getMobileNo().isEmpty()) {pstmt.setString(index++, bean.getMobileNo() + "%");}if (bean.getEmail() != null && !bean.getEmail().isEmpty()) {pstmt.setString(index++, bean.getEmail() + "%");}if (bean.getCollegeId() > 0) {pstmt.setLong(index++, bean.getCollegeId());}
 			
 			
 			
@@ -276,10 +277,10 @@ public class StudentModel extends BaseModel{
                 if (bean.getId() > 0) {pstmt.setLong(index++, bean.getId());}
                 if (bean.getFirstName() != null && !bean.getFirstName().isEmpty()) {pstmt.setString(index++, bean.getFirstName() + "%");}if (bean.getLastName() != null && !bean.getLastName().isEmpty()) {pstmt.setString(index++, bean.getLastName() + "%");}if (bean.getMobileNo() != null && !bean.getMobileNo().isEmpty()) {pstmt.setString(index++, bean.getMobileNo() + "%");}if (bean.getEmail() != null && !bean.getEmail().isEmpty()) {pstmt.setString(index++, bean.getEmail() + "%");}if (bean.getCollegeId() > 0) {pstmt.setLong(index++, bean.getCollegeId());}
             }
-			try(ResultSet rs = pstmt.executeQuery()) {
+            try(ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    bean = new StudentBean();
-                    populate(rs, bean);
+                    dto = new StudentDTO();
+                    populateBean(rs, dto);
                     list.add(bean);
                 }
             }
@@ -299,7 +300,7 @@ public class StudentModel extends BaseModel{
 		log.debug("Model list Started");
 		ArrayList<StudentBean> list = new ArrayList<>();
 		StringBuffer sql = new StringBuffer("select * from ST_STUDENT");
-		if (pageNo < 0) {
+		if (pageNo < 1) {
             pageNo = 0;
         }
         if (pageSize < 0) {
@@ -310,20 +311,22 @@ public class StudentModel extends BaseModel{
             sql.append(" LIMIT " + pageNo + " , " + pageSize);
         }
         // Add sorting logic
-     		if (orderBy != null && !orderBy.isEmpty()) {
+        if (orderBy != null && !orderBy.isEmpty()) {
      		    sql.append(" ORDER BY " + orderBy);
      		    if (sortOrder != null && sortOrder.equalsIgnoreCase("DESC")) {
      		        sql.append(" DESC");
      		    } else {
      		        sql.append(" ASC");
+     		    }
         }
-		}
-        try (Connection conn = JDBCDataSource.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+		try (Connection conn = JDBCDataSource.getConnection(); 
+			PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    StudentBean bean = new StudentBean();
-                    populate(rs, bean);
-                    list.add(bean);
+                    StudentDTO dto = new StudentDTO();
+                    
+                    populateBean(rs, dto);
+                    list.add(dto);
                 }
             }
         } catch (SQLException e) {
@@ -333,18 +336,18 @@ public class StudentModel extends BaseModel{
         log.debug("Model list End");
         return list;
     }
-    private void populateBean(ResultSet rs, StudentDTO dto) throws SQLException {
-        bean.setId(rs.getLong(1));
-        bean.setCollegeId(rs.getLong(2));
-        bean.setCollegeName(rs.getString(3));
-        bean.setFirstName(rs.getString(4));
-        bean.setLastName(rs.getString(5));
-        bean.setDob(rs.getDate(6));
-        bean.setMobileNo(rs.getString(7));
-        bean.setEmail(rs.getString(8));
-        bean.setCreatedBy(rs.getString(9));
-        bean.setModifiedBy(rs.getString(10));
-        bean.setCreatedDatetime(rs.getTimestamp(11));
-        bean.setModifiedDatetime(rs.getTimestamp(12));
+    private  void populateBean(ResultSet rs, StudentDTO dto) throws SQLException {
+        dto.setId(rs.getLong(1));
+        dto.setCollegeId(rs.getLong(2));
+        dto.setCollegeName(rs.getString(3));
+        dto.setFirstName(rs.getString(4));
+        dto.setLastName(rs.getString(5));
+        dto.setDob(rs.getDate(6));
+        dto.setMobileNo(rs.getString(7));
+        dto.setEmail(rs.getString(8));
+        dto.setCreatedBy(rs.getString(9));
+        dto.setModifiedBy(rs.getString(10));
+        dto.setCreatedDatetime(rs.getTimestamp(11));
+        dto.setModifiedDatetime(rs.getTimestamp(12));
     }
 }

@@ -2,6 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@page import="com.rays.pro4.Util.DataUtility"%>
 <%@page import="java.util.HashMap"%>
+<%@page import="com.rays.pro4.Model.StudentModel"%>
 <%@page import="com.rays.pro4.controller.StudentListCtl"%>
 <%@page import="com.rays.pro4.Bean.StudentBean"%>
 <%@page import="com.rays.pro4.Bean.CollegeBean"%>
@@ -57,11 +58,11 @@
 					    <input type="text" id="lastName" name="lastName"
 					           placeholder="Enter Last Name" class="form-control-inline"
 					           value="${param.lastName}">
-					           
-					     <label for="rollNo">RollNo :</label>
-					    <input type="text" id="rollNo" name="rollNo"
-					           placeholder="Enter RollNo" class="form-control-inline"
-					           value="${param.rollNo}">
+
+					
+					    <label for="email">Email :</label>
+					    <input type="text" id="email" name="email"
+					           placeholder="Enter Email" class="form-control-inline" value="${param.email}">
 					           
 					      <label for="mobileNo">Mobile No :</label>
 					    <input type="text" id="mobileNo" name="mobileNo"
@@ -102,9 +103,9 @@
 							</c:choose>
 						</th>
 						<th>Last Name.</th>
-						<th>Roll No.</th>
+						<th>Date of Birth</th>
 						<th>Mobile No.</th>
-						<th>Email Id.</th>
+						<th>Email</th>
 						<th>Edit</th>
 					</tr>
 				</thead>
@@ -119,7 +120,7 @@
 							<td>${student.collegeName}</td>
 							<td>${student.firstName}</td>
 							<td>${student.lastName}</td>
-							<td>${student.rollNo}</td>
+							<td>${student.dob}</td>
 							<td>${student.mobileNo}</td>
 							<td>${student.email}</td>
 							<td><a href="${ctx}/StudentCtl?id=${student.id}" class="btn btn-link">Edit</a></td>
@@ -139,10 +140,6 @@
 					    <input type="submit" name="operation" class="btn btn-success" value="<%=StudentListCtl.OP_NEW%>">
 					    <input type="submit" name="operation" class="btn btn-primary" value="<%=StudentListCtl.OP_NEXT%>" ${list.size() < pageSize ? 'disabled' : ''}>
 					</td>
-					
-					<%--<td class="text-right"><input type="submit" name="operation"--%>
-						<%--class="btn btn-primary" value="<%=StudentListCtl.OP_NEXT%>"--%>
-						<%--${list.size() < pageSize || model.nextPK()-1 == bean.id ? 'disabled' : ''}></td>--%>
 				</tr>
 				<c:if test="${empty list}">
 					<div class="text-center">
@@ -164,46 +161,9 @@
 	<script src="https://kit.fontawesome.com/48b351528a.js"
 		crossorigin="anonymous"></script>
 </form>
-<%@include file="Footer.jsp"%>
-</body>
-</html>
 
-							<td>${student.dob}</td>
-							<td>${student.mobileNo}</td>
-							<td>${student.email}</td>
-							<td><a href="${ctx}/StudentCtl?id=${student.id}"
-								class="btn btn-link">Edit</a></td>
-						</tr>
-					</c:forEach>
-				</tbody>
-			</table>
-			<table class="w-100">
-				<tr>
-					<td><input type="submit" name="operation"
-						class="btn btn-secondary"
-						value="<%=StudentListCtl.OP_PREVIOUS%>"
-						${pageNo == 1 ? 'disabled' : ''}></td>
-					<td><input type="submit" name="operation"
-						class="btn btn-danger" value="<%=StudentListCtl.OP_DELETE%>"></td>
-					<td><input type="submit" name="operation"
-						class="btn btn-success" value="<%=StudentListCtl.OP_NEW%>"></td>
-					<c:set var="model" value="<%=new StudentModel()%>" />
-					<td class="text-right"><input type="submit" name="operation"
-						class="btn btn-primary" value="<%=StudentListCtl.OP_NEXT%>"
-						${list.size() < pageSize || model.nextPK()-1 == bean.id ? 'disabled' : ''}></td>
-				</tr>
-			</table>
-		</c:if>
-		<c:if test="${empty list}">
-			<div class="text-center">
-				<input type="submit" name="operation" class="btn btn-primary"
-					value="<%=StudentListCtl.OP_BACK%>">
-			</div>
-		</c:if>
-		<input type="hidden" name="pageNo" value="${pageNo}"> <input
-			type="hidden" name="pageSize" value="${pageSize}">
-	</div>
-</form>
+
+
 <%@include file="Footer.jsp"%>
 </body>
 </html>

@@ -19,10 +19,13 @@
 		<script src="${ctx}/js/jquery.min.js"></script>
 		<script src="${ctx}/js/Checkbox11.js"></script>
 	</head>
-	<body class="bg-light main-body">
-		<jsp:useBean id="bean" class="com.rays.pro4.Bean.MarksheetBean"
-			scope="request"></jsp:useBean>
-		<form action="${ctx}${ORSView.MARKSHEET_LIST_CTL}" method="POST">
+<body class="bg-light main-body">
+    <jsp:useBean id="bean" class="com.rays.pro4.Bean.MarksheetBean"
+        scope="request"></jsp:useBean>
+    <form action="${ctx}${ORSView.MARKSHEET_LIST_VIEW}" method="POST">
+
+
+
 			<%@include file="Header.jsp"%>
 			<c:set var="list" value="${requestScope.list}" />
 			<c:set var="rollNoList" value="${requestScope.rollNo}" />
@@ -31,7 +34,7 @@
 			<c:set var="pageSize" value="${requestScope.pageSize}" />
 			<c:set var="index" value="${(pageNo - 1) * pageSize + 1}" />
 			<div class="container">
-				<div class="text-center">
+				<div class="text-center mb-4">
 					<h1>Marksheet List</h1>
 					<c:if test="${not empty requestScope.errorMessage}">
 						<span class="alert alert-danger" role="alert">${requestScope.errorMessage}</span>
@@ -41,21 +44,25 @@
 					</c:if>
 				</div>
 				<c:if test="${not empty list}">
-					<table class="search-table w-100">
+                 <div class="mb-4">
+                    <a href="${ctx}${ORSView.MARKSHEET_VIEW}" class="btn btn-primary float-end">Add New Marksheet</a>
+                 </div>
+
+					<table class="search-table w-50">
 						<tr>
-							<td class="text-center">
-								<label for="name"> Student Name :</label>
-								<input type="text" id="name" name="name" placeholder="Enter Student Name"
-                                       class="form-control-inline" value="${param.name}">
-                                <label for="rollNo">RollNo :</label>
-                                ${HTMLUtility.getList("rollNo", param.rollNo, rollNoList)}
-                                <input type="submit" name="operation" class="btn btn-primary"
-                                       value="${MarksheetListCtl.OP_SEARCH}"> <input
-                                    type="submit" name="operation" class="btn btn-secondary"
-								value="${MarksheetListCtl.OP_RESET}">
+							<td>
+								<label for="rollNo">Roll No :</label>
+                                   <input type="text" name="rollNo" value="${param.rollNo}" class="form-control-inline"/>
+								<input type="submit" name="operation" class="btn btn-primary" value="${MarksheetListCtl.OP_SEARCH}">
+								<input type="submit" name="operation" class="btn btn-secondary" value="${MarksheetListCtl.OP_RESET}">
 							</td>
+
 						</tr>
 					</table>
+                    <br>
+                    <br>
+
+
 					<table class="table table-bordered table-striped w-100">
 						<thead class="table-header">
 							<tr>
@@ -110,13 +117,12 @@
 						<tr>
 							<td class="float-start">
 								<input type="submit" name="operation" class="btn btn-secondary"
-                                       value="${MarksheetListCtl.OP_PREVIOUS}"
-                                       ${pageNo == 1 ? 'disabled' : ''}>
+                                       value="${MarksheetListCtl.OP_PREVIOUS}" ${pageNo == 1 ? 'disabled' : ''}>
 							</td>
-							<td><input type="submit" name="operation"
-                                       class="btn btn-danger" value="${MarksheetListCtl.OP_DELETE}"></td>
-							<td><input type="submit" name="operation"
-								class="btn btn-success" value="${MarksheetListCtl.OP_NEW}"></td>
+							<td>
+                             <input type="submit" name="operation" class="btn btn-danger" value="${MarksheetListCtl.OP_DELETE}">
+							</td>
+
 							<td class="text-right"><input type="submit"
 								class="btn btn-primary" name="operation"
 								value="${MarksheetListCtl.OP_NEXT}"

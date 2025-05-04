@@ -15,6 +15,7 @@ import com.rays.pro4.DTO.UserDTO;
 import com.rays.pro4.Bean.UserBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
+import com.rays.pro4.Model.RoleModel;
 import com.rays.pro4.Model.UserModel;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.DataValidator;
@@ -30,7 +31,7 @@ import com.rays.pro4.Util.UserValidator;
  * @author Lokesh Solanki
  */
 @WebServlet(name = "MyProfileCtl", urlPatterns = {"/ctl/MyProfileCtl"})
-public class MyProfileCtl extends BaseCtl<UserBean>{
+public class MyProfileCtl extends BaseCtl {
 
 	public static final String OP_CHANGE_MY_PASSWORD = "ChangePassword";
 
@@ -39,6 +40,7 @@ public class MyProfileCtl extends BaseCtl<UserBean>{
     /**
      * Model object to perform operations
      */
+    private final RoleModel roleModel = new RoleModel();
     private final UserModel model = new UserModel();
 
     /**
@@ -70,7 +72,7 @@ public class MyProfileCtl extends BaseCtl<UserBean>{
             pass = false;
         }
 
-        if (DataValidator.isNull(request.getParameter("dob"))) {
+         if (DataValidator.isNull(request.getParameter("dob"))) {
             request.setAttribute("dob",
                     PropertyReader.getValue("error.require", "Date Of Birth"));
             pass = false;
@@ -88,20 +90,15 @@ public class MyProfileCtl extends BaseCtl<UserBean>{
      * @param dto     the dto
      */
     @Override
-    protected void populateDTO(HttpServletRequest request, BaseBean dto) {
-        final UserDTO userDto = (UserDTO) dto;
-        userDto.setFirstName(DataUtility.getString(request.getParameter("firstName")));
-        userDto.setLastName(DataUtility.getString(request.getParameter("lastName")));
-        userDto.setGender(DataUtility.getString(request.getParameter("gender")));
-        userDto.setMobileNo(DataUtility.getString(request.getParameter("mobileNo")));
-        userDto.setDob(DataUtility.getDate(request.getParameter("dob")));
-
+    protected BaseBean populateBean(HttpServletRequest request) {
+    	UserBean bean = new UserBean();
+    	bean.setFirstName(DataUtility.getString(request.getParameter("firstName")));
+    	bean.setLastName(DataUtility.getString(request.getParameter("lastName")));
+    	bean.setGender(DataUtility.getString(request.getParameter("gender")));
+    	bean.setMobileNo(DataUtility.getString(request.getParameter("mobileNo")));
+    	bean.setDob(DataUtility.getDate(request.getParameter("dob")));
+    	return bean;
     }
-    /**
-     * Populates bean object from request parameters
-     * @param request the request
-     * @param bean the bean
-     */
     protected void populateBean(HttpServletRequest request, UserBean bean) {
         log.debug("MyProfileCtl Method populatebean Started");
         final UserBean bean = new UserBean();
@@ -136,11 +133,12 @@ public class MyProfileCtl extends BaseCtl<UserBean>{
                     if (dto == null) {
                         ServletUtility.setErrorMessage("User not found", request);
                     }
-                    UserBean bean = new UserBean();
-                    populateBean(request,bean);
-                    ServletUtility.setBean(bean, request);
+                    request.setAttribute("firstName", dto.getFirstName());
+                    request.setAttribute("lastName", dto.getLastName());
+                    request.setAttribute("gender", dto.getGender());
+                    request.setAttribute("mobileNo", dto.getMobileNo());
+                    request.setAttribute("dob", DataUtility.getDateString(dto.getDob()));
                 } catch (final ApplicationException e) {
-                    log.error("Error finding user by ID", e);
                     handleDatabaseException(e, request, response);
                     return;
                 }
@@ -181,8 +179,7 @@ public class MyProfileCtl extends BaseCtl<UserBean>{
         if (OP_SAVE.equalsIgnoreCase(op)) {
         	
             if (validate(request)) {
-                final UserBean bean = new UserBean();
-                populateBean(request,bean);
+                final UserBean bean = (UserBean) populateBean(request);
                 UserDTO dto = bean.getDTO();
                 try {
                     updateUser(dto, model, userBean, request);
@@ -206,13 +203,25 @@ public class MyProfileCtl extends BaseCtl<UserBean>{
      * @throws ApplicationException the application exception
      */
     private void updateUser(UserDTO dto, UserModel model,UserBean userBean, HttpServletRequest request)
-            throws DuplicateRecordException, ApplicationException {
+            throws DuplicateRecordException, ApplicationException {	
         dto.setId(userBean.getId());
         dto.setLogin(userBean.getLogin());
         dto.setRoleId(userBean.getRoleId());
-    	model.update(dto);
-        userBean.setFirstName(dto.getFirstName());
+    	UserBean ubean = new UserBean();
+    	ubean.setFirstName(dto.getFirstName());
+    	ubean.setLastName(dto.getLastName());
+    	ubean.setGender(dto.getGender());
+    	ubean.setMobileNo(dto.getMobileNo());
+    	ubean.setDob(dto.getDob());
+    	ubean.setRoleId(userBean.getRoleId());
+    	ubean.setId(userBean.getId());
+    	ubean.setLogin(userBean.getLogin());
+        ubean.setPassword(userBean.getPassword());
+    	ubean.setModifiedBy(userBean.getLogin());
+    	model.update(ubean);
+    	userBean.setFirstName(dto.getFirstName());
         userBean.setLastName(dto.getLastName());
+        
         userBean.setGender(dto.getGender());
         userBean.setDob(dto.getDob());
         userBean.setMobileNo(dto.getMobileNo());

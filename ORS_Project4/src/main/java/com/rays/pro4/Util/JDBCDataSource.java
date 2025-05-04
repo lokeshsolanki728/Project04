@@ -1,9 +1,7 @@
 package com.rays.pro4.Util;
 
 import java.sql.Connection;
-import java.sql.Driver;
 import java.sql.SQLException;
-import java.sql.DriverManager;
 import java.util.ResourceBundle;
 
 import org.apache.log4j.Logger;
@@ -53,13 +51,14 @@ public class JDBCDataSource {
                 try {
                     log.info("JDBCDataSource.getInstance() try set driver");
                     datasource.cpds.setDriverClass(rb.getString("driver"));
-                    log.info("JDBCDataSource.getInstance() finish set driver");
                 } catch (ClassNotFoundException e) {
                     log.error("JDBCDataSource.getInstance() ClassNotFoundException", e);
-                    throw new ApplicationException("JDBCDataSource.getInstance() ClassNotFoundException" + e.getMessage());
+                    throw new ApplicationException("Error in JDBCDataSource.getInstance() : ClassNotFoundException" + e.getMessage());
                 }
+                log.info("JDBCDataSource.getInstance() finish set driver");
                 datasource.cpds.setJdbcUrl(rb.getString("url"));
                 datasource.cpds.setUser(rb.getString("username"));
+                
                 datasource.cpds.setPassword(rb.getString("password"));
                 datasource.cpds.setInitialPoolSize(Integer.parseInt(rb.getString("initialPoolSize")));
                 datasource.cpds.setAcquireIncrement(Integer.parseInt(rb.getString("acquireIncrement")));
@@ -69,7 +68,7 @@ public class JDBCDataSource {
                 log.info("JDBCDataSource.getInstance() method end");
             } catch (Exception e) {
                 log.error("Error in JDBCDataSource.getInstance()", e);
-                throw new ApplicationException("Error in JDBCDataSource.getInstance(): " + e.getMessage());
+                throw new ApplicationException("Error in JDBCDataSource.getInstance() : " + e.getMessage());
             }
         }
         return datasource;
@@ -88,10 +87,10 @@ public class JDBCDataSource {
             conn = getInstance().cpds.getConnection();
             log.debug("JDBCDataSource.getConnection() method end");
         } catch (SQLException e) {
-            log.error("Error in JDBCDataSource.getConnection() SQLException", e);
-            throw new ApplicationException("Error in JDBCDataSource.getConnection(): " + e.getMessage());
-        } catch (Exception e) {
             log.error("Error in JDBCDataSource.getConnection()", e);
+            throw new ApplicationException("Error in JDBCDataSource.getConnection() : " + e.getMessage());
+        } catch (Exception e) {
+            log.error("Error in JDBCDataSource.getConnection()",e);
             throw new ApplicationException("Error in JDBCDataSource.getConnection(): " + e.getMessage());
         }
         return conn;
@@ -112,8 +111,8 @@ public class JDBCDataSource {
             }
             log.debug("JDBCDataSource.closeConnection() method end");
         } catch (SQLException e) {
-            log.error("JDBCDataSource.closeConnection() SQLException", e);
-            throw new ApplicationException("Error in JDBCDataSource.closeConnection(): " + e.getMessage());
+            log.error("Error in JDBCDataSource.closeConnection()", e);
+            throw new ApplicationException("Error in JDBCDataSource.closeConnection() : " + e.getMessage());
         }
     }
 
@@ -130,8 +129,8 @@ public class JDBCDataSource {
                 connection.rollback();
                 log.debug("JDBCDataSource.trnRollback() connection rollback");
             } catch (SQLException ex) {
-                log.error("Error in JDBCDataSource.trnRollback()", ex);
-                throw new ApplicationException("Error in JDBCDataSource.trnRollback(): " + ex.getMessage());
+                log.error("Error in JDBCDataSource.trnRollback() ", ex);
+                throw new ApplicationException("Error in JDBCDataSource.trnRollback() : " + ex.getMessage());
             }
         }
         log.debug("JDBCDataSource.trnRollback() method end");

@@ -58,4 +58,15 @@ public class TimeTableDTO extends BaseDTO {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    @Override
+    public String toString() {
+        return "TimeTableDTO{" +
+                "courseId=" + courseId +
+                ", subjectId=" + subjectId +
+                ", semester='" + semester + '\'' +
+                ", examDate=" + examDate +
+                ", examTime='" + examTime + '\'' +
+                ", description='" + description + '\'' + '}';
+    }
 }

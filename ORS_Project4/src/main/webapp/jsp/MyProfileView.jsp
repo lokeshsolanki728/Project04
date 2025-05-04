@@ -10,7 +10,7 @@
 <%@ page import="com.rays.pro4.Bean.UserBean" %>
 <!DOCTYPE html>
 <html>
-<head>
+<head xmlns="http://www.w3.org/1999/html">
     <c:set var="ctx" value="${pageContext.request.contextPath}"/>
     <link rel="icon" type="image/png" href="${ctx}/img/logo.png" sizes="16*16"/>
     <title>My Profile</title>
@@ -31,15 +31,15 @@
 %>
 <body >
 
-    <form action="${ctx}${ORSView.MY_PROFILE_CTL}" method="post">
-        <%@ include file="Header.jsp" %>
-        <jsp:useBean id="bean" class="com.rays.pro4.Bean.UserBean" scope="request"></jsp:useBean>
-        <div class="container">
-            <h1 class="text-center">My Profile</h1>
-            <div class="message-container">
-                <c:if test="${not empty errorMessage}">
-                    <div class="alert alert-danger" role="alert">${errorMessage}</div>
-                </c:if>
+<form action="${ctx}${ORSView.MY_PROFILE_CTL}" method="post">
+    <%@ include file="Header.jsp" %>
+    <jsp:useBean id="bean" class="com.rays.pro4.Bean.UserBean" scope="request"></jsp:useBean>
+    <div class="container">
+        <h1 class="text-center">My Profile</h1>
+        <div class="message-container">
+            <c:if test="${not empty errorMessage}">
+                <div class="alert alert-danger" role="alert">${errorMessage}</div>
+            </c:if>
                 <c:if test="${not empty successMessage}">
                     <div class="alert alert-success" role="alert">${successMessage}</div>
                 </c:if>
@@ -104,7 +104,7 @@
                 <tr>
                     <th align="left">
                         <label for="dob">Date Of Birth (mm/dd/yyyy)</label>
-                    </th>
+                    </th>s
                     <td>
                         <input type="text" id="dob" name="dob" readonly="readonly" class="form-control"
                                value="<%=DataUtility.getDateString(bean.getDob())%>" placeholder="Enter Date Of Birth">
@@ -124,7 +124,8 @@
                 </tr>
             </table>
         </div>
-    </form>
-    <%@ include file="Footer.jsp" %>
+    </div>
+</form>
+<%@ include file="Footer.jsp" %>
 </body>
 </html>

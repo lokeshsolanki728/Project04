@@ -1,6 +1,5 @@
 package com.rays.pro4.controller;
 
-import java.util.Collection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,11 +43,16 @@ public class CollegeListCtl extends BaseCtl<CollegeBean> {
 	@Override
 	protected void preload(final HttpServletRequest request) {		
 		log.debug("preload Method Started");
-		final int pageNo = 1;
-		final int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));
 		String orderBy = DataUtility.getString(request.getParameter("orderBy"));
         String sortOrder = DataUtility.getString(request.getParameter("sortOrder"));
-		showList(populateBean(request), request, response, pageNo, pageSize,orderBy,sortOrder);
+		if (orderBy == null || orderBy.trim().length() == 0) {
+			orderBy = "name";
+		}
+		if (sortOrder == null || sortOrder.trim().length() == 0) {
+			sortOrder = "asc";
+		}	
+		request.setAttribute("orderBy", orderBy);
+		request.setAttribute("sortOrder", sortOrder);
 		log.debug("preload Method End");
 	}	
 
@@ -79,7 +83,7 @@ public class CollegeListCtl extends BaseCtl<CollegeBean> {
 	private final List<CollegeBean> searchCollege(final CollegeBean bean, final int pageNo, final int pageSize,String orderBy, String sortOrder)
 		throws ApplicationException {
 		log.debug("searchCollege Method Started");
-		final List<CollegeBean> list =  model.search(bean, pageNo, pageSize);		
+		final List<CollegeBean> list =  model.search(bean, pageNo, pageSize,orderBy,sortOrder);		
 		log.debug("searchCollege Method End");
 		return list;
 	}
@@ -115,9 +119,14 @@ public class CollegeListCtl extends BaseCtl<CollegeBean> {
 		final CollegeBean bean = populateBean(request);
 		final int pageNo = 1;
 		final int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));
-		String orderBy = DataUtility.getString(request.getParameter("orderBy"));
-        String sortOrder = DataUtility.getString(request.getParameter("sortOrder"));
-        try {
+		String orderBy = (String) request.getAttribute("orderBy");
+		String sortOrder = (String) request.getAttribute("sortOrder");
+		if (orderBy == null || orderBy.trim().length() == 0) {
+			orderBy = "name";
+		}
+		if (sortOrder == null || sortOrder.trim().length() == 0) {
+			sortOrder = "asc";
+		}        try {
 
 			showList(bean, request, response, pageNo, pageSize);
 
@@ -139,13 +148,17 @@ public class CollegeListCtl extends BaseCtl<CollegeBean> {
 	private final void delete(final String[] ids, final HttpServletRequest request, final HttpServletResponse response)
 			throws ApplicationException {
 		log.debug("delete method start");
-		if (ids != null && ids.length > 0) {
+		try {
+			if (ids != null && ids.length > 0) {
 			for (final String id : ids) {
 				model.delete(model.findByPK(DataUtility.getInt(id)));
 			}
 			ServletUtility.setSuccessMessage(MessageConstant.COLLEGE_SUCCESS_DELETE, request);
 			log.debug("delete method end");
-		} else {
+		}else {
+				throw new ApplicationException("Id cannot be null");
+			}
+		}catch(Exception e) {
 			ServletUtility.setErrorMessage(PropertyReader.getValue("error.select.one"), request);
 		}
 	}
@@ -161,12 +174,10 @@ public class CollegeListCtl extends BaseCtl<CollegeBean> {
 	@Override protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
 		    throws ServletException, IOException {
 		        log.debug("CollegeListCtl doPost Start");
-		        List < CollegeBean > list = new ArrayList < CollegeBean > ();
-		        int pageNo = DataUtility.getInt(request.getParameter("pageNo"));
-		        int pageSize = DataUtility.getInt(request.getParameter("pageSize"));
-		        pageNo = (pageNo == 0) ? 1 : pageNo;
-		        pageSize = (pageSize == 0) ? DataUtility.getInt(PropertyReader.getValue("page.size")) : pageSize;
-		        String op = DataUtility.getString(request.getParameter("operation"));
+		        List<CollegeBean> list = new ArrayList<CollegeBean>();
+		        int pageNo = DataUtility.getInt(request.getParameter("pageNo")) == 0 ? 1 : DataUtility.getInt(request.getParameter("pageNo"));
+		        int pageSize = DataUtility.getInt(request.getParameter("pageSize"))== 0 ? DataUtility.getInt(PropertyReader.getValue("page.size")) : DataUtility.getInt(request.getParameter("pageSize"));
+		        final String op = DataUtility.getString(request.getParameter("operation"));
 		        String[] ids = request.getParameterValues("ids");
 				String orderBy = DataUtility.getString(request.getParameter("orderBy"));
 				String sortOrder = DataUtility.getString(request.getParameter("sortOrder"));
@@ -180,27 +191,23 @@ public class CollegeListCtl extends BaseCtl<CollegeBean> {
 		        try {
 		            if (OP_SEARCH.equalsIgnoreCase(op)) {
 		                pageNo = 1;
-		                if (bean.getName() == null || bean.getName().trim().length() == 0) {
+		                if (DataUtility.getString(bean.getName()).length() == 0 && DataUtility.getString(bean.getCity()).length() == 0 && DataUtility.getString(bean.getState()).length() == 0) {
 		                    list = model.list(1, pageSize,orderBy,sortOrder);
 		                } else {
 		                    list = model.search(bean, pageNo, pageSize,orderBy,sortOrder);
 		                }
 		            } else if (OP_NEXT.equalsIgnoreCase(op)) {
 		                pageNo++;
-		                list = model.search(bean, pageNo, pageSize,orderBy,sortOrder);
+						list = model.search(bean, pageNo, pageSize,orderBy,sortOrder);
 		            } else if (OP_PREVIOUS.equalsIgnoreCase(op)) {
-		                if (pageNo > 1) {
-		                    pageNo--;
-		                    list = model.search(bean, pageNo, pageSize);
-		                } else {
-		                    list = model.search(bean, pageNo, pageSize);
-		                }
+		                pageNo--;
+						list = model.search(bean, pageNo, pageSize,orderBy,sortOrder);
 		            } else if (OP_NEW.equalsIgnoreCase(op)) {
 		                ServletUtility.redirect(ORSView.COLLEGE_CTL, request, response);
 		                return;
 		            } else if (OP_DELETE.equalsIgnoreCase(op)) {
 		                pageNo = 1;
-		                if (ids != null && ids.length > 0) {
+		                
 		                    delete(ids, request, response);
 		                } else {
 		                    ServletUtility.setErrorMessage("Select at least one record", request);
@@ -232,15 +239,15 @@ public class CollegeListCtl extends BaseCtl<CollegeBean> {
 		try {
 			list = searchCollege(bean, pageNo, pageSize,orderBy,sortOrder);
 			final List<CollegeBean> nextList = searchCollege(bean, pageNo + 1, pageSize,orderBy,sortOrder);
-			request.setAttribute("nextlist", nextList.size());
-			if (list == null || list.isEmpty()
-				&& !OP_DELETE.equalsIgnoreCase(DataUtility.getString(request.getParameter("operation")))) {
-			ServletUtility.setErrorMessage(PropertyReader.getValue("error.record.notfound"), request);
-		}
+			request.setAttribute("nextlist", nextList.size());			
 			if(list.size() > 0){
 				request.setAttribute("operation", "Manage College");
 			}else{
 				request.setAttribute("operation", "No record found.");
+			}
+			if (list == null || list.isEmpty()) {
+				ServletUtility.setErrorMessage(PropertyReader.getValue("error.record.notfound"), request);
+				
 			}
 			
 		} catch (final ApplicationException e) {
@@ -249,14 +256,11 @@ public class CollegeListCtl extends BaseCtl<CollegeBean> {
 			return;
 		}
 		setListAndPagination(list, request, pageNo, pageSize,response,orderBy,sortOrder);
-	}
-	private final void setListAndPagination(final List list, final HttpServletRequest request, final int pageNo,final int pageSize, HttpServletResponse response,String orderBy, String sortOrder) {
+	}	private final void setListAndPagination(final List<?> list, final HttpServletRequest request, final int pageNo,final int pageSize, HttpServletResponse response,String orderBy, String sortOrder) {
 		log.debug("setListAndPagination method start");
-		
 		request.setAttribute("orderBy", orderBy);
 		request.setAttribute("sortOrder", sortOrder);
-		ServletUtility.setList(list, request);		
-		ServletUtility.setPageNo(pageNo, request);
+		ServletUtility.setList(list, request);			ServletUtility.setPageNo(pageNo, request);
 		ServletUtility.setPageSize(pageSize, request);		
 		ServletUtility.forward(getView(), request, response);
 		log.debug("setListAndPagination method end");

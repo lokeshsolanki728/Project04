@@ -1,42 +1,33 @@
 package com.rays.pro4.Bean;
 
 import com.rays.pro4.DTO.BaseDTO;
+
+import java.io.Serializable;
 import com.rays.pro4.DTO.RoleDTO;
 import com.rays.pro4.Util.DataValidator;
 
+/**
+ * Role enum to define different types of roles in the application.
+ *
+ */
+enum Role {
+    ADMIN,
+    STUDENT,
+    COLLEGE,
+    FACULTY,
+    KIOSK
+}
 /**
  * Role JavaBean encapsulates Role attributes.
  * 
  * @author Lokesh SOlanki
  *
- */public class RoleBean extends BaseBean{
+ */
+public class RoleBean extends BaseBean implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 
-
-	/**
-	 * ADMIN role constant value = 1
-	 */
-	private static final  int ADMIN = 1; //admin
-
-	/**
-	 * STUDENT role constant value = 2
-	 */
-	private static final  int STUDENT = 2; //student
-
-	/**
-	 * COLLEGE role constant value = 3
-	 */
-	private static final  int COLLEGE = 3; //college
-
-	/**
-	 * FACULTY role constant value = 4
-	 */
-	private static final  int FACULTY = 4; //faculty
-
-	/**
-	 * KIOSK role constant value = 5
-	 */
-	public static final  int KIOSK = 5; //kiosk
 
 	/**
 	 *  role name

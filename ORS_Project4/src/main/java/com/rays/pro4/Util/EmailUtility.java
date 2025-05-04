@@ -2,6 +2,8 @@
 package com.rays.pro4.Util;
 
 import java.util.MissingResourceException;
+
+import org.apache.log4j.Logger;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
@@ -21,6 +23,7 @@ import com.rays.pro4.Exception.ApplicationException;
  */
 public class EmailUtility {
 
+	private static Logger log = Logger.getLogger(EmailUtility.class);
     /**
      * Create Resource Bundle to read email properties file
      */
@@ -174,7 +177,8 @@ public class EmailUtility {
             Transport.send(msg);
 
         } catch (Exception e) {
-            throw new ApplicationException("Email " + e.getMessage());
+            log.error("Error in EmailUtility.sendMail()",e);
+            throw new ApplicationException("Exception in sending email " + e.getMessage());
         }
     }
 

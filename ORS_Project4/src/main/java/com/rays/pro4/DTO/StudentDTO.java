@@ -10,6 +10,7 @@ public class StudentDTO extends BaseDTO {
     private Date dob;
     private String mobileNo;
     private String email;
+    private long collegeId;
 
     public String getFirstName() {
         return firstName;
@@ -50,4 +51,18 @@ public class StudentDTO extends BaseDTO {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    public long getCollegeId() {
+        return collegeId;
+    }
+
+    public void setCollegeId(long collegeId) {
+        this.collegeId = collegeId;
+    }
+    
+    @Override
+	public String toString() {
+		return "StudentDTO [firstName=" + firstName + ", lastName=" + lastName + ", dob=" + dob + ", mobileNo="
+				+ mobileNo + ", email=" + email + ", collegeId=" + collegeId + ", id=" + id + ", createdBy=" + createdBy + ", modifiedBy=" + modifiedBy + ", createdDatetime=" + createdDatetime + ", modifiedDatetime=" + modifiedDatetime + "]";
+	}
 }

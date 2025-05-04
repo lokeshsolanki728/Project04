@@ -1,10 +1,14 @@
 package com.rays.pro4.Util;
 
+import java.util.Calendar;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
-import java.util.UUID;
 import java.util.Date;
+import java.util.UUID;
+
+import org.apache.log4j.Logger;
+
 
 /**
  * Data Utility class to format data from one format to another
@@ -15,6 +19,7 @@ import java.util.Date;
 
 public class DataUtility {
 
+    private static Logger log = Logger.getLogger(DataUtility.class);
 	/**
 	 * Application Date Format          
 	 */
@@ -119,7 +124,8 @@ public class DataUtility {
 		try {
 			date = formatter.parse(val);
 		} catch (Exception e) {
-
+			log.error("Error in DataUtility.getDate",e);
+            date = null;
 		}
 		return date;
 	}
@@ -133,9 +139,9 @@ public class DataUtility {
 	public static String getDateString(Date date) {
 		try {
 			return formatter.format(date);
-		} catch (Exception e) {
+		} catch (Exception e) {	
 		}
-		return "";
+		return null;
 	}
 
 	/**
@@ -146,7 +152,10 @@ public class DataUtility {
 	 * @return
 	 */
 	public static Date getDate(Date date, int day) {
-		return null;
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		cal.add(Calendar.DATE, day);
+		return cal.getTime();
 	}
 
 	/**
@@ -161,20 +170,19 @@ public class DataUtility {
 		try {
 			timeStamp = new Timestamp((timeFormatter.parse(val)).getTime());
 		} catch (Exception e) {
+            log.error("Error in DataUtility.getTimestamp",e);
 			return null;
 		}
 		return timeStamp;
 	}
 
 	public static Timestamp getTimestamp(long l) {
-
+		return new Timestamp(l);
+	}
+	public static Timestamp getCurrentTimestamp() {
 		Timestamp timeStamp = null;
-		try {
-			timeStamp = new Timestamp(l);
-		} catch (Exception e) {
-			return null;
-		}
-		return timeStamp;
+        timeStamp = new Timestamp(new Date().getTime());
+        return timeStamp;
 	}
 
 	public static Timestamp getCurrentTimestamp() {
@@ -182,7 +190,7 @@ public class DataUtility {
 		try {
 			timeStamp = new Timestamp(new Date().getTime());
 		} catch (Exception e) {
-			
+			log.error("Error in DataUtility.getCurrentTimestamp",e);
 		}
 		return timeStamp;
 
@@ -191,6 +199,7 @@ public class DataUtility {
 	public static long getTimestamp(Timestamp tm) {
 		try {
 			return tm.getTime();
+
 		} catch (Exception e) {
 			return 0;
 		}

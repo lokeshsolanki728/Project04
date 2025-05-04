@@ -2,6 +2,7 @@
 <%@page import="com.rays.pro4.controller.ORSView" %>
 <%@page import="com.rays.pro4.controller.RoleListCtl" %>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1" %>
+<c:set var="ctx" value="${pageContext.request.contextPath}"/>
 <html>
 <head>
     <c:set var="ctx" value="${pageContext.request.contextPath}" />
@@ -26,7 +27,9 @@
                 </c:if>
             </div>
 
-            <c:set var="rlist" value="${requestScope.RoleList}" />
+             <div class="text-right mb-3">
+                <a href="${ctx}/RoleCtl" class="btn btn-success">Add New Role</a>
+            </div>
             <c:set var="next" value="${requestScope.nextlist}" />
             <c:set var="pageNo" value="${requestScope.pageNo}" />
             <c:set var="pageSize" value="${requestScope.pageSize}" />
@@ -36,19 +39,16 @@
             <c:if test="${not empty list}">
                 <table class="search-table w-100">
                     <tr>
-                        <td class="text-center">
-                            <label for="roleid">Role :</label>
-                            <select name="roleid" id="roleid" class="form-control-inline">
-                                <option value="">Select Role</option>
-                                <c:forEach items="${rlist}" var="role">
-                                    <option value="${role.id}" ${bean.id == role.id ? 'selected' : ''}>${role.name}</option>
-                                </c:forEach>
-                            </select>
-                            <input type="submit" name="operation" class="btn btn-primary" value="<%=RoleListCtl.OP_SEARCH%>">
-                            <input type="submit" name="operation" class="btn btn-secondary" value="<%=RoleListCtl.OP_RESET%>">
+                    <td class="text-center">
+                            <input type="text" name="name" id="name" class="form-control-inline" value="${param.name}" placeholder="Search By Role Name">
+
+                            <input type="submit" name="operation" class="btn btn-primary"
+                                   value="<%=RoleListCtl.OP_SEARCH%>"> <input type="submit"
+                                                                              name="operation" class="btn btn-secondary" value="<%=RoleListCtl.OP_RESET%>">
                         </td>
                     </tr>
                 </table>
+                
                 <table class="table table-bordered table-striped w-100">
                     <thead class="table-header">
                         <tr>
@@ -66,7 +66,7 @@
                                 <td>${index} <c:set var="index" value="${index + 1}" /></td>
                                 <td>${bean2.name}</td>
                                 <td>${bean2.description}</td>
-                                <td>
+                                <td class="text-center">
                                     <a href="${ctx}/RoleCtl?id=${bean2.id}" <c:if test="${userBean.id == bean2.id || bean2.id == 1}"> onclick="return false;"</c:if> class="btn btn-link">Edit</a>
                                 </td>
                             </tr>
@@ -75,10 +75,10 @@
                 </table>
                 <table class="w-100">
                     <tr>
-                        <td class="text-left"><input type="submit" name="operation"
-                                                       class="btn btn-secondary" value="<%=RoleListCtl.OP_PREVIOUS%>" ${pageNo == 1 ? 'disabled' : ''}></td>
-                        <td>
-                            <input type="submit" name="operation" class="btn btn-danger" value="<%=RoleListCtl.OP_DELETE%>">
+                        <td class="text-left">
+                            <input type="submit" name="operation" class="btn btn-secondary" value="<%=RoleListCtl.OP_PREVIOUS%>" ${pageNo == 1 ? 'disabled' : ''}>
+                            <input type="submit" name="operation" class="btn btn-danger"
+                                   value="<%=RoleListCtl.OP_DELETE%>">
                         </td>
                         <td>
                             <input type="submit" name="operation" class="btn btn-success" value="<%=RoleListCtl.OP_NEW%>">

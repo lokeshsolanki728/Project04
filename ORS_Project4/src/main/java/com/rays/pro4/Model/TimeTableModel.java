@@ -28,7 +28,7 @@ public class TimeTableModel extends BaseModel {
 	
 	public TimeTableDTO populateBean(ResultSet rs, TimeTableDTO dto) throws SQLException{
 		
-			TimeTableBean bean = new TimeTableBean();
+			TimeTableDTO bean = new TimeTableDTO();
 			bean.setId(rs.getLong(1));
 			bean.setCourseId(rs.getLong(2));
 			bean.setCourseName(rs.getString(3));
@@ -39,7 +39,8 @@ public class TimeTableModel extends BaseModel {
 			bean.setExamTime(rs.getString(8));
 			bean.setCreatedBy(rs.getString(9));
 			bean.setModifiedBy(rs.getString(10));
-			bean.setCreatedDatetime(rs.getTimestamp(11));
+            bean.setCreatedDatetime(rs.getTimestamp(11));
+		
 			bean.setModifiedDatetime(rs.getTimestamp(12));
 			return dto;
 
@@ -47,6 +48,7 @@ public class TimeTableModel extends BaseModel {
 
 	
 
+    
 	public long add(TimeTableDTO bean) throws ApplicationException, DuplicateRecordException {
 		log.debug("Model add Started");
 		
@@ -63,64 +65,65 @@ public class TimeTableModel extends BaseModel {
 		if(bean1 != null || bean2 != null){ 
 			throw new DuplicateRecordException("TimeTable Already Exsist"); 
 		}
-		
-		Connection conn = null;
-		int pk = 0;
-		try {
-			conn = JDBCDataSource.getConnection();
-			pk = nextPK(conn);
-			conn.setAutoCommit(false);
-			PreparedStatement pstmt = conn.prepareStatement("INSERT st_timetable values(?,?,?,?,?,?,?,?,?,?,?,?)");
-			pstmt.setInt(1, pk);
-			pstmt.setLong(2, bean.getCourseId());
-			pstmt.setString(3, bean.getCourseName());
-			pstmt.setLong(4, bean.getSubjectId());
-			pstmt.setString(5, bean.getSubjectName());	
-			pstmt.setString(6, bean.getSemester());
-			pstmt.setDate(7, new java.sql.Date(bean.getExamDate().getTime()));
-			pstmt.setString(8, bean.getExamTime());
-			pstmt.setString(9, bean.getCreatedBy());
-			pstmt.setString(10, bean.getModifiedBy());
-			pstmt.setTimestamp(11, bean.getCreatedDatetime());
-			pstmt.setTimestamp(12, bean.getModifiedDatetime());
-			pstmt.executeUpdate();
-			conn.commit();
-		} catch (Exception e) {
-			log.error("Database Exception....", e);
-			try {
-				conn.rollback();
-			} catch (Exception ex) {
-				throw new ApplicationException("Exception : add rollback Exception" + ex.getMessage());
-			}
-			throw new ApplicationException("Exception : Exception in add timetable");
-		} 
-		log.debug("Model add End");
-		return pk;
+        Connection conn = null;
+        int pk = 0;
+        try {
+            conn = JDBCDataSource.getConnection();
+            pk = nextPK(conn);
+            conn.setAutoCommit(false);
+            PreparedStatement pstmt = conn.prepareStatement("INSERT st_timetable values(?,?,?,?,?,?,?,?,?,?,?,?)");
+            pstmt.setInt(1, pk);
+            pstmt.setLong(2, bean.getCourseId());
+            pstmt.setString(3, bean.getCourseName());
+            pstmt.setLong(4, bean.getSubjectId());
+            pstmt.setString(5, bean.getSubjectName());
+            pstmt.setString(6, bean.getSemester());
+            pstmt.setDate(7, new java.sql.Date(bean.getExamDate().getTime()));
+            pstmt.setString(8, bean.getExamTime());
+            pstmt.setString(9, bean.getCreatedBy());
+            pstmt.setString(10, bean.getModifiedBy());
+            pstmt.setTimestamp(11, bean.getCreatedDatetime());
+            pstmt.setTimestamp(12, bean.getModifiedDatetime());
+            pstmt.executeUpdate();
+            conn.commit();
+        } catch (Exception e) {
+            log.error("Database Exception....", e);
+            try {
+                conn.rollback();
+            } catch (Exception ex) {
+                throw new ApplicationException("Exception : add rollback Exception" + ex.getMessage());
+            }
+            throw new ApplicationException("Exception : Exception in add timetable");
+        } finally {
+            JDBCDataSource.closeConnection(conn);
+            log.debug("Model add End");
+        }
+        return pk;
 
-	}
+    }
 
-	public void delete(TimeTableBean bean) throws ApplicationException{
-		log.debug("Model delete Started");
-		try{
-			TimeTableBean beann = findByPK(bean.getId());
-			if(beann != null){
-				Connection conn = null;
-				conn = JDBCDataSource.getConnection();
-				conn.setAutoCommit(false);
-				PreparedStatement pstmt = conn.prepareStatement("delete from ST_timetable where ID=?");
-				pstmt.setLong(1, bean.getId());
-				pstmt.executeUpdate();
-				conn.commit();
-			}
-		} catch (Exception e) {
-			log.error("Database Exception...", e);
-			try {
-				conn.rollback();
-			} catch (Exception ex) {
-				throw new ApplicationException("Exception : delete Rollback Exception" + ex.getMessage());
-			}
-			throw new ApplicationException("Exception : Exception in delete TimeTable");
-		
+    public void delete(TimeTableBean bean) throws ApplicationException {
+        log.debug("Model delete Started");
+        Connection conn = null;
+        try {
+            TimeTableDTO beann = findByPK(bean.getId());
+            if (beann != null) {
+                conn = JDBCDataSource.getConnection();
+                conn.setAutoCommit(false);
+                PreparedStatement pstmt = conn.prepareStatement("delete from ST_timetable where ID=?");
+                pstmt.setLong(1, bean.getId());
+                pstmt.executeUpdate();
+                conn.commit();
+            }
+        } catch (Exception e) {
+            log.error("Database Exception...", e);
+            try {
+                conn.rollback();
+            } catch (Exception ex) {
+                throw new ApplicationException("Exception : delete Rollback Exception" + ex.getMessage());
+            }
+            throw new ApplicationException("Exception : Exception in delete TimeTable");
+
 		}
 		log.debug("Model delete End");
 	}
@@ -135,12 +138,10 @@ public class TimeTableModel extends BaseModel {
 
 		SubjectModel smodel = new SubjectModel();
 		SubjectBean SubjectBean = smodel.FindByPK(bean.getSubjectId());
-		bean.setSubjectName(SubjectBean.getSubjectName());
-		TimeTableDTO bean1 = checkByCourseDate(bean.getCourseId(), bean.getSemester(),new java.sql.Date(bean.getExamDate().getTime()));
-		TimeTableBean bean1 = checkByCourseDate(bean.getCourseId(), bean.getSemester(),
-				new java.sql.Date(bean.getExamDate().getTime()));
-		TimeTableBean bean2 = checkBySemesterSubject(bean.getCourseId(), bean.getSubjectId(), bean.getSemester());
-		if (bean1 != null || bean2 != null) {
+        bean.setSubjectName(SubjectBean.getSubjectName());
+        TimeTableDTO bean1 = checkByCourseDate(bean.getCourseId(), bean.getSemester(), new java.sql.Date(bean.getExamDate().getTime()));
+        TimeTableDTO bean2 = checkBySemesterSubject(bean.getCourseId(), bean.getSubjectId(), bean.getSemester());
+        if (bean1 != null || bean2 != null) {
 			throw new DuplicateRecordException("TimeTable Already Exsist");
 		}
 		}
@@ -155,7 +156,7 @@ public class TimeTableModel extends BaseModel {
 			pstmt.setLong(3, bean.getSubjectId());
 			pstmt.setString(4, bean.getSubjectName());
 			pstmt.setString(5, bean.getSemester());
-			pstmt.setString(7, bean.getExamTime());
+			pstmt.setString(6, bean.getExamTime());
 			pstmt.setString(8, bean.getCreatedBy());
 			pstmt.setString(9, bean.getModifiedBy());
 			pstmt.setTimestamp(10, bean.getCreatedDatetime());
@@ -164,18 +165,17 @@ public class TimeTableModel extends BaseModel {
 
 			pstmt.setDate(6, new java.sql.Date(bean.getExamDate().getTime()));
 			pstmt.executeUpdate();
-			conn.commit();
-		} catch (Exception e) {
-			e.printStackTrace();
+            conn.commit();
+        } catch (Exception e) {
 			log.error("Database Exception....", e);
 			try{
 				conn.rollback();
-
 			} catch (Exception ex) {
 				throw new ApplicationException("Exception : update rollback Exception" + ex.getMessage());
 			}
-			// throw new ApplicationException("Exception in updating timetable");
-		} finally {
+			throw new ApplicationException("Exception in updating timetable");
+		} finally{
+            JDBCDataSource.closeConnection(conn);
 		log.debug("Model update End");
 	}
 	}
@@ -184,16 +184,17 @@ public class TimeTableModel extends BaseModel {
 		log.debug("Model findBypk started");
 		StringBuffer sql = new StringBuffer("select * from ST_timetable where id=?");
 		TimeTableDTO dto = null;
-		Connection conn = null;
-		try (Connection con = JDBCDataSource.getConnection()){
-			conn = con;
-			PreparedStatement pstmt = conn.prepareStatement(sql.toString());
-			dto = new TimeTableDTO();
-			pstmt.setLong(1, pk);
-			ResultSet rs = pstmt.executeQuery();
-			while (rs.next()) bean = populate(rs);
+        Connection conn = null;
+        try {
+            conn = JDBCDataSource.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql.toString());
+            pstmt.setLong(1, pk);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                dto = populateBean(rs, new TimeTableDTO());
+            }
 		} catch (Exception e) {
-			log.error("Database Exception .....", e);
+			log.error("Database Exception in finding by PK .....", e);
 			throw new ApplicationException("Exception : Exception in getting by pk");
 		} finally {
 			JDBCDataSource.closeConnection(conn);
@@ -206,16 +207,18 @@ public class TimeTableModel extends BaseModel {
 		return list(0, 0,null,null);
 	}
 
-	public List list(int pageNo, int pageSize, String orderBy, String sortOrder) throws ApplicationException {
-		log.debug("model list Started");
-		ArrayList list = new ArrayList();
-		StringBuffer sql = new StringBuffer("select * from ST_timetable");
+    public List list(int pageNo, int pageSize, String orderBy, String sortOrder) throws ApplicationException {
+        log.debug("model list Started");
+        ArrayList list = new ArrayList();
+        StringBuffer sql = new StringBuffer("select * from ST_timetable");
         if (orderBy != null && orderBy.trim().length() > 0) {
             sql.append(" ORDER BY " + orderBy + " " + sortOrder);
         } else {
-            sql.append(" ORDER BY CourseName ASC ");
+            sql.append(" ORDER BY CourseName ASC ");sortOrder="ASC";
         }
-
+         Connection conn = null;
+        ResultSet rs = null;
+        PreparedStatement pstmt = null;
 		if (pageNo > 0) {
 			pageNo = (pageNo - 1) * pageSize;
 			sql.append(" limit " + pageNo + "," + pageSize);
@@ -223,18 +226,20 @@ public class TimeTableModel extends BaseModel {
 		Connection conn = null;
 		try (Connection con = JDBCDataSource.getConnection()){
 			conn = JDBCDataSource.getConnection();
-			PreparedStatement pstmt = conn.prepareStatement(sql.toString());
-			ResultSet rs = pstmt.executeQuery();
+			 pstmt = conn.prepareStatement(sql.toString());
+			 rs = pstmt.executeQuery();
 			while (rs.next()) {
 
 				TimeTableDTO dto = populateBean(rs, new TimeTableDTO());
-				list.add(bean);
+				list.add(dto);
 			}
 			rs.close();
 		} catch (Exception e) {
 			log.error("Database Exception...", e);
-			// throw new ApplicationException("Exception : Exception in getting list");
-		} finally {
+			throw new ApplicationException("Exception : Exception in getting list");
+		}finally{
+            JDBCDataSource.closeResultSet(rs);
+            JDBCDataSource.closeStatement(pstmt);
 			JDBCDataSource.closeConnection(conn);
 		}
 		log.debug("Model list End");
@@ -242,10 +247,10 @@ public class TimeTableModel extends BaseModel {
 	}
 
 	public List search(TimeTableBean bean, int pageNo, int pageSize, String orderBy, String sortOrder) throws ApplicationException {
-		log.debug("Model search started");
+        log.debug("Model search started");
         if (orderBy != null && orderBy.length() > 0) {
             orderBy = orderBy;
-        } else {
+        }else {
             orderBy = "CourseName";
 		StringBuffer sql = new StringBuffer("select * from ST_timetable where 1=1 ");
 		if (bean != null) {
@@ -282,29 +287,28 @@ public class TimeTableModel extends BaseModel {
 		if (pageNo > 0) {
 			pageNo = (pageNo - 1) * pageSize;
 			sql.append(" limit " + pageNo + "," + pageSize);
-		}
+        }
+        Connection conn = null;
+        ResultSet rs = null;
+        PreparedStatement pstmt = null;
+        ArrayList list = new ArrayList();
+        try (Connection con = JDBCDataSource.getConnection()) {
+            conn = con;
+            pstmt = conn.prepareStatement(sql.toString());
+            rs = pstmt.executeQuery();
+            while (rs.next()) list.add(populateBean(rs, new TimeTableDTO()));
+        } catch (Exception e) {
+            log.error("Database Exception in search.....", e);
+            throw new ApplicationException("Exception in getting search");
 
-		ArrayList list = new ArrayList();
-
-		try {
-			conn = JDBCDataSource.getConnection();
-			PreparedStatement pstmt = conn.prepareStatement(sql.toString());
-			ResultSet rs = pstmt.executeQuery();
-            ArrayList list = new ArrayList();
-          
-			while (rs.next()) list.add(populateBean(rs,new TimeTableDTO()));
-			rs.close();
-		} catch (Exception e) {
-			log.error("Database Exception.....", e);
-			// throw new ApplicationException("Exception in getting search");
-
-		} finally {
-			JDBCDataSource.closeConnection(conn);
-		}
-		log.debug("Model search End");
-		return list;
-
-	}
+        } finally {
+            JDBCDataSource.closeResultSet(rs);
+            JDBCDataSource.closeStatement(pstmt);
+            JDBCDataSource.closeConnection(conn);
+        }
+        log.debug("Model search End");
+        return list;
+    }
 
 	public TimeTableDTO checkBySemesterSubject(long CourseId, long SubjectId, String semester) throws ApplicationException {
 		Connection conn = null;
@@ -323,6 +327,8 @@ public class TimeTableModel extends BaseModel {
 			while (rs.next()) {
 				dto = populateBean(rs,new TimeTableDTO());
 			}
+            
+
 			rs.close();
 		} catch (Exception e) {
 			log.error("Database Exception....", e);
@@ -331,7 +337,7 @@ public class TimeTableModel extends BaseModel {
 		return dto;
 	}
 
-	public TimeTableDTO checkByCourseDate(long CourseId, String Semester, Date ExamDate) throws ApplicationException {
+	public TimeTableDTO checkByCourseDate(long CourseId, String Semester, java.sql.Date ExamDate) throws ApplicationException {
 
 		StringBuffer sql = new StringBuffer(
 				"SELECT * FROM ST_TIMETABLE WHERE Course_Id=? AND semester=? AND Exam_Date=?");
@@ -339,20 +345,19 @@ public class TimeTableModel extends BaseModel {
 		TimeTableDTO dto = null;
 		Date ExDate = new Date(ExamDate.getTime());
 
-		try (Connection conn = JDBCDataSource.getConnection()){
-			Connection con = JDBCDataSource.getConnection();
-			dto = new TimeTableDTO();
-			PreparedStatement ps = con.prepareStatement(sql.toString());
-			ps.setLong(1, CourseId);
-			ps.setString(2, Semester);
-			ps.setDate(3, (java.sql.Date) ExamDate);
-			ResultSet rs = ps.executeQuery();
+		Connection conn=null;
+        PreparedStatement ps=null;
+        ResultSet rs =null;
+        try {
+            conn = JDBCDataSource.getConnection();
+            ps = conn.prepareStatement(sql.toString());
+            ps.setLong(1, CourseId);
+            ps.setString(2, Semester);
+            ps.setDate(3, ExamDate);
+             rs = ps.executeQuery();
+            while (rs.next()) dto = populateBean(rs, new TimeTableDTO());
+        } catch (Exception e) {
 
-			while (rs.next()) {
-				dto = populateBean(rs,new TimeTableDTO());
-			}
-			rs.close();
-		} catch (Exception e) {
 			log.error("database Exception....", e);
 			throw new ApplicationException("Exception in list Method of timetable Model");
 		}

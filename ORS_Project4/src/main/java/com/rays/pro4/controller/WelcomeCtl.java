@@ -1,6 +1,6 @@
 package com.rays.pro4.controller;
 
-import java.io.IOException;
+import java.io.IOException;;
 
 
 import javax.servlet.ServletException;
@@ -18,6 +18,7 @@ import com.rays.pro4.Util.ServletUtility;
  * 
  * @author Lokesh SOlanki
  */
+
 
 @WebServlet(name = "WelcomeCtl", urlPatterns = { "/WelcomeCtl" })
 public class WelcomeCtl extends BaseCtl {
@@ -37,7 +38,7 @@ public class WelcomeCtl extends BaseCtl {
 	 * @throws ServletException
 	 * @throws IOException
 	 */
-
+	@Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         log.debug("WelcomeCtl Method doGet Started");
@@ -55,6 +56,7 @@ public class WelcomeCtl extends BaseCtl {
 	 * @throws ServletException
 	 * @throws IOException
 	 */
+	@Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -72,7 +74,7 @@ public class WelcomeCtl extends BaseCtl {
 	 * @throws ServletException
 	 * @throws IOException
 	 */
-    
+    @Override
     protected String getView() {
         return ORSView.WELCOME_VIEW;
     }

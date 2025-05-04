@@ -1,7 +1,6 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
-import com.rays.pro4.DTO.UserDTO;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -21,8 +20,6 @@ import com.rays.pro4.Model.UserModel;
 import com.rays.pro4.Util.DataValidator;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.PropertyReader;
-import com.rays.pro4.Util.ServletUtility;
-import com.rays.pro4.Util.DataUtility;
 
 //TODO: Auto-generated Javadoc
 /**
@@ -141,17 +138,6 @@ public class UserRegistrationCtl extends BaseCtl {
 		log.debug("UserRegistrationCtl Method populatebean Ended");
 	}
 	
-    protected void populateDTO(HttpServletRequest request, UserDTO dto) {
-		
-		
-		
-       
-        bean.setRoleId(RoleBean.STUDENT);
-
-		log.debug("UserRegistrationCtl Method populatebean Ended");
-		return bean;
-	}
-
 	/**
 	 * Contains Display logics.
 	 *
@@ -185,10 +171,9 @@ public class UserRegistrationCtl extends BaseCtl {
         
         final UserBean bean = new UserBean();
         populateBean(request,bean);
-        final UserDTO dto = new UserDTO();
 		if (OP_SIGN_UP.equalsIgnoreCase(op)) {
             if(validate(request)){
-                 try {
+                try {
                     save(bean, request);                   
                 } catch (final DuplicateRecordException e) {
                     log.error("Duplicate record exception", e);
@@ -198,8 +183,7 @@ public class UserRegistrationCtl extends BaseCtl {
                     handleDatabaseException(e, request, response);
                     return;
                 }           
-            }          
-       
+            }
             ServletUtility.forward(getView(), request, response);
         } else if (OP_RESET.equalsIgnoreCase(op)) {
             ServletUtility.redirect(ORSView.USER_REGISTRATION_CTL, request, response);

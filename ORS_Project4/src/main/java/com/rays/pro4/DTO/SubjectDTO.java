@@ -29,4 +29,10 @@ public class SubjectDTO extends BaseDTO {
     public void setCourseId(long courseId) {
         this.courseId = courseId;
     }
+    @Override
+	public String toString() {
+		return "SubjectDTO [subjectName=" + subjectName + ", description=" + description + ", courseId=" + courseId
+				+ ", id=" + id + ", createdBy=" + createdBy + ", modifiedBy=" + modifiedBy + ", createdDatetime="
+				+ createdDatetime + ", modifiedDatetime=" + modifiedDatetime + "]";
+	}
 }

@@ -1,6 +1,7 @@
 package com.rays.pro4.Bean;
 
 
+import java.io.Serializable;
 import java.util.Date;
 import com.rays.pro4.DTO.SubjectDTO;
 
@@ -10,8 +11,10 @@ import com.rays.pro4.DTO.SubjectDTO;
  *
  * @author Lokesh SOlanki
  */
-public class SubjectBean extends BaseBean {
+public class SubjectBean extends BaseBean implements Serializable {
 
+	
+	private static final long serialVersionUID = 1L;
 	
     private String subjectName;
     private String description;

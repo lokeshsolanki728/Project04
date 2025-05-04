@@ -2,12 +2,13 @@
     pageEncoding="ISO-8859-1"%>
 <%@page import="com.rays.pro4.controller.RoleCtl"%>
 <%@page import="com.rays.pro4.Bean.RoleBean"%>
+<%@page import="com.rays.pro4.controller.ORSView"%>
 <%@page import="com.rays.pro4.Util.ServletUtility"%>
 <%@page import="com.rays.pro4.Util.DataUtility"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
 <html>
-    <head>
+<head>
         <meta charset="ISO-8859-1">
 
         <c:set var="ctx" value="${pageContext.request.contextPath}"/>
@@ -15,8 +16,9 @@
         <title>Role</title>
         <link rel="stylesheet" href="${ctx}/css/style.css">
     </head>
-    <body>
-        <jsp:useBean id="bean" class="com.rays.pro4.Bean.RoleBean" scope="request"/>
+<body>
+	<jsp:useBean id="bean" class="com.rays.pro4.Bean.RoleBean"
+		scope="request" />
         <form action="<%=ORSView.ROLE_CTL%>" method="post">
             <%@ include file="Header.jsp" %>
 
@@ -52,7 +54,7 @@
                         </th>
                         <td>
                             <input type="text" id="name" name="name" placeholder="Enter Role Name"
-                                   class="form-control" value="${bean.name}">
+                                class="form-control" value="<%=DataUtility.getStringData(bean.getName())%>">
                             <font style="position: fixed" color="red">${requestScope.name}</font>
                         </td>
 
@@ -63,9 +65,9 @@
                         </th>
                         <td>
                             <input type="text" id="description" name="description"
-                                   placeholder="Enter Description" class="form-control"
-                                   value="${bean.description}"> <font style="position: fixed"
-                                                                      color="red">${requestScope.description}</font>
+                                placeholder="Enter Description" class="form-control"
+                                value="<%=DataUtility.getStringData(bean.getDescription())%>"> <font
+                                style="position: fixed" color="red">${requestScope.description}</font>
                         </td>
                     </tr>
                     <tr>

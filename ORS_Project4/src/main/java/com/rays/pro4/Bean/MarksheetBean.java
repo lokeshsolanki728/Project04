@@ -2,14 +2,20 @@ package com.rays.pro4.Bean;
 
 import com.rays.pro4.DTO.MarksheetDTO;
 
+import java.io.Serializable;
+
 /**
  * Marksheet JavaBean encapsulates Marksheet attributes.
  *
  * @author Lokesh SOlanki
  *
  */ 
-public class MarksheetBean extends BaseBean {
+public class MarksheetBean extends BaseBean implements Serializable {
 
+	/**
+     * Default serial version ID
+     */
+	private static final long serialVersionUID = 1L;
 	private String rollNo;
 	private long studentId;
 	private String name;
@@ -150,6 +156,8 @@ public class MarksheetBean extends BaseBean {
 		marksheetDTO.setRollNo(rollNo);
         marksheetDTO.setMaths(maths);
 		marksheetDTO.setStudentId(studentId);
+		marksheetDTO.setChemistry(chemistry);
+		marksheetDTO.setPhysics(physics);
 		marksheetDTO.setName(name);
 		return marksheetDTO;
 	}

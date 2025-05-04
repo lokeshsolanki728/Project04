@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
-
 import com.rays.pro4.Bean.DropdownListBean;
 import com.rays.pro4.Model.BaseModel;
 
@@ -16,7 +15,7 @@ import com.rays.pro4.Model.BaseModel;
  * @author Lokesh SOlanki
  *
  */
-public class HTMLUtility {\
+public class HTMLUtility {
     /**
      * Creates and returns HTML SELECT list from HashMap
      *
@@ -32,7 +31,8 @@ public class HTMLUtility {\
         boolean select = true;
 
         if (select) {
-            sb.append("<option style='width: 203px;  height: 30px;' selected value=''>--------------Select---------------------`</option>");
+            sb.append(
+                    "<option style='width: 203px;  height: 30px;' selected value=''>--------------Select---------------------`</option>");
         }
 
         for (String key : keys) {
@@ -45,7 +45,7 @@ public class HTMLUtility {\
         }
         sb.append("</select>");
         return sb.toString();
-        }
+    }
 
     /**
      * Creates and returns HTML SELECT list from List
@@ -56,45 +56,31 @@ public class HTMLUtility {\
      * @return String : HTML SELECT list
      */
     public static String getList(String name, String selectedVal, List list) {
-
         Collections.sort(list);
-        StringBuffer sb = new StringBuffer("<select style='width: 203px;  height: 23px;' class='form-control' name='" + name + "'>");
+        StringBuffer sb = new StringBuffer(
+                "<select style='width: 203px;  height: 23px;' class='form-control' name='" + name + "'>");
         boolean select = true;
         if (select) {
-            sb.append("<option style='width: 203px;  height: 30px;' selected value=''>--------------Select-----------------`</option>");
+            sb.append(
+                    "<option style='width: 203px;  height: 30px;' selected value=''>--------------Select-----------------`</option>");
         }
-
-        List<DropdownListBean> dd = (List<DropdownListBean>) list;
+        List<?> dd =  list;
         String key = null;
         String val = null;
-
-       for (DropdownListBean obj : dd) {
-            key = String.valueOf(obj.getKey());
-            val = obj.getValue();
-
+        for (Object obj : dd) {
+            DropdownListBean dbean = (DropdownListBean) obj;
+            key = String.valueOf(dbean.getKey());
+            val = dbean.getValue();
             if (key.trim().equals(selectedVal)) {
                 sb.append("<option selected value='" + key + "'>" + val + "</option>");
             } else {
                 sb.append("<option value='" + key.trim() + "'>" + val + "</option>");
             }
         }
+
         sb.append("</select>");
         return sb.toString();
-        }
-
-    /**
-     * Returns Error message with HTML tag and CSS
-     *
-     * @param request : request
-     * @return String : Error message
-     */
-    public static String getErrorMessage(HttpServletRequest request) {
-        String msg = ServletUtility.getErrorMessage(request);
-        if (!DataValidator.isNull(msg)) {
-            msg = "<p class='st-error-header'>" + msg + "</p>";
-        }
-        return msg;
-        }
+    }
 
     /**
      * Returns Error message with HTML tag and CSS
@@ -104,11 +90,11 @@ public class HTMLUtility {\
      */
     public static String getErrorMessage(HttpServletRequest request) {
         String msg = ServletUtility.getErrorMessage(request);
-        if (!DataValidator.isNull(msg)) {
+        if (!DataValidator.isNull(msg)) { 
             msg = "<p class='st-error-header'>" + msg + "</p>";
         }
-       return msg;
-        }
+        return msg;
+    }
     /**
      * Returns Success message with HTML tag and CSS
      * @param request : request

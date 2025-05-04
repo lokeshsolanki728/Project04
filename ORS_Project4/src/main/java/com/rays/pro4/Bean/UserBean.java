@@ -1,8 +1,6 @@
 package com.rays.pro4.Bean;
 
 import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.rays.pro4.Util.DataUtility;
@@ -18,12 +16,9 @@ import javax.servlet.http.HttpServletRequest;
 
 public class UserBean extends BaseBean {
 
-	private static final String ACTIVE = "Active";
-	private static final String INACTIVE = "inactive";
-	
-	private static final String DATE_FORMAT = "MM/dd/yyyy";
-	
-	private static final SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
+    private int id;
+
+	private static final String INACTIVE = "inactive";	
 	/**
 	 * Active User Constant
 	 */
@@ -62,6 +57,29 @@ public class UserBean extends BaseBean {
 	private String lastLoginIP;
 	/**
 	 * Get first name
+     * get the id of the bean
+	 * @return int
+	 */
+    public int getId() {
+        return id;
+    }
+
+    /**
+	 * set the id of the bean
+	 * @param id
+	 */
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    /**
+	 * get the password
+	 * @return password
+	 */
+    public void setPassword(String password) {
+		this.password = password;
+	}
+	/**
 	 * @return firstName
 	 */
 	public String getFirstName() {
@@ -103,14 +121,7 @@ public class UserBean extends BaseBean {
 		this.login = login;
 	}
 	/**
-	 * get the password
-	 * @return password
-	 */
-	public String getPassword() {
-		return password;
-	}
-	/**
-	 * set the password
+	 *  get the password
 	 * @param password
 	 */
 	public void setPassword(String password) {
@@ -235,29 +246,15 @@ public class UserBean extends BaseBean {
 	public String getLastLoginIP() {
 		return lastLoginIP;
 	}
-	/**
+    /**
 	 * set the last login ip
 	 * @param lastLoginIP
 	 */
 	public void setLastLoginIP(String lastLoginIP) {
 		this.lastLoginIP = lastLoginIP;
 	}
-	/**
-	 * get the active user
-	 * @return String
-	 */
-	public static String getActive() {
-		return ACTIVE;
-	}
-	/**
-	 * get the inactive user
-	 * @return String
-	 */
-	public static String getInactive() {
-		return INACTIVE;
-	}
-	/**
 	 * get the id of the bean
+
 	 * @return String
 	 */
 	@Override
@@ -279,38 +276,40 @@ public class UserBean extends BaseBean {
      * @param request the request
      */
     @Override
-    public void populate(HttpServletRequest request) {
-        setId(DataUtility.getLong(request.getParameter("id")));
-        setFirstName(DataUtility.getString(request.getParameter("firstName")));
-        setLastName(DataUtility.getString(request.getParameter("lastName")));
-        setLogin(DataUtility.getString(request.getParameter("login")));
-        setDob(DataUtility.getDate(request.getParameter("dob")));
-        setMobileNo(DataUtility.getString(request.getParameter("mobileNo")));
-        setRoleId(DataUtility.getLong(request.getParameter("roleId")));
-        setGender(DataUtility.getString(request.getParameter("gender")));
-        setCreatedBy(DataUtility.getString(request.getParameter("createdBy")));
-        setModifiedBy(DataUtility.getString(request.getParameter("modifiedBy")));
+    public void populate(HttpServletRequest request) {    	
+    	super.populate(request);
+    	setFirstName(DataUtility.getString(request.getParameter("firstName")));
+    	setLastName(DataUtility.getString(request.getParameter("lastName")));
+    	setLogin(DataUtility.getString(request.getParameter("login")));
+    	setDob(DataUtility.getDate(request.getParameter("dob")));
+    	setMobileNo(DataUtility.getString(request.getParameter("mobileNo")));
+    	setRoleId(DataUtility.getLong(request.getParameter("roleId")));
+    	setGender(DataUtility.getString(request.getParameter("gender")));
     }
 
-	@Override
-	public UserDTO getDTO() {
-		UserDTO userDTO = new UserDTO();
-		userDTO.setId(id);
-		userDTO.setFirstName(firstName);
-		userDTO.setLastName(lastName);
-		userDTO.setLogin(login);
-		userDTO.setPassword(password);
-		userDTO.setDob(dob);
-		userDTO.setMobileNo(mobileNo);
-		userDTO.setRoleId(roleId);
-		userDTO.setUnSuccessfulLogin(unSuccessfulLogin);
-		userDTO.setGender(gender);
-		userDTO.setLastLogin(lastLogin);
-		userDTO.setLock(lock);
-		userDTO.setRegisterdIP(registerdIP);
-		userDTO.setLastLoginIP(lastLoginIP);
-		return userDTO;
-	}
+    @Override
+    public UserDTO getDTO() {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(id);
+        userDTO.setFirstName(firstName);
+        userDTO.setLastName(lastName);
+        userDTO.setLogin(login);
+        userDTO.setPassword(password);
+        userDTO.setDob(dob);
+        userDTO.setMobileNo(mobileNo);
+        userDTO.setRoleId(roleId);
+        userDTO.setUnSuccessfulLogin(unSuccessfulLogin);
+        userDTO.setGender(gender);
+        userDTO.setLastLogin(lastLogin);
+        userDTO.setLock(lock);
+        userDTO.setRegisterdIP(registerdIP);
+        userDTO.setLastLoginIP(lastLoginIP);
+         userDTO.setCreatedBy(createdBy);
+        userDTO.setModifiedBy(modifiedBy);
+        userDTO.setCreatedDatetime(createdDatetime);
+        userDTO.setModifiedDatetime(modifiedDatetime);
+        return userDTO;
+    }
 	/**
 	 * return all the attributes of the bean
 	 * @return String
@@ -318,8 +317,8 @@ public class UserBean extends BaseBean {
 	@Override
 	public String toString() {
 		return "UserBean [firstName=" + firstName + ", lastName=" + lastName + ", login=" + login + ", password=" + password + ", dob="
-                + (dob != null ? sdf.format(dob) : null) + ", mobileNo=" + mobileNo
-				+ ", roleId=" + roleId + ", unSuccessfulLogin="
+                + dob + ", mobileNo=" + mobileNo
+				+ ", roleId=" + roleId + ", unSuccessfulLogin=" 
 				+ unSuccessfulLogin + ", gender=" + gender
 				+ ", lastLogin=" + lastLogin + ", lock=" + lock + ", registerdIP=" + registerdIP + ", lastLoginIP="
 				+ lastLoginIP + ", id=" + id + ", createdBy=" + createdBy + ", modifiedBy=" + modifiedBy

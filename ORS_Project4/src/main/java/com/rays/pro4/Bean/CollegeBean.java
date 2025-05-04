@@ -1,16 +1,18 @@
 package com.rays.pro4.Bean;
 
+import java.io.Serializable;
+
 import com.rays.pro4.DTO.CollegeDTO;
 /**
  * College JavaBean encapsulates College attributes.
  * @author Lokesh SOlanki
  *
- */
-public class CollegeBean extends BaseBean{
+ * */
+public class CollegeBean extends BaseBean implements Serializable{
 
-
-	private String name;
-	private String address;
+    public static final long serialVersionUID = 1L;
+    private String name;
+    private String address;
 	private String state;
 	private String city;
 	private String phoneNo;

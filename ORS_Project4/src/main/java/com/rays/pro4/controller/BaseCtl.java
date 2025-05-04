@@ -1,34 +1,39 @@
- package com.rays.pro4.controller;
+package com.rays.pro4.controller;
 
+import com.rays.pro4.Bean.BaseBean;
+import com.rays.pro4.Bean.RoleBean;
+import com.rays.pro4.Model.BaseModel;
+import com.rays.pro4.Model.RoleModel;
+import com.rays.pro4.Model.UserModel;
 import org.apache.log4j.Logger;
 import com.rays.pro4.Exception.ApplicationException;
-import java.util.MissingResourceException;
+
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponse;import com.rays.pro4.Bean.BaseBean;
 
 import java.io.IOException;
 import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Bean.UserBean;
+import com.rays.pro4.Model.BaseModel;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.DataValidator;
 import com.rays.pro4.Util.ServletUtility;
 
 /**
- * Base controller class of project. It contain (1) Generic operations (2)
- * Generic constants (3) Generic work flow
+ * Base controller class of project. It contains (1) Generic operations (2)
+ * Generic constants (3) Generic work flow.
  *
- * @author  Lokesh SOlanki
- *
+ * @author Lokesh SOlanki
  */
 
 public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
 
-	/**	
-	 * Default serial version ID
+	/** Default serial version ID
 	 */
 	protected long id = 0;
     protected String createdBy = null;
@@ -94,16 +99,9 @@ public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
 	/**
 	 * Success message key constant
 	 */
-	public static final String MSG_SUCCESS = "success"; // Success
-	/**
-	 * Error message key constant
-	 */
-	public static final String MSG_ERROR = "error"; // Error
-    
-	private static final long serialVersionUID = 1L;
-	/**
-	 * Success message key constant
-	 */
+
+    private static final long serialVersionUID = 1L;
+    /**
 	public static final String MSG_SUCCESS = "success"; // Success
 	/**
 	 * Error message key constant
@@ -118,6 +116,23 @@ public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
 	 * @param request
 	 */
 	protected void preload(HttpServletRequest request) {
+		
+		RoleModel model = new RoleModel();
+        try {
+            List<RoleBean> list = model.list();
+            request.setAttribute("roleList", list);
+        } catch (ApplicationException e) {
+            log.error(e);
+        }
+		
+	}
+	
+	protected BaseModel getModel(String modelName){
+        if(modelName.equalsIgnoreCase("User")){
+            return new UserModel();
+        }else{
+            return null;
+        }
 	}
 
 	/**
@@ -145,14 +160,18 @@ public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
 	 * 
 	 * @return bean
 	 */
-	protected void populateDTO(HttpServletRequest request, BaseBean dto) {
+	protected void populateDTO(HttpServletRequest request, BaseModel dto) {
 
 		long id = DataUtility.getLong(request.getParameter("id"));
 		
 		String createdBy = request.getParameter("createdby");
 		String modifiedBy = request.getParameter("modifiedby");
         long cdt = DataUtility.getLong(request.getParameter("createdDatetime"));
-
+        if (DataValidator.isNotNull(createdBy)){
+            dto.setCreatedBy(createdBy);
+        } if (DataValidator.isNotNull(modifiedBy)){
+            dto.setModifiedBy(modifiedBy);
+        }
         if (id > 0) {
             dto.setId(id);
         }
@@ -184,8 +203,9 @@ public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
 		}
 		ServletUtility.setBean(bean, request);
 		try {
-			super.service(request, response);
-		} catch (ApplicationException e) {
+            super.service(request, response);
+        } catch (ApplicationException e) {
+
             log.error(e);
             ServletUtility.setErrorMessage(e.getMessage(), request);            
             ServletUtility.forward(getView(), request, response);

@@ -1,14 +1,15 @@
 package com.rays.pro4.Bean;
 
+import java.io.Serializable;
+
 import com.rays.pro4.DTO.CourseDTO;
-import com.rays.pro4.DTO.BaseDTO;
 /** 
  * Course JavaBean encapsulates Course attributes.
  * 
  * @author Lokesh SOlanki
  *
  */
-public class CourseBean extends BaseBean{
+public class CourseBean extends BaseBean implements Serializable {
 
     private String name;
     private String description;
@@ -87,7 +88,9 @@ public class CourseBean extends BaseBean{
     public String getValue() {
         return name;
     }
-    @Override
+    
+    private static final long serialVersionUID = 1L;
+	@Override
 	public CourseDTO getDTO() {
     	CourseDTO courseDTO= new CourseDTO();
     	courseDTO.setName(name);

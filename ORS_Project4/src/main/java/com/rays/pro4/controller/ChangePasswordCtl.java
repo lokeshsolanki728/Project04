@@ -13,10 +13,10 @@ import com.rays.pro4.Bean.UserBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.DTO.UserDTO;
 import com.rays.pro4.Model.UserModel;
+import com.rays.pro4.Util.ChangePasswordValidator;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.ServletUtility;
-
 
 /**
 * The Class ChangePasswordCtl is a controller that allows users to change their password.
@@ -75,27 +75,19 @@ public class ChangePasswordCtl extends BaseCtl<UserBean>{
      * @return The UserBean populated with request parameters.
      */
     @Override
-	protected void populateDTO(HttpServletRequest request, UserDTO dto) {
-		// TODO Auto-generated method stub
-		
-	}
-    
-    
-	/**
-	 * Populates user bean object from request parameters.
-	 *
-	 * @param request the request
-	 * @param bean the bean
-	 * @return the user bean
-	 */
-	protected UserBean populateBean(HttpServletRequest request, UserBean bean) {
-		log.debug("UserCtl Method populatebean Started");
+    protected UserBean populateBean(HttpServletRequest request) {
+		log.debug("ChangePasswordCtl Method populateBean Started");
+		UserBean bean = new UserBean();
 		bean.setId(DataUtility.getLong(request.getParameter("id")));
 		bean.setPassword(DataUtility.getString(request.getParameter("oldPassword")));
-		bean.setGender(DataUtility.getString(request.getParameter("newPassword")));
+		bean.setNewPassword(DataUtility.getString(request.getParameter("newPassword")));
 		bean.setConfirmPassword(DataUtility.getString(request.getParameter("confirmPassword")));
 		
-		log.debug("UserCtl Method populatebean Ended");
+		log.debug("ChangePasswordCtl Method populateBean Ended");
+		
+		
+        return bean;
+    }
 		
 		
         return bean;
@@ -127,18 +119,21 @@ public class ChangePasswordCtl extends BaseCtl<UserBean>{
 	/**
 	 * Change password.
 	 *
-	 * @param bean the bean
+	 * @param bean        the bean
 	 * @param newPassword the new password
-	 * @param request the request
+	 * @param request     the request
+	 * @param response    the response
 	 * @throws ApplicationException the application exception
-	 * @throws IOException
-	 * @throws ServletException
+	 * @throws IOException          Signals that an I/O exception has
+	 *                              occurred.
+	 * @throws ServletException     the servlet exception
 	 */
-	private final void changePassword(final UserBean bean, final String newPassword,final HttpServletRequest request, final HttpServletResponse response) throws ApplicationException, IOException, ServletException {
+	private void changePassword(final UserBean bean, final String newPassword, final HttpServletRequest request,
+			final HttpServletResponse response) throws ApplicationException, IOException, ServletException {
+		log.debug("ChangePasswordCtl Method changePassword Started");
 		final HttpSession session = request.getSession();
 		final UserBean userBean = (UserBean) session.getAttribute("user");
 		if (userBean == null) {
-			ServletUtility.setErrorMessage("User not found", request);
 			ServletUtility.forward(getView(), request, response);
 			return;
 		}
@@ -146,58 +141,53 @@ public class ChangePasswordCtl extends BaseCtl<UserBean>{
 		final UserDTO dto = bean.getDTO();
 		try {
 			model.changePassword(id, dto.getPassword(), newPassword);
-			final UserBean user = model.findByLogin(userBean.getLogin());
-			session.setAttribute("user", user);
 			ServletUtility.setSuccessMessage(MessageConstant.PASSWORD_CHANGE, request);
-		}catch (final Exception e){
-			ServletUtility.setErrorMessage("Password change failed.", request);
+			ServletUtility.forward(getView(), request, response);
+			log.debug("ChangePasswordCtl Method changePassword Ended");
+		} catch (final Exception e) {
+			log.error("ChangePasswordCtl Method changePassword error", e);
+			ServletUtility.setErrorMessage("Password change failed", request);
+			ServletUtility.forward(getView(), request, response);
 		}
 	}
-	else {
-			ServletUtility.setErrorMessage("Password change failed.", request);
-		}
-	
 
 	/**
-	 * Handles POST requests for processing the change password form submission.
-	 * @param request the request
+	 * Handles POST requests for processing the change password form
+	 * submission.
+	 * 
+	 * @param request  the request
 	 * @param response the response
 	 * @throws ServletException the servlet exception
-	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws IOException      Signals that an I/O exception has occurred.
 	 */
 	@Override
-	protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
-			throws ServletException, IOException {
-			log.debug("ChangePasswordCtl Method doPost Started");
-			String op = DataUtility.getString(request.getParameter("operation"));
-			UserDTO dto = new UserDTO();
-			UserBean bean = new UserBean();
-			populateBean(request, bean);
-			String newPassword = (String) request.getParameter("newPassword");
-			
-			try {
-				if (OP_SAVE.equalsIgnoreCase(op)) {
-					
-					if (validate(request)) {
-						changePassword(bean, newPassword, request, response);
-					}
-					
-				} else if (OP_CHANGE_MY_PROFILE.equalsIgnoreCase(op)) {
-					ServletUtility.redirect(ORSView.MY_PROFILE_CTL, request, response);
+	protected void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+		log.debug("ChangePasswordCtl Method doPost Started");
+		String op = DataUtility.getString(request.getParameter("operation"));
+		UserBean bean = populateBean(request);
+		String newPassword = bean.getNewPassword();
+
+		try {
+			if (OP_SAVE.equalsIgnoreCase(op)) {
+				if (!validate(request)) {
+					ServletUtility.forward(getView(), request, response);
 					return;
 				}
-				ServletUtility.forward(getView(), request, response);
-				log.debug("ChangePasswordCtl Method doPost Ended");
-			} catch (ApplicationException e) {
-				log.error(e);
-				handleDatabaseException(e, request, response);
+				changePassword(bean, newPassword, request, response);
+			} else if (OP_CHANGE_MY_PROFILE.equalsIgnoreCase(op)) {
+				ServletUtility.redirect(ORSView.MY_PROFILE_CTL, request, response);
+				return;
 			}
+			ServletUtility.forward(getView(), request, response);
+			return;
+		} catch (ApplicationException e) {
+			log.error(e);
+			handleDatabaseException(e, request, response);
+		}
+		log.debug("ChangePasswordCtl Method doPost Ended");
 	}
 
-	
 	/**
-	 * 
-	 * 
 	 * Returns the VIEW page of this Controller
 	 * 
 	 * @return

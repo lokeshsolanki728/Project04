@@ -1,11 +1,9 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
-import java.sql.Timestamp;
-import java.util.Date;
+import java.util.List;
 
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -15,10 +13,8 @@ import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Bean.RoleBean;
 import com.rays.pro4.DTO.RoleDTO;
 import com.rays.pro4.Bean.RoleBean;
+import com.rays.pro4.Model.RoleModel;
 import com.rays.pro4.Exception.ApplicationException;
-import com.rays.pro4.Exception.DuplicateRecordException;
-import com.rays.pro4.Util.DataUtility;
-import com.rays.pro4.Util.DataValidator;
 import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.DataValidator;
 import com.rays.pro4.Util.PropertyReader;
@@ -26,14 +22,16 @@ import com.rays.pro4.Util.ServletUtility;
 
 import com.rays.pro4.Model.RoleModel;
 /**
+ * Role functionality controller. to perform add,delete and update operation
  *  @author Lokesh SOlanki
  *
  */
-@WebServlet(name = "RoleCtl", urlPatterns = { "/ctl/RoleCtl" })
+
 public class RoleCtl extends BaseCtl {
 
 	private static final long serialVersionUID = 1L;
 
+	 
 	    /** The log. */
 	    private static Logger log = Logger.getLogger(RoleCtl.class);
 	    private final RoleModel model = new RoleModel();
@@ -45,6 +43,7 @@ public class RoleCtl extends BaseCtl {
 		 * @return
 		 */
 	    
+	@Override
 	@Override
 	protected boolean validate(HttpServletRequest request) {
 
@@ -86,6 +85,7 @@ public class RoleCtl extends BaseCtl {
 		return dto;
 	}
 
+	@Override
 	/**
 		 * Populates bean object from request parameters
 		 * 
@@ -121,27 +121,33 @@ public class RoleCtl extends BaseCtl {
 	    protected void doGet(HttpServletRequest request,
 	            HttpServletResponse response) throws ServletException, IOException {
 	    	log.debug("RoleCtl Method doGet Started");
+	    	List list = null;
+	        int pageNo = 1;
+	        int pageSize = 10;
+	        RoleBean bean = (RoleBean) populateBean(request);
 
-			String op = DataUtility.getString(request.getParameter("operation"));
-			long id = DataUtility.getLong(request.getParameter("id"));
-			RoleDTO dto = null;
-			if (id <= 0) {
-				ServletUtility.setErrorMessage("Invalid Role ID", request);
-				ServletUtility.forward(ORSView.ERROR_VIEW, request, response);
-				return;
+	        String op = com.rays.pro4.Util.DataUtility.getString(request.getParameter("operation"));
+	         
+	        try {
+				list = model.search(bean, pageNo, pageSize);
+			} catch (ApplicationException e1) {
+				e1.printStackTrace();
+				 log.error("Database Exception in RoleCtl.doGet" + e1.getMessage());
 			}
-			if (id > 0 || op != null) {
-				RoleBean bean;
-	            try {	                
-	                dto = model.findByPK(id);
-					if (dto == null) {
-						ServletUtility.setErrorMessage("Role not found", request);
-					}
-					bean = new RoleBean();
-					bean.setId(dto.getId());
-					bean.setName(dto.getName());
-					bean.setDescription(dto.getDescription());
-					ServletUtility.setBean(bean, request);
+	        if(list == null || list.size() == 0) {
+				ServletUtility.setErrorMessage("Record not Found", request);
+				 ServletUtility.forward(getView(), request, response);
+			} else {
+				request.setAttribute("list", list);
+				ServletUtility.forward(getView(), request, response);
+			}
+			
+			 try {
+				 
+				RoleDTO dto= new RoleDTO();
+	                dto = model.findByPK(bean.getId());
+	               if(dto!=null)
+	               ServletUtility.setBean(dto.getRoleBean(), request);
 	            } catch (ApplicationException e) {
 	                log.error(e);
 	                ServletUtility.handleDatabaseException(e, request, response);
@@ -149,53 +155,15 @@ public class RoleCtl extends BaseCtl {
 	            }
 	        }
 	        ServletUtility.forward(getView(), request, response);
+	         
 	        log.debug("RoleCtl Method doGetEnded");
 	    }
-	    /**
-	     * save the role
-	     * 
-	     * @param bean    the bean
-	     * @param model   the model
-	     * @param request the request
-	     * @throws DuplicateRecordException the duplicate record exception the
-	     * @throws ApplicationException the application exception
-	     */
-	    private void save(RoleBean bean, RoleModel model, HttpServletRequest request)
-	            throws DuplicateRecordException, ApplicationException {
-	        log.debug("save method start");
-	        model.add(bean);
-	        log.debug("save method end");
-	    }
-	    /**
-	     * Update the role
-	     * 
-	     * @param bean    the bean
-	     * @param model   the model
-	     * @param request the request
-	     * @throws DuplicateRecordException the duplicate record exception the
-	     * @throws ApplicationException the application exception
-	     *                                
-	    private void update(RoleBean bean, RoleModel model, HttpServletRequest request)
-	            throws DuplicateRecordException, ApplicationException {
-	        log.debug("update method start");
-	        model.update(bean);
-	        log.debug("update method end");
-	    }
-
-	    /**
-	     * Contains Submit logics.
-	     * 
-	     * @param request  the request
-	     * @param response the response
-	     * @throws ServletException the servlet exception
-	     * @throws IOException Signals that an I/O exception has occurred.
-	     */
-	    
+	  
+	    @Override
 	    protected void doPost(HttpServletRequest request,
 	            HttpServletResponse response) throws ServletException, IOException {
 	        log.debug("RoleCtl Method doPost Started");	        
 	        final String op = DataUtility.getString(request.getParameter("operation"));	       
-	        final long id = DataUtility.getLong(request.getParameter("id"));
 
 	         RoleBean bean = (RoleBean) populateBean(request);
 	         RoleDTO dto=new RoleDTO();
@@ -211,32 +179,35 @@ public class RoleCtl extends BaseCtl {
 	            	  bean.setName(request.getParameter("name"));
 	            	  bean.setDescription(request.getParameter("description"));
 	            	  dto = bean.getDTO();
-	                  if (id > 0) {	                      
-	                      model.update(dto);
-	                      ServletUtility.setSuccessMessage(MessageConstant.ROLE_UPDATE, request);
-	                  } else {	                	  
-	                	  dto.setCreatedBy("root");
-	                	  dto.setModifiedBy("root");
-	                      model.add(dto);
-	                       ServletUtility.setSuccessMessage(MessageConstant.ROLE_ADD, request);
-	                  }
-
-	              } catch (final ApplicationException e) {
+	            	  if (bean.getId() > 0) {
+							model.update(dto);
+							ServletUtility.setSuccessMessage("Role Successfully Updated", request);
+							ServletUtility.forward(getView(), request, response);
+							return;
+						} else {
+							dto.setCreatedBy("root");
+							dto.setModifiedBy("root");
+							model.add(dto);
+							ServletUtility.setSuccessMessage("Role Successfully Added", request);
+							ServletUtility.forward(getView(), request, response);
+							return;
+						}
+	              } catch (com.rays.pro4.Exception.DuplicateRecordException e) {
+	            	    ServletUtility.setErrorMessage("Role already exists", request);
+						ServletUtility.forward(getView(), request, response);
+	                return;
+	              }
+	              catch (final ApplicationException e) {
 	                  log.error("Application exception in save/update", e);
 	                  handleDatabaseException(e, request, response);
 	                  return;
-	              } catch (DuplicateRecordException e) {
-	                   ServletUtility.setErrorMessage("Role already exists", request);
-	                   ServletUtility.setBean(bean, request);
-	              }
+	              } 
 	          } else if (OP_DELETE.equalsIgnoreCase(op)) {
 
 	            try {
-	            	dto.setId(id);
-	            	dto.setName(request.getParameter("name"));
-	            	dto.setDescription(request.getParameter("description"));
-	                model.delete(dto);
-	                ServletUtility.redirect(ORSView.ROLE_LIST_CTL, request,
+	            	model.delete(bean);
+	            	 ServletUtility.setSuccessMessage("Role Successfully Deleted", request);
+	                ServletUtility.redirect(ORSView.ROLE_LIST_VIEW, request,
 	                        response);
 	                return;
 	            } catch (ApplicationException e) {
@@ -246,8 +217,11 @@ public class RoleCtl extends BaseCtl {
 	            }
 	        } else if (OP_CANCEL.equalsIgnoreCase(op)) {	        	
 
-	            ServletUtility.redirect(ORSView.ROLE_LIST_CTL, request, response);
+	            ServletUtility.redirect(ORSView.ROLE_LIST_VIEW, request, response);
 	            return;	            
+	        } else {	                	  
+	                	  dto.setCreatedBy("root");
+	                	  dto.setModifiedBy("root");
 	        }	        
              
 			ServletUtility.setBean(bean, request);
@@ -266,6 +240,11 @@ public class RoleCtl extends BaseCtl {
 	   @Override
 	    protected String getView() {
 	        return ORSView.ROLE_VIEW;
-	    }
+	    
+	   }
+	   @Override
+		protected void preload(HttpServletRequest request) {
+			request.setAttribute("roleList", model.list());
+		}
 
 }

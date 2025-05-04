@@ -1,5 +1,6 @@
 package com.rays.pro4.Bean;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import com.rays.pro4.DTO.StudentDTO;
@@ -11,7 +12,12 @@ import com.rays.pro4.DTO.StudentDTO;
  * @author Lokesh SOlanki
  *
  */
-public class StudentBean extends BaseBean {
+public class StudentBean extends BaseBean implements Serializable {
+
+	/**
+	 * Default serial version ID
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private String firstName; 
 
@@ -197,18 +203,6 @@ public class StudentBean extends BaseBean {
         studentDTO.setId(id);
         studentDTO.setCreatedBy(createdBy);
         studentDTO.setModifiedBy(modifiedBy);
-        return studentDTO;
-    }
-}
-    @Override
-    public StudentDTO getDTO() {
-        StudentDTO studentDTO = new StudentDTO();
-        studentDTO.setId(id);
-        studentDTO.setFirstName(firstName);
-        studentDTO.setLastName(lastName);
-        studentDTO.setDob(dob);
-        studentDTO.setMobileNo(mobileNo);
-        studentDTO.setEmail(email);
         return studentDTO;
     }
 }
