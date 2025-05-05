@@ -128,7 +128,6 @@ public class UserModel extends BaseModel {
                 pstmt.setLong(1, id);
                 pstmt.executeUpdate();
                  conn.commit(); // End transaction
-            pstmt.close();
 
 
         } catch (Exception e) {
