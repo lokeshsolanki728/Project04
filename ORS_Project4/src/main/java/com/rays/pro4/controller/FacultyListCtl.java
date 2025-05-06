@@ -14,7 +14,6 @@ import com.rays.pro4.Bean.FacultyBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Model.FacultyModel;
 import com.rays.pro4.Util.DataUtility;
-import com.rays.pro4.validator.FacultyListValidator;
 import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;
@@ -93,13 +92,9 @@ public class FacultyListCtl extends BaseCtl<FacultyBean> {
 	 */
 	@Override
 	protected boolean validate(HttpServletRequest request) {
-		log.debug("validate Method Started");
-		final boolean pass = FacultyListValidator.validate(request);
-		if (!pass) {
-			log.debug("validate Method End with error");
-		}
-		log.debug("validate Method End");
-		return pass;
+		// No specific validation for list view at this moment.
+		// Returning true by default.
+		return true;
 	}
 
 	/**

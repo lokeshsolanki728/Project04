@@ -1,8 +1,7 @@
---- a/ORS_Project4/src/main/java/com/rays/pro4/controller/MarksheetCtl.java
-+++ b/ORS_Project4/src/main/java/com/rays/pro4/controller/MarksheetCtl.java
 package com.rays.pro4.controller;
 
 import java.io.IOException;
+import com.rays.pro4.Util.ORSView;
 import java.util.List; 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -117,7 +116,7 @@ public class MarksheetCtl extends BaseCtl {
 		MarksheetBean bean = new MarksheetBean();
 		bean.setId(DataUtility.getLong(request.getParameter("id")));
 		bean.setRollNo(DataUtility.getString(request.getParameter("rollNo")));
-		bean.setStudentld(DataUtility.getLong(request.getParameter("studentId")));
+		bean.setStudentId(DataUtility.getLong(request.getParameter("studentId")));
 		bean.setPhysics(DataUtility.getInt(request.getParameter("physics")));
 		bean.setChemistry(DataUtility.getInt(request.getParameter("chemistry")));
 		bean.setMaths(DataUtility.getInt(request.getParameter("maths")));
@@ -145,7 +144,7 @@ public class MarksheetCtl extends BaseCtl {
 				MarksheetBean bean = new MarksheetBean();
 				bean.setId(dto.getId());
 				bean.setRollNo(dto.getRollNo());
-				bean.setStudentld(dto.getStudentId());
+				bean.setStudentId(dto.getStudentId());
 				bean.setName(dto.getName());
 				bean.setPhysics(dto.getPhysics());
 				bean.setChemistry(dto.getChemistry());
@@ -183,7 +182,7 @@ public class MarksheetCtl extends BaseCtl {
 					MarksheetDTO dto = new MarksheetDTO();
 					dto.setId(bean.getId());
 					dto.setRollNo(bean.getRollNo());
-					dto.setStudentId(bean.getStudentld());
+					dto.setStudentId(bean.getStudentId());
 					dto.setPhysics(bean.getPhysics());
 					dto.setChemistry(bean.getChemistry());
 					dto.setMaths(bean.getMaths());

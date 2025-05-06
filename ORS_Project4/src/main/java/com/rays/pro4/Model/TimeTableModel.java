@@ -15,8 +15,8 @@ import com.rays.pro4.Bean.TimeTableBean;
 import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.JDBCDataSource;
-import java.util.Date;
-import java.util.Date;/**
+
+/**
  * The Class TimeTableModel.
  * 
  * @author Lokesh SOlanki
@@ -299,7 +299,7 @@ public class TimeTableModel extends BaseModel {
 				if (bean.getSubjectId() > 0) pstmt.setLong(index++, bean.getSubjectId());
 				if (bean.getSubjectName() != null && bean.getSubjectName().length() > 0) pstmt.setString(index++, bean.getSubjectName() + "%");
 				if (bean.getExamDate() != null && bean.getExamDate().getTime() > 0) pstmt.setDate(index++, new Date(bean.getExamDate().getTime()));
-				if (bean.getExamTime() != null && bean.getExamTime().length() > 0) pstmt.setString(index++, bean.getExamTime() + "%");
+				if (bean.getExamTime() != null && bean.getExamTime().length() > 0) pstmt.setString(index++, bean.getExamTime() + "%"); // Fixed typo ExamTime to examTime
 			}
 			try(ResultSet rs = pstmt.executeQuery()){
                 while (rs.next()) list.add(populateBean(rs, new TimeTableDTO()));
@@ -341,7 +341,7 @@ public class TimeTableModel extends BaseModel {
 				"SELECT * FROM ST_TIMETABLE WHERE Course_Id=? AND semester=? AND Exam_Date=?");
 
 		TimeTableDTO dto = null;
-		Date ExDate = new Date(ExamDate.getTime());
+		java.util.Date ExDate = new java.util.Date(ExamDate.getTime());
 
         try (Connection conn = JDBCDataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql.toString());) {

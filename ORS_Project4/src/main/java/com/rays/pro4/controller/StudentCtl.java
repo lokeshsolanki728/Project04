@@ -14,6 +14,7 @@ import com.rays.pro4.Bean.CollegeBean;
 import com.rays.pro4.Bean.StudentBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
+import com.rays.pro4.Util.ORSView;
 import com.rays.pro4.Util.DataTransferUtility;
 import com.rays.pro4.Model.CollegeModel;
 import com.rays.pro4.DTO.StudentDTO;
@@ -149,7 +150,7 @@ public class StudentCtl extends BaseCtl {
             } catch (final ApplicationException e) {
                 log.error("Error finding student by ID", e);
                 handleDatabaseException(e, request, response);
-                return;
+          return;
             }
         }
        ServletUtility.forward(getView(), request, response);        
@@ -221,13 +222,13 @@ public class StudentCtl extends BaseCtl {
                 ServletUtility.redirect(ORSView.STUDENT_LIST_CTL, request, response);
                 return;
             }
+        } catch (final DuplicateRecordException e) {
+                ServletUtility.setBean(bean, request);
+                ServletUtility.setErrorMessage("Student Email Id already exists", request);
         } catch (ApplicationException e) {
                 log.error("Application exception", e);
                 handleDatabaseException(e, request, response);
                 return;                
-            } catch (final DuplicateRecordException e) {
-                ServletUtility.setBean(bean, request);
-                ServletUtility.setErrorMessage("Student Email Id already exists", request);
             }
         ServletUtility.forward(getView(), request, response);
 

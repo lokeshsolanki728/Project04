@@ -18,7 +18,7 @@ import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Model.CourseModel;
 import com.rays.pro4.validator.CourseValidator;
 import com.rays.pro4.Util.DataUtility;
-import com.rays.pro4.controller.ORSView;
+import com.rays.pro4.Util.ORSView;
 
 import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;

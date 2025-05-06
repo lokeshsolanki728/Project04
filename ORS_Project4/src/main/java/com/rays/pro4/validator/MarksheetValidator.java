@@ -1,17 +1,23 @@
+package com.rays.pro4.validator;
+
 import javax.servlet.http.HttpServletRequest;
+
+import com.rays.pro4.Util.DataUtility;
+import com.rays.pro4.Util.DataValidator;
+import com.rays.pro4.Util.PropertyReader;
 
 public class MarksheetValidator {
 
-    public static boolean validate(final HttpServletRequest request) {
-        boolean pass = true;
+	public static boolean validate(final HttpServletRequest request) {
+		boolean pass = true;
 
-        if (DataValidator.isNull(request.getParameter("rollNo"))) {
-            request.setAttribute("rollNo", PropertyReader.getValue("error.require", "Roll No"));
-            pass = false;
-        } else if (!DataValidator.isRollNo(request.getParameter("rollNo"))) {
-            request.setAttribute("rollNo", "Invalid Roll Number");
-            pass = false;
-        }
+		if (DataValidator.isNull(request.getParameter("rollNo"))) {
+			request.setAttribute("rollNo", PropertyReader.getValue("error.require", "Roll No"));
+			pass = false;
+		} else if (!DataValidator.isRollNo(request.getParameter("rollNo"))) {
+			request.setAttribute("rollNo", "Invalid Roll Number");
+			pass = false;
+		}
 
         if (DataValidator.isNull(request.getParameter("name"))) {
             request.setAttribute("name", PropertyReader.getValue("error.require", "Name"));
@@ -63,6 +69,6 @@ public class MarksheetValidator {
             }
         }
 
-        return pass;
-    }
+		return pass;
+	}
 }

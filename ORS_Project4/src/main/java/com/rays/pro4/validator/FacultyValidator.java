@@ -1,6 +1,9 @@
-package com.rays.pro4.util;
+
+package com.rays.pro4.validator;
 
 import javax.servlet.http.HttpServletRequest;
+import com.rays.pro4.Util.DataValidator;
+import com.rays.pro4.Util.PropertyReader;
 
 /**
  * Faculty Validator class to validate Faculty data.
