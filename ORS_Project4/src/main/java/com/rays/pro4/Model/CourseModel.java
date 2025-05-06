@@ -86,7 +86,6 @@ public class CourseModel extends BaseModel {
             conn.commit(); // Commit transaction
         } catch (SQLException e) {
             log.error("Database Exception in delete Course", e);
-            JDBCDataSource.trnRollback();
             throw new ApplicationException("Exception: Exception in delete Course - " + e.getMessage());
         }
     }
@@ -115,10 +114,9 @@ public class CourseModel extends BaseModel {
                         bean.setDuration(rs.getString(4));
                         bean.setCreatedBy(rs.getString(5));
                         bean.setModifiedBy(rs.getString(6));
-                        dto.setCreatedDatetime(rs.getTimestamp(7));
-                        dto.setModifiedDatetime(rs.getTimestamp(8));
+                        bean.setCreatedDatetime(rs.getTimestamp(7));
+                        bean.setModifiedDatetime(rs.getTimestamp(8));
                     }
-                }
                 }
         } catch (SQLException e) {  
             log.error("Database Exception in find by name", e);
@@ -142,21 +140,21 @@ public class CourseModel extends BaseModel {
         try {
             conn = JDBCDataSource.getConnection();
             conn.setAutoCommit(false);
-             CourseBean duplicateCourse = findByName(bean.getName());
-                if (duplicateCourse != null && duplicateCourse.getId() != bean.getId()) {
-                    throw new DuplicateRecordException("Course Name already exists");
-                }
-                try (PreparedStatement pstmt = conn.prepareStatement(
-                        "UPDATE ST_COURSE SET NAME=?, DESCRIPTION=?, DURATION=?, MODIFIED_BY=?, MODIFIED_DATETIME=? WHERE ID=?")) {
-                   
-                    pstmt.setString(1, bean.getName());
-                    pstmt.setString(2, bean.getDescription());
-                    pstmt.setString(3, bean.getDuration());
-                    pstmt.setString(4, bean.getModifiedBy());
-                    pstmt.setTimestamp(5, bean.getModifiedDatetime());
-                    pstmt.setLong(6, bean.getId());
-                    pstmt.executeUpdate();
-                    conn.commit();
+            CourseBean duplicateCourse = findByName(bean.getName());
+            if (duplicateCourse != null && duplicateCourse.getId() != bean.getId()) {
+                throw new DuplicateRecordException("Course Name already exists");
+            }
+            try (PreparedStatement pstmt = conn.prepareStatement(
+                    "UPDATE ST_COURSE SET NAME=?, DESCRIPTION=?, DURATION=?, MODIFIED_BY=?, MODIFIED_DATETIME=? WHERE ID=?")) {
+
+                pstmt.setString(1, bean.getName());
+                pstmt.setString(2, bean.getDescription());
+                pstmt.setString(3, bean.getDuration());
+                pstmt.setString(4, bean.getModifiedBy());
+                pstmt.setTimestamp(5, bean.getModifiedDatetime());
+                pstmt.setLong(6, bean.getId());
+                pstmt.executeUpdate();
+                conn.commit();
             }
         }catch (SQLException e) {
            conn.rollback();
@@ -167,7 +165,7 @@ public class CourseModel extends BaseModel {
         }
 
     }
-
+    
     /**
      * Finds a course by its primary key (id).
      *
@@ -188,13 +186,10 @@ public class CourseModel extends BaseModel {
                    bean = populate(resultSet, new CourseBean());
                 }
             }
-         } catch (SQLException e) {
+        } catch (SQLException e) {
             throw new ApplicationException("Exception: Exception in getting Course by pk");
-        } finally {
-            
-            }
-       
-    }
+        } 
+        return bean;
     }
 return bean;
     /**
@@ -215,13 +210,13 @@ return bean;
         sortOrder = (sortOrder == null || sortOrder.trim().isEmpty()) ? "ASC" : sortOrder;
 
 
-
         try (Connection conn = JDBCDataSource.getConnection()) {
            if (bean != null) {
                 if (bean.getId() > 0)
                     sql.append(" AND id = ?");
                 if (bean.getName() != null && !bean.getName().isEmpty()) {
                     sql.append(" AND NAME like ?");
+                   
                 }
             }
            sql.append(" ORDER BY " + orderBy + " " + sortOrder);
@@ -242,13 +237,11 @@ return bean;
                 
                  try (ResultSet rs = pstmt.executeQuery()) {
                     while (rs.next()) {
-                       CourseBean bean = populate(rs, new CourseBean());
-                      
-                        list.add(dto);
+                       bean = populate(rs, new CourseBean());                    
+                        list.add(bean);
                     }
-                } }           
-        } catch (SQLException e) {
-            log.error("Database Exception in search Course", e);
+                }            
+            } catch (SQLException e) { log.error("Database Exception in search Course", e);
             throw new ApplicationException("Exception: Exception in search Course");
         }
         log.debug("Model search End");
@@ -271,10 +264,9 @@ return bean;
         }
         try (Connection conn = JDBCDataSource.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql.toString());
-                ResultSet rs = pstmt.executeQuery();) {
+                ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                    list.add(populate(rs, new CourseBean()));
-                }
             
                 
         } catch (SQLException e) {
@@ -300,4 +292,4 @@ return bean;
         bean.setModifiedDatetime(rs.getTimestamp(8));
         return bean;
     }
-        }
+}

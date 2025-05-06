@@ -194,6 +194,17 @@ public class ServletUtility {
 
 	}
 
+	/**
+	 * Gets default bean from request.
+	 *
+	 * @param request the request
+	 * @return the bean
+	 */
+	public static BaseBean getBean(HttpServletRequest request) {
+		return (BaseBean) request.getAttribute("bean");
+	}
+
+		
 		public static BaseBean populateBean(HttpServletRequest request, BaseBean bean) {
 		Map<String, String[]> map = request.getParameterMap();
 		for (String key : map.keySet()) {
@@ -202,14 +213,7 @@ public class ServletUtility {
 			}
 		}
 		return bean;
-	}
-	 * Gets default bean from request.
-	 *
-	 * @param request the request
-	 * @return the bean
-	 */
-	public static BaseBean getBean(HttpServletRequest request) {
-		return (BaseBean) request.getAttribute("bean");
+	}	
 	}
 
 	/**
@@ -221,14 +225,24 @@ public class ServletUtility {
 	public static BaseModel getModel(HttpServletRequest request) {
 		return (BaseModel) request.getAttribute("model");
 	}
-	
-	 * Get request parameter to display. If value is null then return empty string
-	 * 
-	 * @param property
-	 * @param request
-	 * @return
-	 */
 
+	
+	/**
+	 * Get request parameter to display. If value is null then return empty string
+	 *
+	 * @param property the property
+	 * @param request  the request
+	 * @return the parameter
+	 */
+	public static String getParameter(String property, HttpServletRequest request) {
+		String val = (String) request.getParameter(property);
+		if (val == null) {
+			return "";
+		} else {
+			return val;
+		}
+	}
+	
 	public static String getParameter(String property, HttpServletRequest request) {
 		String val = (String) request.getParameter(property);
 		if (val == null) {
@@ -259,16 +273,6 @@ public class ServletUtility {
 		request.setAttribute("modifiedDatetime", bean.getModifiedDatetime());
 	}
 	/**
-	 * Sets default List to request.
-	 *
-	 * @param list    the list
-	 * @param request the request
-	 */
-	public static void setList(List list, HttpServletRequest request) {
-		request.setAttribute("list", list);
-	}
-
-	/**
 	 * Gets default list from request scope
 	 *
 	 * @param request the request
@@ -276,6 +280,16 @@ public class ServletUtility {
 	 */
 	public static List getList(HttpServletRequest request) {
 		return (List) request.getAttribute("list");
+	}
+
+	/**
+	 * Sets default List to request.
+	 *
+	 * @param list    the list
+	 * @param request the request
+	 */
+	public static void setList(List list, HttpServletRequest request) {
+		request.setAttribute("list", list);
 	}
 
 	/**
