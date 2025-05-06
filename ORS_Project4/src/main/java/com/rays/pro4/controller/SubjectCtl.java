@@ -59,15 +59,6 @@ public class SubjectCtl extends BaseCtl{
         return bean;
     }
 	/**
-	 * @return List<CourseBean>
-			request.setAttribute("CourseList", courseList);
-		} catch (final ApplicationException e) {
-			log.error("Error getting course list during preload", e);
-		}
-		log.debug("preload method of SubjectCtl Ended");
-	}
-
-	   * Preload.
 	   *
 	   * @param request the request
 	   */
@@ -184,58 +175,4 @@ public class SubjectCtl extends BaseCtl{
 	   protected String getView() {
 	       return ORSView.SUBJECT_VIEW;
 	   }
-}
-
-	/**
-	 * Do post.
-	 *
-	 * @param request the request
-	 * @param response the response
-	 * @throws ServletException the servlet exception
-	 * @throws IOException Signals that an I/O exception has occurred.
-	 */
-	@Override
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		log.debug("Do post Method of Subject Ctl start");
-		final String op = DataUtility.getString(request.getParameter("operation"));
-		final long id = DataUtility.getLong(request.getParameter("id"));
-		if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
-			final SubjectBean bean = new SubjectBean();
-			populateBean(request,bean);
-			final SubjectDTO dto = bean.getDTO();
-			try {
-				if (id > 0) {
-					model.update(dto);
-				} else {
-					model.add(dto);
-				}
-				ServletUtility.setSuccessMessage(id > 0 ? MessageConstant.SUBJECT_UPDATE: MessageConstant.SUBJECT_ADD, request);
-			} catch (final ApplicationException e) {
-				log.error("Application exception", e);
-				handleDatabaseException(e, request, response);
-				return;
-			} catch (final DuplicateRecordException e) {
-				ServletUtility.setBean(bean, request);
-				ServletUtility.setErrorMessage("Subject name already exists", request);
-			}
-		} else if (OP_RESET.equalsIgnoreCase(op)) {
-			ServletUtility.redirect(ORSView.SUBJECT_CTL, request, response);
-			return;
-		} else if (OP_CANCEL.equalsIgnoreCase(op)) {
-			ServletUtility.redirect(ORSView.SUBJECT_LIST_CTL, request, response);
-			return;
-		}
-		ServletUtility.forward(getView(), request, response);
-		log.debug("Do post Method of Subject Ctl End");
-	}
-
-	/**
-	 * Gets the view.
-	 *
-	 * @return the view
-	 */
-	@Override
-	protected String getView() {
-		return ORSView.SUBJECT_VIEW;
-	}
 }

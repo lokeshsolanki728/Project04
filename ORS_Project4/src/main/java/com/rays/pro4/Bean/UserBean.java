@@ -253,7 +253,8 @@ public class UserBean extends BaseBean {
 	public void setLastLoginIP(String lastLoginIP) {
 		this.lastLoginIP = lastLoginIP;
 	}
-	/**get the id of the bean*/
+	/** get the id of the bean
+	 */
 
 	 * @return String
 	 */

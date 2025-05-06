@@ -214,10 +214,8 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 		
 		log.debug("do Post method of CourseListCtl End");
 	}	
-	@Override
 		
-	/** set the data in the list.
-	 * 
+	/** set the data in the list.	
 	 * @param bean     the bean
 	 * @param request  the request
 	 * @param response the response
@@ -226,7 +224,7 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 	 * @throws ServletException the servlet exception
 	 * @throws IOException      Signals that an I/O exception has occurred.
 	 */
-	private void showList(final CourseBean bean, final HttpServletRequest request, final HttpServletResponse response,
+	private  void showList(final CourseBean bean, final HttpServletRequest request, final HttpServletResponse response,
 			int pageNo, final int pageSize, final String orderBy, final String sortOrder) throws ServletException, IOException {
 		log.debug("showList Method Start");
 		List<CourseBean> list = null;	

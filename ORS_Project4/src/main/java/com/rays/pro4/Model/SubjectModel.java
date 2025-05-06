@@ -94,19 +94,18 @@ public class SubjectModel extends BaseModel {
 			conn.setAutoCommit(false);
 			try (PreparedStatement pstmt = conn
 					.prepareStatement("UPDATE ST_SUBJECT SET SUBJECT_NAME=?,DESCRIPTION=?,COURSE_ID=?,COURSE_NAME=?,CREATED_BY=?,MODIFIED_BY=?,CREATED_DATETIME=?,MODIFIED_DATETIME=? WHERE ID=?")) {
-            pstmt.setString(1, dto.getSubjectName());
-            pstmt.setString(2, dto.getDescription());
-            pstmt.setLong(3, dto.getCourseId());
-            pstmt.setString(4, dto.getCourseName());
-            pstmt.setString(5, dto.getCreatedBy());
-            pstmt.setString(6, dto.getModifiedBy());
-            
-           
-                pstmt.setTimestamp(7, dto.getCreatedDatetime());
-            pstmt.setTimestamp(8, dto.getModifiedDatetime());
-                 pstmt.setLong(9, dto.getId());
-                 pstmt.executeUpdate();
-			conn.commit();
+				pstmt.setString(1, dto.getSubjectName());
+				pstmt.setString(2, dto.getDescription());
+				pstmt.setLong(3, dto.getCourseId());
+				pstmt.setString(4, dto.getCourseName());
+				pstmt.setString(5, dto.getCreatedBy());
+				pstmt.setString(6, dto.getModifiedBy());
+				pstmt.setTimestamp(7, dto.getCreatedDatetime());
+				pstmt.setTimestamp(8, dto.getModifiedDatetime());
+				pstmt.setLong(9, dto.getId());
+				pstmt.executeUpdate();
+				conn.commit();
+			}
 		} catch (Exception e) {
 			JDBCDataSource.trnRollback(conn);
 			throw new ApplicationException(
