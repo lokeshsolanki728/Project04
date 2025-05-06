@@ -204,21 +204,26 @@ public class ServletUtility {
 		return (BaseBean) request.getAttribute("bean");
 	}
 
-		public static BaseBean populateBean(HttpServletRequest request, BaseBean bean) {
+	public static BaseBean populateBean(HttpServletRequest request, BaseBean bean) {
 		Map<String, String[]> map = request.getParameterMap();
 		for (String key : map.keySet()) {
-			if(map.get(key).length > 0){
-			String value = map.get(key)[0];
+			if (map.get(key).length > 0) {
+				String value = map.get(key)[0];
+
+				try {
+					bean.getClass().getMethod("set" + key.substring(0, 1).toUpperCase() + key.substring(1), String.class)
+							.invoke(bean, value);
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
 			}
 		}
 		return bean;
-
-	/**
-	 * gets Model from request scope
-	 *
-	 * @param request : request
-	 * @return : BaseModel
-	 */
+	}/**
+         * gets Model from request scope
+         * @param request : request
+         * @return : BaseModel
+         */
 	public static BaseModel getModel(HttpServletRequest request) {
 		return (BaseModel) request.getAttribute("model");
 	}
@@ -239,7 +244,7 @@ public class ServletUtility {
 		}
 	}
 	
-	public static BaseBean getBean(String[] property ,HttpServletRequest request) {
+	public static BaseBean getBean(String[] property, HttpServletRequest request) {
 		 BaseBean bean=null;
 		if(property != null){
 			for (String value : property) {
@@ -317,4 +322,4 @@ public class ServletUtility {
 	public static int getPageSize(HttpServletRequest request) {
 		return (Integer) request.getAttribute("pageSize");
 	}
-
+}

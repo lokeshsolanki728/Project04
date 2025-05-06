@@ -199,88 +199,62 @@ public class CourseModel extends BaseModel {
         return bean;
     }
 
- public List search(CourseBean bean, int pageNo, int pageSize, String orderBy, String sortOrder) throws ApplicationException {
+    
+    
+    
+    public List search(CourseBean bean, int pageNo, int pageSize, String orderBy, String sortOrder) throws ApplicationException {
         log.debug("Model search Started");
         StringBuffer sql = new StringBuffer("SELECT * FROM ST_COURSE WHERE 1=1");
         ArrayList<CourseBean> list = new ArrayList<>();
-        int index = 1;
+        int index = 1;       
+
         orderBy = (orderBy == null || orderBy.trim().isEmpty()) ? "NAME" : orderBy;
         sortOrder = (sortOrder == null || sortOrder.trim().isEmpty()) ? "ASC" : sortOrder;
-
-
+        
         try (Connection conn = JDBCDataSource.getConnection()) {
            if (bean != null) {
                 if (bean.getId() > 0)
                     sql.append(" AND id = ?");
                 if (bean.getName() != null && !bean.getName().isEmpty()) {
                     sql.append(" AND NAME like ?");
-                   
                 }
             }
-           sql.append(" ORDER BY " + orderBy + " " + sortOrder);
+           sql.append(" ORDER BY ").append(orderBy).append(" ").append(sortOrder);
+
             if (pageSize > 0) {
                 pageNo = Math.max(1, pageNo);
                  pageNo = (pageNo - 1) * pageSize;
-                sql.append(" LIMIT " + pageNo + ", " + pageSize);
+                sql.append(" LIMIT ").append(pageNo).append(", ").append(pageSize);
             }
-             try (PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+            try (PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
                 if (bean != null) {
                     if (bean.getId() > 0) {
                         pstmt.setLong(index++, bean.getId());
-                    } if (bean.getName() != null && !bean.getName().isEmpty()) {
-                        pstmt.setString(index++, bean.getName() + "%");
+                    }
+                     if (bean.getName() != null && !bean.getName().isEmpty()) {
+                        pstmt.setString(index, bean.getName() + "%");
                     }
                 }
-                    
-                
-                 try (ResultSet rs = pstmt.executeQuery()) {
-                    while (rs.next()) {
-                       bean = populate(rs, new CourseBean());                    
-                        list.add(bean);
-                    }
-                }  
-             }
-            } catch (SQLException e) { log.error("Database Exception in search Course", e);
-            throw new ApplicationException("Exception: Exception in search Course");
+                try (ResultSet rs = pstmt.executeQuery()) {
+                   while (rs.next()) {
+                      list.add(populate(rs, new CourseBean()));                    
+                   }
+               }  
+            }
+
+        } catch (SQLException e) {
+             log.error("Database Exception in search Course", e);
+            throw new ApplicationException("Exception: Exception in search Course\n" + e.getMessage());
         }
         log.debug("Model search End");
-        return list;}
-    }
-
-  public List list(int pageNo, int pageSize, String orderBy, String sortOrder) throws ApplicationException {
-        log.debug("Model list Started");
-        ArrayList<CourseBean> list = new ArrayList<>();
-        StringBuffer sql = new StringBuffer("SELECT * FROM ST_COURSE");
-        orderBy = (orderBy == null || orderBy.trim().isEmpty()) ? "NAME" : orderBy;
-        sortOrder = (sortOrder == null || sortOrder.trim().isEmpty()) ? "ASC" : sortOrder;
-
-        sql.append(" ORDER BY " + orderBy + " " + sortOrder);
-
-        if (pageSize > 0) {
-            pageNo = Math.max(1, pageNo);
-            pageNo = (pageNo - 1) * pageSize;
-            sql.append(" LIMIT " + pageNo + "," + pageSize);
-        }
-        try (Connection conn = JDBCDataSource.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql.toString());
-                ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                   list.add(populate(rs, new CourseBean()));
-            
-                }
-            }
-        } catch (SQLException e) {
-             log.error("Database Exception in list Course", e);
-            throw new ApplicationException("Exception: Exception in list Course");
-        }
-        log.debug("Model list End");
         return list;
     }
 
-    @Override
-    public String getTableName() {
-        return "ST_COURSE";
+    
+    public List list() throws ApplicationException {
+        return search(null, 0, 0, null, null);
     }
+
     private CourseBean populate(ResultSet rs, CourseBean bean) throws SQLException {
         bean.setId(rs.getLong(1));
         bean.setName(rs.getString(2));
@@ -292,4 +266,11 @@ public class CourseModel extends BaseModel {
         bean.setModifiedDatetime(rs.getTimestamp(8));
         return bean;
     }
+    
+    
+     @Override
+    public String getTableName() {
+        return "ST_COURSE";
+    }
+
 }

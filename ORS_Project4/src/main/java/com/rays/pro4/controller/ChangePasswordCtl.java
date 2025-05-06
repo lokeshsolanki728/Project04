@@ -199,3 +199,4 @@ public class ChangePasswordCtl extends BaseCtl<UserBean>{
 	protected String getView() {
 		return ORSView.CHANGE_PASSWORD_VIEW;
 	}
+}
