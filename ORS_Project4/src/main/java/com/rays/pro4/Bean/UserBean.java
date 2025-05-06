@@ -121,7 +121,7 @@ public class UserBean extends BaseBean {
 		this.login = login;
 	}
     
-	 * get the dob
+	/** get the dob
 	 * @return dob
 	 */
 	public Date getDob() {
@@ -301,7 +301,7 @@ public class UserBean extends BaseBean {
         userDTO.setRegisterdIP(registerdIP);
         userDTO.setLastLoginIP(lastLoginIP);
          userDTO.setCreatedBy(createdBy);
-        userDTO.setModifiedBy(modifiedBy);
+       userDTO.setModifiedBy(modifiedBy);
         userDTO.setCreatedDatetime(createdDatetime);
         userDTO.setModifiedDatetime(modifiedDatetime);
         return userDTO;
