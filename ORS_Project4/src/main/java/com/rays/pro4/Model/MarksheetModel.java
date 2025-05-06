@@ -251,12 +251,13 @@ public class MarksheetModel extends BaseModel {
             pageNo = (pageNo - 1) * pageSize;
             sql.append(" LIMIT ?, ?");
         }
-        try  {
+        try  {            
              conn = JDBCDataSource.getConnection();
              try (PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
                  
                 if (dto.getRollNo() != null && !dto.getRollNo().isEmpty()) {
                     pstmt.setString(paramCount++, dto.getRollNo() + "%");
+                    
                 }
                  if (dto.getName() != null && !dto.getName().isEmpty()) {
                      pstmt.setString(paramCount++, dto.getName() + "%");
@@ -285,14 +286,15 @@ public class MarksheetModel extends BaseModel {
                     list.add(resultDTO);
                 }
             }           
-        } catch (SQLException e) {
+        }
+         }catch (SQLException e) {
             log.error("Database Exception in search Marksheet", e);
             throw new ApplicationException("Exception: Exception in searching marksheet - " + e.getMessage());
         }
         finally{
                 JDBCDataSource.closeConnection(conn);
 
-        } 
+        }
         log.debug("Model search End");
         return list;
     }
