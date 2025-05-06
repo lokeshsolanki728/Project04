@@ -102,19 +102,23 @@ public class SubjectModel extends BaseModel {
             pstmt.setString(6, dto.getModifiedBy());
             
            
-            pstmt.setLong(9, dto.getId());
-            pstmt.executeUpdate();
-	    
-	}
-	private void update(SubjectDTO dto, PreparedStatement pstmt) throws ApplicationException, DuplicateRecordException, SQLException {
+                pstmt.setTimestamp(7, dto.getCreatedDatetime());
+            pstmt.setTimestamp(8, dto.getModifiedDatetime());
+                 pstmt.setLong(9, dto.getId());
+                 pstmt.executeUpdate();
 			conn.commit();
 		} catch (Exception e) {
 			JDBCDataSource.trnRollback(conn);
 			throw new ApplicationException(
 					"Exception :Exception in update subject " + e.getMessage());
-		} finally {
-			if(conn!=null)
-			JDBCDataSource.closeConnection(conn);
+		}finally{
+            if(conn!=null) {
+                JDBCDataSource.closeConnection(conn);
+            }
+        }
+    }
+	
+  
     public long add(SubjectDTO dto) throws ApplicationException, DuplicateRecordException {
         log.debug("Model add Started");
         Connection conn = null;

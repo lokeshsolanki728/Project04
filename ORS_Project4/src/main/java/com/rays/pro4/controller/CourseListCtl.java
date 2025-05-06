@@ -214,14 +214,6 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 		
 		log.debug("do Post method of CourseListCtl End");
 	}	
-	/**
-	 * Contains Submit logics.
-	 *
-	 * @param request the request
-	 * @param response the response
-	 * @throws ServletException the servlet exception
-	 * @throws IOException      Signals that an I/O exception has occurred.
-	 */
 	@Override
 		
 	/** set the data in the list.
