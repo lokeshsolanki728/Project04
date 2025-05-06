@@ -17,6 +17,7 @@ import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Exception.DatabaseException;
 import com.rays.pro4.Model.UserModel;
+import com.rays.pro4.validator.UserValidator;
 import com.rays.pro4.Util.DataValidator;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.PropertyReader;
@@ -29,7 +30,7 @@ import com.rays.pro4.Util.PropertyReader;
  * @author Lokesh SOlanki
  */
 @WebServlet(name = "UserRegistrationCtl", urlPatterns = { "/UserRegistrationCtl" })
-public class UserRegistrationCtl extends BaseCtl {
+public class UserRegistrationCtl extends BaseCtl<UserBean> {
 
 	/** The Constant OP_SIGN_UP. */
 	public static final String OP_SIGN_UP = "SignUp";
@@ -126,18 +127,24 @@ public class UserRegistrationCtl extends BaseCtl {
 	 * @see in.co.rays.ors.controller.BaseCtl#populateBean(javax.servlet.http.
 	 * HttpServletRequest)
 	 */
-    protected void populateBean(HttpServletRequest request, UserBean bean) {
+    @Override
+    protected UserBean populateBean(HttpServletRequest request) {
 		log.debug("UserRegistrationCtl Method populatebean Started");
+        UserBean bean = new UserBean();
+        
         bean.setFirstName(DataUtility.getString(request.getParameter("firstName")));
         bean.setLastName(DataUtility.getString(request.getParameter("lastName")));
         bean.setLogin(DataUtility.getString(request.getParameter("login")));
         bean.setDob(DataUtility.getDate(request.getParameter("dob")));
         bean.setMobileNo(DataUtility.getString(request.getParameter("mobileNo")));
         bean.setPassword(DataUtility.getString(request.getParameter("password")));
-        bean.setGender(DataUtility.getString(request.getParameter("gender")));
+        bean.setGender(DataUtility.getString(request.getParameter("gender")));        
 		log.debug("UserRegistrationCtl Method populatebean Ended");
+        return bean;
 	}
-	
+
+
+
 	/**
 	 * Contains Display logics.
 	 *
@@ -169,8 +176,8 @@ public class UserRegistrationCtl extends BaseCtl {
 
 		final String op = DataUtility.getString(request.getParameter("operation"));
         
-        final UserBean bean = new UserBean();
-        populateBean(request,bean);
+        final UserBean bean = populateBean(request);
+        
 		if (OP_SIGN_UP.equalsIgnoreCase(op)) {
             if(validate(request)){
                 try {

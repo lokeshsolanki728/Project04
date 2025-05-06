@@ -21,6 +21,7 @@ import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;
+import com.rays.pro4.validator.UserValidator;
 
 /**
  * The Class UserListCtl.

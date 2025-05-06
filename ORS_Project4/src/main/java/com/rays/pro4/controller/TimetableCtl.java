@@ -19,11 +19,11 @@ import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Model.TimeTableModel;
 import com.rays.pro4.Model.SubjectModel;
+
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.PropertyReader;
-import com.rays.pro4.Util.TimeTableValidator;
-import com.rays.pro4.Util.ServletUtility;
+import com.rays.pro4.Util.ServletUtility;import com.rays.pro4.validator.TimeTableValidator;
 import com.rays.pro4.Model.CourseModel;
 
 //TODO: Auto-generated Javadoc
@@ -32,6 +32,7 @@ import com.rays.pro4.Model.CourseModel;
 * The Class TimeTableCtl.
 **  @author Lokesh SOlanki
 */
+import com.rays.pro4.validator.TimeTableValidator;
 @WebServlet(name = "TimeTableCtl", urlPatterns = {"/ctl/TimeTableCtl"})
 public class TimetableCtl extends BaseCtl{
 
@@ -80,7 +81,7 @@ public class TimetableCtl extends BaseCtl{
 	protected boolean validate(HttpServletRequest request) {
 	    log.debug("validate method of TimeTable Ctl started");
 	    boolean pass = TimeTableValidator.validate(request);
-	    if(!pass){
+	   if(!pass){
 	        log.debug("TimetableCtl Method validate Ended with error");
 	    }
 	    return pass;

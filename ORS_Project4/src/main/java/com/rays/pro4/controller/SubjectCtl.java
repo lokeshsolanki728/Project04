@@ -22,6 +22,7 @@ import com.rays.pro4.Model.SubjectModel;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.ServletUtility;
+import com.rays.pro4.validator.SubjectValidator;
 
 /**
 *  Subject functionality Controller. Performs operation for add, update, delete

@@ -16,6 +16,8 @@ import com.rays.pro4.Bean.SubjectBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Bean.CollegeBean;
 import com.rays.pro4.Bean.FacultyBean;
+import com.rays.pro4.Model.CollegeModel;
+import com.rays.pro4.Model.CourseModel;
 import com.rays.pro4.DTO.CollegeDTO;
 import com.rays.pro4.Model.FacultyModel;
 import com.rays.pro4.Model.SubjectModel;
@@ -23,7 +25,7 @@ import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;
-import com.rays.pro4.Util.FacultyValidator;
+import com.rays.pro4.validator.FacultyValidator;
 import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Util.ORSView;
 
@@ -49,8 +51,8 @@ public class FacultyCtl extends BaseCtl<FacultyBean>{
      */	
 	@Override
 	protected void preload(final HttpServletRequest request) {
-		final com.rays.pro4.Model.CourseModel courseModel = new com.rays.pro4.Model.CourseModel();		
-		final com.rays.pro4.Model.CollegeModel comodel = new com.rays.pro4.Model.CollegeModel();
+		final CourseModel courseModel = new CourseModel();		
+		final CollegeModel comodel = new CollegeModel();
 	    final SubjectModel smodel = new SubjectModel();
 
  
@@ -58,7 +60,7 @@ public class FacultyCtl extends BaseCtl<FacultyBean>{
 		try {
 			List<CourseBean> clist = courseModel.list();
 			request.setAttribute("CourseList", clist);
-			List colist = comodel.list();
+			List<CollegeBean> colist = comodel.list();
 			request.setAttribute("CollegeList", colist);
 			List<SubjectBean> slist = smodel.list();
 			request.setAttribute("SubjectList", slist);

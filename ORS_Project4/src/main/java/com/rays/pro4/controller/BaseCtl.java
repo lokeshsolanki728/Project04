@@ -1,6 +1,7 @@
 package com.rays.pro4.controller;
 
 import com.rays.pro4.Bean.BaseBean;
+import com.rays.pro4.DTO.BaseDTO;
 import com.rays.pro4.Bean.RoleBean;
 import com.rays.pro4.Model.BaseModel;
 import com.rays.pro4.Model.RoleModel;
@@ -135,17 +136,17 @@ public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
 	protected abstract T populateBean(HttpServletRequest request);
     protected void populateBean(HttpServletRequest request, T bean) {
 
-        BaseModel dto=(BaseModel) bean.getDTO();
+        BaseDTO dto = bean.getDto();
 
 
 		long id = DataUtility.getLong(request.getParameter("id"));
 		
 		String createdBy = request.getParameter("createdby");
 		String modifiedBy = request.getParameter("modifiedby");
-        long cdt = DataUtility.getLong(request.getParameter("createdDatetime"));
-        if (DataValidator.isNotNull(createdBy)){
+        long cdt = DataUtility.getLong(request.getParameter("createdDateTime"));
+        if (!DataValidator.isNull(createdBy)){
             dto.setCreatedBy(createdBy);
-        } if (DataValidator.isNotNull(modifiedBy)){
+        } if (!DataValidator.isNull(modifiedBy)){
             dto.setModifiedBy(modifiedBy);
         }
         if (id > 0) {
@@ -156,7 +157,7 @@ public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
         } else {
 			dto.setCreatedDatetime(DataUtility.getCurrentTimestamp());           
         }        
-        dto.setModifiedDatetime(DataUtility.getCurrentTimestamp());
+        dto.setModifiedDateTime(DataUtility.getCurrentTimestamp());
 	}	
 	@Override
 	protected void service(HttpServletRequest request, HttpServletResponse response)
@@ -166,7 +167,7 @@ public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
 		preload(request);
 		String op = DataUtility.getString(request.getParameter("operation"));
 		T bean = populateBean(request);
-		if (DataValidator.isNotNull(op) && !OP_CANCEL.equalsIgnoreCase(op)
+		if (!DataValidator.isNull(op) && !OP_CANCEL.equalsIgnoreCase(op)
 				&& !OP_VIEW.equalsIgnoreCase(op) && !OP_DELETE.equalsIgnoreCase(op)
 				&& !OP_RESET.equalsIgnoreCase(op)) {
 			if (!validate(request)) {
@@ -192,3 +193,4 @@ public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
 	protected abstract String getView();
 		
 }
+

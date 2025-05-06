@@ -13,11 +13,11 @@ import com.rays.pro4.Exception.ApplicationException;
 import org.apache.log4j.Logger;
 
 import com.rays.pro4.Model.CourseModel;
+import com.rays.pro4.Util.DataValidator;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.MessageConstant;
-import com.rays.pro4.validator.CourseListValidator;
+import com.rays.pro4.validator.CourseListValidator;;
 import com.rays.pro4.Util.PropertyReader;;
-import com.rays.pro4.controller.BaseCtl;
 import com.rays.pro4.Util.ServletUtility;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
@@ -115,10 +115,7 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 	 */
 	@Override
 	protected final boolean validate(HttpServletRequest request) {
-		
-		
-		
-		log.debug("validate Method Started");
+		log.debug("validate Method Started");		
 		final boolean pass = CourseListValidator.validate(request);
 		if(!pass)
 			log.debug("validate Method End with error");

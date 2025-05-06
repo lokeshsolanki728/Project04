@@ -1,3 +1,5 @@
+import javax.servlet.http.HttpServletRequest;
+
 public class MarksheetValidator {
 
     public static boolean validate(final HttpServletRequest request) {

@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import com.rays.pro4.DTO.TimeTableDTO;
+import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Bean.CourseBean;
 import com.rays.pro4.Bean.SubjectBean;
 import com.rays.pro4.Bean.TimeTableBean;
@@ -15,7 +16,7 @@ import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.JDBCDataSource;
 import java.util.Date;
-/**
+import java.util.Date;/**
  * The Class TimeTableModel.
  * 
  * @author Lokesh SOlanki

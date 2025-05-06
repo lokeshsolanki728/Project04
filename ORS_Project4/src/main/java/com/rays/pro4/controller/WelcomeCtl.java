@@ -1,7 +1,7 @@
 package com.rays.pro4.controller;
 
-import java.io.IOException;;
-
+import java.io.IOException;
+;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 import com.rays.pro4.Util.ORSView;
-
+import com.rays.pro4.controller.BaseCtl;
 import com.rays.pro4.Util.ServletUtility;
 
 /**
@@ -18,7 +18,6 @@ import com.rays.pro4.Util.ServletUtility;
  * 
  * @author Lokesh SOlanki
  */
-
 
 @WebServlet(name = "WelcomeCtl", urlPatterns = { "/WelcomeCtl" })
 public class WelcomeCtl extends BaseCtl {
@@ -38,9 +37,9 @@ public class WelcomeCtl extends BaseCtl {
 	 * @throws ServletException
 	 * @throws IOException
 	 */
-	@Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
         log.debug("WelcomeCtl Method doGet Started");
 
         ServletUtility.forward(getView(), request, response);
@@ -56,10 +55,9 @@ public class WelcomeCtl extends BaseCtl {
 	 * @throws ServletException
 	 * @throws IOException
 	 */
-	@Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        
         log.debug("WelcomeCtl Method doPost Started");
         ServletUtility.forward(getView(), request, response);
         log.debug("WelcomeCtl Method doPost Ended");
