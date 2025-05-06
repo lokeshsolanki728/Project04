@@ -181,16 +181,15 @@ public class UserRegistrationCtl extends BaseCtl {
                 }catch (final ApplicationException | DatabaseException e) {
                     log.error(e);
                     handleDatabaseException(e, request, response);
-                    return;
                 }           
             }
             ServletUtility.forward(getView(), request, response);
         } else if (OP_RESET.equalsIgnoreCase(op)) {
             ServletUtility.redirect(ORSView.USER_REGISTRATION_CTL, request, response);
+        }
     }
 	
-	
-	private void save(UserBean bean, HttpServletRequest request)
+	private void save(UserBean bean, HttpServletRequest request) 
             throws DuplicateRecordException, ApplicationException {
         log.debug("save method start");
         long pk = model.registerUser(bean);

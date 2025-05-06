@@ -122,8 +122,7 @@ public class CollegeCtl extends BaseCtl {
                 ServletUtility.setErrorMessage(PropertyReader.getValue("error.college.exist"), request);
             }            
             ServletUtility.forward(getView(), request, response);     
-    }
-        }
+        }    
         log.debug("CollegeCtl Method doPost Ended");
     }
 

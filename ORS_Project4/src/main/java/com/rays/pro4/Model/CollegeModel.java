@@ -177,14 +177,10 @@ public void delete(CollegeDTO dto) throws ApplicationException {
         	log.error("Database Exception", e);
               conn.rollback();
             throw new ApplicationException("Exception: Error updating college - " + e.getMessage());
-        }  finally {
-            try {
-                
-            } finally {
-                conn.setAutoCommit(true);
-            }
+        } finally {
+            conn.setAutoCommit(true);
+        }
         log.debug("Model update End");
-    }
     
     public List search(CollegeBean bean) throws ApplicationException {
         return search(bean, 0, 0, null, null);

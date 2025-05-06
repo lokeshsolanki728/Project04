@@ -34,9 +34,9 @@ public class UserModel extends BaseModel {
         Connection conn = null;
         int pk = 0;
         try {
-           conn = JDBCDataSource.getConnection();
+            conn = JDBCDataSource.getConnection();
             try (PreparedStatement pstmt = conn.prepareStatement("SELECT MAX(ID) FROM ST_USER");
-                 ResultSet rs = pstmt.executeQuery()) {
+                    ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     pk = rs.getInt(1);
                 }
@@ -44,8 +44,8 @@ public class UserModel extends BaseModel {
                 log.error("Database Exception in : nextPK", e);
                 throw new DatabaseException("Exception : Exception in getting PK");
             }
-        
-         
+
+
         } catch (SQLException e) {
             log.error("Database Exception in : nextPK", e);
             throw new DatabaseException("Exception : Exception in getting PK");
@@ -55,7 +55,7 @@ public class UserModel extends BaseModel {
             }
            
         }
-        log.debug("Model nextPK End");
+        log.debug("Model nextPK End"); 
         return pk + 1;
     }
 
@@ -124,22 +124,20 @@ public class UserModel extends BaseModel {
              }
            conn = JDBCDataSource.getConnection();
             conn.setAutoCommit(false); // Begin transaction
-           try( PreparedStatement pstmt = conn.prepareStatement("DELETE FROM ST_USER WHERE ID = ?")){
+           try(PreparedStatement pstmt = conn.prepareStatement("DELETE FROM ST_USER WHERE ID = ?")){
                 pstmt.setLong(1, id);
                 pstmt.executeUpdate();
                  conn.commit(); // End transaction
-
-
-        } catch (Exception e) {
+            }
+         } catch (SQLException e) {
             log.error("Database Exception in : delete", e);
-            JDBCDataSource.trnRollback(conn);
+             if(conn !=null){
+              JDBCDataSource.trnRollback(conn);
+              }
+            
             throw new ApplicationException("Exception : Exception in delete User");
-        } finally {
-          if(conn!=null){
-            JDBCDataSource.closeConnection(conn);
-          }
-        } catch(SQLException e){
-          log.error("Database Exception in : delete", e);
+        }catch(Exception e){
+             log.error("Database Exception in : delete", e);
             JDBCDataSource.trnRollback(conn);
             throw new ApplicationException("Exception : Exception in delete User");
           

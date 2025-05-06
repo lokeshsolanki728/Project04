@@ -3,13 +3,12 @@ package com.rays.pro4.Model;
 import java.sql.Connection;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.ArrayList;
 
 import java.util.List;
 
-
-import com.rays.pro4.Bean.CourseBean;
+import com.rays.pro4.DTO.CourseDTO;
 import com.rays.pro4.Exception.DatabaseException;
 import java.sql.SQLException;
 import com.rays.pro4.Exception.ApplicationException;
@@ -37,7 +36,8 @@ public class CourseModel extends BaseModel {
         log.debug("Model add started");
         try {
             conn = JDBCDataSource.getConnection();
-            CourseDTO duplicateCourse = findByName(dto.getName());
+            CourseBean duplicateCourse = findByName(bean.getName());
+
             if (duplicateCourse != null) throw new DuplicateRecordException("Course already exist");
             pk = nextPK();           
              bean.setId(pk);
@@ -50,8 +50,8 @@ public class CourseModel extends BaseModel {
                 pstmt.setString(4, bean.getDuration());
                 pstmt.setString(5, bean.getCreatedBy());
                 pstmt.setString(6, bean.getModifiedBy());
-                pstmt.setTimestamp(7, dto.getCreatedDatetime());
-                pstmt.setTimestamp(8, dto.getModifiedDatetime());
+                pstmt.setTimestamp(7, bean.getCreatedDatetime());
+                pstmt.setTimestamp(8, bean.getModifiedDatetime());
                 pstmt.executeUpdate();               
                 conn.commit(); 
                
@@ -109,12 +109,12 @@ public class CourseModel extends BaseModel {
                  try (ResultSet rs = pstmt.executeQuery()) {
                     while (rs.next()) {
                         bean = new CourseBean();
-                       bean.setId(rs.getLong(1));
-                        dto.setName(rs.getString(2));
-                        dto.setDescription(rs.getString(3));
-                        dto.setDuration(rs.getString(4));
-                        dto.setCreatedBy(rs.getString(5));
-                        dto.setModifiedBy(rs.getString(6));
+                        bean.setId(rs.getLong(1));
+                        bean.setName(rs.getString(2));
+                        bean.setDescription(rs.getString(3));
+                        bean.setDuration(rs.getString(4));
+                        bean.setCreatedBy(rs.getString(5));
+                        bean.setModifiedBy(rs.getString(6));
                         dto.setCreatedDatetime(rs.getTimestamp(7));
                         dto.setModifiedDatetime(rs.getTimestamp(8));
                     }
@@ -152,9 +152,9 @@ public class CourseModel extends BaseModel {
                     pstmt.setString(1, bean.getName());
                     pstmt.setString(2, bean.getDescription());
                     pstmt.setString(3, bean.getDuration());
-                    pstmt.setString(4, dto.getModifiedBy());
-                    pstmt.setTimestamp(5, dto.getModifiedDatetime());
-                    pstmt.setLong(6, dto.getId());
+                    pstmt.setString(4, bean.getModifiedBy());
+                    pstmt.setTimestamp(5, bean.getModifiedDatetime());
+                    pstmt.setLong(6, bean.getId());
                     pstmt.executeUpdate();
                     conn.commit();
             }
@@ -162,12 +162,10 @@ public class CourseModel extends BaseModel {
            conn.rollback();
         } catch (SQLException e) {
             log.error("Database Exception in update Course", e);
-            if(conn!=null)
-                 conn.rollback();               
-            
+            conn.rollback();
             throw new ApplicationException("Exception in updating Course");
-        } finally {
-            }
+        }
+
     }
 
     /**
@@ -181,16 +179,16 @@ public class CourseModel extends BaseModel {
         log.debug("Model findByPK Started");
         StringBuffer sql = new StringBuffer("SELECT * FROM ST_COURSE WHERE ID=?");
         CourseBean bean = null;
+
         try (Connection conn = JDBCDataSource.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
             pstmt.setLong(1, pk);
             try (ResultSet resultSet = pstmt.executeQuery()) {
                 if (resultSet.next()) {
-                  dto=  populate(resultSet,dto);
-                  
+                   bean = populate(resultSet, new CourseBean());
                 }
-            } 
-        } catch (SQLException e) {
+            }
+         } catch (SQLException e) {
             throw new ApplicationException("Exception: Exception in getting Course by pk");
         } finally {
             
@@ -198,7 +196,7 @@ public class CourseModel extends BaseModel {
        
     }
     }
-
+return bean;
     /**
      * Searches courses with pagination.
      *
@@ -211,7 +209,7 @@ public class CourseModel extends BaseModel {
  public List search(CourseBean bean, int pageNo, int pageSize, String orderBy, String sortOrder) throws ApplicationException {
         log.debug("Model search Started");
         StringBuffer sql = new StringBuffer("SELECT * FROM ST_COURSE WHERE 1=1");
-        ArrayList<CourseDTO> list = new ArrayList<>();
+        ArrayList<CourseBean> list = new ArrayList<>();
         int index = 1;
         orderBy = (orderBy == null || orderBy.trim().isEmpty()) ? "NAME" : orderBy;
         sortOrder = (sortOrder == null || sortOrder.trim().isEmpty()) ? "ASC" : sortOrder;
@@ -219,32 +217,32 @@ public class CourseModel extends BaseModel {
 
 
         try (Connection conn = JDBCDataSource.getConnection()) {
-           if (dto != null) {
-                if (dto.getId() > 0)
+           if (bean != null) {
+                if (bean.getId() > 0)
                     sql.append(" AND id = ?");
-                if (dto.getName() != null && !dto.getName().isEmpty()) {
+                if (bean.getName() != null && !bean.getName().isEmpty()) {
                     sql.append(" AND NAME like ?");
                 }
             }
            sql.append(" ORDER BY " + orderBy + " " + sortOrder);
             if (pageSize > 0) {
-                pageNo = (pageNo - 1) * pageSize;
+                pageNo = Math.max(1, pageNo);
+                 pageNo = (pageNo - 1) * pageSize;
                 sql.append(" LIMIT " + pageNo + ", " + pageSize);
             }
              try (PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
-                if (dto != null) {
-                    if (dto.getId() > 0) {
-                        pstmt.setLong(index++, dto.getId());
-                    }
-                    if (dto.getName() != null && !dto.getName().isEmpty()) {
-                        pstmt.setString(index++, dto.getName() + "%");
+                if (bean != null) {
+                    if (bean.getId() > 0) {
+                        pstmt.setLong(index++, bean.getId());
+                    } if (bean.getName() != null && !bean.getName().isEmpty()) {
+                        pstmt.setString(index++, bean.getName() + "%");
                     }
                 }
                     
                 
                  try (ResultSet rs = pstmt.executeQuery()) {
                     while (rs.next()) {
-                         CourseDTO dto = populate(rs, new CourseDTO());
+                       CourseBean bean = populate(rs, new CourseBean());
                       
                         list.add(dto);
                     }
@@ -259,7 +257,7 @@ public class CourseModel extends BaseModel {
 
   public List list(int pageNo, int pageSize, String orderBy, String sortOrder) throws ApplicationException {
         log.debug("Model list Started");
-        ArrayList<CourseDTO> list = new ArrayList<>();
+        ArrayList<CourseBean> list = new ArrayList<>();
         StringBuffer sql = new StringBuffer("SELECT * FROM ST_COURSE");
         orderBy = (orderBy == null || orderBy.trim().isEmpty()) ? "NAME" : orderBy;
         sortOrder = (sortOrder == null || sortOrder.trim().isEmpty()) ? "ASC" : sortOrder;
@@ -267,15 +265,15 @@ public class CourseModel extends BaseModel {
         sql.append(" ORDER BY " + orderBy + " " + sortOrder);
 
         if (pageSize > 0) {
-                pageNo = (pageNo - 1) * pageSize;
-                sql.append(" LIMIT " + pageNo + "," + pageSize);
-            }
+            pageNo = Math.max(1, pageNo);
+            pageNo = (pageNo - 1) * pageSize;
+            sql.append(" LIMIT " + pageNo + "," + pageSize);
+        }
         try (Connection conn = JDBCDataSource.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql.toString());
                 ResultSet rs = pstmt.executeQuery();) {
                 while (rs.next()) {
-                     CourseDTO dto = populate(rs, new CourseDTO());
-                    list.add(dto);
+                   list.add(populate(rs, new CourseBean()));
                 }
             
                 
@@ -291,15 +289,15 @@ public class CourseModel extends BaseModel {
     public String getTableName() {
         return "ST_COURSE";
     }
-    private CourseDTO populate(ResultSet rs, CourseDTO dto) throws SQLException {
-        dto.setId(rs.getLong(1));
-        dto.setName(rs.getString(2));
-        dto.setDescription(rs.getString(3));
-        dto.setDuration(rs.getString(4));
-        dto.setCreatedBy(rs.getString(5));
-        dto.setModifiedBy(rs.getString(6));
-        dto.setCreatedDatetime(rs.getTimestamp(7));
-        dto.setModifiedDatetime(rs.getTimestamp(8));
-        return dto;
+    private CourseBean populate(ResultSet rs, CourseBean bean) throws SQLException {
+        bean.setId(rs.getLong(1));
+        bean.setName(rs.getString(2));
+        bean.setDescription(rs.getString(3));
+        bean.setDuration(rs.getString(4));
+        bean.setCreatedBy(rs.getString(5));
+        bean.setModifiedBy(rs.getString(6));
+        bean.setCreatedDatetime(rs.getTimestamp(7));
+        bean.setModifiedDatetime(rs.getTimestamp(8));
+        return bean;
     }
         }

@@ -72,8 +72,6 @@ public class RoleModel extends BaseModel {
             BaseModel.log.error("Database Exception in add", e);
             JDBCDataSource.trnRollback(conn);
             throw new ApplicationException("Exception: Exception in add Role - " + e.getMessage());
-        }finally {
-            JDBCDataSource.closeConnection(conn);
         }
         return pk;
     }
@@ -93,8 +91,6 @@ public class RoleModel extends BaseModel {
             BaseModel.log.error("Database Exception in delete", e);
             JDBCDataSource.trnRollback(conn);
            throw new ApplicationException("Exception : Exception in delete Role - " + e.getMessage());
-        }finally {
-            JDBCDataSource.closeConnection(conn);
         }
     }
 
@@ -109,7 +105,6 @@ public class RoleModel extends BaseModel {
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     populateBean(rs, dto);
-                }
              }
         } catch (SQLException e) {
             BaseModel.log.error("Database Exception in findByName", e);
@@ -117,12 +112,11 @@ public class RoleModel extends BaseModel {
         }
         return dto;
     
-
-/*
-     * @param pk
-     * @return RoleBean
-     * @throws ApplicationException
-*/
+    /*
+         * @param pk
+         * @return RoleBean
+         * @throws ApplicationException
+    */
      */
     public RoleDTO findByPK(long pk) throws ApplicationException {
         BaseModel.log.debug("Model findByPK Started");
@@ -178,8 +172,6 @@ public class RoleModel extends BaseModel {
             BaseModel.log.error("Database Exception in update", e);
             JDBCDataSource.trnRollback();
             throw new ApplicationException("Exception in updating Role - " + e.getMessage());
-        }finally {
-            JDBCDataSource.closeConnection(conn);
         }
     }
     /**

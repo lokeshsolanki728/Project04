@@ -157,12 +157,9 @@ public class LoginCtl extends BaseCtl<UserBean> {
      */
     private void signUp(UserBean bean, HttpServletRequest request)
             throws ApplicationException {
-    	log.debug("save method start");
-    	try{
+        log.debug("save method start");
             ServletUtility.redirect(ORSView.USER_REGISTRATION_CTL, request, response);
-        }catch (Exception e){
 
-        }
         log.debug("save method end");
     }
 	
@@ -180,8 +177,7 @@ public class LoginCtl extends BaseCtl<UserBean> {
 	
 	
 	
-	}
-	@Override 
+	@Override
 	protected final void doPost(final HttpServletRequest request, final HttpServletResponse response) 
 			throws ServletException, IOException {
  
@@ -211,6 +207,7 @@ public class LoginCtl extends BaseCtl<UserBean> {
 		ServletUtility.forward(getView(), request, response);
 		log.debug("LoginCtl Method doPost Ended");
 	}
+
 	/**
 	 * Returns the VIEW page of this Controller
 	 * 
