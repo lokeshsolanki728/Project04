@@ -18,7 +18,8 @@ import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;
-import com.rays.pro4.Util.CollegeListValidator;
+import com.rays.pro4.validator.CollegeListValidator;
+import com.rays.pro4.controller.ORSView;
 import java.io.IOException;
 
 /**
@@ -192,21 +193,25 @@ public class CollegeListCtl extends BaseCtl<CollegeBean> {
 		            if (OP_SEARCH.equalsIgnoreCase(op)) {
 		                pageNo = 1;
 		                if (DataUtility.getString(bean.getName()).length() == 0 && DataUtility.getString(bean.getCity()).length() == 0 && DataUtility.getString(bean.getState()).length() == 0) {
+		                    bean.setName(null);
+		                    bean.setCity(null);
+		                    bean.setState(null);
 		                    list = model.list(1, pageSize,orderBy,sortOrder);
 		                } else {
 		                    list = model.search(bean, pageNo, pageSize,orderBy,sortOrder);
 		                }
 		            } else if (OP_NEXT.equalsIgnoreCase(op)) {
 		                pageNo++;
-						list = model.search(bean, pageNo, pageSize,orderBy,sortOrder);
+					    list = model.search(bean, pageNo, pageSize,orderBy,sortOrder);
 		            } else if (OP_PREVIOUS.equalsIgnoreCase(op)) {
 		                pageNo--;
-						list = model.search(bean, pageNo, pageSize,orderBy,sortOrder);
+					    list = model.search(bean, pageNo, pageSize,orderBy,sortOrder);
 		            } else if (OP_NEW.equalsIgnoreCase(op)) {
 		                ServletUtility.redirect(ORSView.COLLEGE_CTL, request, response);
 		                return;
 		            } else if (OP_DELETE.equalsIgnoreCase(op)) {
 		                pageNo = 1;
+		                if(ids == null || ids.length == 0) ServletUtility.setErrorMessage("Select at least one record", request);
 		                
 		                    delete(ids, request, response);
 		                } else {
@@ -214,7 +219,7 @@ public class CollegeListCtl extends BaseCtl<CollegeBean> {
 		                }
 		            }
 		            showList(bean, request, response, pageNo, pageSize,orderBy,sortOrder);
-		        } catch (ApplicationException e) {
+		        } catch (Exception e) {
 		            log.error(e);
 		            handleDatabaseException(e, request, response);
 		            return;
@@ -233,14 +238,14 @@ public class CollegeListCtl extends BaseCtl<CollegeBean> {
 	 * @throws ServletException
 	 * @throws IOException
 	 */
-	private final void showList(final CollegeBean bean, final HttpServletRequest request, final HttpServletResponse response, final int pageNo, final int pageSize,String orderBy, String sortOrder) throws ServletException, IOException {
+	private final void showList(final CollegeBean bean, final HttpServletRequest request, final HttpServletResponse response, final int pageNo, final int pageSize, String orderBy, String sortOrder) throws ServletException, IOException {
 		log.debug("showList Method Start");
 		List<CollegeBean> list = new ArrayList<CollegeBean>();
 		try {
-			list = searchCollege(bean, pageNo, pageSize,orderBy,sortOrder);
-			final List<CollegeBean> nextList = searchCollege(bean, pageNo + 1, pageSize,orderBy,sortOrder);
-			request.setAttribute("nextlist", nextList.size());			
-			if(list.size() > 0){
+			list = searchCollege(bean, pageNo, pageSize, orderBy, sortOrder);
+			final List<CollegeBean> nextList = searchCollege(bean, pageNo + 1, pageSize, orderBy, sortOrder);
+			request.setAttribute("nextlist", nextList.size());
+			if (list.size() > 0) {
 				request.setAttribute("operation", "Manage College");
 			}else{
 				request.setAttribute("operation", "No record found.");
@@ -248,14 +253,14 @@ public class CollegeListCtl extends BaseCtl<CollegeBean> {
 			if (list == null || list.isEmpty()) {
 				ServletUtility.setErrorMessage(PropertyReader.getValue("error.record.notfound"), request);
 				
-			}
+			}		
 			
 		} catch (final ApplicationException e) {
 			log.error("error getting the list of college",e);
 			handleDatabaseException(e,request,response);
 			return;
 		}
-		setListAndPagination(list, request, pageNo, pageSize,response,orderBy,sortOrder);
+		setListAndPagination(list, request, pageNo, pageSize, response, orderBy, sortOrder);
 	}	private final void setListAndPagination(final List<?> list, final HttpServletRequest request, final int pageNo,final int pageSize, HttpServletResponse response,String orderBy, String sortOrder) {
 		log.debug("setListAndPagination method start");
 		request.setAttribute("orderBy", orderBy);

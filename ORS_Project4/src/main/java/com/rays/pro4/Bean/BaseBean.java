@@ -9,6 +9,11 @@ import java.sql.Timestamp;
 
 
 /**
+ *  This is the base bean class for all beans in the application.
+ * It provides common attributes and methods that are shared across different beans.
+ * All beans must inherit from this class.
+ */
+/**
  *
  * Parent class of all Beans in application. It contains generic attributes. *
  * @author Lokesh SOlanki *

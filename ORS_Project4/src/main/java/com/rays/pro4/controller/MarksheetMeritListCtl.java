@@ -1,6 +1,5 @@
 package com.rays.pro4.controller;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,11 +14,13 @@ import com.rays.pro4.Bean.MarksheetBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Model.MarksheetModel;
 import com.rays.pro4.Util.DataUtility;
+import java.io.IOException;
+import com.rays.pro4.controller.ORSView;
+import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;
 
-//TODO: Auto-generated Javadoc
 /**
  * Marksheet Merit List functionality Controller. Performance operation of
  * Marksheet Merit List
@@ -51,7 +52,7 @@ public class MarksheetMeritListCtl extends BaseCtl {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		log.debug("MarksheetMeritListCtl doGet method Start");
+		log.debug("MarksheetMeritListCtl doGet method Start"); 
 
 		final int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));		
 		final List<MarksheetBean> list;

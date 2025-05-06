@@ -1,5 +1,6 @@
 package com.rays.pro4.controller;
 
+import com.rays.pro4.controller.ORSView;
 
 import java.util.List;
 
@@ -14,12 +15,13 @@ import org.apache.log4j.Logger;
 import com.rays.pro4.Model.CourseModel;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.MessageConstant;
-import com.rays.pro4.util.CourseListValidator;
+import com.rays.pro4.validator.CourseListValidator;
 import com.rays.pro4.Util.PropertyReader;;
 import com.rays.pro4.controller.BaseCtl;
 import com.rays.pro4.Util.ServletUtility;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
+
 /**
  * The Class CourseListCtl.
  *
@@ -33,9 +35,9 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 	/** The log. */
 	public static final Logger log = Logger.getLogger(CourseListCtl.class);
 	private final CourseModel model = new CourseModel();
-	
+
+	/**
 	 * Populates bean object from request parameters
-	 *
 	 * @param request the request
 	 * @return the course bean
 	 */
@@ -43,21 +45,26 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 	protected CourseBean populateBean(final HttpServletRequest request) {
 		final CourseBean bean = new CourseBean();
 		bean.populate(request);	
-		return bean;
-	}	
-	
+		return bean;	
+	}
+
 	/**
 	 * Search Course.
 	 *
-	 * @param bean the bean
-	 * @param pageNo the page no
-	 * @param pageSize the page size
+	 * @param bean      the bean
+	 * @param pageNo    the page no
+	 * @param pageSize  the page size
+	 * @param orderBy   the order by
+	 * @param sortOrder the sort order
 	 * @return the list
 	 * @throws ApplicationException the application exception
 	 */
-	private List<CourseBean> searchCourse(final CourseBean bean, final int pageNo, final int pageSize)
-			throws ApplicationException{
-		return model.search(bean,pageNo,pageSize);
+	private List<CourseBean> searchCourse(final CourseBean bean, final int pageNo, final int pageSize,
+			final String orderBy, final String sortOrder) throws ApplicationException {
+		log.debug("searchCourse method start");
+		List<CourseBean> list = model.search(bean, pageNo, pageSize, orderBy, sortOrder);
+		log.debug("searchCourse method end");
+		return list;
 	}
 	
 	
@@ -78,17 +85,23 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 		int pageNo = 1;
 		int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));
 		CourseBean bean = populateBean(request);
-	
+		String orderBy = DataUtility.getString(request.getParameter("orderBy"));
+		String sortOrder = DataUtility.getString(request.getParameter("sortOrder"));
+		if (orderBy == null || orderBy.trim().length() == 0) {
+			orderBy = "name";
+		}
+		if (sortOrder == null || sortOrder.trim().length() == 0) {
+			sortOrder = "asc";
+		}
 		try {
-			list = searchCourse(bean,pageNo,pageSize);
-			if(list == null || list.isEmpty()) {
-				ServletUtility.setErrorMessage(PropertyReader.getValue("error.record.notfound"), request);
-			}
+			list = searchCourse(bean, pageNo, pageSize, orderBy, sortOrder);
+			
 			ServletUtility.setList(list, request);
 			ServletUtility.setPageNo(pageNo, request);			
 			ServletUtility.setPageSize(pageSize, request);
 			ServletUtility.forward(getView(), request, response);
 		} catch (final ApplicationException e) {
+			ServletUtility.setList(list, request);
 			handleDatabaseException(e, request, response);
 		}	
 		log.debug("doGet method of CourseListCtl End");
@@ -145,7 +158,62 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 	protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
 			throws ServletException, IOException {
 		log.debug("do Post method of CourseListCtl Started");
-		if(!validate(request)) {
+		List<CourseBean> list= null;
+		String op = DataUtility.getString(request.getParameter("operation"));
+		String[] ids = request.getParameterValues("ids");
+		String orderBy = DataUtility.getString(request.getParameter("orderBy"));
+		String sortOrder = DataUtility.getString(request.getParameter("sortOrder"));
+		if (orderBy == null || orderBy.trim().length() == 0) {
+			orderBy = "name";
+		}
+		if (sortOrder == null || sortOrder.trim().length() == 0) {
+			sortOrder = "asc";
+		}
+		int pageNo = DataUtility.getInt(request.getParameter("pageNo"));
+		int pageSize = DataUtility.getInt(request.getParameter("pageSize"));
+		pageNo = (pageNo == 0) ? 1 : pageNo;
+		pageSize = (pageSize == 0) ? DataUtility.getInt(PropertyReader.getValue("page.size")) : pageSize;
+		CourseBean bean = populateBean(request);
+		try {
+		
+			if (OP_SEARCH.equalsIgnoreCase(op)) {
+				pageNo = 1;
+			} else if (OP_NEXT.equalsIgnoreCase(op)) {
+				pageNo++;
+			} else if (OP_PREVIOUS.equalsIgnoreCase(op) && pageNo > 1) {
+				pageNo--;
+			} else if (OP_NEW.equalsIgnoreCase(op)) {
+				ServletUtility.redirect(ORSView.COURSE_CTL, request, response);
+				return;
+			} else if (OP_RESET.equalsIgnoreCase(op)) {
+				ServletUtility.redirect(ORSView.COURSE_LIST_CTL, request, response);
+				return;
+			} else if (OP_DELETE.equalsIgnoreCase(op)) {
+				pageNo = 1;
+				
+				
+					delete(ids, request, response);
+				
+			}
+			if(OP_DELETE.equalsIgnoreCase(op) ||OP_PREVIOUS.equalsIgnoreCase(op) ||OP_NEXT.equalsIgnoreCase(op) || OP_SEARCH.equalsIgnoreCase(op)) {
+				if(!validate(request)) return;
+				list = searchCourse(bean, pageNo, pageSize, orderBy, sortOrder);
+				if(list==null || list.isEmpty()) {
+					ServletUtility.setErrorMessage(PropertyReader.getValue("error.record.notfound"), request);
+				}
+			}
+			ServletUtility.setList(list, request);
+			ServletUtility.setPageNo(pageNo, request);
+			ServletUtility.setPageSize(pageSize, request);
+			ServletUtility.forward(getView(), request, response);
+		} catch (ApplicationException e) {
+			log.error(e);
+			ServletUtility.setList(list, request);
+			handleDatabaseException(e, request, response);
+		}
+		
+		log.debug("do Post method of CourseListCtl End");
+		/*if(!validate(request)) {
 			final int[] pageData = paginate(request);
 			int pageNo = pageData[0];
 			int pageSize = pageData[1];
@@ -175,10 +243,10 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 			} else {
 				showList(bean, request, response, pageNo, pageSize);
 			}
-		}
-		log.debug("do Post method of CourseListCtl End");
+		}*/
 	}	
-	/** Contains Submit logics.
+	/**
+	 * Contains Submit logics.
 	 *
 	 * @param request the request
 	 * @param response the response
@@ -186,8 +254,7 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 	 * @throws IOException      Signals that an I/O exception has occurred.
 	 */
 	@Override
-	
-	
+		
 	/** set the data in the list.
 	 * 
 	 * @param bean     the bean
@@ -196,16 +263,18 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 	 * @param pageNo   the page number
 	 * @param pageSize the size of the page
 	 * @throws ServletException the servlet exception
-	 * @throws IOException      Signals that an I/O exception has occurred. */
+	 * @throws IOException      Signals that an I/O exception has occurred.
+	 */
 	private final void showList(final CourseBean bean, final HttpServletRequest request, final HttpServletResponse response,
-			final int pageNo, final int pageSize) throws ServletException, IOException {
+			final int pageNo, final int pageSize, final String orderBy, final String sortOrder) throws ServletException, IOException {
 		log.debug("showList Method Start");
 		List<CourseBean> list = null;	
 		try {
-			list = searchCourse(bean, pageNo, pageSize);
+			list = searchCourse(bean, pageNo, pageSize, orderBy, sortOrder);
 		}catch (final Exception e) {
 			handleDatabaseException(e, request, response);
 		}
+		/*
 		if (list == null || list.isEmpty()&& !OP_DELETE.equalsIgnoreCase(DataUtility.getString(request.getParameter("operation")))) {
 			ServletUtility.setErrorMessage(PropertyReader.getValue("error.record.notfound"), request);
 		}
@@ -223,7 +292,7 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 	private final void setListAndPagination(final List list, final HttpServletRequest request, final int pageNo,final int pageSize) {
 		ServletUtility.setList(list, request);
 		ServletUtility.setPageNo(pageNo, request);
-		ServletUtility.setPageSize(pageSize, request);
+		ServletUtility.setPageSize(pageSize, request);		
 		ServletUtility.forward(getView(), request, response);
 	}
 	
@@ -231,15 +300,14 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 
 	/** manage the pagination.
 	 * @param request the request
-	 * @return the page data
-	 */	
+	 * @return the page data */	
 	private int[] paginate(final HttpServletRequest request) {
 		int pageNo = DataUtility.getInt(request.getParameter("pageNo"));
 		int pageSize = DataUtility.getInt(request.getParameter("pageSize"));
 		pageNo = (pageNo == 0) ? 1 : pageNo;
 		pageSize = (pageSize == 0) ? DataUtility.getInt(PropertyReader.getValue(\"page.size\")) : pageSize;
 		return new int[] { pageNo, pageSize };
-	}	
+	}
 	@Override
 	protected String getView() {
 		return ORSView.COURSE_LIST_VIEW;

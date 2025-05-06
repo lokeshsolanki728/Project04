@@ -10,14 +10,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
-import com.rays.pro4.DTO.StudentDTO;
-import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Bean.CollegeBean;
 import com.rays.pro4.Bean.StudentBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Util.DataTransferUtility;
 import com.rays.pro4.Model.CollegeModel;
+import com.rays.pro4.DTO.StudentDTO;
 import com.rays.pro4.Model.StudentModel;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.MessageConstant;
@@ -94,8 +93,6 @@ public class StudentCtl extends BaseCtl {
             log.debug("StudentCtl Method validate Ended with error");
         }
         return pass;
-
-    /**
 	 * Populates bean object from request parameters.
 	 * 
 	 * @param request the request
@@ -105,7 +102,6 @@ public class StudentCtl extends BaseCtl {
     protected void populateBean(HttpServletRequest request, StudentBean bean) {
 
         log.debug("StudentCtl Method populateBean Started");
-
         bean.setFirstName(DataUtility.getString(request.getParameter("firstname")));
         bean.setLastName(DataUtility.getString(request.getParameter("lastname")));
         bean.setDob(DataUtility.getDate(request.getParameter("dob")));
@@ -117,12 +113,6 @@ public class StudentCtl extends BaseCtl {
         bean.setModifiedBy(DataUtility.getString(request.getParameter("modifiedby")));
 
         log.debug("StudentCtl Method populateBean Ended");
-    }
-    
-        protected void populateDTO(HttpServletRequest request, StudentDTO dto) {
-        dto.setId(DataUtility.getLong(request.getParameter("id")));
-
-        return bean;
     }
     
     
@@ -257,7 +247,7 @@ public class StudentCtl extends BaseCtl {
         
     }
 
-    /**
+    /** 
 	 * Returns the VIEW page of this Controller
 	 * @return
 	 */

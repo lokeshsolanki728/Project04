@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import com.rays.pro4.Util.ServletUtility;
-import com.rays.pro4.Util.ORSView;
+import com.rays.pro4.controller.ORSView;
 
 /**
  * Error Ctl is called when there is any Error in running time

@@ -1,6 +1,7 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
+import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -12,13 +13,13 @@ import org.apache.log4j.Logger;
 import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Bean.CourseBean;
 import com.rays.pro4.DTO.CourseDTO;
-import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
+import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Model.CourseModel;
+import com.rays.pro4.validator.CourseValidator;
 import com.rays.pro4.Util.DataUtility;
-import com.rays.pro4.Util.CourseValidator;
-import com.rays.pro4.Util.MessageConstant;
-import com.rays.pro4.Util.ORSView;
+import com.rays.pro4.controller.ORSView;
+
 import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;
 
@@ -57,20 +58,16 @@ public class CourseCtl extends BaseCtl<CourseBean>{
 	 * @return
 	 */
 	@Override
-    protected final BaseBean populateDTO(HttpServletRequest request) {
-        log.debug("CourseCtl populateDTO method start");
-        CourseDTO dto = new CourseDTO();
-        dto.setId(DataUtility.getLong(request.getParameter("id")));
-        dto.setName(DataUtility.getString(request.getParameter("name")));
-        dto.setDescription(DataUtility.getString(request.getParameter("description")));
-        dto.setDuration(DataUtility.getString(request.getParameter("duration")));
-        populate(dto, request);
-        log.debug("CourseCtl populateDTO method end");
-        return dto;
-    }
+    protected CourseBean populateBean(HttpServletRequest request) {
+        log.debug("CourseCtl populateBean method start");
+        CourseBean bean = new CourseBean();
+        bean.setId(DataUtility.getLong(request.getParameter("id")));
+        bean.setName(DataUtility.getString(request.getParameter("name")));
+        bean.setDescription(DataUtility.getString(request.getParameter("description")));
+        bean.setDuration(DataUtility.getString(request.getParameter("duration")));
+        populate(bean, request);
     
-    protected void populateBean(HttpServletRequest request, CourseBean bean){
-		log.debug("CourseCtl populate started");
+        bean.setCreatedDatetime(DataUtility.getCurrentTimestamp());
 		
 		
 		bean.populate(request);
@@ -110,14 +107,14 @@ public class CourseCtl extends BaseCtl<CourseBean>{
 		log.debug("CourseCtl Method doGet Started");
         String op = DataUtility.getString(request.getParameter("operation"));
 		long id = DataUtility.getLong(request.getParameter("id"));
-		
+		CourseBean courseBean = new CourseBean();
         if(id>0 || op != null){
-            CourseDTO bean;
+           CourseDTO dto;
             try{
-              bean=model.findByPK(id);
-                CourseBean courseBean = new CourseBean();
-                courseBean.setId(bean.getId());
-                courseBean.setName(bean.getName());
+                dto=model.findByPK(id);
+                
+                courseBean.setId(dto.getId());
+                courseBean.setName(dto.getName());
                 courseBean.setDescription(bean.getDescription());
                 courseBean.setDuration(bean.getDuration());
 
@@ -131,7 +128,10 @@ public class CourseCtl extends BaseCtl<CourseBean>{
                 return;
             }
         }
-
+		else {
+			ServletUtility.setBean(courseBean, request);
+		}
+		
 		ServletUtility.forward(getView(), request, response);
 		log.debug("CourseCtl Method doGet Ended");
 	}
@@ -150,17 +150,15 @@ public class CourseCtl extends BaseCtl<CourseBean>{
 	@Override
 	protected final void doPost(final HttpServletRequest request, final HttpServletResponse response)
 			throws ServletException, IOException {
-		log.debug("CourseCtl Method doPost Started");		
+		log.debug("CourseCtl Method doPost Started");
 		String op = DataUtility.getString(request.getParameter("operation"));
-		CourseDTO dto = (CourseDTO) populateDTO(request);
-		CourseBean bean = new CourseBean();
-		if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
-	        if (validate(request)) {
-	        	populateBean(request, bean);
-	        	
-	            try {
+		long id = DataUtility.getLong(request.getParameter("id"));
+		CourseBean bean = populateBean(request);
+		if(validate(request)){
+			if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
+				try {
 	                CourseDTO courseDTO = bean.getDTO();
-	                if(courseDTO.getId()>0){
+	                if(id>0){
 	                	model.update(courseDTO);
 	                	ServletUtility.setSuccessMessage("Course update Successfully", request);
 	                }else {
@@ -168,22 +166,29 @@ public class CourseCtl extends BaseCtl<CourseBean>{
 	                	bean.setId(pk);
 	                	ServletUtility.setSuccessMessage("Course added Successfully", request);
 	                }
-	            } catch (ApplicationException e) {
+	            }catch (ApplicationException e) {
 	            	if(e instanceof DuplicateRecordException){
 	            		ServletUtility.setErrorMessage("Course already exists", request);
-	            	} else ServletUtility.setErrorMessage(PropertyReader.getValue("error.course.duplicate"), request);	               
+	            	} else ServletUtility.setErrorMessage(PropertyReader.getValue("error.course.duplicate"), request);
+	            	ServletUtility.setBean(bean, request);
 	            }
-	            ServletUtility.setBean(bean, request);
-	        }
-	    } else if (OP_RESET.equalsIgnoreCase(op)) {
-			ServletUtility.redirect(ORSView.COURSE_LIST_CTL, request, response);
-			return;
-		} else if (OP_CANCEL.equalsIgnoreCase(op)) {			
-			return;
+				catch (Exception e) {
+					ServletUtility.setBean(bean, request);
+				}
+	          }
+		    else if (OP_RESET.equalsIgnoreCase(op)) {
+				ServletUtility.redirect(ORSView.COURSE_CTL, request, response);
+				return;
+			} else if (OP_CANCEL.equalsIgnoreCase(op)) {
+				ServletUtility.redirect(ORSView.COURSE_LIST_CTL, request, response);
+				return;
+			}
+			ServletUtility.setBean(bean, request);
 		}
+	   
 
 		ServletUtility.forward(getView(), request, response);
-		log.debug("CourseCtl Method doPost Ended");	
+		log.debug("CourseCtl Method doPost Ended");
 	}
 	@Override
 	protected String getView() {

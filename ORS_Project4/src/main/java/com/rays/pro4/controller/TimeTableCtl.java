@@ -23,7 +23,6 @@ import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.DataValidator;
 import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;
-import com.rays.pro4.DTO.TimeTableDTO;
 
 /**
  * TimeTable functionality Controller. Performs operation for add, update, delete
@@ -93,7 +92,6 @@ public class TimeTableCtl extends BaseCtl {
 		bean.setExamDate(DataUtility.getDate(request.getParameter("examDate")));
 		bean.setExamTime(DataUtility.getString(request.getParameter("examTime")));
 		bean.setDescription(DataUtility.getString(request.getParameter("description")));
-		populateDTO(request, bean);
 		log.debug("TimeTableCtl Method populatebean Ended");
 		return bean;
 	}
@@ -110,16 +108,14 @@ public class TimeTableCtl extends BaseCtl {
 		if (id > 0 || op != null) {
 			TimeTableBean bean;
 			try {
-				TimeTableDTO dto = model.findByPK(id);
-				bean = new TimeTableBean();
-                bean.setId(dto.getId());
-                bean.setCourseId(dto.getCourseId());
-                bean.setSubjectId(dto.getSubjectId());
-                bean.setSemester(dto.getSemester());
-                bean.setExamDate(dto.getExamDate());
-                bean.setExamTime(dto.getExamTime());
-                bean.setDescription(dto.getDescription());
-                request.setAttribute("bean", bean);
+				bean = model.findByPK(id);
+                bean.setId(bean.getId());
+                bean.setCourseId(bean.getCourseId());
+                bean.setSubjectId(bean.getSubjectId());
+                bean.setSemester(bean.getSemester());
+                bean.setExamDate(bean.getExamDate());
+                bean.setExamTime(bean.getExamTime());
+                bean.setDescription(bean.getDescription());
 				ServletUtility.setBean(bean, request);
 			} catch (ApplicationException e) {
 				log.error("Application Exception", e);
@@ -141,13 +137,12 @@ public class TimeTableCtl extends BaseCtl {
 		String op = DataUtility.getString(request.getParameter("operation"));
 		TimeTableModel model = new TimeTableModel();
 		long id = DataUtility.getLong(request.getParameter("id"));
-        TimeTableDTO dto = new TimeTableDTO();
 		if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
 			TimeTableBean bean = (TimeTableBean) populateBean(request);
-            dto = bean.getDTO();
 			try {
 				if (id > 0) {
-					model.update(dto);
+					bean.setModifiedBy("root");
+					model.update(bean);
 					ServletUtility.setSuccessMessage("Data is successfully updated", request);
 				} else {
 					long pk = model.add(dto);
@@ -164,9 +159,8 @@ public class TimeTableCtl extends BaseCtl {
 		} else if (OP_DELETE.equalsIgnoreCase(op)) {
 
 			TimeTableBean bean = (TimeTableBean) populateBean(request);
-            dto = bean.getDTO();
 			try {
-				model.delete(dto.getId());
+				model.delete(bean.getId());
 				ServletUtility.redirect(ORSView.TIMETABLE_LIST_CTL, request, response);
 				return;
 			} catch (ApplicationException e) {
@@ -185,9 +179,5 @@ public class TimeTableCtl extends BaseCtl {
 	@Override
 	protected String getView() {
 		return ORSView.TIMETABLE_VIEW;
-	}
-    protected void populateDTO(HttpServletRequest request, TimeTableDTO dto) {
-		dto.setCreatedBy(request.getParameter("createdBy"));
-		dto.setModifiedBy(request.getParameter("modifiedBy"));
 	}
 }

@@ -7,17 +7,6 @@ import com.rays.pro4.DTO.RoleDTO;
 import com.rays.pro4.Util.DataValidator;
 
 /**
- * Role enum to define different types of roles in the application.
- *
- */
-enum Role {
-    ADMIN,
-    STUDENT,
-    COLLEGE,
-    FACULTY,
-    KIOSK
-}
-/**
  * Role JavaBean encapsulates Role attributes.
  * 
  * @author Lokesh SOlanki
@@ -35,11 +24,6 @@ public class RoleBean extends BaseBean implements Serializable {
 	private  String name;
 
 	/**
-	 * Description of the role
-	 */
-	private String description;
-
-	/**
 	 * Gets the name of the role.
 	 * 
 	 * @return name
@@ -54,22 +38,6 @@ public class RoleBean extends BaseBean implements Serializable {
 	 */
 	public void setName(String name) {
 		this.name = name;
-	}
-	/**
-	 * Gets the description of the role.
-	 * 
-	 * @return description
-	 */
-	public String getDescription() {
-		return description;
-	}
-	/**
-	 * Sets the description of the role.
-	 * 
-	 * @param description the description
-	 */
-	public void setDescription(String description) {
-		this.description = description;
 	}
 	/**
 	 * Returns the key (ID) of the role as a String.
@@ -102,7 +70,7 @@ public class RoleBean extends BaseBean implements Serializable {
 	 */
 	
 	public String toString() {
-		return "RoleBean [name=" + name + ", description=" + description + ", id=" + id
+		return "RoleBean [name=" + name + ", id=" + id
 				+ ", createdBy=" + createdBy + ", modifiedBy=" + modifiedBy + ", createdDatetime="
 				+ createdDatetime + ", modifiedDatetime=" + modifiedDatetime + "]";
 	}

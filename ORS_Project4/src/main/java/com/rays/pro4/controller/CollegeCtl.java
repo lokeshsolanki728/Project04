@@ -1,8 +1,6 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
-
-import javax.servlet.ServletException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -18,7 +16,9 @@ import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;
+
 import com.rays.pro4.validator.CollegeValidator;
+
 
 @WebServlet(name = "CollegeCtl", urlPatterns = { "/ctl/CollegeCtl" })
 public class CollegeCtl extends BaseCtl {
@@ -41,8 +41,11 @@ public class CollegeCtl extends BaseCtl {
 
     @Override
     protected void populateDTO(HttpServletRequest request, CollegeDTO dto) {
-        super.populateDTO(request,dto);
-        //dto.setId(DataUtility.getLong(request.getParameter("id")));
+        super.populateDTO(request, dto);
+		dto.setCreatedBy(request.getParameter("createdby"));
+		dto.setModifiedBy(request.getParameter("modifiedby"));
+		dto.setCreatedDatetime(DataUtility.getCurrentTimestamp());
+		dto.setModifiedDatetime(DataUtility.getCurrentTimestamp());
         dto.setName(DataUtility.getString(request.getParameter("name")));
         dto.setAddress(DataUtility.getString(request.getParameter("address")));
         dto.setState(DataUtility.getString(request.getParameter("state")));
@@ -70,8 +73,9 @@ public class CollegeCtl extends BaseCtl {
                 if (dto == null) {
                     ServletUtility.setErrorMessage("College not found", request);
                 } else {
-                    CollegeBean bean = populateBean(request);
-                    ServletUtility.setBean(bean, request);
+                    CollegeBean bean = new CollegeBean();
+                    bean.populate(request);
+                    ServletUtility.setBean(bean, request);                  
                 }
             } catch (ApplicationException e) {
                 handleDatabaseException(e, request, response);
@@ -105,7 +109,7 @@ public class CollegeCtl extends BaseCtl {
                 }else if (OP_CANCEL.equalsIgnoreCase(op)) {
                     ServletUtility.redirect(ORSView.COLLEGE_LIST_CTL, request, response);
                     return;
-                } else if (OP_RESET.equalsIgnoreCase(op)) {
+                } else if (OP_RESET.equalsIgnoreCase(op)) { 
                     ServletUtility.redirect(ORSView.COLLEGE_CTL, request, response);
                     return;
                 }
@@ -116,11 +120,9 @@ public class CollegeCtl extends BaseCtl {
             } catch (DuplicateRecordException e) {
                 ServletUtility.setBean(bean, request);
                 ServletUtility.setErrorMessage(PropertyReader.getValue("error.college.exist"), request);
-            }
-             ServletUtility.forward(getView(), request, response);
-             return;
-            ServletUtility.forward(getView(), request, response);
-            ServletUtility.forward(getView(), request, response);
+            }            
+            ServletUtility.forward(getView(), request, response);     
+    }
         }
         log.debug("CollegeCtl Method doPost Ended");
     }

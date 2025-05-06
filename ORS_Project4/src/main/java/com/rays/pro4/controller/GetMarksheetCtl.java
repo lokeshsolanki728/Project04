@@ -1,41 +1,35 @@
 package com.rays.pro4.controller;
 
-import java.io.IOException;
+import com.rays.pro4.controller.ORSView;
+
+import com.rays.pro4.Bean.MarksheetBean;
+import com.rays.pro4.DTO.MarksheetDTO;
+import com.rays.pro4.Exception.ApplicationException;
+import com.rays.pro4.Model.MarksheetModel;
+import com.rays.pro4.Util.DataUtility;
+import com.rays.pro4.Util.DataValidator;
+import com.rays.pro4.Util.PropertyReader;
+import com.rays.pro4.Util.ServletUtility;
+import org.apache.log4j.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
-import org.apache.log4j.Logger;
-
-import com.rays.pro4.Bean.MarksheetBean;
-import com.rays.pro4.Bean.BaseBean;
-import com.rays.pro4.DTO.MarksheetDTO;
-import com.rays.pro4.Exception.ApplicationException;
-import com.rays.pro4.Util.DataUtility;
-import com.rays.pro4.Util.GetMarksheetValidator;
-import com.rays.pro4.Model.MarksheetModel;
-import com.rays.pro4.Util.MessageConstant;
-import com.rays.pro4.Util.DataUtility;
-import com.rays.pro4.Util.DataValidator;
-import com.rays.pro4.Util.PropertyReader;
-import com.rays.pro4.Util.ServletUtility;
 /**
  * Get Marksheet functionality Controller. Performs operation for Get Marksheet
  *
  * @author Lokesh SOlanki
-*/
-@WebServlet(name = "GetMarksheetCtl", urlPatterns = { "/ctl/GetMarksheetCtl" })
+ */
+@WebServlet(name = "GetMarksheetCtl", urlPatterns = {"/ctl/GetMarksheetCtl"})
 public class GetMarksheetCtl extends BaseCtl<MarksheetBean> {
 
 	private static Logger log = Logger.getLogger(GetMarksheetCtl.class);
 
-	/**
-	 * the model
-	 */
+	/** the model */
 	private final MarksheetModel model = new MarksheetModel();
-	
 	/**
 	 * Validates input data entered by User
 	 *
@@ -45,45 +39,31 @@ public class GetMarksheetCtl extends BaseCtl<MarksheetBean> {
 	@Override
 	protected boolean validate(final HttpServletRequest request) {
 		log.debug("GetMarksheetCTL Method validate Started");
-		final boolean pass = GetMarksheetValidator.validate(request);
+        boolean pass = true;
+        if (DataValidator.isNull(request.getParameter("rollNo"))) {
+            request.setAttribute("rollNo", PropertyReader.getValue("error.require", "RollNo"));
+            pass = false;
+        }
 		log.debug("GetMarksheetCTL Method validate Ended");
 		return pass;
 	}
 
-	protected void populateBean(HttpServletRequest request, MarksheetBean bean) {
-		bean.setRollNo(DataUtility.getString(request.getParameter("rollNo")));
-
-	}
-
-	/**
-	 * Populates dto object from request parameters
-	 * 
-	 * @param request
-	 * @return
-	 */
-	@Override
-	protected final void populateDTO(final HttpServletRequest request, MarksheetDTO dto) {
-		log.debug("GetMarksheetCtl Method populateBean Started");
-		dto.setRollNo(DataUtility.getString(request.getParameter("rollNo")));
-		log.debug("GetMarksheetCtl Method populatebean Ended");
-	}
 	
 	/**
-	 * Populates bean object from request parameters
+	 * Populates bean object from request parameters.
+     *
+	 * @param request the request
+	 * @return the marksheet bean
 	 */
 	protected final MarksheetBean populateBean(final HttpServletRequest request) {
 		final MarksheetBean bean = new MarksheetBean();
-		bean.populate(request);
-		log.debug("GetMarksheetCtl Method populatebean Ended");
+        bean.setRollNo(DataUtility.getString(request.getParameter("rollNo")));
 		return bean;
 	}
-
-
-
 	/**
 	 * Concept of Display method.
 	 *
-	 * @param request  the request
+	 * @param request the request
 	 * @param response the response
 	 * @throws ServletException the servlet exception
 	 * @throws IOException      Signals that an I/O exception has occurred.	
@@ -91,30 +71,30 @@ public class GetMarksheetCtl extends BaseCtl<MarksheetBean> {
 
 	protected final void doGet(final HttpServletRequest request, final HttpServletResponse response)
 			throws ServletException, IOException {
-
-		log.debug("GetMarksheetCtl Method doGet Started");		
-		ServletUtility.forward(getView(), request, response);
-		log.debug("GetMarksheetCtl Method doGet Ended");
+        log.debug("GetMarksheetCtl Method doGet Started");
+        log.debug("GetMarksheetCtl Method doGet Ended");
 	}
 
 	/**
 	 * Concept of Submit Method.
 	 *
-	 * @param request  the request
+	 * @param request the request
 	 * @param response the response
 	 * @throws ServletException the servlet exception
 	 * @throws IOException      Signals that an I/O exception has occurred.
-	 */
+     */
 
 
 	private void getMarksheet(final MarksheetDTO dto, final HttpServletRequest request) throws ApplicationException {
-		log.debug("getMarksheet Method Started");
+        log.debug("getMarksheet Method Started");
         final MarksheetDTO marksheetDTO = model.findByRollNo(dto.getRollNo());
-        if (marksheetBean == null) {
+        if (marksheetDTO == null) {
             ServletUtility.setErrorMessage("RollNo Does Not Exists", request);
+            ServletUtility.setBean(new MarksheetBean(),request);
         } else {
-            ServletUtility.setBean(marksheetBean, request);
+            ServletUtility.setBean(marksheetDTO.getBean(), request);
         }
+
         log.debug("getMarksheet Method End");
 	}
 
@@ -134,14 +114,22 @@ public class GetMarksheetCtl extends BaseCtl<MarksheetBean> {
 		final String operation = DataUtility.getString(request.getParameter("operation"));
 
 		final MarksheetDTO dto = new MarksheetDTO();
-		populateDTO(request, dto);
+        MarksheetBean populateBean = new MarksheetBean();
+        populateBean.setRollNo(request.getParameter("rollNo"));
+        dto.setRollNo(request.getParameter("rollNo"));
+        dto.setName(request.getParameter("name"));
+        dto.setPhysics(DataUtility.getInt(request.getParameter("physics")));
+        dto.setChemistry(DataUtility.getInt(request.getParameter("chemistry")));
+        dto.setMaths(DataUtility.getInt(request.getParameter("maths")));
 
 		if (OP_GO.equalsIgnoreCase(operation)) {
 			if (validate(request)) {				
-				try {
-					getMarksheet(dto, request);					
-				} catch (final ApplicationException e) {
-					log.error("Error in get marksheet", e);
+                try {
+                    getMarksheet(dto, request);
+                } catch (final ApplicationException e) {
+                    log.error("Error in get marksheet", e);
+                    MarksheetBean bean = populateBean(request);
+                    ServletUtility.setBean(bean, request);
 					handleDatabaseException(e, request, response);
 					return;
 				}
@@ -150,6 +138,9 @@ public class GetMarksheetCtl extends BaseCtl<MarksheetBean> {
 			ServletUtility.redirect(ORSView.GET_MARKSHEET_CTL, request, response);
 			return;
 		}
+       if(!validate(request)){
+            ServletUtility.setBean(populateBean(request),request);
+        }
 		ServletUtility.forward(getView(), request, response);
 		log.debug("MarksheetCtl Method do post Ended");
 	}	

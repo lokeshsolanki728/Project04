@@ -14,15 +14,13 @@ import java.util.ResourceBundle;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;import com.rays.pro4.Bean.BaseBean;
+import javax.servlet.http.HttpServletResponse;
 
-import java.io.IOException;
-import com.rays.pro4.Bean.BaseBean;
-import com.rays.pro4.Bean.UserBean;
-import com.rays.pro4.Model.BaseModel;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.DataValidator;
 import com.rays.pro4.Util.ServletUtility;
+
+import java.io.IOException;
 
 /**
  * Base controller class of project. It contains (1) Generic operations (2)
@@ -34,11 +32,11 @@ import com.rays.pro4.Util.ServletUtility;
 public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
 
 	/** Default serial version ID
-	 */
+	 */	
 	protected long id = 0;
     protected String createdBy = null;
     protected String modifiedBy = null;
-    protected Logger log = Logger.getLogger(this.getClass());
+    protected Logger log = Logger.getLogger(this.getClass());   
 	/**
 	 * Save operation constant
 	 */
@@ -101,19 +99,9 @@ public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
 	 */
 
     private static final long serialVersionUID = 1L;
-    /**
-	public static final String MSG_SUCCESS = "success"; // Success
-	/**
-	 * Error message key constant
-	 */
-	public static final String MSG_ERROR = "error"; // Error
+   
     private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
-			.getBundle("com.rays.pro4.resources.System");
-	
-	/**
-	 * Loads list and other data required to display at HTML form
-	 * 
-	 * @param request
+			.getBundle("com.rays.pro4.resources.System");		
 	 */
 	protected void preload(HttpServletRequest request) {
 		
@@ -124,10 +112,9 @@ public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
         } catch (ApplicationException e) {
             log.error(e);
         }
-		
-	}
-	
-	protected BaseModel getModel(String modelName){
+	}	
+
+		protected BaseModel getModel(String modelName){
         if(modelName.equalsIgnoreCase("User")){
             return new UserModel();
         }else{
@@ -135,32 +122,22 @@ public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
         }
 	}
 
-	/**
-	 * Validates input data entered by User
-	 *
-	 * @param request
+	
 	 * @return
 	 */
 	protected boolean validate(HttpServletRequest request) {
-		
 		return true;
-
 	}
 
 	/**
-	 * Populates bean object from request parameters
 	 * 
-	 * @param request http request
 	 * @return
 	 */
-	protected abstract T populateBean(HttpServletRequest request); 
-    
-	/**
-	 * Gets the bean populated by request parameters.
-	 * 
-	 * @return bean
-	 */
-	protected void populateDTO(HttpServletRequest request, BaseModel dto) {
+	protected abstract T populateBean(HttpServletRequest request);
+    protected void populateBean(HttpServletRequest request, T bean) {
+
+        BaseModel dto=(BaseModel) bean.getDTO();
+
 
 		long id = DataUtility.getLong(request.getParameter("id"));
 		
@@ -181,8 +158,7 @@ public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
 			dto.setCreatedDatetime(DataUtility.getCurrentTimestamp());           
         }        
         dto.setModifiedDatetime(DataUtility.getCurrentTimestamp());
-	}
-
+	}	
 	@Override
 	protected void service(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -197,7 +173,6 @@ public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
 			if (!validate(request)) {
 				ServletUtility.setBean(bean, request);
 				
-				ServletUtility.forward(getView(), request, response);
 				return;
 			}
 		}
@@ -205,23 +180,16 @@ public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
 		try {
             super.service(request, response);
         } catch (ApplicationException e) {
-
             log.error(e);
             ServletUtility.setErrorMessage(e.getMessage(), request);            
             ServletUtility.forward(getView(), request, response);
         } catch (Exception e) {
             log.error(e);
-            ServletUtility.setErrorMessage(e.getMessage(), request);            
-            ServletUtility.forward(getView(), request, response);
-            
+            ServletUtility.setErrorMessage(e.getMessage(), request);            ServletUtility.forward(getView(), request, response);            
 		}
 		log.debug("Base Ctl service method end");
 	}
-	/**
-	 * Returns the VIEW page of this Controller 
-	 * 
-	 * @return
-	 */
+	
 	protected abstract String getView();
 		
 }

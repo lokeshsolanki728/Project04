@@ -11,11 +11,13 @@ import com.rays.pro4.Bean.MarksheetBean;
 import com.rays.pro4.Bean.StudentBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
+import com.rays.pro4.DTO.MarksheetDTO;
 import com.rays.pro4.Model.MarksheetModel;
 import com.rays.pro4.Model.StudentModel;
 import com.rays.pro4.Util.DataValidator;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.ServletUtility;
+import com.rays.pro4.controller.ORSView;
 @WebServlet(name = "MarksheetCtl", urlPatterns = {"/ctl/MarksheetCtl"})
 public class MarksheetCtl extends BaseCtl {
     private static final Logger log = Logger.getLogger(MarksheetCtl.class);
@@ -65,8 +67,6 @@ public class MarksheetCtl extends BaseCtl {
         bean.setPhysics(DataUtility.getInt(request.getParameter("physics")));
         bean.setChemistry(DataUtility.getInt(request.getParameter("chemistry")));
         bean.setMaths(DataUtility.getInt(request.getParameter("maths")));
-        populateDTO(request);
-        return bean;
     }
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

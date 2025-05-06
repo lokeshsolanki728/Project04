@@ -8,12 +8,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import com.rays.pro4.util.ChangePasswordValidator; 
-import com.rays.pro4.Bean.RoleBean;
 import com.rays.pro4.Bean.UserBean;
-import com.rays.pro4.Exception.ApplicationException;
+import com.rays.pro4.Exception.ApplicationException;\nimport com.rays.pro4.controller.ORSView;
 import com.rays.pro4.DTO.UserDTO;
 import com.rays.pro4.Model.UserModel;
-import com.rays.pro4.Util.ChangePasswordValidator;
+
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.ServletUtility;
@@ -88,14 +87,6 @@ public class ChangePasswordCtl extends BaseCtl<UserBean>{
 		
         return bean;
     }
-		
-		
-        return bean;
-    }
-    
-    
-	/**
-     * Handles GET requests for displaying the change password view.
      *
      * @param request  The HttpServletRequest object.
      * @param response The HttpServletResponse object.
@@ -114,6 +105,17 @@ public class ChangePasswordCtl extends BaseCtl<UserBean>{
 		ServletUtility.forward(getView(), request, response);	
 		log.debug("ChangePasswordCtl Method doGet Ended");
 	}
+	
+	
+    /**
+     * Handles GET requests for displaying the change password view.
+     *
+     * @param request  The HttpServletRequest object.
+     * @param response The HttpServletResponse object.
+     * @throws ServletException
+     * @throws IOException      If an input or output exception occurs.
+	 */
+	
 	
 	
 	/**
@@ -190,7 +192,7 @@ public class ChangePasswordCtl extends BaseCtl<UserBean>{
 	/**
 	 * Returns the VIEW page of this Controller
 	 * 
-	 * @return
+	 * @return change password view
 	 */
 	@Override
 	protected String getView() {

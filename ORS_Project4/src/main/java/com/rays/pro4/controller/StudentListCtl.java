@@ -1,5 +1,6 @@
 package com.rays.pro4.controller;
 
+import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.util.List;
 
@@ -25,10 +26,9 @@ import com.rays.pro4.Util.ServletUtility;
  *
  * @author Lokesh SOlanki
  */
-public class StudentListCtl extends BaseCtl {
-
-    /** The log. */
-    private static Logger log = Logger.getLogger(StudentListCtl.class);
+public class StudentListCtl extends BaseCtl{
+	private static final long serialVersionUID = 1L;
+	private static Logger log = Logger.getLogger(StudentListCtl.class);
 
     @Override
     protected void preload(HttpServletRequest request) {
@@ -157,187 +157,36 @@ public class StudentListCtl extends BaseCtl {
                 if (ids != null && ids.length > 0) {
                     StudentBean deletebean = new StudentBean();
                     for (String id : ids) {
-                        deletebean.setId(DataUtility.getInt(id));
-                        model.delete(deletebean);
+                        try {
+							deletebean.setId(DataUtility.getInt(id));
+							model.delete(deletebean);
+						} catch (ApplicationException e) {
+							log.error(e);
+							ServletUtility.handleException(e, request, response);
+						}
                     }
                     ServletUtility.setSuccessMessage(MessageConstant.STUDENT_DELETE, request);
                 } else {
                     ServletUtility.setErrorMessage(PropertyReader.getValue("error.require", "Select at least one record"),
                             request);
                 }
-            }
+            } 
 
-            list = model.search(bean, pageNo, pageSize,null,null);
-
-            if (list == null || list.size() == 0) {
-                ServletUtility.setErrorMessage(PropertyReader.getValue("record.notfound"), request);
-            }
-
-            ServletUtility.setList(list, request);
-            ServletUtility.setPageNo(pageNo, request);
-            ServletUtility.setPageSize(pageSize, request);
-            ServletUtility.forward(getView(), request, response);
-
-        } catch (ApplicationException e) {
-            log.error(e);
-            ServletUtility.handleException(e, request, response);
-            return;
-        }
-
-        log.debug("doPost method of StudentListCtl Ended");
-    }
-
-    @Override
-    protected String getView() {
-        return ORSView.STUDENT_LIST_VIEW;
-    }
-
-}
-
-package com.rays.pro4.controller;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.log4j.Logger;
-
-import com.rays.pro4.Bean.BaseBean;
-import com.rays.pro4.Bean.StudentBean;
-import com.rays.pro4.Exception.ApplicationException;
-import com.rays.pro4.Exception.DuplicateRecordException;
-import com.rays.pro4.Model.CollegeModel;
-
-import com.rays.pro4.Model.StudentModel;
-import com.rays.pro4.Util.DataUtility;
-import com.rays.pro4.Util.PropertyReader;
-import com.rays.pro4.Util.MessageConstant;
-import com.rays.pro4.Util.ServletUtility;
-
-
-//TODO: Auto-generated Javadoc
-/**
-* Student List functionality Controller. Performs operation for list, search
-* and delete operations of Student
-* 
-*  @author Lokesh SOlanki
-*/
-
-public class StudentListCtl extends BaseCtl{
-
-	/** The log. */
-  private static Logger log = Logger.getLogger(StudentListCtl.class);
-    private final StudentModel model = new StudentModel();
-    /**
-	 * Loads pre-load data.
-	 *
-	 * @param request the request
-     */
-    @Override
-    protected void preload(HttpServletRequest request) {
-        log.debug("preload method of StudentListCtl Started");
-        final CollegeModel cmodel = new CollegeModel();
-
-        try {
-            List clist = cmodel.list(0, 0);
-            request.setAttribute("CollegeList", clist);
-
-        } catch (final ApplicationException e) {
-            log.error(e);
-
-        }
-        log.debug("preload method of StudentListCtl Ended");
-
-    }
-
-
-    /**
-	 * Populates bean object from request parameters.
-	 *
-	 * @param request the request
-	 * @return the base bean
-	 * @see com.rays.pro4.controller.BaseCtl#populateBean(javax.servlet.http.HttpServletRequest)
-	 */
-    @Override
-    protected BaseBean populateBean(HttpServletRequest request) {
-        log.debug("populateBean method of StudentListCtl Started");
-        final StudentBean bean = new StudentBean();
-        bean.populate(request);
-        log.debug("populateBean method of StudentListCtl Ended");
-        return bean;
-    }
-
-    /**
-     * Contains display logics.
-     *
-     * @param request  the request
-     * @param response the response
-     * @throws ServletException the servlet exception
-     * @throws IOException      Signals that an I/O exception has occurred.
-     */
-  protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        log.debug("doGet method of StudentListCtl Started");
-        final List<StudentBean> list;
-
-    int pageNo = 1;
-    int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));
-    final String orderBy = DataUtility.getString(request.getParameter("orderBy"));
-        final String sortOrder = DataUtility.getString(request.getParameter("sortOrder"));
-
-    
-    pageNo = (pageNo == 0) ? 1 : pageNo;
-        pageSize = (pageSize == 0) ? DataUtility.getInt(PropertyReader.getValue("page.size")) : pageSize;
-        final StudentBean bean = (StudentBean) populateBean(request);
-
-        try {
-      list = model.search(bean, pageNo, pageSize, orderBy, sortOrder);
-          setOrderAndSort(request,orderBy,sortOrder);
+            list = model.search(bean, pageNo, pageSize, null, null);
             if (list.isEmpty()) {
                 ServletUtility.setErrorMessage(PropertyReader.getValue("record.notfound"), request);
             }
-
             ServletUtility.setList(list, request);
             ServletUtility.setPageNo(pageNo, request);
             ServletUtility.setPageSize(pageSize, request);
             ServletUtility.forward(getView(), request, response);
-
         } catch (final ApplicationException e) {
-            log.error(e);
-            handleDatabaseException(e, request, response);
-            return;
-        }
-        log.debug("doGet method of StudentListCtl Ended");
+			log.error(e);
+			ServletUtility.handleException(e, request, response);
+		}
+        log.debug("doPost method of StudentListCtl Ended");
     }
-
-    /**
-     * Delete list of student.
-     *
-     * @param request  the request
-     * @throws ApplicationException the application exception
-     */
-    private void deleteStudent(HttpServletRequest request) throws ApplicationException {
-        log.debug("deleteStudent method Started");
-        final String[] ids = request.getParameterValues("ids");
-        StudentBean deletebean = new StudentBean();
-          if (ids != null && ids.length > 0) {
-            for (final String id : ids) {
-                deletebean.setId(DataUtility.getInt(id));
-                model.delete(deletebean);
-                
-            }
-             ServletUtility.setSuccessMessage(MessageConstant.STUDENT_DELETE, request);
-        }
-        else {
-            ServletUtility.setErrorMessage(PropertyReader.getValue("error.require", "Select at least one record"), request);
-        }
-        log.debug("deleteStudent method ended");
-    }
-
+    
     /**
      * Search student.
      *
@@ -349,14 +198,14 @@ public class StudentListCtl extends BaseCtl{
      * @return the list
      * @throws ApplicationException the application exception
      */
-    private List<StudentBean> searchStudent(HttpServletRequest request, int pageNo, int pageSize,String orderBy,String sortOrder) throws ApplicationException {
-        log.debug("searchStudent method Started");
-
-        final StudentBean bean = (StudentBean) populateBean(request);
-        final List<StudentBean> list = model.search(bean, pageNo, pageSize);
-        log.debug("searchStudent method end");
-        return list;
-    }
+	private List<StudentBean> searchStudent(HttpServletRequest request, int pageNo, int pageSize, String orderBy,
+			String sortOrder) throws ApplicationException {
+		log.debug("searchStudent method Started");
+		final StudentBean bean = (StudentBean) populateBean(request);
+		final List<StudentBean> list = model.search(bean, pageNo, pageSize, orderBy, sortOrder);
+		log.debug("searchStudent method end");
+		return list;
+	}
     /**
      * Contains Submit logics.
   *
@@ -365,78 +214,22 @@ public class StudentListCtl extends BaseCtl{
   * @param sortOrder the sort order
   */
   private void setOrderAndSort(HttpServletRequest request,String orderBy,String sortOrder) {
-        String[] list = {"firstName","lastName","dob","collegeName","rollNo","mobileNo"};
-        ServletUtility.setOderByList(orderBy, sortOrder, list, request);
+	        String[] list = {"firstName","lastName","dob","collegeName","rollNo","mobileNo"};
+	        ServletUtility.setOderByList(orderBy, sortOrder, list, request);
     }
-    /**
-  * Contains Submit logics.
-  *
-     * @param request the request
-     * @param request the request
-     * @param response the response
-     * @throws ServletException the servlet exception
-     * @throws IOException Signals that an I/O exception has occurred.
-     */
-   @Override
-    protected void doPost(HttpServletRequest request,
-            HttpServletResponse response) throws ServletException, IOException { 
-        log.debug("doPost method of StudentListCtl Started");
-        List<StudentBean> list = new ArrayList<>();
-        
-        final String orderBy = DataUtility.getString(request.getParameter("orderBy"));
-        final String sortOrder = DataUtility.getString(request.getParameter("sortOrder"));
-        final String op = DataUtility.getString(request.getParameter("operation"));
-        int pageNo = DataUtility.getInt(request.getParameter("pageNo"));
-        int pageSize = DataUtility.getInt(request.getParameter("pageSize"));
-
-        pageNo = (pageNo == 0) ? 1 : pageNo;
-        pageSize = (pageSize == 0) ? DataUtility.getInt(PropertyReader.getValue("page.size")) : pageSize;
-
-        final StudentBean bean = (StudentBean) populateBean(request);
-
-        try {
-            if (OP_SEARCH.equalsIgnoreCase(op)) {
-                pageNo = 1;
-            } else if (OP_NEXT.equalsIgnoreCase(op)) {
-                pageNo++;
-            } else if (OP_PREVIOUS.equalsIgnoreCase(op)) {
-                pageNo--;
-            } else if (OP_NEW.equalsIgnoreCase(op)) {
-                ServletUtility.redirect(ORSView.STUDENT_CTL, request, response);
-                return;
-            } else if (OP_RESET.equalsIgnoreCase(op)) {
-                ServletUtility.redirect(ORSView.STUDENT_LIST_CTL, request, response);
-                return;
-            } else if (OP_DELETE.equalsIgnoreCase(op)) {
-                pageNo = 1;
-                deleteStudent(request);
-            }
-
-            list = searchStudent(request, pageNo, pageSize,orderBy,sortOrder);
-            setOrderAndSort(request,orderBy,sortOrder);
-        } catch (final ApplicationException e) {
-            log.error(e);
-            handleDatabaseException(e, request, response);
-            return;
-        }
-        if (list.isEmpty() && !OP_DELETE.equalsIgnoreCase(op)) {
-            ServletUtility.setErrorMessage(PropertyReader.getValue("record.notfound"), request);
-        }   ServletUtility.setList(list, request);
-        ServletUtility.setPageNo(pageNo, request);
-        ServletUtility.setPageSize(pageSize, request);
-
-            ServletUtility.forward(getView(), request, response);
-
-        log.debug("StudentListCtl doGet End");
-    }
-
-    /**
+	/**
 	 * Returns the VIEW page of this Controller.
-	 *
+	 * 
 	 * @return the view
 	 */
-    @Override
-    protected String getView() {
-        return ORSView.STUDENT_LIST_VIEW;
-    }
+	@Override
+	protected String getView() {
+		return ORSView.STUDENT_LIST_VIEW;
+	}
+    
+	@Override
+	protected void handleDatabaseException(Throwable e, HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		super.handleDatabaseException(e, request, response);
+	}
 }
