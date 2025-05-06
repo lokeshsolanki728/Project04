@@ -89,7 +89,7 @@ public void delete(CollegeDTO dto) throws ApplicationException {
 		try (Connection conn = JDBCDataSource.getConnection()) {
             conn.setAutoCommit(false); // Start transaction
             try (PreparedStatement pstmt = conn.prepareStatement("DELETE FROM ST_COLLEGE WHERE ID=?")) {
-                pstmt.setLong(1, bean.getId());
+                pstmt.setLong(1, dto.getId());
                 pstmt.executeUpdate();
             }
             conn.commit(); // Commit transaction
@@ -181,7 +181,7 @@ public void delete(CollegeDTO dto) throws ApplicationException {
             conn.setAutoCommit(true);
         }
         log.debug("Model update End");
-    
+    }
     public List search(CollegeBean bean) throws ApplicationException {
         return search(bean, 0, 0, null, null);
     }
@@ -189,23 +189,23 @@ public void delete(CollegeDTO dto) throws ApplicationException {
             throws ApplicationException {
         log.debug("Model search Started");
         List<CollegeDTO> list = new ArrayList<>();
+       
         int index = 1;
 
         StringBuilder sql = new StringBuilder("SELECT * FROM ST_COLLEGE WHERE 1=1");
-        if (bean != null) {
-            if (bean.getId() > 0) sql.append(" AND ID=?");
-            if (bean.getName() != null && !bean.getName().isEmpty()) sql.append(" AND NAME LIKE ?");
-            if (bean.getAddress() != null && !bean.getAddress().isEmpty())
+        if (dto != null) {
+            if (dto.getId() > 0) sql.append(" AND ID=?");
+            if (dto.getName() != null && !dto.getName().isEmpty()) sql.append(" AND NAME LIKE ?");
+            if (dto.getAddress() != null && !dto.getAddress().isEmpty())
 				sql.append(" AND ADDRESS like ?");
-			if (bean.getCity() != null && !bean.getCity().isEmpty())
+			if (dto.getCity() != null && !dto.getCity().isEmpty())
 				sql.append(" AND CITY like ?");
 		}
         if (orderBy != null && !orderBy.isEmpty()) {
         	sql.append(" ORDER BY ").append(orderBy);
             sql.append(" ").append("DESC".equalsIgnoreCase(sortOrder) ? "DESC" : "ASC");
-        } else {
-            sql.append(" ORDER BY NAME ASC");
-        }
+        } 
+         sql.append(" ORDER BY NAME ASC");
 
         if (pageSize > 0) {
             pageNo = Math.max(1, pageNo);
@@ -214,12 +214,12 @@ public void delete(CollegeDTO dto) throws ApplicationException {
         }
 
         try (Connection conn = JDBCDataSource.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
-            if (bean != null) {
-                if (bean.getId() > 0) pstmt.setLong(index++, bean.getId());
-                if (bean.getName() != null && bean.getName().length() > 0) pstmt.setString(index++, bean.getName()+"%");
-				if (bean.getAddress() != null && bean.getAddress().length() > 0) pstmt.setString(index++, bean.getAddress() + "%");
-				if (bean.getCity() != null && bean.getCity().length() > 0) pstmt.setString(index++, bean.getCity() + "%");
+             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {            if (dto != null) {
+                if (dto.getId() > 0) pstmt.setLong(index++, dto.getId());
+                if (dto.getName() != null && dto.getName().length() > 0) pstmt.setString(index++, dto.getName()+"%");
+				if (dto.getAddress() != null && dto.getAddress().length() > 0) pstmt.setString(index++, dto.getAddress() + "%");
+				if (dto.getCity() != null && dto.getCity().length() > 0) pstmt.setString(index++, dto.getCity() + "%");
+            
 			}
 
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -242,8 +242,9 @@ public void delete(CollegeDTO dto) throws ApplicationException {
         return list(1, 0, null, null);
     }
 
-    public List list(int pageNo, int pageSize, String orderBy, String sortOrder) throws ApplicationException {
-    	log.debug("Model list Started");
+    public List list(int pageNo, int pageSize, String orderBy, String sortOrder) throws ApplicationException {    
+     log.debug("Model list Started");
+
 
         List<CollegeDTO> list = new ArrayList<CollegeDTO>();
         StringBuffer sql = new StringBuffer("SELECT * FROM ST_COLLEGE");
@@ -269,7 +270,6 @@ public void delete(CollegeDTO dto) throws ApplicationException {
                 populateBean(rs, dto);
                 list.add(dto);
             }
-         rs.close();
         }
         
         catch (Exception e) {
@@ -278,6 +278,7 @@ public void delete(CollegeDTO dto) throws ApplicationException {
         }
         log.debug("Model list End");
         return list;
+    
     }
     @Override
     public String getTableName() {

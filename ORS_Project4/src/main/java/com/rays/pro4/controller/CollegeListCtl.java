@@ -128,14 +128,15 @@ public class CollegeListCtl extends BaseCtl<CollegeBean> {
 		if (sortOrder == null || sortOrder.trim().length() == 0) {
 			sortOrder = "asc";
 		}        try {
-
-			showList(bean, request, response, pageNo, pageSize);
-
+            
+            showList(bean, request, response, pageNo, pageSize,orderBy,sortOrder);
+        
 		} catch (Exception e) {
 			handleDatabaseException(e, request, response);
 		}
 		log.debug("CollegeListCtl Method doGet Ended");
 	}
+
 
 	/**
 	 * Delete the College
@@ -192,13 +193,13 @@ public class CollegeListCtl extends BaseCtl<CollegeBean> {
 		        try {
 		            if (OP_SEARCH.equalsIgnoreCase(op)) {
 		                pageNo = 1;
-		                if (DataUtility.getString(bean.getName()).length() == 0 && DataUtility.getString(bean.getCity()).length() == 0 && DataUtility.getString(bean.getState()).length() == 0) {
+		               if (DataUtility.getString(bean.getName()).length() == 0 && DataUtility.getString(bean.getCity()).length() == 0 && DataUtility.getString(bean.getState()).length() == 0) {
 		                    bean.setName(null);
 		                    bean.setCity(null);
 		                    bean.setState(null);
 		                    list = model.list(1, pageSize,orderBy,sortOrder);
 		                } else {
-		                    list = model.search(bean, pageNo, pageSize,orderBy,sortOrder);
+		                   list = model.search(bean, pageNo, pageSize,orderBy,sortOrder);
 		                }
 		            } else if (OP_NEXT.equalsIgnoreCase(op)) {
 		                pageNo++;
@@ -213,13 +214,13 @@ public class CollegeListCtl extends BaseCtl<CollegeBean> {
 		                pageNo = 1;
 		                if(ids == null || ids.length == 0) ServletUtility.setErrorMessage("Select at least one record", request);
 		                
-		                    delete(ids, request, response);
-		                } else {
-		                    ServletUtility.setErrorMessage("Select at least one record", request);
-		                }
+		                delete(ids, request, response);
+		            } else {
+		                ServletUtility.setErrorMessage("Select at least one record", request);
 		            }
-		            showList(bean, request, response, pageNo, pageSize,orderBy,sortOrder);
+		        showList(bean, request, response, pageNo, pageSize,orderBy,sortOrder);
 		        } catch (Exception e) {
+		            
 		            log.error(e);
 		            handleDatabaseException(e, request, response);
 		            return;
@@ -260,7 +261,8 @@ public class CollegeListCtl extends BaseCtl<CollegeBean> {
 			handleDatabaseException(e,request,response);
 			return;
 		}
-		setListAndPagination(list, request, pageNo, pageSize, response, orderBy, sortOrder);
+         setListAndPagination(list, request, pageNo, pageSize, response, orderBy, sortOrder);
+		
 	}	private final void setListAndPagination(final List<?> list, final HttpServletRequest request, final int pageNo,final int pageSize, HttpServletResponse response,String orderBy, String sortOrder) {
 		log.debug("setListAndPagination method start");
 		request.setAttribute("orderBy", orderBy);

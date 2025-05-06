@@ -1,6 +1,5 @@
 package com.rays.pro4.Model;
 
-import java.sql.Statement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.*;
@@ -70,7 +69,7 @@ public class RoleModel extends BaseModel {
             }
         } catch (Exception e) {
             BaseModel.log.error("Database Exception in add", e);
-            JDBCDataSource.trnRollback(conn);
+          
             throw new ApplicationException("Exception: Exception in add Role - " + e.getMessage());
         }
         return pk;
@@ -89,7 +88,7 @@ public class RoleModel extends BaseModel {
             }
         } catch (Exception e) {
             BaseModel.log.error("Database Exception in delete", e);
-            JDBCDataSource.trnRollback(conn);
+           
            throw new ApplicationException("Exception : Exception in delete Role - " + e.getMessage());
         }
     }
@@ -105,6 +104,7 @@ public class RoleModel extends BaseModel {
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     populateBean(rs, dto);
+             }
              }
         } catch (SQLException e) {
             BaseModel.log.error("Database Exception in findByName", e);
@@ -170,7 +170,7 @@ public class RoleModel extends BaseModel {
             }
         } catch (Exception e) {
             BaseModel.log.error("Database Exception in update", e);
-            JDBCDataSource.trnRollback();
+           
             throw new ApplicationException("Exception in updating Role - " + e.getMessage());
         }
     }
