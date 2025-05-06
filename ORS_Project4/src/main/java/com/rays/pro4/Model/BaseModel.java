@@ -35,9 +35,6 @@ public abstract class BaseModel implements java.io.Serializable {
 		return id;
 	}
 	
-	
-	
-	
     public abstract long nextPK() throws DatabaseException;
 
 

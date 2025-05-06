@@ -1,4 +1,4 @@
-package com.rays.pro4.Util;
+package com.rays.pro4.validator;
 
 import javax.servlet.http.HttpServletRequest;
 
