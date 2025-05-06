@@ -286,7 +286,7 @@ public class MarksheetModel extends BaseModel {
                     list.add(resultDTO);
                 }
             }           
-        }
+        } 
          }catch (SQLException e) {
             log.error("Database Exception in search Marksheet", e);
             throw new ApplicationException("Exception: Exception in searching marksheet - " + e.getMessage());
