@@ -29,10 +29,8 @@ import com.rays.pro4.Util.ServletUtility;
 public class TimeTableListCtl extends BaseCtl {
 
     private static Logger log = Logger.getLogger(TimeTableListCtl.class);
-    @Override
-      
-    }
-
+    
+    
     @Override
     protected BaseBean populateBean(HttpServletRequest request) {
         log.debug("populateBean method of TimeTableListCtl Started");

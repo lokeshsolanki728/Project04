@@ -185,7 +185,6 @@ public void delete(CollegeDTO dto) throws ApplicationException {
             }
         log.debug("Model update End");
     }
-    }
     
     public List search(CollegeBean bean) throws ApplicationException {
         return search(bean, 0, 0, null, null);
@@ -302,5 +301,4 @@ public void delete(CollegeDTO dto) throws ApplicationException {
 		dto.setCreatedDatetime(rs.getTimestamp(9));
 		dto.setModifiedDatetime(rs.getTimestamp(10));
 	}
-}
 }

@@ -115,13 +115,14 @@ public class RoleModel extends BaseModel {
             BaseModel.log.error("Database Exception in findByName", e);
             throw new ApplicationException("Exception: Exception in getting Role by name - " + e.getMessage());
         }
-        return bean;
+        return dto;
     
 
-
+/*
      * @param pk
      * @return RoleBean
      * @throws ApplicationException
+*/
      */
     public RoleDTO findByPK(long pk) throws ApplicationException {
         BaseModel.log.debug("Model findByPK Started");
@@ -247,7 +248,6 @@ public class RoleModel extends BaseModel {
                     populateBean(rs, roleDTO);
                     list.add(roleDTO);
                 }
-            }
             }
 
         } catch (SQLException e) {

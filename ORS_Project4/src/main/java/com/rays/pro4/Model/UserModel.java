@@ -138,6 +138,11 @@ public class UserModel extends BaseModel {
           if(conn!=null){
             JDBCDataSource.closeConnection(conn);
           }
+        } catch(SQLException e){
+          log.error("Database Exception in : delete", e);
+            JDBCDataSource.trnRollback(conn);
+            throw new ApplicationException("Exception : Exception in delete User");
+          
         }
         log.debug("Model delete End");
     }
@@ -206,7 +211,7 @@ public class UserModel extends BaseModel {
            JDBCDataSource.closeConnection(conn);
         }
         log.debug("Model findByPK End");
-        return bean;
+        return dto;
     }
 
     /**

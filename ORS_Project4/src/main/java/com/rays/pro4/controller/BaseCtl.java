@@ -102,7 +102,7 @@ public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
    
     private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
 			.getBundle("com.rays.pro4.resources.System");		
-	 */
+	 
 	protected void preload(HttpServletRequest request) {
 		
 		RoleModel model = new RoleModel();
@@ -123,8 +123,7 @@ public abstract class BaseCtl<T extends BaseBean> extends HttpServlet {
 	}
 
 	
-	 * @return
-	 */
+	 
 	protected boolean validate(HttpServletRequest request) {
 		return true;
 	}
