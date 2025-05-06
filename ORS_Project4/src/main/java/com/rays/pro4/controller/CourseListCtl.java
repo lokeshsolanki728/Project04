@@ -233,7 +233,7 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 		}catch (final Exception e) {
 			handleDatabaseException(e, request, response);
 		}
-	
+	}
 	/**
 	 * Sets the list and pagination.
 	 *
