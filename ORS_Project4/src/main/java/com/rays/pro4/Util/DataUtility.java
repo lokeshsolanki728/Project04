@@ -185,16 +185,6 @@ public class DataUtility {
         return timeStamp;
 	}
 
-	public static Timestamp getCurrentTimestamp() {
-		Timestamp timeStamp = null;
-		try {
-			timeStamp = new Timestamp(new Date().getTime());
-		} catch (Exception e) {
-			log.error("Error in DataUtility.getCurrentTimestamp",e);
-		}
-		return timeStamp;
-
-	}
 
 	public static long getTimestamp(Timestamp tm) {
 		try {

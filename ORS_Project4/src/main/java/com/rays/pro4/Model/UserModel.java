@@ -10,7 +10,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.rays.pro4.Bean.RoleBean;
 import com.rays.pro4.Bean.UserBean;
 import com.rays.pro4.DTO.UserDTO;
 import com.rays.pro4.Exception.ApplicationException;
@@ -66,23 +65,24 @@ public class UserModel extends BaseModel {
      * @throws DuplicateRecordException
      * @throws ApplicationException
      */
-    public long add(UserBean bean) throws DuplicateRecordException, ApplicationException {
+    public long add(UserDTO dto) throws DuplicateRecordException, ApplicationException {
         log.debug("Model add Started");
          Connection conn = null;
         long pk = 0;
         try {
            conn = JDBCDataSource.getConnection();
             pk = nextPK();
+            dto.setId(pk);
             conn.setAutoCommit(false); // Begin transaction
            try( PreparedStatement pstmt = conn.prepareStatement("INSERT INTO ST_USER VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)")){
                  pstmt.setLong(1, pk);
-                pstmt.setString(2, bean.getFirstName());
-                pstmt.setString(3, bean.getLastName());
-                pstmt.setString(4, bean.getLogin());
-                pstmt.setString(5, bean.getPassword());
-                pstmt.setDate(6, new java.sql.Date(bean.getDob().getTime()));
-                pstmt.setString(7, bean.getMobileNo());
-                pstmt.setLong(8, bean.getRoleId());
+                pstmt.setString(2, dto.getFirstName());
+                pstmt.setString(3, dto.getLastName());
+                pstmt.setString(4, dto.getLogin());
+                pstmt.setString(5, dto.getPassword());
+                pstmt.setDate(6, new java.sql.Date(dto.getDob().getTime()));
+                pstmt.setString(7, dto.getMobileNo());
+                pstmt.setLong(8, dto.getRoleId());
                 pstmt.setString(9, bean.getGender());
                 pstmt.setString(10, bean.getCreatedBy());
                 pstmt.setString(11, bean.getModifiedBy());
@@ -93,7 +93,7 @@ public class UserModel extends BaseModel {
          
             conn.commit(); // End transaction
             pstmt.close();
-            updateCreatesInfo(bean);
+            updateCreatesInfo(dto);
             sendMail(bean, "User Added", "User Added Successfully");
 
         } catch (SQLException e) {
@@ -219,28 +219,26 @@ public class UserModel extends BaseModel {
      * @throws DuplicateRecordException
      * @throws ApplicationException
      */
-    public void update(UserBean bean) throws DuplicateRecordException, ApplicationException {
+    public void update(UserDTO dto) throws DuplicateRecordException, ApplicationException {
         log.debug("Model update Started");
         Connection conn = null;
          try {
            conn = JDBCDataSource.getConnection();
            conn.setAutoCommit(false);
           try( PreparedStatement pstmt = conn.prepareStatement(
-                  "UPDATE ST_USER SET FIRST_NAME=?,LAST_NAME=?,LOGIN=?,PASSWORD=?,DOB=?,MOBILE_NO=?,ROLE_ID=?,GENDER=?,CREATED_BY=?,MODIFIED_BY=?,CREATED_DATETIME=?,MODIFIED_DATETIME=? WHERE ID=?")){
+                  "UPDATE ST_USER SET FIRST_NAME=?,LAST_NAME=?,LOGIN=?,PASSWORD=?,DOB=?,MOBILE_NO=?,ROLE_ID=?,GENDER=?,MODIFIED_BY=?,MODIFIED_DATETIME=? WHERE ID=?")){
                     
-                    pstmt.setString(1, bean.getFirstName());
-                    pstmt.setString(2, bean.getLastName());
-                    pstmt.setString(3, bean.getLogin());
-                    pstmt.setString(4, bean.getPassword());
-                    pstmt.setDate(5, new java.sql.Date(bean.getDob().getTime()));
-                    pstmt.setString(6, bean.getMobileNo());
-                    pstmt.setLong(7, bean.getRoleId());
-                    pstmt.setString(8, bean.getGender());
-                    pstmt.setString(9, bean.getCreatedBy());
-                    pstmt.setString(10, bean.getModifiedBy());
-                    pstmt.setTimestamp(11, bean.getCreatedDatetime());
-                    pstmt.setTimestamp(12, bean.getModifiedDatetime());
-                    pstmt.setLong(13, bean.getId());
+                    pstmt.setString(1, dto.getFirstName());
+                    pstmt.setString(2, dto.getLastName());
+                    pstmt.setString(3, dto.getLogin());
+                    pstmt.setString(4, dto.getPassword());
+                    pstmt.setDate(5, new java.sql.Date(dto.getDob().getTime()));
+                    pstmt.setString(6, dto.getMobileNo());
+                    pstmt.setLong(7, dto.getRoleId());
+                    pstmt.setString(8, dto.getGender());
+                    pstmt.setString(9, dto.getModifiedBy());
+                    pstmt.setTimestamp(10, dto.getModifiedDatetime());
+                    pstmt.setLong(11, dto.getId());
                     pstmt.executeUpdate();
                     conn.commit();
                     sendMail(bean, "User updated", "User Updated Successfully");
@@ -263,7 +261,7 @@ public class UserModel extends BaseModel {
      * @param bean
      * @throws ApplicationException
      */
-    public List search(UserBean bean) throws ApplicationException {
+    public List search(UserDTO bean) throws ApplicationException {
         return search(bean, 0, 0);
     }
 
@@ -275,7 +273,7 @@ public class UserModel extends BaseModel {
      * @param pageSize
      * @throws ApplicationException
      */
-    public List search(UserBean bean, int pageNo, int pageSize) throws ApplicationException {
+    public List search(UserDTO bean, int pageNo, int pageSize) throws ApplicationException {
         log.debug("Model search Started");
         Connection conn = null;
         List<UserDTO> list = new ArrayList<>();
@@ -410,13 +408,13 @@ public class UserModel extends BaseModel {
      * @return UserBean
      * @throws ApplicationException
      */
-    public UserBean authenticate(String login, String password) throws ApplicationException {
+    public UserDTO authenticate(String login, String password) throws ApplicationException {
         log.debug("Model authenticate Started");
         Connection conn = null;
-        UserBean bean = null; 
+        UserDTO dto = null; 
         try {
             conn = JDBCDataSource.getConnection();            
-           try( PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM ST_USER WHERE LOGIN = ? AND PASSWORD = ?")){
+           try( PreparedStatement pstmt = conn.prepareStatement("SELECT ID, FIRST_NAME, LAST_NAME, LOGIN, PASSWORD, DOB, MOBILE_NO, ROLE_ID, GENDER,CREATED_BY,MODIFIED_BY,CREATED_DATETIME,MODIFIED_DATETIME FROM ST_USER WHERE LOGIN = ? AND PASSWORD = ?")){
                  pstmt.setString(1, login);
                  pstmt.setString(2, password);
                  try(ResultSet rs = pstmt.executeQuery()){
@@ -435,7 +433,7 @@ public class UserModel extends BaseModel {
             JDBCDataSource.closeConnection(conn);
         }
         log.debug("Model authenticate End");
-        return bean;
+        return dto;
     }
 
     /**
@@ -489,10 +487,11 @@ public class UserModel extends BaseModel {
         Connection conn = null;
         try {
             conn = JDBCDataSource.getConnection();
-            UserBean bean = findByPK(id);
-            if (bean.getPassword().equals(oldPassword)) {
+            UserDTO dto = findByPK(id);
+            
+            if (dto.getPassword().equals(oldPassword)) {
                 conn.setAutoCommit(false); 
-                try(PreparedStatement pstmt = conn
+               try(PreparedStatement pstmt = conn
                         .prepareStatement("UPDATE ST_USER SET PASSWORD = ? WHERE ID = ?")){
                             pstmt.setString(1, newPassword);
                             pstmt.setLong(2, id);
@@ -528,21 +527,21 @@ public class UserModel extends BaseModel {
         long pk = 0;
         Connection conn = null;
         try {
-              UserDTO duplicateUser = findByLogin(bean.getLogin());
+              UserDTO duplicateUser = findByLogin(dto.getLogin());
                 
-            if (DataValidator.isNull(bean.getFirstName())) {
+            if (DataValidator.isNull(dto.getFirstName())) {
                throw new ApplicationException("First Name should not be null");
-            } else if (DataValidator.isName(bean.getFirstName())) {
+            } else if (DataValidator.isName(dto.getFirstName())) {
                 throw new ApplicationException("First Name should not contain numbers");
             }
-            if (DataValidator.isNull(bean.getLastName())) {
+            if (DataValidator.isNull(dto.getLastName())) {
                  throw new ApplicationException("Last Name should not be null");
-            } else if (DataValidator.isName(bean.getLastName())) {
+            } else if (DataValidator.isName(dto.getLastName())) {
                 throw new ApplicationException("Last Name should not contain numbers");
             }
-            if (DataValidator.isNull(bean.getLogin())) {
+            if (DataValidator.isNull(dto.getLogin())) {
                  throw new ApplicationException("Login should not be null");
-            } else if (!DataValidator.isEmail(bean.getLogin())) {
+            } else if (!DataValidator.isEmail(dto.getLogin())) {
                 throw new ApplicationException("Login should have a valid email format");
             }
             if (DataValidator.isNull(bean.getPassword())) {
@@ -554,17 +553,18 @@ public class UserModel extends BaseModel {
             if (duplicateUser != null) {
                 throw new DuplicateRecordException("Login id already exists");
             }
+            dto.setId(pk);
             conn = JDBCDataSource.getConnection();
             pk = nextPK();
             conn.setAutoCommit(false);
            try( PreparedStatement pstmt = conn.prepareStatement("INSERT INTO ST_USER VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)")){
                 pstmt.setInt(1, (int) pk);
-                pstmt.setString(2, bean.getFirstName());
-                pstmt.setString(3, bean.getLastName());
-                pstmt.setString(4, bean.getLogin());
-                pstmt.setString(5, bean.getPassword());
-                pstmt.setDate(6, new java.sql.Date(bean.getDob().getTime()));
-                pstmt.setString(7, bean.getMobileNo());
+                pstmt.setString(2, dto.getFirstName());
+                pstmt.setString(3, dto.getLastName());
+                pstmt.setString(4, dto.getLogin());
+                pstmt.setString(5, dto.getPassword());
+                pstmt.setDate(6, new java.sql.Date(dto.getDob().getTime()));
+                pstmt.setString(7, dto.getMobileNo());
                 pstmt.setLong(8, 2);
                 pstmt.setString(9, bean.getGender());
                 pstmt.setString(10, "Self");
@@ -576,7 +576,7 @@ public class UserModel extends BaseModel {
           
             conn.commit();
            
-            sendMail(bean, "Registration", "Registration Successfull");
+            sendMail(dto, "Registration", "Registration Successfull");
         } catch (SQLException e) {
             log.error("Database Exception in : registerUser", e);
             JDBCDataSource.trnRollback(conn);
@@ -614,7 +614,7 @@ public class UserModel extends BaseModel {
                    sendMail(dto, "Reset Password", "Password reset Successfull");
                }
                 pstmt.close();
-                sendMail(bean, "Reset Password", "Password reset Successfull");
+                
                 flag = true;
             }
         } catch (SQLException e) {
@@ -650,14 +650,14 @@ public class UserModel extends BaseModel {
     }
 
     /**
-     * @param bean`
+     * @param dto`
      * @param subject
      * @param body
      * @throws Exception
      */
-    private void sendMail(UserBean bean, String subject, String body) throws Exception {
+    private void sendMail(UserDTO dto, String subject, String body) throws Exception {
         EmailMessage msg = new EmailMessage();
-        msg.setTo(bean.getLogin());
+        msg.setTo(dto.getLogin());
         msg.setSubject(subject);
         msg.setMessage(body);
         EmailUtility.sendMail(msg);

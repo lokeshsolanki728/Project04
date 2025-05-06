@@ -34,11 +34,7 @@ public abstract class BaseModel implements java.io.Serializable {
 	public long getId() {
 		return id;
 	}
-	
-    public abstract long nextPK() throws DatabaseException;
-
-
-	public void setId(long id) {
+    public void setId(long id) {
 		this.id = id;
 	}
 	public String getCreatedBy() {
@@ -65,7 +61,6 @@ public abstract class BaseModel implements java.io.Serializable {
 	public void setModifiedDateTime(Timestamp modifiedDateTime) {
 		this.modifiedDateTime = modifiedDateTime;
 	}
-
 	
 	/**
 	 * Generates and returns the next primary key.
@@ -111,6 +106,4 @@ public abstract class BaseModel implements java.io.Serializable {
         }
         log.debug("Model updateInfo End");
     }
-
-
 }

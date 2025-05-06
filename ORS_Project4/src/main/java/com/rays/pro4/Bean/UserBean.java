@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 
 public class UserBean extends BaseBean {
 
-    private int id;
+    private long id;
 
 	private static final String INACTIVE = "inactive";	
 	/**
@@ -60,10 +60,10 @@ public class UserBean extends BaseBean {
      * get the id of the bean
 	 * @return int
 	 */
-    public int getId() {
+    public long getId() {
         return id;
     }
-
+    
     /**
 	 * set the id of the bean
 	 * @param id
@@ -120,14 +120,7 @@ public class UserBean extends BaseBean {
 	public void setLogin(String login) {
 		this.login = login;
 	}
-	/**
-	 *  get the password
-	 * @param password
-	 */
-	public void setPassword(String password) {
-		this.password = password;
-	}
-	/**
+    
 	 * get the dob
 	 * @return dob
 	 */

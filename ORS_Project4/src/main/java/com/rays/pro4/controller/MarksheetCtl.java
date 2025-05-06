@@ -11,7 +11,6 @@ import com.rays.pro4.Bean.MarksheetBean;
 import com.rays.pro4.Bean.StudentBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
-import com.rays.pro4.DTO.MarksheetDTO;
 import com.rays.pro4.Model.MarksheetModel;
 import com.rays.pro4.Model.StudentModel;
 import com.rays.pro4.Util.DataValidator;
@@ -67,6 +66,7 @@ public class MarksheetCtl extends BaseCtl {
         bean.setPhysics(DataUtility.getInt(request.getParameter("physics")));
         bean.setChemistry(DataUtility.getInt(request.getParameter("chemistry")));
         bean.setMaths(DataUtility.getInt(request.getParameter("maths")));
+        return bean;
     }
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

@@ -1,7 +1,6 @@
 package com.rays.pro4.Bean;
 
 import com.rays.pro4.DTO.BaseDTO;
-import com.rays.pro4.DTO.DTO;
 import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 import org.apache.log4j.Logger;
@@ -133,7 +132,7 @@ public abstract class BaseBean implements Serializable, DropdownListBean {
                 + createdDatetime + ", modifiedDatetime=" + modifiedDatetime + "]";
     }
 
-    public abstract DTO getDTO();
+    public abstract BaseDTO getDTO();
     
     /**
      * populate the bean from request parameters
