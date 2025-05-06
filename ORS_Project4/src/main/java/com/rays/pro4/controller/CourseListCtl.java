@@ -213,37 +213,6 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 		}
 		
 		log.debug("do Post method of CourseListCtl End");
-		/*if(!validate(request)) {
-			final int[] pageData = paginate(request);
-			int pageNo = pageData[0];
-			int pageSize = pageData[1];
-			final String op = DataUtility.getString(request.getParameter("operation"));
-			final String[] ids = request.getParameterValues("ids");
-			final CourseBean bean = populate(request);
-			if (OP_SEARCH.equalsIgnoreCase(op)) {
-				pageNo = 1;
-			} else if (OP_NEXT.equalsIgnoreCase(op)) {
-				pageNo++;
-			} else if (OP_PREVIOUS.equalsIgnoreCase(op) && pageNo > 1) {
-				pageNo--;
-			} else if (OP_NEW.equalsIgnoreCase(op)) {
-				ServletUtility.redirect(ORSView.COURSE_CTL, request, response);
-				return;
-			} else if (OP_RESET.equalsIgnoreCase(op)) {
-				ServletUtility.redirect(ORSView.COURSE_LIST_CTL, request, response);
-				return;
-			} else if (OP_DELETE.equalsIgnoreCase(op)) {
-				pageNo = 1;
-				try {
-					delete(ids, request, response);
-				} catch (ApplicationException e) {
-					handleDatabaseException(e, request, response);
-					return;
-				}
-			} else {
-				showList(bean, request, response, pageNo, pageSize);
-			}
-		}*/
 	}	
 	/**
 	 * Contains Submit logics.
@@ -265,8 +234,8 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 	 * @throws ServletException the servlet exception
 	 * @throws IOException      Signals that an I/O exception has occurred.
 	 */
-	private final void showList(final CourseBean bean, final HttpServletRequest request, final HttpServletResponse response,
-			final int pageNo, final int pageSize, final String orderBy, final String sortOrder) throws ServletException, IOException {
+	private void showList(final CourseBean bean, final HttpServletRequest request, final HttpServletResponse response,
+			int pageNo, final int pageSize, final String orderBy, final String sortOrder) throws ServletException, IOException {
 		log.debug("showList Method Start");
 		List<CourseBean> list = null;	
 		try {
@@ -274,12 +243,6 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 		}catch (final Exception e) {
 			handleDatabaseException(e, request, response);
 		}
-		/*
-		if (list == null || list.isEmpty()&& !OP_DELETE.equalsIgnoreCase(DataUtility.getString(request.getParameter("operation")))) {
-			ServletUtility.setErrorMessage(PropertyReader.getValue("error.record.notfound"), request);
-		}
-		setListAndPagination(list, request, pageNo, pageSize);	
-	}
 	
 	/**
 	 * Sets the list and pagination.
@@ -305,7 +268,7 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 		int pageNo = DataUtility.getInt(request.getParameter("pageNo"));
 		int pageSize = DataUtility.getInt(request.getParameter("pageSize"));
 		pageNo = (pageNo == 0) ? 1 : pageNo;
-		pageSize = (pageSize == 0) ? DataUtility.getInt(PropertyReader.getValue(\"page.size\")) : pageSize;
+		pageSize = (pageSize == 0) ? DataUtility.getInt(PropertyReader.getValue("page.size")) : pageSize;
 		return new int[] { pageNo, pageSize };
 	}
 	@Override

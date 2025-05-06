@@ -93,13 +93,14 @@ public class StudentCtl extends BaseCtl {
             log.debug("StudentCtl Method validate Ended with error");
         }
         return pass;
-	 * Populates bean object from request parameters.
-	 * 
-	 * @param request the request
-	 * @return the base bean
-	 * @see com.rays.pro4.controller.BaseCtl#populateBean(javax.servlet.http.HttpServletRequest)	 * 
-	 */
-    protected void populateBean(HttpServletRequest request, StudentBean bean) {
+    }
+    
+    /**
+     * Populates bean object from request parameters.
+     *
+     * @param request the request
+     */
+    protected void populateBean(HttpServletRequest request, StudentBean bean){
 
         log.debug("StudentCtl Method populateBean Started");
         bean.setFirstName(DataUtility.getString(request.getParameter("firstname")));
@@ -189,42 +190,38 @@ public class StudentCtl extends BaseCtl {
         log.debug("updateStudent method end");
     }
 
-    /**
-	 * Contains Submit logics.
-	 * 
-	 * @param request the request
-	 * @param response the response
-	 * @throws javax.servlet.ServletException the servlet exception
-	 * @throws java.io.IOException Signals that an I/O exception has occurred.
-	 *
-	 *
-     */
-    protected void doPost(HttpServletRequest request, 
-        
-            HttpServletResponse response) throws ServletException, IOException {
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
         log.debug("StudentCtl Method doPost Started");
 
-        String op = DataUtility.getString(request.getParameter("operation"));
+        String operation = DataUtility.getString(request.getParameter("operation"));
+        StudentBean bean = new StudentBean();
+        populateBean(request, bean);
 
-        final long id = DataUtility.getLong(request.getParameter("id"));
-
-         StudentDTO dto= new StudentDTO();
-
-        if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
-            final StudentBean bean = new StudentBean();
-            populateBean(request, bean);
-           
-            try {
-                if(validate(request)){
-               
-                if (bean.getId() > 0) {
-                	updateStudent(bean, model, request);
-                } else {
-                	saveStudent(bean, model, request);
+        try {
+            if (OP_SAVE.equalsIgnoreCase(operation) || OP_UPDATE.equalsIgnoreCase(operation)) {
+                if(!validate(request)){
+                    ServletUtility.setBean(bean, request);
+                    ServletUtility.forward(getView(), request, response);
+                    return;
                 }
-                
-            } catch (final ApplicationException e) {
+                if (bean.getId() > 0) {
+                    updateStudent(bean, model, request);
+                } else {
+                    saveStudent(bean, model, request);
+                }
+                ServletUtility.forward(getView(), request, response);
+                return;
+            } else if (OP_RESET.equalsIgnoreCase(operation)) {
+                ServletUtility.redirect(ORSView.STUDENT_CTL, request, response);
+                return;
+            }else if (OP_CANCEL.equalsIgnoreCase(operation)){
+                ServletUtility.redirect(ORSView.STUDENT_LIST_CTL, request, response);
+                return;
+            }
+        } catch (ApplicationException e) {
                 log.error("Application exception", e);
                 handleDatabaseException(e, request, response);
                 return;                
@@ -232,19 +229,9 @@ public class StudentCtl extends BaseCtl {
                 ServletUtility.setBean(bean, request);
                 ServletUtility.setErrorMessage("Student Email Id already exists", request);
             }
-             ServletUtility.setBean(bean, request);
-           }
-         } else if (OP_RESET.equalsIgnoreCase(op)) {
-         	ServletUtility.redirect(ORSView.STUDENT_CTL, request, response);
-             return;
-        } else if (OP_CANCEL.equalsIgnoreCase(op)) {
-         	ServletUtility.redirect(ORSView.STUDENT_LIST_CTL, request, response);
-             return;
-        }
-         ServletUtility.forward(getView(), request, response);
+        ServletUtility.forward(getView(), request, response);
 
         log.debug("StudentCtl Method doPost Ended");
-        
     }
 
     /** 

@@ -111,13 +111,10 @@ public class RoleModel extends BaseModel {
             throw new ApplicationException("Exception: Exception in getting Role by name - " + e.getMessage());
         }
         return dto;
+    }
     
-    /*
-         * @param pk
-         * @return RoleBean
-         * @throws ApplicationException
-    */
-     */
+   
+    
     public RoleDTO findByPK(long pk) throws ApplicationException {
         BaseModel.log.debug("Model findByPK Started");
         StringBuffer sql = new StringBuffer("SELECT * FROM ST_ROLE WHERE ID=?");

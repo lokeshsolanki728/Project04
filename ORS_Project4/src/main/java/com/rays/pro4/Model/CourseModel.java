@@ -187,20 +187,18 @@ public class CourseModel extends BaseModel {
                 }
             }
         } catch (SQLException e) {
+             log.error("Database Exception in update Course", e);
+            if(conn != null){
+               try{ conn.rollback();}catch(SQLException ex){
+                log.error("error in rollback", ex);
+               }
+            }
+            
             throw new ApplicationException("Exception: Exception in getting Course by pk");
-        } 
+        }
         return bean;
     }
-return bean;
-    /**
-     * Searches courses with pagination.
-     *
-     * @param bean                         The CourseBean to search with.
-     * @param pageNo                       The page number.
-     * @param pageSize The page size.
-     * @return A list of CourseBeans matching the search criteria.
-     * @throws ApplicationException If a general application exception occurs.
-     */
+
  public List search(CourseBean bean, int pageNo, int pageSize, String orderBy, String sortOrder) throws ApplicationException {
         log.debug("Model search Started");
         StringBuffer sql = new StringBuffer("SELECT * FROM ST_COURSE WHERE 1=1");
@@ -240,12 +238,13 @@ return bean;
                        bean = populate(rs, new CourseBean());                    
                         list.add(bean);
                     }
-                }            
+                }  
+             }
             } catch (SQLException e) { log.error("Database Exception in search Course", e);
             throw new ApplicationException("Exception: Exception in search Course");
         }
         log.debug("Model search End");
-        return list;
+        return list;}
     }
 
   public List list(int pageNo, int pageSize, String orderBy, String sortOrder) throws ApplicationException {
@@ -268,7 +267,8 @@ return bean;
                 while (rs.next()) {
                    list.add(populate(rs, new CourseBean()));
             
-                
+                }
+            }
         } catch (SQLException e) {
              log.error("Database Exception in list Course", e);
             throw new ApplicationException("Exception: Exception in list Course");

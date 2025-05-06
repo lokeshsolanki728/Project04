@@ -204,7 +204,6 @@ public class ServletUtility {
 		return (BaseBean) request.getAttribute("bean");
 	}
 
-		
 		public static BaseBean populateBean(HttpServletRequest request, BaseBean bean) {
 		Map<String, String[]> map = request.getParameterMap();
 		for (String key : map.keySet()) {
@@ -213,8 +212,6 @@ public class ServletUtility {
 			}
 		}
 		return bean;
-	}	
-	}
 
 	/**
 	 * gets Model from request scope
@@ -226,7 +223,6 @@ public class ServletUtility {
 		return (BaseModel) request.getAttribute("model");
 	}
 
-	
 	/**
 	 * Get request parameter to display. If value is null then return empty string
 	 *
@@ -242,16 +238,6 @@ public class ServletUtility {
 			return val;
 		}
 	}
-	
-	public static String getParameter(String property, HttpServletRequest request) {
-		String val = (String) request.getParameter(property);
-		if (val == null) {
-			return "";
-		} else {
-			return val;
-		}
-	}
-
 	
 	public static BaseBean getBean(String[] property ,HttpServletRequest request) {
 		 BaseBean bean=null;
@@ -273,16 +259,6 @@ public class ServletUtility {
 		request.setAttribute("modifiedDatetime", bean.getModifiedDatetime());
 	}
 	/**
-	 * Gets default list from request scope
-	 *
-	 * @param request the request
-	 * @return the list
-	 */
-	public static List getList(HttpServletRequest request) {
-		return (List) request.getAttribute("list");
-	}
-
-	/**
 	 * Sets default List to request.
 	 *
 	 * @param list    the list
@@ -292,7 +268,17 @@ public class ServletUtility {
 		request.setAttribute("list", list);
 	}
 
+
 	/**
+	 * Gets default list from request scope
+	 *
+	 * @param request the request
+	 * @return the list
+	 */
+	public static List getList(HttpServletRequest request) {
+		return (List) request.getAttribute("list");
+	}
+
 	 * Sets Page Number for List pages.
 	 *
 	 * @param pageNo  the page no
@@ -331,5 +317,4 @@ public class ServletUtility {
 	public static int getPageSize(HttpServletRequest request) {
 		return (Integer) request.getAttribute("pageSize");
 	}
-}
 

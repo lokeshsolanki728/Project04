@@ -9,7 +9,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import com.rays.pro4.util.ChangePasswordValidator; 
 import com.rays.pro4.Bean.UserBean;
-import com.rays.pro4.Exception.ApplicationException;\nimport com.rays.pro4.controller.ORSView;
+import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.DTO.UserDTO;
 import com.rays.pro4.Model.UserModel;
 
@@ -18,6 +18,7 @@ import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.ServletUtility;
 
 /**
+ * The Class ORSView is a controller that use to provide page forward and redirect.
 * The Class ChangePasswordCtl is a controller that allows users to change their password.
 * It handles the display and submission logic for the change password form.
 * 
@@ -86,13 +87,13 @@ public class ChangePasswordCtl extends BaseCtl<UserBean>{
 		
 		
         return bean;
-    }
-     *
+    }     
+    /**
      * @param request  The HttpServletRequest object.
      * @param response The HttpServletResponse object.
      * @throws ServletException
      * @throws IOException      If an input or output exception occurs.
-	 */
+	     */
 	@Override
 	protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
 			throws ServletException, IOException {
