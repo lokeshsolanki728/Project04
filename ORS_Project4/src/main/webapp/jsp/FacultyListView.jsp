@@ -36,14 +36,14 @@
 			</h1>
 
 			<div class="message-container">
-				<c:if test="${not empty requestScope.errorMessage}">
+				<c:if test="${not empty requestScope.error}">
 					<div class="alert alert-danger" role="alert">
-						${requestScope.errorMessage}
+						${requestScope.error}
 					</div>
 				</c:if>
-				<c:if test="${not empty requestScope.successMessage}">
+				<c:if test="${not empty requestScope.success}">
 					<div class="alert alert-success" role="alert">
-						${requestScope.successMessage}
+						${requestScope.success}
 					</div>
 				</c:if>
 			</div>
@@ -148,8 +148,7 @@
                     <tr>
                         <td><input type="submit" name="operation" class="btn btn-secondary" value="${FacultyListCtl.OP_PREVIOUS}" ${pageNo == 1 ? 'disabled' : ''} /></td>
                         <td><input type="submit" name="operation" class="btn btn-danger" value="${FacultyListCtl.OP_DELETE}" /></td>
-                        <td><input type="submit" name="operation" class="btn btn-success" value="${FacultyListCtl.OP_NEW}" /></td>
-                        <td class="text-right"><input type="submit" name="operation" class="btn btn-primary" value="${FacultyListCtl.OP_NEXT}" ${facultyList.size() < pageSize || next == 0 ? 'disabled' : ''} /></td>
+                        <td><input type="submit" name="operation" class="btn btn-success" value="${FacultyListCtl.OP_NEW}" /></td> <td class="text-right"><input type="submit" name="operation" class="btn btn-primary" value="${FacultyListCtl.OP_NEXT}" ${not nextPageExists ? 'disabled' : ''} />
                     </tr>
                 </table>
             </c:if>

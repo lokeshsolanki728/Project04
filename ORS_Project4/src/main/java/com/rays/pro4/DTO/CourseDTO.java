@@ -32,6 +32,8 @@ public class CourseDTO extends BaseDTO {
 
     @Override
     public String toString() {
-        return "CourseDTO [name=" + name + ", description=" + description + ", duration=" + duration + ", id=" + id + "]";
+        return "CourseDTO [name=" + name + ", description=" + description + ", duration=" + duration + ", id=" + id
+                + ", createdBy=" + createdBy + ", modifiedBy=" + modifiedBy + ", createdDatetime=" + createdDatetime
+                + ", modifiedDatetime=" + modifiedDatetime + "]";
     }
 }

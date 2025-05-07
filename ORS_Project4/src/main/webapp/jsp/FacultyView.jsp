@@ -67,14 +67,14 @@
                     <th class="text-left"><label for="firstname">First Name <span class="required">*</span>:</label></th>
                     <td><input type="text" id="firstname" name="firstname" placeholder="Enter First Name"
                                class="form-control" value="${bean.firstname}" maxlength="45" />
-                        <span class="error-message">${requestScope.firstname}</span>
+                        <span class="error-message">${errors.firstName}</span>
                     </td>
                 </tr>
                 <tr>
                     <th class="text-left"><label for="lastname">Last Name <span class="required">*</span>:</label></th>
                     <td><input type="text" id="lastname" name="lastname" placeholder="Enter Last Name"
                                class="form-control" value="${bean.lastName}" maxlength="45" />
-                        <span class="error-message">${requestScope.lastname}</span>
+                        <span class="error-message">${errors.lastName}</span>
                     </td>
                 </tr>
                 <tr>
@@ -85,7 +85,7 @@
                             <option value="Male" ${bean.gender == 'Male' ? 'selected' : ''}>Male</option>
                             <option value="Female" ${bean.gender == 'Female' ? 'selected' : ''}>Female</option>\
                         </select>
-                        <span class="error-message">${requestScope.gender}</span>
+                        <span class="error-message">${errors.gender}</span>
                     </td>
                 </tr>
                 <tr>
@@ -97,7 +97,7 @@
                                 <option value="${college.id}" ${bean.collegeId == college.id ? 'selected' : ''}>${college.name}</option>
                             </c:forEach>
                         </select>
-                        <span class="error-message">${requestScope.collegeId}</span>
+                        <span class="error-message">${errors.collegeId}</span>
                     </td>
                 </tr>
                 <tr>
@@ -109,7 +109,7 @@
                                 <option value="${course.id}" ${bean.courseId == course.id ? 'selected' : ''}>${course.name}</option>
                             </c:forEach>
                         </select>
-                        <span class="error-message">${requestScope.courseId}</span>
+                        <span class="error-message">${errors.courseId}</span>
                     </td>
                 </tr>
                 <tr>
@@ -121,7 +121,7 @@
                                 <option value="${subject.id}" ${bean.subjectId == subject.id ? 'selected' : ''}>${subject.subjectName}</option>
                             </c:forEach>
                         </select>
-                        <div class="error-message">${requestScope.subjectId}</div>
+                        <span class="error-message">${errors.subjectId}</span>
                     </td>
                 </tr>
                 <tr>
@@ -129,7 +129,7 @@
                     <td><input type="text" name="dob" id="date" placeholder="Enter Date Of Birth"
                                class="form-control" readonly="readonly"
                                value="<fmt:formatDate type='date' value='${bean.dob}' pattern='MM/dd/yyyy'/>" />
-                        <span class="error-message">${requestScope.dob}</span>
+                        <span class="error-message">${errors.dob}</span>
                     </td>
                 </tr>
                 <tr>
@@ -137,7 +137,7 @@
                     <td><input type="text" id="emailId" name="emailId" class="form-control" maxlength="50"
                                placeholder="Enter Email ID" value="${bean.emailID}" />
                         <span class="error-message">${requestScope.emailId}</span>
-                    </td>
+                  </td>
                 </tr>
                 <tr>
                     <th class="text-left"><label for="mobileno">Mobile No <span class="required">*</span>:</label></th>
@@ -167,3 +167,4 @@
     <%@ include file="Footer.jsp" %>
 </body>
 </html>
+

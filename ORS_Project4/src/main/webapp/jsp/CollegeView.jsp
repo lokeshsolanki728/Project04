@@ -47,12 +47,12 @@
                     </div>
                 </c:if>
 			</div>
-            <input type="hidden" name="id" value="<%= bean.getId()%>" />
-            <input type="hidden" name="createdBy" value="<%= bean.getCreatedBy() != null ? bean.getCreatedBy() : "" %>" />
-            <input type="hidden" name="modifiedBy" value="<%= bean.getModifiedBy() != null ? bean.getModifiedBy() : "" %>" />
-            <input type="hidden" name="createdDatetime" value="<%= bean.getCreatedDatetime() != null ? bean.getCreatedDatetime() : "" %>" />
-            <input type="hidden" name="modifiedDatetime" value="<%= bean.getModifiedDatetime() != null ? bean.getModifiedDatetime() : "" %>" />
-
+            <input type="hidden" name="id" value="<c:out value="${bean.id}"/>" />
+            <input type="hidden" name="createdBy" value="<c:out value="${not empty bean.createdBy ? bean.createdBy : ''}"/>" />
+            <input type="hidden" name="modifiedBy" value="<c:out value="${not empty bean.modifiedBy ? bean.modifiedBy : ''}"/>" />
+            <input type="hidden" name="createdDatetime" value="<c:out value="${not empty bean.createdDatetime ? bean.createdDatetime : ''}"/>" />
+            <input type="hidden" name="modifiedDatetime" value="<c:out value="${not empty bean.modifiedDatetime ? bean.modifiedDatetime : ''}"/>" />
+            <c:set var="errors" value="${requestScope.errors}" />
             <table class="table table-borderless w-50 mx-auto">
                 <tr>
                     <th class="text-left">
@@ -60,41 +60,41 @@
                     </th>
                     <td><input type="text" id="name" name="name" placeholder="Enter College Name" class="form-control"
                                value="<%=HTMLUtility.get(bean.getName())%>"
-                               <%if (request.getAttribute("name") != null) {%> autofocus
-                            <%}%> maxlength="50" />
-                        <span class="error-message"> ${requestScope.name}</span></td>
+                               <c:if test="${not empty errors.name}">autofocus</c:if>
+                               maxlength="50" />
+                        <span class="error-message"> ${errors.name}</span></td>
                 </tr>
                 <tr>
                     <th class="text-left">
                         <label for="address">Address<span class="required">*</span></label>
                     </th>
                     <td><input type="text" id="address" name="address" class="form-control" placeholder="Enter Address"
-                               value="<%=HTMLUtility.get(bean.getAddress())%>" maxlength="50" /> <span
-                            class="error-message"> ${requestScope.address}</span></td>
+                               value="<%=HTMLUtility.get(bean.getAddress())%>" maxlength="100" />
+                               <span class="error-message"> ${errors.address}</span>
+                            </td>
                 </tr>
                 <tr>
                     <th class="text-left">
                         <label for="state">State<span class="required">*</span></label>
                     </th>
                     <td><input type="text" id="state" name="state" class="form-control" placeholder="Enter State"
-                               value="<%=HTMLUtility.get(bean.getState())%>" maxlength="50" /> <span
-                            class="error-message"> ${requestScope.state}</span></td>
+                               value="<%=HTMLUtility.get(bean.getState())%>" maxlength="50" />
+                                <span class="error-message"> ${errors.state}</span></td>
                 </tr>
                 <tr>
                     <th class="text-left">
                         <label for="city">City<span class="required">*</span></label>
                     </th>
                     <td><input type="text" id="city" name="city" class="form-control" placeholder="Enter City"
-                               value="<%=HTMLUtility.get(bean.getCity())%>" maxlength="50" /> <span
-                            class="error-message"> ${requestScope.city}</span></td>
+                               value="<%=HTMLUtility.get(bean.getCity())%>" maxlength="50" />
+                               <span class="error-message"> ${errors.city}</span></td>
                 </tr>
                 <tr>
                     <th class="text-left">
                         <label for="phoneNo">Phone No<span class="required">*</span></label>
                     </th>
-                    <td><input type="number" id="phoneNo" name="phoneNo" class="form-control"
-                               placeholder="Enter Phone No." value="<%=HTMLUtility.get(bean.getPhoneNo())%>" maxlength="10" />
-                        <span class="error-message"> ${requestScope.phoneNo}</span></td>
+                    <td><input type="text" id="phoneNo" name="phoneNo" class="form-control" placeholder="Enter Phone No." value="<%=HTMLUtility.get(bean.getPhoneNo())%>" maxlength="15" />
+                        <span class="error-message"> ${errors.phoneNo}</span></td>
                 </tr>
                 <tr>
                     <th></th>

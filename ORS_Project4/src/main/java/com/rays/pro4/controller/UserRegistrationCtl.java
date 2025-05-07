@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import com.rays.pro4.Util.MessageConstant;
 
+import com.rays.pro4.DTO.UserDTO;
 import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Bean.RoleBean;
 import com.rays.pro4.Bean.UserBean;
@@ -128,11 +129,11 @@ public class UserRegistrationCtl extends BaseCtl<UserBean> {
 	 * HttpServletRequest)
 	 */
     @Override
-    protected UserBean populateBean(HttpServletRequest request) {
+    protected UserDTO populateBean(HttpServletRequest request) {
 		log.debug("UserRegistrationCtl Method populatebean Started");
-        UserBean bean = new UserBean();
-        
-        bean.setFirstName(DataUtility.getString(request.getParameter("firstName")));
+        UserDTO bean = new UserDTO();
+
+		bean.setFirstName(DataUtility.getString(request.getParameter("firstName")));
         bean.setLastName(DataUtility.getString(request.getParameter("lastName")));
         bean.setLogin(DataUtility.getString(request.getParameter("login")));
         bean.setDob(DataUtility.getDate(request.getParameter("dob")));
@@ -176,16 +177,19 @@ public class UserRegistrationCtl extends BaseCtl<UserBean> {
 
 		final String op = DataUtility.getString(request.getParameter("operation"));
         
-        final UserBean bean = populateBean(request);
-        
+        final UserDTO bean = populateBean(request);
+
+		bean.setRoleId(2);
+        bean.setCreatedDatetime(DataUtility.getCurrentTimestamp());
+        bean.setModifiedDatetime(DataUtility.getCurrentTimestamp());
 		if (OP_SIGN_UP.equalsIgnoreCase(op)) {
             if(validate(request)){
                 try {
-                    save(bean, request);                   
+                    save(bean, request);
                 } catch (final DuplicateRecordException e) {
                     log.error("Duplicate record exception", e);
                     ServletUtility.setErrorMessage("Login Id Already Exists", request);
-                }catch (final ApplicationException | DatabaseException e) {
+                } catch (final ApplicationException | DatabaseException e) {
                     log.error(e);
                     handleDatabaseException(e, request, response);
                 }           
@@ -196,10 +200,11 @@ public class UserRegistrationCtl extends BaseCtl<UserBean> {
         }
     }
 	
-	private void save(UserBean bean, HttpServletRequest request) 
+	private void save(UserDTO bean, HttpServletRequest request)
             throws DuplicateRecordException, ApplicationException {
         log.debug("save method start");
         long pk = model.registerUser(bean);
+
         bean.setId(pk);
         ServletUtility.setSuccessMessage(MessageConstant.USER_ADD, request);
         log.debug("save method end");

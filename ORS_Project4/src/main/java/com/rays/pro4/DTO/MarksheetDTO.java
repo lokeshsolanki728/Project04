@@ -4,7 +4,6 @@ public class MarksheetDTO extends BaseDTO {
 
     private String rollNo;
     private long studentId;
-    private String name;
     private int physics;
     private int chemistry;
     private int maths;
@@ -24,14 +23,6 @@ public class MarksheetDTO extends BaseDTO {
 
     public void setStudentId(long studentId) {
         this.studentId = studentId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public int getPhysics() {
@@ -60,7 +51,7 @@ public class MarksheetDTO extends BaseDTO {
 
     @Override
     public String toString() {
-        return "MarksheetDTO [rollNo=" + rollNo + ", studentId=" + studentId + ", name=" + name + ", physics=" + physics
+        return "MarksheetDTO [rollNo=" + rollNo + ", studentId=" + studentId + ", physics=" + physics
                 + ", chemistry=" + chemistry + ", maths=" + maths + ", id=" + id + ", createdBy=" + createdBy
                 + ", modifiedBy=" + modifiedBy + ", createdDatetime=" + createdDatetime + ", modifiedDatetime="
                 + modifiedDatetime + "]";

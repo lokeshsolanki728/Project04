@@ -1,7 +1,6 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -12,7 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import com.rays.pro4.Bean.BaseBean;
-import com.rays.pro4.DTO.UserDTO;
 import com.rays.pro4.Bean.UserBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
@@ -52,20 +50,6 @@ public class UserCtl extends BaseCtl {
 		return pass;
 	}
 
-	protected void populateBean(final HttpServletRequest request, UserBean bean) {
-		log.debug("UserCtl Method populateBean Started");
-		bean.setRoleId(DataUtility.getLong(request.getParameter("roleId")));
-		bean.setFirstName(DataUtility.getString(request.getParameter("firstName")));
-		bean.setLastName(DataUtility.getString(request.getParameter("lastName")));
-		bean.setLogin(DataUtility.getString(request.getParameter("login")));
-		bean.setPassword(DataUtility.getString(request.getParameter("password")));
-		bean.setGender(DataUtility.getString(request.getParameter("gender")));
-		bean.setMobileNo(DataUtility.getString(request.getParameter("mobileNo")));
-		bean.setDob(DataUtility.getDate(request.getParameter("dob")));
-		log.debug("UserCtl Method populateBean Ended");
-	}
-
-	@Override
 	protected BaseBean populateBean(final HttpServletRequest request) {
 		log.debug("UserCtl Method populateBean Started");
 
@@ -77,8 +61,11 @@ public class UserCtl extends BaseCtl {
 		bean.setLogin(DataUtility.getString(request.getParameter("login")));
 		bean.setGender(DataUtility.getString(request.getParameter("gender")));
 		bean.setMobileNo(DataUtility.getString(request.getParameter("mobileNo")));
+		String pass = DataUtility.getString(request.getParameter("password"));
+		if (!pass.isEmpty()) {
+			bean.setPassword(pass);
+		}
 		bean.setDob(DataUtility.getDate(request.getParameter("dob")));
-		
 
 		log.debug("UserCtl Method populateBean Ended");
 		return bean;
@@ -90,35 +77,33 @@ public class UserCtl extends BaseCtl {
 	protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
 			throws ServletException, IOException {
 		log.debug("UserCtl Method doGet Started");
-		UserBean bean = null;
-
-		final String op = DataUtility.getString(request.getParameter("operation"));
-
+		UserBean bean = new UserBean();
+		
 		final long id = DataUtility.getLong(request.getParameter("id"));
 
-		if (id == 0 && op!= null) {
-			ServletUtility.setErrorMessage(PropertyReader.getValue("error.invalid","User ID"), request);
-			ServletUtility.forward(ORSView.ERROR_VIEW, request, response);
-			return;
-		}
-		if (id > 0 || op != null) {
-			UserDTO userDTO;
-			try {
-				userDTO = model.findByPK(id);
-				if (userDTO == null) {
-					ServletUtility.setErrorMessage(PropertyReader.getValue("error.notfound","User"), request);
-				} else {
-					bean = new UserBean();
-					setBean(userDTO, bean);
-					ServletUtility.setBean(bean, request);
-				}
-
-
-			} catch (final ApplicationException e) {
-				log.error("Application Exception", e);
-				handleDatabaseException(e, request, response);
-				return;
-			}
+        if (id > 0) {
+            try {
+                var userDTO = model.findByPK(id);
+                if (userDTO == null) {
+                    ServletUtility.setErrorMessage(PropertyReader.getValue("error.notfound", "User"), request);
+                    ServletUtility.redirect(ORSView.USER_LIST_CTL, request, response);
+                    return;
+                } else {
+                    bean = new UserBean();
+                    setBean(userDTO, bean);
+                    ServletUtility.setBean(bean, request);
+                }
+            } catch (final ApplicationException e) {
+                log.error("Application Exception", e);
+                handleDatabaseException(e, request, response);
+                return;
+            }
+        }else if(id==0){
+              
+        }else{
+                ServletUtility.setErrorMessage(PropertyReader.getValue("error.invalid","User ID"), request);
+                ServletUtility.forward(ORSView.ERROR_VIEW, request, response);
+                return;
 		}
 
 		ServletUtility.forward(getView(), request, response);
@@ -135,42 +120,31 @@ public class UserCtl extends BaseCtl {
 		log.debug("UserCtl Method doPost Started");
 
 		final String op = DataUtility.getString(request.getParameter("operation"));
-
 		final long id = DataUtility.getLong(request.getParameter("id"));
-		UserDTO dto = new UserDTO();
+		UserBean bean = (UserBean) populateBean(request);
 
-		try {
-			if (OP_SAVE.equalsIgnoreCase(op)) {
-				UserBean bean = new UserBean();
-				populateBean(request, bean);
-				if (validate(request)) {
-						if (id > 0) {
-							dto = bean.getDTO();
-							model.update(dto);							
-						} else {
-							dto = bean.getDTO();
-							model.add(dto);
-							
-							
-						}
+		if (OP_SAVE.equalsIgnoreCase(op)) {
+			if (validate(request)) {
+				try {
+					if (id > 0) {
+						model.update(bean.getDTO());
+					} else {
+						model.add(bean.getDTO());
+					}
 					ServletUtility.setSuccessMessage(PropertyReader.getValue("success.save", "User"), request);
-			}else{
-				ServletUtility.setBean(bean,request);
-				}
-			} else if (OP_CANCEL.equalsIgnoreCase(op)) {
-				ServletUtility.redirect(ORSView.USER_LIST_CTL, request, response);
-				return;
-			} else {
-				ServletUtility.redirect(ORSView.USER_CTL, request, response);
-				return;
+				} catch (final ApplicationException e) {
+					log.error("Application Exception", e);
+					handleDatabaseException(e, request, response);
+					return;
+				} catch (final DuplicateRecordException e) {
+					ServletUtility.setBean(bean, request);
+					ServletUtility.setErrorMessage(e.getMessage(), request);
+				}	} else {
+				ServletUtility.setBean(bean, request);
 			}
-		} catch (final ApplicationException e) {
-			log.error("Application Exception", e);
-			handleDatabaseException(e, request, response);
+		} else if (OP_CANCEL.equalsIgnoreCase(op)) {
+			ServletUtility.redirect(ORSView.USER_LIST_CTL, request, response);
 			return;
-		} catch (final DuplicateRecordException e) {
-			ServletUtility.setBean(bean, request);
-			ServletUtility.setErrorMessage(e.getMessage(), request);
 		}
 
 		ServletUtility.forward(getView(), request, response);
@@ -183,13 +157,6 @@ public class UserCtl extends BaseCtl {
 		return ORSView.USER_VIEW;
 	}
 
-	@Override
-	protected void populateDTO(BaseBean bean, HttpServletRequest request) {
-		log.debug("UserCtl Method populateDTO Started");
-		
-		log.debug("UserCtl Method populateDTO End");
-	}
-	
 	private void setBean(UserDTO dto, UserBean bean) {
 		bean.setId(dto.getId());
 		bean.setFirstName(dto.getFirstName());
@@ -200,4 +167,3 @@ public class UserCtl extends BaseCtl {
 		bean.setMobileNo(dto.getMobileNo());
 		bean.setRoleId(dto.getRoleId());
 	}
-}

@@ -6,19 +6,21 @@ import java.util.Date;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.DTO.UserDTO;
 
+import com.rays.pro4.Util.DataUtility;
 /**
  *
  *
  * @author Lokesh SOlanki
  *
  */
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequest;;
 
 public class UserBean extends BaseBean {
 
     private long id;
 
-	private static final String INACTIVE = "inactive";	
+    public static final String STATUS_INACTIVE = "inactive";
+
 	/**
 	 * Active User Constant
 	 */
@@ -52,12 +54,12 @@ public class UserBean extends BaseBean {
 	private int unSuccessfulLogin;
 	private String gender;
 	private Timestamp lastLogin;
-	private String lock = INACTIVE;
+	private String lock = STATUS_INACTIVE;
 	private String registerdIP;
 	private String lastLoginIP;
 	/**
 	 * Get first name
-     * get the id of the bean
+     * 
 	 * @return int
 	 */
     public long getId() {
@@ -68,7 +70,7 @@ public class UserBean extends BaseBean {
 	 * set the id of the bean
 	 * @param id
 	 */
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

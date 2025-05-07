@@ -1,6 +1,6 @@
 package com.rays.pro4.controller;
 
-import java.io.IOException;
+import java.io.IOException;import java.util.HashMap;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.ServletException;
@@ -14,10 +14,12 @@ import com.rays.pro4.Bean.CourseBean;
 import com.rays.pro4.DTO.FacultyDTO;
 import com.rays.pro4.Bean.SubjectBean;
 import com.rays.pro4.Exception.ApplicationException;
+import com.rays.pro4.Exception.DatabaseException;
 import com.rays.pro4.Bean.CollegeBean;
 import com.rays.pro4.Bean.FacultyBean;
 import com.rays.pro4.Model.CollegeModel;
 import com.rays.pro4.Model.CourseModel;
+import com.rays.pro4.Exception.RecordNotFoundException;
 import com.rays.pro4.DTO.CollegeDTO;
 import com.rays.pro4.Model.FacultyModel;
 import com.rays.pro4.Model.SubjectModel;
@@ -64,10 +66,11 @@ public class FacultyCtl extends BaseCtl<FacultyBean>{
 			request.setAttribute("CollegeList", colist);
 			List<SubjectBean> slist = smodel.list();
 			request.setAttribute("SubjectList", slist);
-		} catch (final Exception e) {
-			log.error("Error in preload method : ", e);
-			handleDatabaseException(e, request, response);
-		}
+		} catch (DatabaseException e) {
+            log.error("Database exception in preload", e);
+            ServletUtility.handleException(e, request, response);
+        }
+
 	}
 	
 	/**
@@ -93,15 +96,18 @@ public class FacultyCtl extends BaseCtl<FacultyBean>{
      */
 	
 	protected FacultyBean populateBean(final HttpServletRequest request, FacultyBean bean){
-		bean.setFirstName(DataUtility.getString(request.getParameter("firstName")));
+		bean.setFirstName(DataUtility.getString(request.getParameter("firstName")));        
         bean.setLastName(DataUtility.getString(request.getParameter("lastName")));
         bean.setCollegeId(DataUtility.getLong(request.getParameter("collegeId")));
         bean.setCourseId(DataUtility.getLong(request.getParameter("courseId")));
         bean.setSubjectId(DataUtility.getLong(request.getParameter("subjectId")));
         bean.setEmailId(DataUtility.getString(request.getParameter("emailId")));
         bean.setMobileNo(DataUtility.getString(request.getParameter("mobileNo")));
-		bean.setCreatedDatetime(DataUtility.getCurrentTimestamp());
-		bean.setModifiedDatetime(DataUtility.getCurrentTimestamp());
+        if (bean.getId() == 0) {
+            bean.setCreatedDatetime(DataUtility.getCurrentTimestamp());
+        }
+        bean.setModifiedDatetime(DataUtility.getCurrentTimestamp());
+
 		return bean;
     }
 
@@ -122,20 +128,19 @@ public class FacultyCtl extends BaseCtl<FacultyBean>{
 		final long id = DataUtility.getLong(request.getParameter("id"));		
 		
 		if (id > 0) {
-			FacultyDTO dto;
-			FacultyBean bean = new FacultyBean();
+			FacultyDTO dto = null;
 			try {
 				dto = model.findByPK(id);
 				if(dto == null) {
 					ServletUtility.setErrorMessage("Faculty not found", request);
 					ServletUtility.forward(getView(), request, response);
 					return;
-				}				
-				populateBean(dto,bean);	
+				}		
+				FacultyBean bean = populateBean(dto, new FacultyBean());	
 				ServletUtility.setBean(bean, request);
 			} catch (final ApplicationException e) {
-				log.error("Error finding faculty by ID : ", e);
-				handleDatabaseException(e, request, response);
+				log.error("ApplicationException in doGet", e);
+                ServletUtility.handleException(e, request, response);
 				return;
 			}
 		}
@@ -156,41 +161,54 @@ public class FacultyCtl extends BaseCtl<FacultyBean>{
 	protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
 			throws ServletException, IOException {
 		log.debug("doPost method start");
+        final String op = DataUtility.getString(request.getParameter("operation"));
+        final long id = DataUtility.getLong(request.getParameter("id"));
 
-		final String op = DataUtility.getString(request.getParameter("operation"));		
-		final long id = DataUtility.getLong(request.getParameter("id"));		
-		final FacultyBean bean = new FacultyBean();
-		FacultyDTO dto = new FacultyDTO();
-		bean.setId(id);
-		bean = populateBean(request, bean);		
+        if (!validate(request)) {
+            ServletUtility.forward(getView(), request, response);
+            return;
+        }
+        FacultyBean bean = new FacultyBean();
+        bean.setId(id);
 
-		if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
-            if (validate(request)) {
-                try {
-                    if (id > 0) {
-						dto = bean.getDTO();
-                        model.update(dto);
-                        ServletUtility.setSuccessMessage(MessageConstant.FACULTY_UPDATE_SUCCESS, request);
-                    } else {
-						dto = bean.getDTO();
-                        model.add(dto);
-                        ServletUtility.setSuccessMessage(MessageConstant.FACULTY_ADD_SUCCESS, request);
+        if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
+            try {
+                if (id > 0) {
+                    FacultyDTO oldDto = model.findByPK(id);
+                    if (oldDto == null) {
+                        ServletUtility.setErrorMessage("Faculty not found", request);
+                        ServletUtility.forward(getView(), request, response);
+                        return;
                     }
-                }catch (DuplicateRecordException e) {
-					ServletUtility.setErrorMessage(PropertyReader.getValue("error.faculty.duplicate"), request);
-					ServletUtility.setBean(bean, request);
-				}catch (ApplicationException e) {
-                    log.error("Error in save method : ", e);
-					ServletUtility.handleException(e, request, response);
+                    bean.setCreatedBy(oldDto.getCreatedBy());
+                    bean.setModifiedBy(oldDto.getModifiedBy());
+                    bean.setCreatedDatetime(oldDto.getCreatedDatetime());
+
+                    bean = populateBean(request, bean);
+                    FacultyDTO dto = bean.getDTO();
+                    model.update(dto);
+                    ServletUtility.setSuccessMessage(MessageConstant.FACULTY_UPDATE_SUCCESS, request);
+                } else {
+                    bean = populateBean(request, bean);
+                    FacultyDTO dto = bean.getDTO();
+                    model.add(dto);
+                    ServletUtility.setSuccessMessage(MessageConstant.FACULTY_ADD_SUCCESS, request);
                 }
+            } catch (DuplicateRecordException e) {
+                log.error("DuplicateRecordException in doPost", e);
+                ServletUtility.setErrorMessage(PropertyReader.getValue("error.faculty.duplicate"), request);
+                ServletUtility.setBean(bean, request);
+            } catch (ApplicationException | RecordNotFoundException e) {
+                log.error("ApplicationException in doPost", e);
+                ServletUtility.handleException(e, request, response);
             }
-        } else if (OP_CANCEL.equalsIgnoreCase(op)) {
+        }else if (OP_CANCEL.equalsIgnoreCase(op)) {
 				ServletUtility.redirect(ORSView.FACULTY_LIST_CTL, request, response);		
 				return;
 		}else if (OP_RESET.equalsIgnoreCase(op)) {
 				ServletUtility.redirect(ORSView.FACULTY_CTL, request, response);
 				return;
-		}	
+		}
 		ServletUtility.setBean(bean, request);
 		ServletUtility.forward(getView(), request, response);
 		log.debug("doPost of  faculty ctl Ended");	
@@ -225,4 +243,3 @@ public class FacultyCtl extends BaseCtl<FacultyBean>{
 		bean.setModifiedDatetime(dto.getModifiedDatetime());
 		return bean;
 	}
-}

@@ -57,8 +57,8 @@
                                 <label for="city">City :</label>
                                 <input type="text" id="city" name="city" placeholder="Enter City Name" class="form-control-inline"
                                        value="${param.city}">
-                                <input type="submit" name="operation" class="btn btn-primary ms-2" value="<%=CollegeListCtl.OP_SEARCH%>">
-                                <input type="submit" name="operation" class="btn btn-secondary ms-2" value="<%=CollegeListCtl.OP_RESET%>">
+                                <input type="submit" name="operation" class="btn btn-primary ms-2" value="<c:out value="${CollegeListCtl.OP_SEARCH}" />">
+                                <input type="submit" name="operation" class="btn btn-secondary ms-2" value="<c:out value="${CollegeListCtl.OP_RESET}" />">
                             </td>
                         </tr>
                     </table>
@@ -110,17 +110,17 @@
                     <table class="w-100">
                         <tr >
                              <td class="float-start">
-                                <input type="submit" name="operation" class="btn btn-secondary " value="<%=CollegeListCtl.OP_PREVIOUS%>"
+                                <input type="submit" name="operation" class="btn btn-secondary " value="<c:out value="${CollegeListCtl.OP_PREVIOUS}" />"
                                        ${pageNo == 1 ? 'disabled' : ''}>
                             </td>
                             <td class="float-center">
-                                <input type="submit" name="operation" class="btn btn-danger ms-2" value="<%=CollegeListCtl.OP_DELETE%>">
+                                <input type="submit" name="operation" class="btn btn-danger ms-2" value="<c:out value="${CollegeListCtl.OP_DELETE}" />">
                             </td>
                             <td class="float-center">
-                                <input type="submit" name="operation" class="btn btn-success ms-2" value="<%=CollegeListCtl.OP_NEW%>">
+                                <input type="submit" name="operation" class="btn btn-success ms-2" value="<c:out value="${CollegeListCtl.OP_NEW}" />">
                             </td>
                             <td class="float-end">
-                                <input type="submit" class="btn btn-primary ms-2" name="operation" value="<%=CollegeListCtl.OP_NEXT%>"
+                                <input type="submit" class="btn btn-primary ms-2" name="operation" value="<c:out value="${CollegeListCtl.OP_NEXT}" />"
                                        ${list.size() < pageSize || nextlist == 0 ? 'disabled' : ''}>
                             </td>
                         </tr>

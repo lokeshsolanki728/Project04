@@ -1,10 +1,12 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@page import="com.rays.pro4.Model.RoleModel"%>
 
 <%@page import="com.rays.pro4.Bean.UserBean"%>
 <%@page import="com.rays.pro4.Util.HTMLUtility"%>
 <%@page import="java.util.HashMap"%>
+<%@page import="com.rays.pro4.Util.RoleConstant"%>
 <%@page import="com.rays.pro4.controller.ORSView"%>
 <%@page import="com.rays.pro4.controller.UserListCtl"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
@@ -39,6 +41,7 @@
             <c:set var="pageSize" value="${requestScope.pageSize}"/>
             <c:set var="index" value="${(pageNo - 1) * pageSize + 1}"/>
             <c:set var="list" value="${requestScope.list}"/>
+            <c:set var="errors" value="${requestScope.errors}" />
             <c:if test="${not empty list}">
                 <table class="search-table w-100">
                     <tr>
@@ -46,13 +49,13 @@
                         <td><input type="text" id="firstName" name="firstName" class="form-control-inline"
                                    placeholder="Enter First Name" value="${param.firstName}">
                             <span class="error-message">${requestScope.firstName}</span>
-                        </td>
+                            <span class="error-message">${errors.firstName}</span></td>
                         <th class="text-center"><label for="loginid">LoginId :</label></th>
                         <td><input type="text" id="loginid" name="loginid" class="form-control-inline"
                                    placeholder="Enter Login-Id" value="${param.loginid}">
-                        <span class="error-message">${requestScope.loginid}</span>
+                        <span class="error-message">${errors.login}</span>
                         </td>
-                        <th class="text-center"><label for="roleid">Role : </label></th>
+                            <th class="text-center"><label for="roleid">Role : </label></th>
                         <td><select id="roleid" name="roleid" class="form-control-inline">
                             <option value="">Select Role</option>
                             <c:forEach var="item" items="${rlist}">
@@ -87,13 +90,10 @@
                     </thead>
                     <tbody>
                     <c:forEach var="user" items="${list}" varStatus="loop">
-                        <c:set var="roleId" value="${user.roleId}"/>
-                        <c:set var="roleModel" value="${new com.rays.pro4.Model.RoleModel()}"/>
-                        <c:set var="rolebean" value="${roleModel.findByPK(roleId)}"/>
                         <tr  class="table-row">
                             <td>
                                 <c:choose>
-                                    <c:when test="${sessionScope.userBean.id == user.id || user.roleId == 1}">
+                                    <c:when test="${sessionScope.userBean.id == user.id || user.roleId == RoleConstant.ADMIN}">
                                         <input type="checkbox" class="checkbox" name="ids" value="${user.id}" disabled>
                                     </c:when>
                                     <c:otherwise>
@@ -104,14 +104,14 @@
                             <td>${index} <c:set var="index" value="${index + 1}"/></td>
                             <td>${user.firstName}</td>
                             <td>${user.lastName}</td>
-                            <td>${rolebean.name}</td>
+                            <td>${user.roleName}</td>
                             <td>${user.login}</td>
                             <td>${user.gender}</td>
-                            <td>${user.dob}</td>
+                             <td><fmt:formatDate value="${user.dob}" pattern="MM/dd/yyyy" /></td>
                             <td>${user.mobileNo}</td>
                             <td>
                                 <c:choose>
-                                    <c:when test="${sessionScope.userBean.id == user.id || user.roleId == 1}">
+                                    <c:when test="${sessionScope.userBean.id == user.id || user.roleId == RoleConstant.ADMIN}">
                                         <a class="btn btn-link" href="#" onclick="return false;">Edit</a>
                                     </c:when>
                                     <c:otherwise>

@@ -90,8 +90,12 @@ public class FacultyDTO extends BaseDTO {
 
     @Override
     public String toString() {
-        return "FacultyDTO [firstName=" + firstName + ", lastName=" + lastName + ", gender=" + gender + ", emailId="
-                + emailId + ", mobileNo=" + mobileNo + ", dob=" + dob + ", collegeId=" + collegeId + ", courseId="
-                + courseId + ", subjectId=" + subjectId + ", id=" + id + "]";
+        return "FacultyDTO{" +
+                "firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' + ", gender='" + gender + '\'' +
+                ", emailId='" + emailId + '\'' + ", mobileNo='" + mobileNo + '\'' +
+                ", dob=" + dob + ", collegeId=" + collegeId + ", courseId=" + courseId + ", subjectId=" + subjectId +
+                ", id=" + id + ", createdBy='" + createdBy + '\'' + ", modifiedBy='" + modifiedBy + '\'' +
+                ", createdDatetime=" + createdDatetime + ", modifiedDatetime=" + modifiedDatetime + '}';
     }
 }

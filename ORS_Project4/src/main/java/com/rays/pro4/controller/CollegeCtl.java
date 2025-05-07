@@ -1,6 +1,8 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
+import java.sql.Timestamp;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -9,6 +11,7 @@ import org.apache.log4j.Logger;
 import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Bean.CollegeBean;
 import com.rays.pro4.Exception.ApplicationException;
+import com.rays.pro4.DTO.BaseDTO;
 import com.rays.pro4.DTO.CollegeDTO;
 import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Model.CollegeModel;
@@ -42,21 +45,21 @@ public class CollegeCtl extends BaseCtl {
     @Override
     protected void populateDTO(HttpServletRequest request, CollegeDTO dto) {
         super.populateDTO(request, dto);
-		dto.setCreatedBy(request.getParameter("createdby"));
-		dto.setModifiedBy(request.getParameter("modifiedby"));
-		dto.setCreatedDatetime(DataUtility.getCurrentTimestamp());
-		dto.setModifiedDatetime(DataUtility.getCurrentTimestamp());
+       
         dto.setName(DataUtility.getString(request.getParameter("name")));
         dto.setAddress(DataUtility.getString(request.getParameter("address")));
         dto.setState(DataUtility.getString(request.getParameter("state")));
         dto.setCity(DataUtility.getString(request.getParameter("city")));
         dto.setPhoneNo(DataUtility.getString(request.getParameter("phoneNo")));
     }
-
-    protected void populateBean(HttpServletRequest request,CollegeBean bean) {
+    @Override
+    protected CollegeBean populateBean(HttpServletRequest request) {
         log.debug("CollegeCtl Method populateBean Started");
-        bean.populate(request);
+        CollegeBean bean = new CollegeBean();
+        bean.setId(DataUtility.getLong(request.getParameter("id")));
+        bean.populate(request);  
         log.debug("CollegeCtl Method populateBean Ended");
+        return bean;
     }
     @Override
     protected BaseBean populateBean(HttpServletRequest request) {
@@ -71,13 +74,11 @@ public class CollegeCtl extends BaseCtl {
             try {
                 CollegeDTO dto = model.findByPK(id);
                 if (dto == null) {
-                    ServletUtility.setErrorMessage("College not found", request);
-                } else {
-                    CollegeBean bean = new CollegeBean();
-                    bean.populate(request);
-                    ServletUtility.setBean(bean, request);                  
+                    ServletUtility.setErrorMessage("College not found", request);                  
+                    ServletUtility.redirect(ORSView.COLLEGE_LIST_CTL, request, response);
+                    return;
                 }
-            } catch (ApplicationException e) {
+                 ServletUtility.setDTO(dto, request);         } catch (ApplicationException e) {
                 handleDatabaseException(e, request, response);
                 return;
             }
@@ -90,14 +91,27 @@ public class CollegeCtl extends BaseCtl {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         log.debug("CollegeCtl Method doPost Started");
         String op = DataUtility.getString(request.getParameter("operation"));
-        CollegeDTO dto = new CollegeDTO();
-        long id = DataUtility.getLong(request.getParameter("id"));
         CollegeBean bean = (CollegeBean) populateBean(request);
 
        if (validate(request)) {
             try {
                 if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
+                    CollegeDTO dto = new CollegeDTO();
+                     long id = DataUtility.getLong(request.getParameter("id"));
                     populateDTO(request, dto);
+                     if(OP_UPDATE.equalsIgnoreCase(op)){
+                       CollegeDTO  dtoExist = model.findByPK(id);
+
+                        dto.setCreatedBy(dtoExist.getCreatedBy());
+                        dto.setModifiedBy(request.getParameter("modifiedBy"));
+                        dto.setCreatedDatetime(dtoExist.getCreatedDatetime());
+                        dto.setModifiedDatetime(new Timestamp(System.currentTimeMillis()));
+
+                    }else{
+                        dto.setCreatedBy(request.getParameter("createdBy"));
+                        dto.setModifiedBy(request.getParameter("modifiedBy"));
+                        dto.setCreatedDatetime(new Timestamp(System.currentTimeMillis()));
+                        dto.setModifiedDatetime(new Timestamp(System.currentTimeMillis()));
                    if(OP_UPDATE.equalsIgnoreCase(op)){
                         model.update(dto);
                         ServletUtility.setSuccessMessage(MessageConstant.COLLEGE_UPDATE, request);

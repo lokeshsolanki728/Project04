@@ -18,6 +18,7 @@ public class UserDTO extends BaseDTO {
     private String lock;
     private String registerdIP;
     private String lastLoginIP;
+    private String roleName;
 
     public String getFirstName() {
         return firstName;
@@ -121,5 +122,13 @@ public class UserDTO extends BaseDTO {
 
     public void setLastLoginIP(String lastLoginIP) {
         this.lastLoginIP = lastLoginIP;
+    }
+
+    public String getRoleName() {
+        return roleName;
+    }
+
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
     }
 }

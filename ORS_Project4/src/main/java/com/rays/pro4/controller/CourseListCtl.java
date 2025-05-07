@@ -13,7 +13,9 @@ import com.rays.pro4.Exception.ApplicationException;
 import org.apache.log4j.Logger;
 
 import com.rays.pro4.Model.CourseModel;
+import com.rays.pro4.validator.CourseValidator;
 import com.rays.pro4.Util.DataValidator;
+import java.util.HashMap;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.PropertyReader;;
@@ -84,21 +86,18 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 		int pageNo = 1;
 		int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));
 		CourseBean bean = populateBean(request);
-		String orderBy = DataUtility.getString(request.getParameter("orderBy"));
-		String sortOrder = DataUtility.getString(request.getParameter("sortOrder"));
-		if (orderBy == null || orderBy.trim().length() == 0) {
-			orderBy = "name";
-		}
-		if (sortOrder == null || sortOrder.trim().length() == 0) {
-			sortOrder = "asc";
-		}
+		String orderBy = "name";
+		String sortOrder = "asc";
+		
 		try {
 			list = searchCourse(bean, pageNo, pageSize, orderBy, sortOrder);
-			
+
 			ServletUtility.setList(list, request);
-			ServletUtility.setPageNo(pageNo, request);			
+			ServletUtility.setPageNo(pageNo, request);
 			ServletUtility.setPageSize(pageSize, request);
 			ServletUtility.forward(getView(), request, response);
+			
+			
 		} catch (final ApplicationException e) {
 			ServletUtility.setList(list, request);
 			handleDatabaseException(e, request, response);
@@ -115,10 +114,12 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 	@Override
 	protected final boolean validate(HttpServletRequest request) {
 		log.debug("validate Method Started");		
-		
+		boolean pass=CourseValidator.validate(request);
+		if(!pass) return pass;
 		log.debug("validate Method End");
-		return true;
+		return pass;
 	}
+	
 
 	
 	/**
@@ -138,7 +139,8 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 			}
 			ServletUtility.setSuccessMessage(MessageConstant.COURSE_SUCCESS_DELETE, request);
 		} else {
-			ServletUtility.setErrorMessage(PropertyReader.getValue("error.select.one"), request);
+			ServletUtility.setErrorMessage(PropertyReader.getValue("error.select.one"), request);			
+			
 		}
 		log.debug("delete method end");
 	}
@@ -152,109 +154,57 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 	@Override
 	protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
 			throws ServletException, IOException {
+		
 		log.debug("do Post method of CourseListCtl Started");
+		if(!validate(request)) {
+			 ServletUtility.forward(getView(), request, response);
+			 return;
+		}
+		
 		List<CourseBean> list= null;
 		String op = DataUtility.getString(request.getParameter("operation"));
 		String[] ids = request.getParameterValues("ids");
-		String orderBy = DataUtility.getString(request.getParameter("orderBy"));
-		String sortOrder = DataUtility.getString(request.getParameter("sortOrder"));
-		if (orderBy == null || orderBy.trim().length() == 0) {
-			orderBy = "name";
-		}
-		if (sortOrder == null || sortOrder.trim().length() == 0) {
-			sortOrder = "asc";
-		}
+		String orderBy = "name";
+		String sortOrder = "asc";
 		int pageNo = DataUtility.getInt(request.getParameter("pageNo"));
 		int pageSize = DataUtility.getInt(request.getParameter("pageSize"));
 		pageNo = (pageNo == 0) ? 1 : pageNo;
 		pageSize = (pageSize == 0) ? DataUtility.getInt(PropertyReader.getValue("page.size")) : pageSize;
 		CourseBean bean = populateBean(request);
-		try {
 		
+		
+		try {
+			
 			if (OP_SEARCH.equalsIgnoreCase(op)) {
 				pageNo = 1;
 			} else if (OP_NEXT.equalsIgnoreCase(op)) {
 				pageNo++;
-			} else if (OP_PREVIOUS.equalsIgnoreCase(op) && pageNo > 1) {
-				pageNo--;
+			} else if (OP_PREVIOUS.equalsIgnoreCase(op)) {
+					pageNo--;
 			} else if (OP_NEW.equalsIgnoreCase(op)) {
 				ServletUtility.redirect(ORSView.COURSE_CTL, request, response);
 				return;
 			} else if (OP_RESET.equalsIgnoreCase(op)) {
 				ServletUtility.redirect(ORSView.COURSE_LIST_CTL, request, response);
 				return;
-			} else if (OP_DELETE.equalsIgnoreCase(op)) {
+			} else if (OP_DELETE.equalsIgnoreCase(op) && ids!=null) {
 				pageNo = 1;
-				
-				
 					delete(ids, request, response);
-				
 			}
-			if(OP_DELETE.equalsIgnoreCase(op) ||OP_PREVIOUS.equalsIgnoreCase(op) ||OP_NEXT.equalsIgnoreCase(op) || OP_SEARCH.equalsIgnoreCase(op)) {
-				if(!validate(request)) return;
 				list = searchCourse(bean, pageNo, pageSize, orderBy, sortOrder);
 				if(list==null || list.isEmpty()) {
 					ServletUtility.setErrorMessage(PropertyReader.getValue("error.record.notfound"), request);
 				}
-			}
 			ServletUtility.setList(list, request);
 			ServletUtility.setPageNo(pageNo, request);
 			ServletUtility.setPageSize(pageSize, request);
 			ServletUtility.forward(getView(), request, response);
 		} catch (ApplicationException e) {
-			log.error(e);
-			ServletUtility.setList(list, request);
-			handleDatabaseException(e, request, response);
+			
+			ServletUtility.handleException(e, request, response);
 		}
 		
 		log.debug("do Post method of CourseListCtl End");
-	}	
-		
-	/** set the data in the list.	
-	 * @param bean     the bean
-	 * @param request  the request
-	 * @param response the response
-	 * @param pageNo   the page number
-	 * @param pageSize the size of the page
-	 * @throws ServletException the servlet exception
-	 * @throws IOException      Signals that an I/O exception has occurred.
-	 */
-	private  void showList(final CourseBean bean, final HttpServletRequest request, final HttpServletResponse response,
-			int pageNo, final int pageSize, final String orderBy, final String sortOrder) throws ServletException, IOException {
-		log.debug("showList Method Start");
-		List<CourseBean> list = null;	
-		try {
-			list = searchCourse(bean, pageNo, pageSize, orderBy, sortOrder);
-		}catch (final Exception e) {
-			handleDatabaseException(e, request, response);
-		}
-	}
-	/**
-	 * Sets the list and pagination.
-	 *
-	 * @param list the list
-	 * @param request the request
-	 * @param pageNo the page no
-	 * @param pageSize the page size
-	 */
-	private final void setListAndPagination(final List list, final HttpServletRequest request, final int pageNo,final int pageSize) {
-		ServletUtility.setList(list, request);
-		ServletUtility.setPageNo(pageNo, request);
-		ServletUtility.setPageSize(pageSize, request);		
-		ServletUtility.forward(getView(), request, response);
-	}
-	
-	
-
-	/** manage the pagination.
-	 * @param request the request
-	 * @return the page data */	
-	private int[] paginate(final HttpServletRequest request) {
-		int pageNo = DataUtility.getInt(request.getParameter("pageNo"));
-		int pageSize = DataUtility.getInt(request.getParameter("pageSize"));
-		pageNo = (pageNo == 0) ? 1 : pageNo;
-		pageSize = (pageSize == 0) ? DataUtility.getInt(PropertyReader.getValue("page.size")) : pageSize;
-		return new int[] { pageNo, pageSize };
 	}
 	@Override
 	protected String getView() {

@@ -56,7 +56,8 @@
                     <td>
                         <input type="text" id="name" name="name" placeholder="Enter Course Name" class="form-control"
                                value="<c:out value="${bean.name}"/>">
-                        <span class="error-message"><c:out value="${requestScope.name}"/></span>
+                        <c:if test="${not empty errors.name}"> <input type="text" autofocus> </c:if>
+                        <span class="error-message"><c:out value="${errors.name}"/></span>
                     </td>
                 </tr>
                 <tr>
@@ -85,7 +86,7 @@
                                 1 Year
                             </option>
                         </select>
-                        <span class="error-message">${requestScope.duration}</span>
+                        <span class="error-message">${errors.duration}</span>
 					</td>
                 </tr>
                 <tr>
@@ -95,7 +96,7 @@
                     <td>
                         <input type="text" id="description" name="description" placeholder="Enter Description"
                                class="form-control" value="<c:out value="${bean.description}"/>">
-                        <span class="error-message"><c:out value="${requestScope.description}"/></span>
+                        <span class="error-message"><c:out value="${errors.description}"/></span>
                     </td>
                 </tr>
                 <tr>

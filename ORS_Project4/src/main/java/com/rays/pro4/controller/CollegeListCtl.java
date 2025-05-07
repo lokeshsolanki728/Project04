@@ -120,14 +120,7 @@ public class CollegeListCtl extends BaseCtl<CollegeBean> {
 		final CollegeBean bean = populateBean(request);
 		final int pageNo = 1;
 		final int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));
-		String orderBy = (String) request.getAttribute("orderBy");
-		String sortOrder = (String) request.getAttribute("sortOrder");
-		if (orderBy == null || orderBy.trim().length() == 0) {
-			orderBy = "name";
-		}
-		if (sortOrder == null || sortOrder.trim().length() == 0) {
-			sortOrder = "asc";
-		}        try {
+        try {
             
             showList(bean, request, response, pageNo, pageSize,orderBy,sortOrder);
         
@@ -180,15 +173,9 @@ public class CollegeListCtl extends BaseCtl<CollegeBean> {
 		        int pageNo = DataUtility.getInt(request.getParameter("pageNo")) == 0 ? 1 : DataUtility.getInt(request.getParameter("pageNo"));
 		        int pageSize = DataUtility.getInt(request.getParameter("pageSize"))== 0 ? DataUtility.getInt(PropertyReader.getValue("page.size")) : DataUtility.getInt(request.getParameter("pageSize"));
 		        final String op = DataUtility.getString(request.getParameter("operation"));
-		        String[] ids = request.getParameterValues("ids");
-				String orderBy = DataUtility.getString(request.getParameter("orderBy"));
+		        String[] ids = request.getParameterValues("ids");		
+				String orderBy = DataUtility.getString(request.getParameter("orderBy"));				
 				String sortOrder = DataUtility.getString(request.getParameter("sortOrder"));
-				if (orderBy == null || orderBy.trim().length() == 0) {
-					orderBy = "name";
-				}
-				if (sortOrder == null || sortOrder.trim().length() == 0) {
-					sortOrder = "asc";
-				}
 		        CollegeBean bean = (CollegeBean) populateBean(request);
 		        try {
 		            if (OP_SEARCH.equalsIgnoreCase(op)) {
@@ -213,11 +200,15 @@ public class CollegeListCtl extends BaseCtl<CollegeBean> {
 		            } else if (OP_DELETE.equalsIgnoreCase(op)) {
 		                pageNo = 1;
 		                if(ids == null || ids.length == 0) ServletUtility.setErrorMessage("Select at least one record", request);
-		                
-		                delete(ids, request, response);
+		                else{
+		                	delete(ids, request, response);
+		                }
+		               
 		            } else {
 		                ServletUtility.setErrorMessage("Select at least one record", request);
 		            }
+		            if(!OP_DELETE.equalsIgnoreCase(op) || ids != null && ids.length > 0 ) {
+		            } else {
 		        showList(bean, request, response, pageNo, pageSize,orderBy,sortOrder);
 		        } catch (Exception e) {
 		            
@@ -246,13 +237,9 @@ public class CollegeListCtl extends BaseCtl<CollegeBean> {
 			list = searchCollege(bean, pageNo, pageSize, orderBy, sortOrder);
 			final List<CollegeBean> nextList = searchCollege(bean, pageNo + 1, pageSize, orderBy, sortOrder);
 			request.setAttribute("nextlist", nextList.size());
-			if (list.size() > 0) {
-				request.setAttribute("operation", "Manage College");
-			}else{
-				request.setAttribute("operation", "No record found.");
-			}
+		
 			if (list == null || list.isEmpty()) {
-				ServletUtility.setErrorMessage(PropertyReader.getValue("error.record.notfound"), request);
+				ServletUtility.setErrorMessage(PropertyReader.getValue("error.record.notfound"), request);				
 				
 			}		
 			

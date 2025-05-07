@@ -229,15 +229,13 @@ public class MarksheetModel extends BaseModel {
         ArrayList<MarksheetDTO> list = new ArrayList<>();
          Connection conn = null;
         int paramCount = 1;
+        if (dto != null){
             if (dto.getRollNo() != null && !dto.getRollNo().trim().isEmpty()) {
                 sql.append(" AND ROLL_NO like ?");
             }
             if (dto.getName() != null && !dto.getName().trim().isEmpty()) {
                 sql.append(" AND NAME like ?");
-            }
-            if (dto.getPhysics() > 0) {
-                sql.append(" AND PHYSICS = ?");
-            }
+            }if (dto.getPhysics() > 0) {sql.append(" AND PHYSICS = ?");}
             if (dto.getChemistry() > 0) {
                 sql.append(" AND CHEMISTRY = ?");
             }
@@ -246,54 +244,57 @@ public class MarksheetModel extends BaseModel {
             }
             if (dto.getId() > 0) {
                 sql.append(" AND ID = ?");
-            }
-        }
+           }
+        
+        
         if (pageSize > 0) {
             pageNo = (pageNo - 1) * pageSize;
             sql.append(" LIMIT ?, ?");
         }
-        try  {
+        try  {            
              conn = JDBCDataSource.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql.toString());
-                }
+             try (PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+                 
                 if (dto.getRollNo() != null && !dto.getRollNo().isEmpty()) {
                     pstmt.setString(paramCount++, dto.getRollNo() + "%");
+                    
                 }
-                if (dto.getName() != null && !dto.getName().isEmpty()) {
-                    pstmt.setString(paramCount++, dto.getName() + "%");
-                }
-                if (dto.getPhysics() > 0) {
-                    pstmt.setInt(paramCount++, dto.getPhysics());
-                }
-                if (dto.getChemistry() > 0) {
-                    pstmt.setInt(paramCount++, dto.getChemistry());
-                }
-                if (dto.getMaths() > 0) {
-                    pstmt.setInt(paramCount++, dto.getMaths());
-                }
-                if (dto.getId() > 0) {
-                    pstmt.setLong(paramCount++, dto.getId());
-                }
-            }
-            if (pageSize > 0) {
-                pstmt.setInt(paramCount++, pageNo);
-                pstmt.setInt(paramCount++, pageSize);
-            }
-            try (ResultSet rs = pstmt.executeQuery()) {
+                 if (dto.getName() != null && !dto.getName().isEmpty()) {
+                     pstmt.setString(paramCount++, dto.getName() + "%");
+                 }
+                 if (dto.getPhysics() > 0) {
+                     pstmt.setInt(paramCount++, dto.getPhysics());
+                 }
+                 if (dto.getChemistry() > 0) {
+                     pstmt.setInt(paramCount++, dto.getChemistry());
+                 }
+                 if (dto.getMaths() > 0) {
+                     pstmt.setInt(paramCount++, dto.getMaths());
+                 }
+                 if (dto.getId() > 0) {
+                     pstmt.setLong(paramCount++, dto.getId());
+                 }
+                 
+                 if (pageSize > 0) {
+                     pstmt.setInt(paramCount++, pageNo);
+                     pstmt.setInt(paramCount++, pageSize);
+                 }
+                 try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     MarksheetDTO resultDTO = new MarksheetDTO();
                     populateBean(rs, resultDTO);
                     list.add(resultDTO);
                 }
             }           
-        } catch (SQLException e) {
+        } 
+         }catch (SQLException e) {
             log.error("Database Exception in search Marksheet", e);
             throw new ApplicationException("Exception: Exception in searching marksheet - " + e.getMessage());
         }
         finally{
                 JDBCDataSource.closeConnection(conn);
 
-        } 
+        }
         log.debug("Model search End");
         return list;
     }

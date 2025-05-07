@@ -2,6 +2,7 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List; 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -19,10 +20,8 @@ import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Model.MarksheetModel;
 import com.rays.pro4.Model.StudentModel;
-import com.rays.pro4.Util.DataUtility;
-import com.rays.pro4.Model.SubjectModel;
 import com.rays.pro4.Util.DataValidator;
-import com.rays.pro4.Util.ServletUtility;
+import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.validator.MarksheetValidator;
  
 /**
@@ -35,7 +34,7 @@ import com.rays.pro4.validator.MarksheetValidator;
  */
 
 @WebServlet(name = "MarksheetCtl", urlPatterns = { "/ctl/MarksheetCtl" })
-public class MarksheetCtl extends BaseCtl {
+public class MarksheetCtl extends BaseCtl<MarksheetBean> {
 
 	public static final String OP_SAVE = "Save";
 	public static final String OP_UPDATE = "Update";
@@ -59,52 +58,13 @@ public class MarksheetCtl extends BaseCtl {
 	@Override
 	protected boolean validate(HttpServletRequest request) {
 		log.debug("MarksheetCtl validate method start");
-		boolean pass = true;
-
-		if (DataValidator.isNull(request.getParameter("rollNo"))) {
-			request.setAttribute("rollNo", "Roll No. is required");
-			pass = false;
-		}
-		if (DataValidator.isNull(request.getParameter("studentId"))) {
-			request.setAttribute("studentId", "Student Name is required");
-			pass = false;
+		HashMap<String, String> errors = new HashMap<String, String>();
+		MarksheetBean bean = populateBean(request);
+		boolean pass=MarksheetValidator.validate(bean, errors);
+		if (!pass) {
+			ServletUtility.setErrors(errors, request);
 		}
 
-		if (DataValidator.isNull(request.getParameter("physics"))) {
-			request.setAttribute("physics", "Marks is required");
-			pass = false;
-		} else if (!DataValidator.isInteger(request.getParameter("physics"))) {
-			request.setAttribute("physics", "Enter valid marks");
-			pass = false;
-		} else if (DataUtility.getInt(request.getParameter("physics")) > 100
-				|| DataUtility.getInt(request.getParameter("physics")) < 0) {
-			request.setAttribute("physics", "Marks should be between 0 to 100");
-			pass = false;
-		}
-
-		if (DataValidator.isNull(request.getParameter("chemistry"))) {
-			request.setAttribute("chemistry", "Marks is required");
-			pass = false;
-		} else if (!DataValidator.isInteger(request.getParameter("chemistry"))) {
-			request.setAttribute("chemistry", "Enter valid marks");
-			pass = false;
-		} else if (DataUtility.getInt(request.getParameter("chemistry")) > 100
-				|| DataUtility.getInt(request.getParameter("chemistry")) < 0) {
-			request.setAttribute("chemistry", "Marks should be between 0 to 100");
-			pass = false;
-		}
-
-		if (DataValidator.isNull(request.getParameter("maths"))) {
-			request.setAttribute("maths", "Marks is required");
-			pass = false;
-		} else if (!DataValidator.isInteger(request.getParameter("maths"))) {
-			request.setAttribute("maths", "Enter valid marks");
-			pass = false;
-		} else if (DataUtility.getInt(request.getParameter("maths")) > 100
-				|| DataUtility.getInt(request.getParameter("maths")) < 0) {
-			request.setAttribute("maths", "Marks should be between 0 to 100");
-			pass = false;
-		}
 		log.debug("MarksheetCtl validate method end");
 
 		return pass;
@@ -142,14 +102,8 @@ public class MarksheetCtl extends BaseCtl {
 			try {
 				dto = model.findByPK(id);
 				MarksheetBean bean = new MarksheetBean();
-				bean.setId(dto.getId());
-				bean.setRollNo(dto.getRollNo());
-				bean.setStudentId(dto.getStudentId());
-				bean.setName(dto.getName());
-				bean.setPhysics(dto.getPhysics());
-				bean.setChemistry(dto.getChemistry());
-				bean.setMaths(dto.getMaths());
-
+				bean.populateBean(dto);
+				
 				ServletUtility.setBean(bean, request);
 			} catch (ApplicationException e) {
 				log.error(e);
@@ -174,29 +128,29 @@ public class MarksheetCtl extends BaseCtl {
 		MarksheetModel model = new MarksheetModel();
 		long id = DataUtility.getLong(request.getParameter("id"));
 		MarksheetBean bean = (MarksheetBean) populateBean(request);
+		HashMap<String, String> errors = new HashMap<String, String>();
+		if(!validate(request)){
+			ServletUtility.setBean(bean, request);
+			ServletUtility.forward(getView(), request, response);
+			return;
+		}
 
 		try {
 
 			if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
-				if (validate(request)) {
-					MarksheetDTO dto = new MarksheetDTO();
-					dto.setId(bean.getId());
-					dto.setRollNo(bean.getRollNo());
-					dto.setStudentId(bean.getStudentId());
-					dto.setPhysics(bean.getPhysics());
-					dto.setChemistry(bean.getChemistry());
-					dto.setMaths(bean.getMaths());
-					if (id > 0) {
-						model.update(dto);
-						ServletUtility.setSuccessMessage("Marksheet is updated", request);
-					} else {
-						model.add(dto);
-						ServletUtility.setSuccessMessage("Marksheet is saved", request);
-					}
+				MarksheetDTO dto = bean.getDTO();
+				if (id > 0) {
+					MarksheetDTO tempDTO = model.findByPK(id);
+					dto.setCreatedBy(tempDTO.getCreatedBy());
+					dto.setModifiedBy(tempDTO.getModifiedBy());
+					dto.setCreatedDatetime(tempDTO.getCreatedDatetime());
+					dto.setModifiedDatetime(tempDTO.getModifiedDatetime());
+					model.update(dto);
+					ServletUtility.setSuccessMessage("Marksheet is updated", request);
 				} else {
-					ServletUtility.setBean(bean, request);
-					ServletUtility.forward(getView(), request, response);
-					return;
+					model.add(dto);
+					ServletUtility.setSuccessMessage("Marksheet is saved", request);
+				
 				}
 			} else if (OP_DELETE.equalsIgnoreCase(op)) {
 				MarksheetDTO dto=new MarksheetDTO();

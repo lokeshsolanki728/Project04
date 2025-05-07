@@ -18,7 +18,6 @@ public class MarksheetBean extends BaseBean implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private String rollNo;
 	private long studentId;
-	private String name;
 	private int physics;
     private int chemistry;
 	private int maths;
@@ -54,22 +53,6 @@ public class MarksheetBean extends BaseBean implements Serializable {
 	 */
 	public void setStudentId(long studentId) {
 		this.studentId = studentId;
-	}
-	/**
-	 * Gets the name associated with the marksheet.
-	 *
-	 * @return The name associated with the marksheet.
-	 */
-	public String getName() {
-		return name;
-	}
-	/**
-	 * Sets the name associated with the marksheet.
-	 *
-	 * @param name The name to set.
-	 */
-	public void setName(String name) {
-		this.name = name;
 	}
 	/**
 	 * Gets the marks in physics.
@@ -144,13 +127,12 @@ public class MarksheetBean extends BaseBean implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return "MarksheetBean [rollNo=" + rollNo + ", studentId=" + studentId + ", name=" + name + ", physics="
+		return "MarksheetBean [rollNo=" + rollNo + ", studentId=" + studentId + ", physics="
 				+ physics + ", chemistry=" + chemistry + ", maths=" + maths + ", id=" + id + ", createdBy="
 				+ createdBy + ", modifiedBy=" + modifiedBy + ", createdDatetime=" + createdDatetime 
 				+ ", modifiedDatetime=" + modifiedDatetime + "]";
 	}
-	@Override
-	public MarksheetDTO getDTO() {
+    public MarksheetDTO getDTO() {
 		MarksheetDTO marksheetDTO = new MarksheetDTO();
 		marksheetDTO.setId(id);
 		marksheetDTO.setRollNo(rollNo);
@@ -158,7 +140,16 @@ public class MarksheetBean extends BaseBean implements Serializable {
 		marksheetDTO.setStudentId(studentId);
 		marksheetDTO.setChemistry(chemistry);
 		marksheetDTO.setPhysics(physics);
-		marksheetDTO.setName(name);
 		return marksheetDTO;
 	}
+
+    public void populateBean(MarksheetDTO dto) {
+        this.id = dto.getId();
+        this.rollNo = dto.getRollNo();
+        this.maths = dto.getMaths();
+        this.studentId = dto.getStudentId();
+        this.chemistry = dto.getChemistry();
+        this.physics = dto.getPhysics();
+        this.createdBy = dto.getCreatedBy();
+    }
 }

@@ -1,7 +1,6 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
-import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -10,13 +9,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Bean.CourseBean;
 import com.rays.pro4.DTO.CourseDTO;
 import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Model.CourseModel;
-import com.rays.pro4.validator.CourseValidator;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.ORSView;
 
@@ -44,9 +41,9 @@ public class CourseCtl extends BaseCtl<CourseBean>{
 	@Override
 	protected boolean validate(final HttpServletRequest request) {
 		log.debug("CourseCtl validate started");
-		final boolean pass = CourseValidator.validate(request);
-		
-		
+		final boolean pass = com.rays.pro4.validator.CourseValidator.validate(request);
+
+
 		log.debug("CourseCtl validate End");
 		return pass;
 	}
@@ -66,26 +63,9 @@ public class CourseCtl extends BaseCtl<CourseBean>{
         bean.setDescription(DataUtility.getString(request.getParameter("description")));
         bean.setDuration(DataUtility.getString(request.getParameter("duration")));
         populate(bean, request);
-    
-        bean.setCreatedDatetime(DataUtility.getCurrentTimestamp());
-		
-		
-		bean.populate(request);
+
 		log.debug("CourseCtl populate end");
-
-	}
-
-
-	/**
-	 * Find by pk.
-	 * @param id the id
-	 * @return the course bean
-	 * @throws ApplicationException the application exception
-	 */
-	public CourseBean findByPK(final long id) throws ApplicationException {
-		CourseBean bean = null;
-		bean = model.findByPK(id);
-		return bean;
+        return bean;
 	}
 
 
@@ -111,15 +91,15 @@ public class CourseCtl extends BaseCtl<CourseBean>{
         if(id>0 || op != null){
            CourseDTO dto;
             try{
-                dto=model.findByPK(id);
-                
+                dto = model.findByPK(id);
+                if(dto==null) ServletUtility.redirect(ORSView.COURSE_LIST_CTL, request, response);
                 courseBean.setId(dto.getId());
                 courseBean.setName(dto.getName());
-                courseBean.setDescription(bean.getDescription());
-                courseBean.setDuration(bean.getDuration());
-
-
+                courseBean.setDescription(dto.getDescription());
+                courseBean.setDuration(dto.getDuration());
+                
                 ServletUtility.setBean(courseBean, request);
+                
 
 
             }catch(ApplicationException e){
@@ -167,15 +147,17 @@ public class CourseCtl extends BaseCtl<CourseBean>{
 	                	ServletUtility.setSuccessMessage("Course added Successfully", request);
 	                }
 	            }catch (ApplicationException e) {
-	            	if(e instanceof DuplicateRecordException){
-	            		ServletUtility.setErrorMessage("Course already exists", request);
-	            	} else ServletUtility.setErrorMessage(PropertyReader.getValue("error.course.duplicate"), request);
-	            	ServletUtility.setBean(bean, request);
+	                log.error(e);
+                    if (e instanceof DuplicateRecordException) {
+                        ServletUtility.setErrorMessage("Course Name already exists", request);
+                    } else {
+                        ServletUtility.setErrorMessage(PropertyReader.getValue("error.app.exception"), request);
+                    }
+                    ServletUtility.setBean(bean, request);
+                    
+                    return;
 	            }
-				catch (Exception e) {
-					ServletUtility.setBean(bean, request);
-				}
-	          }
+            }
 		    else if (OP_RESET.equalsIgnoreCase(op)) {
 				ServletUtility.redirect(ORSView.COURSE_CTL, request, response);
 				return;
