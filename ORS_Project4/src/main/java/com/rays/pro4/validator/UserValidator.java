@@ -25,10 +25,10 @@ public class UserValidator {
      * @param request The HttpServletRequest object.
      * @return True if the request attributes are valid, false otherwise.
      **/
-    public static boolean validate(final HttpServletRequest request) {
-        boolean pass = true;
-        Map<String, String> errors = new HashMap<String, String>();
-
+    public static Map<String, String> validate(final HttpServletRequest request) {
+        
+        Map<String, String> errors = new HashMap<>();
+        
         String firstName = request.getParameter("firstName");
         if (DataValidator.isNull(firstName)) {
             errors.put("firstName", PropertyReader.getValue("error.require", "First Name"));
@@ -92,10 +92,6 @@ public class UserValidator {
         } else if (!ALLOWED_GENDERS.contains(gender)) {
             errors.put("gender", PropertyReader.getValue("error.gender"));
         }
-        
-        if (!errors.isEmpty()) {
-            request.setAttribute("errors", errors);
-        }
-        return pass;
+        return errors;
     }
 }

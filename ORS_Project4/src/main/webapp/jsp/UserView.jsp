@@ -1,6 +1,5 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
-<%@page import="com.rays.pro4.controller.UserCtl"%>
 <%@page import="com.rays.pro4.Util.HTMLUtility"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 <html>
@@ -41,11 +40,17 @@
                 </c:otherwise>
             </c:choose>
             <div class="message-container">
-                <c:if test="${not empty requestScope.error}">
-                    <div class="alert alert-danger" role="alert">${requestScope.error}</div>
-                </c:if> <c:if test="${not empty requestScope.success}"> <div class="alert alert-success" role="alert">
-                ${requestScope.success}</div>
+                 <c:if test="${not empty error}">
+                    <div class="alert alert-danger" role="alert">${error}</div>
                 </c:if>
+                 <c:if test="${not empty errorMessage}">
+                    <div class="alert alert-danger" role="alert">${errorMessage}</div>
+                </c:if>
+                <c:if test="${not empty successMessage}">
+                 <div class="alert alert-success" role="alert">
+                 ${successMessage}</div>
+               </c:if>
+               
             </div>
             <form action="${ctx}/UserCtl" method="post"> <input type="hidden" name="id" value="${bean.id}"> <input type="hidden" name="createdBy" value="${bean.createdBy}"> <input type="hidden" name="modifiedBy" value="${bean.modifiedBy}"> <input type="hidden" name="createdDatetime" value="${bean.createdDatetime}"> <input type="hidden" name="modifiedDatetime" value="${bean.modifiedDatetime}"><c:set var="errors" value="${requestScope.errors}" />
                 <table class="table table-borderless w-50 mx-auto">
@@ -58,7 +63,7 @@
                   </tr>
                   <tr>
                       <th style="width: 20%"><label for="lastName">Last Name <span class="required">*</span> :</label></th><td><input type="text" name="lastName" id="lastName" placeholder="Enter Last Name"
-                      class="form-control" value="${bean.lastName}"> <span class="error-message">${requestScope.lastName}</span>
+                      class="form-control" value="${bean.lastName}"> <span class="error-message">${errors.lastName}</span>
                     </td>
                   </tr>
                   <tr>
@@ -79,7 +84,7 @@
                       <td><input type="password" name="confirmPassword" id="confirmPassword"
                         placeholder="Re-Enter Password" class="form-control"> <span
                         class="error-message">${requestScope.confirmPassword}</span></td>
-                   </tr>
+                     </tr>
                   </c:if>
                   <tr>
                     <th style="width: 20%"><label for="gender">Gender <span class="required">*</span> :</label></th>
@@ -92,7 +97,7 @@
                   <tr>
                     <th style="width: 20%"><label for="roleId">Role <span class="required">*</span> :</label></th>
                     <td>${HTMLUtility.getList("roleId", bean.roleId, requestScope.roleList)} <span
-                      class="error-message">${requestScope.roleId}</span></td>
+                      class="error-message">${errors.roleId}</span></td>
                   </tr>
                     <tr>
                         <th style="width: 20%"><label for="dob">Date Of Birth <span class="required">*</span> :</label></th>
@@ -112,12 +117,12 @@
                             <div class="button-container">
                                 <c:choose>
                                     <c:when test="${bean.id > 0}">
-                                        <input type="submit" name="operation" value="${UserCtl.OP_UPDATE}" class="btn btn-primary">
-                                        <input type="submit" name="operation" value="${UserCtl.OP_CANCEL}" class="btn btn-secondary">
+                                        <input type="submit" name="operation" value="Update" class="btn btn-primary">
+                                        <input type="submit" name="operation" value="Cancel" class="btn btn-secondary">
                                     </c:when>
                                     <c:otherwise>
-                                        <input type="submit" name="operation" value="${UserCtl.OP_SAVE}" class="btn btn-primary">
-                                        <input type="submit" name="operation" value="${UserCtl.OP_RESET}" class="btn btn-secondary">
+                                        <input type="submit" name="operation" value="Save" class="btn btn-primary">
+                                        <input type="submit" name="operation" value="Reset" class="btn btn-secondary">
                                     </c:otherwise>
                                 </c:choose>
                             </div>

@@ -4,7 +4,6 @@
 <%@page import="com.rays.pro4.controller.ORSView"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
-<%@page import="com.rays.pro4.Bean.UserBean"%>
 
 <!DOCTYPE html>
 <html>
@@ -30,21 +29,17 @@
         <form action="<%=ORSView.USER_REGISTRATION_CTL%>" method="post">
 
             <div class="text-center">
-                <h1>
-                    <font color="red">
-                    	<c:out value="${error}" />
-                    </font>
-                    <c:choose>
-                        <c:when test="${not empty bean.id}">Update User</c:when>
-                        <c:otherwise>Add User</c:otherwise>
-                    </c:choose>
-                </h1>
+                <h1>Add User</h1>
 
-                <c:if test="${not empty successMessage}">
-                    <div class="alert alert-success" role="alert">${successMessage}</div>
+                <c:if test="${not empty success}">
+                    <div class="alert alert-success" role="alert">${success}</div>
                 </c:if>
-                <c:if test="${not empty errorMessage}">
-                    <div class="alert alert-danger" role="alert">${errorMessage}</div>
+                <c:if test="${not empty error}">
+                  <div class="alert alert-danger" role="alert">
+
+                    ${error}
+                    </div>
+                    
                 </c:if>
             </div>
 
@@ -58,7 +53,7 @@
 								value="${bean.firstName}">
                         </td>
                         <td>
-                            <span class="error-message">${requestScope.firstName}</span>
+                            <span class="error-message">${errors.firstName}</span>
                         </td>                       
                     </tr>
 
@@ -70,7 +65,7 @@
 								value="${bean.lastName}">
                         </td>
                         <td>
-                            <span class="error-message">${requestScope.lastName}</span>
+                            <span class="error-message">${errors.lastName}</span>
                         </td>
                     </tr>
 
@@ -82,7 +77,7 @@
 								value="${bean.login}">
                         </td>
                         <td>
-                            <span class="error-message">${requestScope.login}</span>
+                            <span class="error-message">${errors.login}</span>
                         </td>
                     </tr>
 
@@ -99,7 +94,7 @@
                         </td>
                         <td>
 
-                            <span class="error-message">${requestScope.gender}</span>
+                            <span class="error-message">${errors.gender}</span>
                         </td>                      
                     </tr>
 
@@ -109,7 +104,7 @@
                             <input type="text" name="dob" id="udate" class="form-control"
 								placeholder="Enter Dob " value="${bean.dob}"
 								readonly="readonly">
-                            <span class="error-message">${requestScope.dob}</span>
+                            <span class="error-message">${errors.dob}</span>
                         </td>                      
                        
                     </tr>                 
@@ -120,7 +115,7 @@
                             <input type="text" name="mobileNo" id="mobileNo"
 								placeholder="Enter Mobile No" class="form-control"
 								maxlength="10" value="${bean.mobileNo}"> <span
-								class="error-message">${requestScope.mobileNo}</span>
+								class="error-message">${errors.mobileNo}</span>
                         </td>
                     </tr>
 
@@ -132,7 +127,7 @@
 						</td>
 
                         <td>
-                            <div class="error-message">${requestScope.password}</div>
+                            <div class="error-message">${errors.password}</div>
                         </td>
                     </tr>
 
@@ -144,7 +139,7 @@
 								value="${bean.confirmPassword}">
 						</td>
                         <td>
-                           <span class="error-message">${requestScope.confirmPassword}</span>
+                           <span class="error-message">${errors.confirmPassword}</span>
                         </td>
                     </tr>
                     <tr>

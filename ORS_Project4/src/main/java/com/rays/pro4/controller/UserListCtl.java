@@ -1,6 +1,5 @@
 package com.rays.pro4.controller;
 
-import java.beans.Statement;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,11 +13,11 @@ import org.apache.log4j.Logger;
 import com.rays.pro4.Bean.BaseBean;
 
 import com.rays.pro4.Bean.UserBean;
+import com.rays.pro4.DTO.UserDTO;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Model.RoleModel;
 import com.rays.pro4.Model.UserModel;
 import com.rays.pro4.Util.DataUtility;
-import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;
 
@@ -29,6 +28,7 @@ import com.rays.pro4.Util.ServletUtility;
  */
 @WebServlet(name = "UserListCtl", urlPatterns = { "/ctl/UserListCtl" })
 public class UserListCtl extends BaseCtl {
+	
 	private static final long serialVersionUID = 1L;
 	private static Logger log = Logger.getLogger(UserListCtl.class);
 
@@ -49,6 +49,17 @@ public class UserListCtl extends BaseCtl {
 		return bean;
 
 	}	
+	@Override
+	protected boolean validate(HttpServletRequest request) {
+		log.debug("UserListCtl Method validate Started");
+
+		java.util.Map<String, String> errors = com.rays.pro4.validator.UserValidator.validate(request);
+		if (!errors.isEmpty()) {
+			request.setAttribute("errors", errors);
+			return false;
+		}
+		return true;
+	}
 	
 	/**
 	 * Contains display logics.

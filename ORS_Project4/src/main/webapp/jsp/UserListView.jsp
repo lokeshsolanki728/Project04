@@ -27,13 +27,13 @@
         <div class="container">
             <h1 class="text-center">User List</h1>
             <div class="message-container">
-                <c:if test="${not empty requestScope.error}">
-                    <span class="alert alert-danger">${requestScope.error}</span>
+                <c:if test="${not empty errorMessage}">
+                    <span class="alert alert-danger">${errorMessage}</span>
 
                 </c:if>
-                <c:if test="${not empty requestScope.success}">
-                    <div class="alert alert-success">${requestScope.success}</div>
-                </c:if>
+                 <c:if test="${not empty successMessage}">
+                 <div class="alert alert-success">${successMessage}</div>
+                    </c:if>
             </div>
             <c:set var="rlist" value="${requestScope.RoleList}"/>
             <c:set var="next" value="${requestScope.nextlist}"/>
@@ -48,17 +48,16 @@
                         <th class="text-center"><label for="firstName">FirstName : </label></th>
                         <td><input type="text" id="firstName" name="firstName" class="form-control-inline"
                                    placeholder="Enter First Name" value="${param.firstName}">
-                            <span class="error-message">${requestScope.firstName}</span>
-                            <span class="error-message">${errors.firstName}</span></td>
+                             <span class="error-message">${errors.firstName}</span></td>
                         <th class="text-center"><label for="loginid">LoginId :</label></th>
                         <td><input type="text" id="loginid" name="loginid" class="form-control-inline"
                                    placeholder="Enter Login-Id" value="${param.loginid}">
-                        <span class="error-message">${errors.login}</span>
+                        <span class="error-message">${errors.loginid}</span>
                         </td>
                             <th class="text-center"><label for="roleid">Role : </label></th>
                         <td><select id="roleid" name="roleid" class="form-control-inline">
                             <option value="">Select Role</option>
-                            <c:forEach var="item" items="${rlist}">
+                           <c:forEach var="item" items="${rlist}">
                                 <option value="${item.key}" ${item.key == param.roleid ? 'selected' : ''}>${item.value}</option>
                             </c:forEach>
                         </select>

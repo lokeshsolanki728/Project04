@@ -1,6 +1,7 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -43,13 +44,16 @@ public class UserCtl extends BaseCtl {
 	@Override
 	protected boolean validate(final HttpServletRequest request) {
 		log.debug("UserCtl Method validate Started");
-
-		final boolean pass = UserValidator.validate(request);
+		
+		Map<String, String> errors = UserValidator.validate(request);
+        if (!errors.isEmpty()) {
+            request.setAttribute("errors", errors);
+            return false;
+        }
 
 		log.debug("UserCtl Method validate Ended");
-		return pass;
+		return true;
 	}
-
 	protected BaseBean populateBean(final HttpServletRequest request) {
 		log.debug("UserCtl Method populateBean Started");
 
