@@ -11,12 +11,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import com.rays.pro4.Bean.BaseBean;
-import com.rays.pro4.Bean.TimeTableBean;
+import com.rays.pro4.DTO.TimeTableDTO;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Model.TimeTableModel;
 import com.rays.pro4.Util.DataUtility;
-import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.PropertyReader;
+import java.util.HashMap;
+import com.rays.pro4.validator.TimeTableValidator;
 import com.rays.pro4.Util.ServletUtility;
 
 /**
@@ -30,17 +31,33 @@ public class TimeTableListCtl extends BaseCtl {
 
     private static Logger log = Logger.getLogger(TimeTableListCtl.class);
     
+    @Override
+	protected boolean validate(HttpServletRequest request){
+		log.debug("TimeTableCtl Method validate Started");
+		boolean pass = true;
+        TimeTableDTO dto = populateDTO(request);
+		TimeTableValidator validator = new TimeTableValidator();
+        if (dto.getErrorMessages() == null) {
+            dto.setErrorMessages(new HashMap<>());
+        }
+        
+        validator.validate(dto);
+        if (!dto.getErrorMessages().isEmpty()) {
+
+            pass = false;
+        }
+        ServletUtility.setBean(dto, request);
+		return pass;
+	}
     
     @Override
-    protected BaseBean populateBean(HttpServletRequest request) {
-        log.debug("populateBean method of TimeTableListCtl Started");
-        TimeTableBean bean = new TimeTableBean();
-        bean.setCourseId(DataUtility.getLong(request.getParameter("courseId")));
-        bean.setSubjectId(DataUtility.getLong(request.getParameter("subjectId")));
-        bean.setSemester(DataUtility.getString(request.getParameter("semester")));
-        bean.setExamDate(DataUtility.getDate(request.getParameter("examDate")));
-        log.debug("populateBean method of TimeTableListCtl Ended");
-        return bean;
+    protected BaseBean populateDTO(HttpServletRequest request) {
+        TimeTableDTO dto = new TimeTableDTO();
+		dto.setCourseId(DataUtility.getLong(request.getParameter("courseId")));
+		dto.setSubjectId(DataUtility.getLong(request.getParameter("subjectId")));
+		dto.setSemester(DataUtility.getString(request.getParameter("semester")));
+		dto.setExamDate(DataUtility.getDate(request.getParameter("examDate")));
+		return dto;
     }
 
     /**
@@ -48,20 +65,19 @@ public class TimeTableListCtl extends BaseCtl {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws ServletException, IOException{
         log.debug("doGet method of TimeTableListCtl Started");
-        List<TimeTableBean> list;
+        List<TimeTableDTO> list;
         TimeTableModel model = new TimeTableModel();
         int pageNo = 1;
         int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));
-        TimeTableBean bean = (TimeTableBean) populateBean(request);
+        TimeTableDTO dto = (TimeTableDTO) populateDTO(request);
         try {
-            list = model.search(bean, pageNo, pageSize);
-            ServletUtility.setList(list, request);
-            if (list == null || list.size() == 0) {
+            
+            list = model.search(dto, pageNo, pageSize);
+            if (list == null || list.isEmpty()) {
                 ServletUtility.setErrorMessage(PropertyReader.getValue("record.notfound"), request);
             }
-            ServletUtility.setList(list, request);
             ServletUtility.setPageNo(pageNo, request);
             ServletUtility.setPageSize(pageSize, request);
             ServletUtility.forward(getView(), request, response);
@@ -79,15 +95,14 @@ public class TimeTableListCtl extends BaseCtl {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        log.debug("doPost method of TimeTableListCtl Started");
-        List<TimeTableBean> list;
+        log.debug("TimeTableListCtl doPost Started");
+        List<TimeTableDTO> list;
         TimeTableModel model = new TimeTableModel();
         int pageNo = DataUtility.getInt(request.getParameter("pageNo"));
         int pageSize = DataUtility.getInt(request.getParameter("pageSize"));
         pageNo = (pageNo == 0) ? 1 : pageNo;
         pageSize = (pageSize == 0) ? DataUtility.getInt(PropertyReader.getValue("page.size")) : pageSize;
-        String op = DataUtility.getString(request.getParameter("operation"));
-        TimeTableBean bean = (TimeTableBean) populateBean(request);
+        TimeTableDTO dto = (TimeTableDTO) populateDTO(request);
 
         try {
             if (OP_SEARCH.equalsIgnoreCase(op) || OP_NEXT.equalsIgnoreCase(op)
@@ -104,23 +119,24 @@ public class TimeTableListCtl extends BaseCtl {
                 ServletUtility.redirect(ORSView.TIMETABLE_CTL, request, response);
                 return;
             } else if (OP_DELETE.equalsIgnoreCase(op)) {
-                pageNo = 1;
+                pageNo=1;
                 String[] ids = request.getParameterValues("ids");
                 if (ids != null && ids.length > 0) {
-                    TimeTableBean deletebean = new TimeTableBean();
                     for (String id : ids) {
-                        deletebean.setId(DataUtility.getInt(id));
-                        model.delete(deletebean.getId());
+                        TimeTableDTO deletebean = new TimeTableDTO();
+						                deletebean.setId(DataUtility.getInt(id));
+                        model.delete(deletebean);
                     }
-                    ServletUtility.setSuccessMessage(MessageConstant.DATA_DELETE_SUCCESSFUL, request);
+                    ServletUtility.setSuccessMessage("TimeTable Delete Successfully", request);
                 } else {
                     ServletUtility.setErrorMessage(PropertyReader.getValue("error.require", "Select at least one record"),
                             request);
                 }
             }
-
-            list = model.search(bean, pageNo, pageSize);
-            if (list == null || list.size() == 0 && !OP_DELETE.equalsIgnoreCase(op)) {
+            
+            list = model.search(dto, pageNo, pageSize);
+             String op = DataUtility.getString(request.getParameter("operation"));
+            if (!OP_DELETE.equalsIgnoreCase(op) && (list == null || list.size() == 0)) {
                 ServletUtility.setErrorMessage(PropertyReader.getValue("record.notfound"), request);
             }
             ServletUtility.setList(list, request);

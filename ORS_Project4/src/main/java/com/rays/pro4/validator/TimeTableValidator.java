@@ -1,6 +1,11 @@
-package com.rays.pro4.util;
+package com.rays.pro4.validator;
 
-import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.rays.pro4.DTO.TimeTableDTO;
+import com.rays.pro4.Util.DataValidator;
+import com.rays.pro4.Util.PropertyReader;
 
 /**
  * TimeTable Validator class to validate TimeTable data.
@@ -11,47 +16,54 @@ import javax.servlet.http.HttpServletRequest;
 public class TimeTableValidator {
 
     /**
-     * Validates the request attributes for TimeTable data.
+     * Validates the TimeTableBean data.
      *
-     * @param request The HttpServletRequest object.
+     * @param dto The TimeTableDTO object.
      * @return True if the request attributes are valid, false otherwise.
      */
-    public static boolean validate(final HttpServletRequest request) {
+    public static boolean validate(final TimeTableDTO dto) {
         boolean pass = true;
 
-        if (DataValidator.isNull(request.getParameter("courseName"))) {
-            request.setAttribute("courseName", PropertyReader.getValue("error.require", "Course Name"));
+        if (dto.getCourseId() == 0) {
+        	dto.getErrorMessages().put("courseId", PropertyReader.getValue("error.require", "Course Name"));
+            pass = false;
+        }else if (!DataValidator.isLong(String.valueOf(dto.getCourseId()))) {
+            dto.getErrorMessages().put("courseId", "Course ID must be a number");
             pass = false;
         }
 
-        if (DataValidator.isNull(request.getParameter("subjectName"))) {
-            request.setAttribute("subjectName", PropertyReader.getValue("error.require", "Subject Name"));
+        if (dto.getSubjectId() == 0) {
+        	dto.getErrorMessages().put("subjectId", PropertyReader.getValue("error.require", "Subject Name"));
+            pass = false;
+        }else if (!DataValidator.isLong(String.valueOf(dto.getSubjectId()))) {
+            dto.getErrorMessages().put("subjectId", "Subject ID must be a number");
             pass = false;
         }
 
-        if (DataValidator.isNull(request.getParameter("semester"))) {
-            request.setAttribute("semester", PropertyReader.getValue("error.require", "Semester"));
+        if (DataValidator.isNull(dto.getSemester())) {
+        	dto.getErrorMessages().put("semester", PropertyReader.getValue("error.require", "Semester"));
+            
+        }
+
+        if (DataValidator.isNull(DataValidator.dateToString(dto.getExamDate()))) {
+        	dto.getErrorMessages().put("examDate", PropertyReader.getValue("error.require", "Exam Date"));
+            pass = false;
+        } else if (!DataValidator.isDate(DataValidator.dateToString(dto.getExamDate()))) {
+        	dto.getErrorMessages().put("examDate", PropertyReader.getValue("error.date", "Exam Date"));
             pass = false;
         }
 
-        if (DataValidator.isNull(request.getParameter("examDate"))) {
-            request.setAttribute("examDate", PropertyReader.getValue("error.require", "Exam Date"));
-            pass = false;
-        } else if (!DataValidator.isDate(request.getParameter("examDate"))) {
-            request.setAttribute("examDate", PropertyReader.getValue("error.date", "Exam Date"));
+        if (DataValidator.isNull(dto.getExamTime())) {
+        	dto.getErrorMessages().put("examTime", PropertyReader.getValue("error.require", "Exam Time"));
             pass = false;
         }
 
-        if (DataValidator.isNull(request.getParameter("examTime"))) {
-            request.setAttribute("examTime", PropertyReader.getValue("error.require", "Exam Time"));
+        if (DataValidator.isNull(dto.getDescription())) {
+        	dto.getErrorMessages().put("description", PropertyReader.getValue("error.require", "Description"));
             pass = false;
         }
 
-        if (DataValidator.isNull(request.getParameter("description"))) {
-            request.setAttribute("description", PropertyReader.getValue("error.require", "Description"));
-            pass = false;
-        }
 
-        return pass;
+        return !dto.getErrorMessages().isEmpty();
     }
 }

@@ -18,7 +18,7 @@
 	<jsp:useBean id="bean" class="com.rays.pro4.Bean.UserBean"
 		scope="request"></jsp:useBean>
 	<%@ include file="Header.jsp"%>
-	<form action="${ctx}${ORSView.FORGET_PASSWORD_CTL}" method="post">
+	<form action="${ctx}/resetPassword" method="post">
 		<div class="container ">
 			<h1 class="text-center">Forgot your password ?</h1>
 			<p class="text-center">Submit your Email address to reset your password.</p>

@@ -1,6 +1,5 @@
 package com.rays.pro4.controller;
 
-import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.util.List;
 
@@ -9,26 +8,26 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-
-import com.rays.pro4.Bean.BaseBean;
-import com.rays.pro4.Bean.StudentBean;
+import com.rays.pro4.Model.StudentModel;
+import com.rays.pro4.DTO.StudentDTO;
+import com.rays.pro4.validator.StudentValidator;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Model.CollegeModel;
-import com.rays.pro4.Model.StudentModel;
 import com.rays.pro4.Util.DataUtility;
-import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;
 
+import java.util.ArrayList;
 /**
  * Student List functionality Controller. Performs operation for list, search
  * and delete operations of Student
  *
  * @author Lokesh SOlanki
  */
-public class StudentListCtl extends BaseCtl{
-	private static final long serialVersionUID = 1L;
+public class StudentListCtl extends BaseCtl {
+    private static final long serialVersionUID = 1L;
 	private static Logger log = Logger.getLogger(StudentListCtl.class);
+    private final StudentModel model = new StudentModel();
 
     @Override
     protected void preload(HttpServletRequest request) {
@@ -48,12 +47,14 @@ public class StudentListCtl extends BaseCtl{
     }
 
     @Override
-    protected BaseBean populateBean(HttpServletRequest request) {
-        log.debug("populateBean method of StudentListCtl Started");
-        final StudentBean bean = new StudentBean();
-        bean.populate(request);
-        log.debug("populateBean method of StudentListCtl Ended");
-        return bean;
+    protected StudentDTO populateDTO(HttpServletRequest request) {
+        log.debug("populateDTO method of StudentListCtl Started");
+        StudentDTO dto = new StudentDTO();
+        dto.setFirstName(DataUtility.getString(request.getParameter("firstName")));
+        dto.setLastName(DataUtility.getString(request.getParameter("lastName")));
+        dto.setCollegeId(DataUtility.getLong(request.getParameter("collegeId")));
+        log.debug("populateDTO method of StudentListCtl Ended");
+        return dto;
     }
 
     /**
@@ -67,19 +68,22 @@ public class StudentListCtl extends BaseCtl{
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         log.debug("doGet method of StudentListCtl Started");
-        List<StudentBean> list;
-        final StudentModel model = new StudentModel();
+        List<StudentDTO> list = null;
 
+        StudentDTO dto = new StudentDTO();
+        String orderBy = DataUtility.getString(request.getParameter("orderBy"));
+        String sortOrder = DataUtility.getString(request.getParameter("sortOrder"));
         int pageNo = 1;
-        int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));
+        int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));        
 
-        String op = DataUtility.getString(request.getParameter("operation"));
-
-        final StudentBean bean = (StudentBean) populateBean(request);
-
+        String op = DataUtility.getString(request.getParameter("operation"));  
+        if(!isValidOrderByColumnListCtl(orderBy)){
+            orderBy=null;
+        }        
+        final StudentDTO dto1 = populateDTO(request);
         try {
 
-            list = model.search(bean, pageNo, pageSize,null,null);
+            list = model.search(dto1, pageNo, pageSize,orderBy,sortOrder);
 
             ServletUtility.setList(list, request);
 
@@ -116,8 +120,7 @@ public class StudentListCtl extends BaseCtl{
             throws ServletException, IOException {
         log.debug("doPost method of StudentListCtl Started");
 
-        List<StudentBean> list;
-        final StudentModel model = new StudentModel();
+        List<StudentDTO> list = null;
 
         int pageNo = DataUtility.getInt(request.getParameter("pageNo"));
         int pageSize = DataUtility.getInt(request.getParameter("pageSize"));
@@ -125,21 +128,32 @@ public class StudentListCtl extends BaseCtl{
         pageNo = (pageNo == 0) ? 1 : pageNo;
         pageSize = (pageSize == 0) ? DataUtility.getInt(PropertyReader.getValue("page.size")) : pageSize;
 
+        String orderBy = DataUtility.getString(request.getParameter("orderBy"));
+        String sortOrder = DataUtility.getString(request.getParameter("sortOrder"));
+        if(!isValidOrderByColumnListCtl(orderBy)){orderBy=null;}
+        
         final String op = DataUtility.getString(request.getParameter("operation"));
-
-        final StudentBean bean = (StudentBean) populateBean(request);
+        final StudentDTO dto = populateDTO(request);
 
         try {
 
+
             if (OP_SEARCH.equalsIgnoreCase(op) || OP_NEXT.equalsIgnoreCase(op) || OP_PREVIOUS.equalsIgnoreCase(op)) {
 
-                if (OP_SEARCH.equalsIgnoreCase(op)) {
+                if (OP_SEARCH.equalsIgnoreCase(op)) {                    
+                    if(!StudentValidator.validateSearch(dto)){
+                        ServletUtility.setErrorMessage(PropertyReader.getValue("error.require", "Please enter at least one search criteria"),request);
+                        ServletUtility.setList(list, request);
+                        ServletUtility.forward(getView(), request, response);
+                        return;
+                    }
 
-                    pageNo = 1;
+                    pageNo = 1;                    
 
-                } else if (OP_NEXT.equalsIgnoreCase(op)) {
+                }
+                else if (OP_NEXT.equalsIgnoreCase(op)) {
 
-                    pageNo++;
+                    pageNo++;                    
 
                 } else if (OP_PREVIOUS.equalsIgnoreCase(op) && pageNo > 1) {
 
@@ -154,25 +168,34 @@ public class StudentListCtl extends BaseCtl{
             } else if (OP_DELETE.equalsIgnoreCase(op)) {
                 pageNo = 1;
                 String[] ids = request.getParameterValues("ids");
+                List<String> successfulDeletes = new ArrayList<>();
+                List<String> failedDeletes = new ArrayList<>();
+                StudentDTO deleteDto = new StudentDTO();
                 if (ids != null && ids.length > 0) {
-                    StudentBean deletebean = new StudentBean();
                     for (String id : ids) {
+                        deleteDto.setId(DataUtility.getInt(id));
                         try {
-							deletebean.setId(DataUtility.getInt(id));
-							model.delete(deletebean);
+                            model.delete(deleteDto);
+                            successfulDeletes.add(id);
 						} catch (ApplicationException e) {
-							log.error(e);
-							ServletUtility.handleException(e, request, response);
+                            log.error(e);
+                            failedDeletes.add(id);
 						}
                     }
-                    ServletUtility.setSuccessMessage(MessageConstant.STUDENT_DELETE, request);
+                    if (!failedDeletes.isEmpty()) {
+                        ServletUtility.setErrorMessage("Could not delete IDs: " + String.join(", ", failedDeletes), request);
+                    }
+                    if (!successfulDeletes.isEmpty()) {
+                        ServletUtility.setSuccessMessage("Successfully deleted IDs: " + String.join(", ", successfulDeletes), request);
+                    }
                 } else {
                     ServletUtility.setErrorMessage(PropertyReader.getValue("error.require", "Select at least one record"),
                             request);
                 }
-            } 
-
-            list = model.search(bean, pageNo, pageSize, null, null);
+            }
+            
+             list = model.search(dto, pageNo, pageSize, orderBy, sortOrder);
+            
             if (list.isEmpty()) {
                 ServletUtility.setErrorMessage(PropertyReader.getValue("record.notfound"), request);
             }
@@ -188,48 +211,12 @@ public class StudentListCtl extends BaseCtl{
     }
     
     /**
-     * Search student.
+     * Returns the VIEW page of this Controller.
      *
-     * @param request  the request
-  * @param pageNo the page no
-  * @param pageSize the page size
-  * @param orderBy the order by
-  * @param sortOrder the sort order
-     * @return the list
-     * @throws ApplicationException the application exception
+     * @return the view
      */
-	private List<StudentBean> searchStudent(HttpServletRequest request, int pageNo, int pageSize, String orderBy,
-			String sortOrder) throws ApplicationException {
-		log.debug("searchStudent method Started");
-		final StudentBean bean = (StudentBean) populateBean(request);
-		final List<StudentBean> list = model.search(bean, pageNo, pageSize, orderBy, sortOrder);
-		log.debug("searchStudent method end");
-		return list;
-	}
-    /**
-     * Contains Submit logics.
-  *
-  * @param request the request
-  * @param orderBy the order by
-  * @param sortOrder the sort order
-  */
-  private void setOrderAndSort(HttpServletRequest request,String orderBy,String sortOrder) {
-	        String[] list = {"firstName","lastName","dob","collegeName","rollNo","mobileNo"};
-	        ServletUtility.setOderByList(orderBy, sortOrder, list, request);
-    }
-	/**
-	 * Returns the VIEW page of this Controller.
-	 * 
-	 * @return the view
-	 */
 	@Override
 	protected String getView() {
 		return ORSView.STUDENT_LIST_VIEW;
-	}
-    
-	@Override
-	protected void handleDatabaseException(Throwable e, HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		super.handleDatabaseException(e, request, response);
-	}
-}
+	}    
+    private boolean isValidOrderByColumnListCtl(String columnName) {        if (columnName == null || columnName.isEmpty()) {            return true;        }        String[] validColumns = {"ID","firstName", "lastName", "dob", "collegeName", "mobileNo"};        for (String validColumn : validColumns) {            if (validColumn.equalsIgnoreCase(columnName)) {                return true;            }        }        return false;    }}

@@ -1,6 +1,5 @@
 package com.rays.pro4.Model;
 
-import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,15 +7,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import com.rays.pro4.DTO.TimeTableDTO;
-import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Bean.CourseBean;
 import com.rays.pro4.Bean.SubjectBean;
-import com.rays.pro4.Bean.TimeTableBean;
+import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
-import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.JDBCDataSource;
+import java.sql.Connection;
 
 /**
+ *
  * The Class TimeTableModel.
  * 
  * @author Lokesh SOlanki
@@ -28,7 +27,7 @@ public class TimeTableModel extends BaseModel {
 		return "ST_TIMETABLE";
 	}
 	
-	public TimeTableDTO populateBean(ResultSet rs, TimeTableDTO dto) throws SQLException{
+	public TimeTableDTO populateDTO(ResultSet rs, TimeTableDTO dto) throws SQLException{
 		
 		dto.setId(rs.getLong(1));
 		dto.setCourseId(rs.getLong(2));
@@ -45,6 +44,11 @@ public class TimeTableModel extends BaseModel {
 		return dto;
 		
 	}
+	
+	public TimeTableDTO populateDTO(ResultSet rs) throws SQLException{
+		return populateDTO(rs, new TimeTableDTO());
+		
+	}
 
 	
 
@@ -58,10 +62,10 @@ public class TimeTableModel extends BaseModel {
 		
 		SubjectModel smodel = new SubjectModel();
 		SubjectBean subjectBean =smodel.findByPK(bean.getSubjectId());
-		bean.setSubjectName(subjectBean.getSubjectName());
+		bean.setSubjectName(subjectBean.getName());
 		TimeTableDTO bean1 = checkByCourseDate(bean.getCourseId(), bean.getSemester(),  new java.sql.Date(bean.getExamDate().getTime()));
 
-		TimeTableBean bean2 = checkBySemesterSubject(bean.getCourseId(), bean.getSubjectId(), bean.getSemester());
+		TimeTableDTO bean2 = checkBySemesterSubject(bean.getCourseId(), bean.getSubjectId(), bean.getSemester());
 		if(bean1 != null || bean2 != null){ 
 			throw new DuplicateRecordException("TimeTable Already Exsist"); 
 		}        
@@ -145,8 +149,9 @@ public class TimeTableModel extends BaseModel {
 
 		SubjectModel smodel = new SubjectModel();
 		SubjectBean subjectBean = smodel.findByPK(bean.getSubjectId());
-		bean.setSubjectName(subjectBean.getSubjectName());
+		bean.setSubjectName(subjectBean.getName());
 
+		bean.setCourseName(CourseBean.getName());
         TimeTableDTO bean1 = checkByCourseDate(bean.getCourseId(), bean.getSemester(), new java.sql.Date(bean.getExamDate().getTime()));
         TimeTableDTO bean2 = checkBySemesterSubject(bean.getCourseId(), bean.getSubjectId(), bean.getSemester());
         if (bean1 != null || bean2 != null) {
@@ -199,7 +204,7 @@ public class TimeTableModel extends BaseModel {
                 pstmt.setLong(1, pk);
             try(ResultSet rs = pstmt.executeQuery()){
                 while (rs.next()) {
-                    dto = populateBean(rs, new TimeTableDTO());
+                    dto = populateDTO(rs);
                 }
              }
             
@@ -236,7 +241,7 @@ public class TimeTableModel extends BaseModel {
 
 			while (rs.next()) {
 
-				TimeTableDTO dto = populateBean(rs, new TimeTableDTO());
+				TimeTableDTO dto = populateDTO(rs);
 				list.add(dto);
 			}
 		} catch (Exception e) {
@@ -250,31 +255,31 @@ public class TimeTableModel extends BaseModel {
 		return list;
 	}
 
-    public List search(TimeTableBean bean, int pageNo, int pageSize, String orderBy, String sortOrder) throws ApplicationException {
+    public List search(TimeTableDTO bean, int pageNo, int pageSize, String orderBy, String sortOrder) throws ApplicationException {
 		log.debug("Model search started");
 		StringBuffer sql = new StringBuffer("SELECT * FROM ST_TIMETABLE WHERE 1=1 ");
 
 		if (bean != null) {
 			if (bean.getId() > 0) {
-				sql.append(" AND id = ?");
+				sql.append(" AND ID = ?");
 			}
 			if (bean.getCourseId() > 0) {
-				sql.append(" AND Course_ID = ?");
+				sql.append(" AND COURSE_ID = ?");
 			}
 			if (bean.getCourseName() != null && bean.getCourseName().length() > 0) {
-				sql.append(" AND courseName LIKE ?");
+				sql.append(" AND COURSE_NAME LIKE ?");
 			}
 			if (bean.getSubjectId() > 0) {
-				sql.append(" AND Subject_ID = ?");
+				sql.append(" AND SUBJECT_ID = ?");
 			}
 			if (bean.getSubjectName() != null && bean.getSubjectName().length() > 0) {
-				sql.append(" AND subjectName LIKE ?");
+				sql.append(" AND SUBJECT_NAME LIKE ?");
 			}
 			if (bean.getExamDate() != null && bean.getExamDate().getTime() > 0) {
-				sql.append(" AND Exam_Date = ?");
+				sql.append(" AND EXAM_DATE = ?");
 			}
 			if (bean.getExamTime() != null && bean.getExamTime().length() > 0) {
-				sql.append(" AND EXAM_TIME LIKE ?");
+				sql.append(" AND EXAM_TIME LIKE ? ");
 			}
 		}
 
@@ -291,7 +296,7 @@ public class TimeTableModel extends BaseModel {
 
 		ArrayList<TimeTableDTO> list = new ArrayList<TimeTableDTO>();
 		try (Connection conn = JDBCDataSource.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
-			int index = 1;
+			int index = 1;// 1,2,3,4,5,6,7
 			if (bean != null) {
 				if (bean.getId() > 0) pstmt.setLong(index++, bean.getId());
 				if (bean.getCourseId() > 0) pstmt.setLong(index++, bean.getCourseId());
@@ -302,7 +307,7 @@ public class TimeTableModel extends BaseModel {
 				if (bean.getExamTime() != null && bean.getExamTime().length() > 0) pstmt.setString(index++, bean.getExamTime() + "%"); // Fixed typo ExamTime to examTime
 			}
 			try(ResultSet rs = pstmt.executeQuery()){
-                while (rs.next()) list.add(populateBean(rs, new TimeTableDTO()));
+                while (rs.next()) list.add(populateDTO(rs));
             }
 		} catch (Exception e) {
 			log.error("Database Exception in search.....", e);
@@ -325,7 +330,7 @@ public class TimeTableModel extends BaseModel {
             ps.setString(3, semester);
             try(ResultSet rs = ps.executeQuery()){
                 while (rs.next()) {
-                    dto = populateBean(rs,new TimeTableDTO());
+                    dto = populateDTO(rs);
                 }
             }
 		} catch (Exception e) {
@@ -349,7 +354,7 @@ public class TimeTableModel extends BaseModel {
             ps.setString(2, Semester);
             ps.setDate(3, ExamDate);
              try(ResultSet rs = ps.executeQuery();){
-                 while (rs.next()) dto = populateBean(rs, new TimeTableDTO());
+                 while (rs.next()) dto = populateDTO(rs);
             }
              
          } catch (Exception e) {
@@ -373,7 +378,7 @@ public class TimeTableModel extends BaseModel {
                 ps.setLong(2, SubjectId);
                 ps.setString(3, semester);
                 try (ResultSet rs = ps.executeQuery()) {
-                    while (rs.next()) dto = populateBean(rs, new TimeTableDTO());
+                    while (rs.next()) dto = populateDTO(rs);
                 }
             }
 		} catch (Exception e) {
@@ -394,7 +399,7 @@ public class TimeTableModel extends BaseModel {
                 ps.setDate(2, new java.sql.Date(ExamDate.getTime()));
                 try (ResultSet rs = ps.executeQuery()) {
 					while (rs.next()) {
-						dto = populateBean(rs, new TimeTableDTO());
+						dto = populateDTO(rs);
 					}
 				}
             }

@@ -1,15 +1,22 @@
 package com.rays.pro4.DTO;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TimeTableDTO extends BaseDTO {
 
     private long courseId;
+    private String courseName;
     private long subjectId;
+    private String subjectName;
     private String semester;
     private Date examDate;
     private String examTime;
     private String description;
+    private Map<String, String> errorMessages = new HashMap<>();
+
+    
 
     public long getCourseId() {
         return courseId;
@@ -19,12 +26,28 @@ public class TimeTableDTO extends BaseDTO {
         this.courseId = courseId;
     }
 
+    public String getCourseName() {
+        return courseName;
+    }
+
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
+    }
+
     public long getSubjectId() {
         return subjectId;
     }
 
     public void setSubjectId(long subjectId) {
         this.subjectId = subjectId;
+    }
+
+    public String getSubjectName() {
+        return subjectName;
+    }
+
+    public void setSubjectName(String subjectName) {
+        this.subjectName = subjectName;
     }
 
     public String getSemester() {
@@ -59,6 +82,14 @@ public class TimeTableDTO extends BaseDTO {
         this.description = description;
     }
 
+    public Map<String, String> getErrorMessages() {
+        return errorMessages;
+    }
+
+    public void setErrorMessages(Map<String, String> errorMessages) {
+        this.errorMessages = errorMessages;
+    }
+
     @Override
     public String toString() {
         return "TimeTableDTO{" +
@@ -67,6 +98,8 @@ public class TimeTableDTO extends BaseDTO {
                 ", semester='" + semester + '\'' +
                 ", examDate=" + examDate +
                 ", examTime='" + examTime + '\'' +
-                ", description='" + description + '\'' + '}';
+                ", description='" + description + '\'' +
+                ", errorMessages=" + errorMessages +
+                '}';
     }
 }

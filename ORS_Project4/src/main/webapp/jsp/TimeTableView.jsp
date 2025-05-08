@@ -41,8 +41,8 @@
 
 </head>
 <body>
-	<jsp:useBean id="timeTableBean" class="com.rays.pro4.Bean.TimeTableBean"
-		scope="request"></jsp:useBean>
+	<jsp:useBean id="timeTableDTO" class="com.rays.pro4.DTO.TimeTableDTO"
+		scope="request"/>
 
 	<form action="${ctx}${ORSView.TIMETABLE_CTL}" method="post">
 		<%@include file="Header.jsp"%>
@@ -71,24 +71,24 @@
 				</c:if>
 			</div>
 
-			<input type="hidden" name="id" value="${timeTableBean.id}"> <input
-				type="hidden" name="createdby" value="${timeTableBean.createdBy}">
-			<input type="hidden" name="modifiedby" value="${timeTableBean.modifiedBy}">
+			<input type="hidden" name="id" value="${timeTableDTO.id}"> <input
+				type="hidden" name="createdby" value="${timeTableDTO.createdBy}">
+			<input type="hidden" name="modifiedby" value="${timeTableDTO.modifiedBy}">
 			<input type="hidden" name="createddatetime"
-				value="${timeTableBean.createdDatetime}"> <input type="hidden"
-				name="modifiedby" value="${timeTableBean.modifiedDatetime}">
+				value="${timeTableDTO.createdDatetime}"> <input type="hidden"
+				name="modifiedby" value="${timeTableDTO.modifiedDatetime}">
 			<table class="table table-borderless w-50">
 				<tr>
 					<th class="text-left"><label for="courseId">Course <span class="required">*</span>:</label></th>
-					<td>${HTMLUtility.getList("courseId", timeTableBean.courseId, courseList)}
-						<span class="error">${requestScope.courseId}</span></td>
+					<td>${HTMLUtility.getList("courseId", timeTableDTO.courseId, courseList)}
+						<span class="error">${timeTableDTO.errorMessages['courseId']}</span></td>
 				</tr>
 
 				<tr>
 					<th class="text-left"><label for="subjectId">Subject <span class="required">*</span>:</label></th>
-					<td>${HTMLUtility.getList("subjectId", timeTableBean.subjectId,
+					<td>${HTMLUtility.getList("subjectId", timeTableDTO.subjectId,
 						subjectList)}
-						<span class="error">${requestScope.subjectId}</span></td>
+						<span class="error">${timeTableDTO.errorMessages['subjectId']}</span></td>
 				</tr>
 
 				<tr>
@@ -97,34 +97,34 @@
 
 					<td><select name="semester" id="semester"
 						class="form-control">
-							<option value="">Select Semester</option>
-							<option value="1st"${timeTableBean.semester == '1st' ? 'selected' : ''}>1st</option>
-							<option value="2nd"${timeTableBean.semester == '2nd' ? 'selected' : ''}>2nd</option>
-							<option value="3rd"${timeTableBean.semester == '3rd' ? 'selected' : ''}>3rd</option>
-							<option value="4th"${timeTableBean.semester == '4th' ? 'selected' : ''}>4th</option>
-							<option value="5th"${timeTableBean.semester == '5th' ? 'selected' : ''}>5th</option>
-							<option value="6th"${timeTableBean.semester == '6th' ? 'selected' : ''}>6th</option>
-							<option value="7th"${timeTableBean.semester == '7th' ? 'selected' : ''}>7th</option>
-							<option value="8th"${timeTableBean.semester == '8th' ? 'selected' : ''}>8th</option>
+							<option value="" >Select Semester</option>
+							<option value="1st"${timeTableDTO.semester == '1st' ? 'selected' : ''}>1st</option>
+							<option value="2nd"${timeTableDTO.semester == '2nd' ? 'selected' : ''}>2nd</option>
+							<option value="3rd"${timeTableDTO.semester == '3rd' ? 'selected' : ''}>3rd</option>
+							<option value="4th"${timeTableDTO.semester == '4th' ? 'selected' : ''}>4th</option>
+							<option value="5th"${timeTableDTO.semester == '5th' ? 'selected' : ''}>5th</option>
+							<option value="6th"${timeTableDTO.semester == '6th' ? 'selected' : ''}>6th</option>
+							<option value="7th"${timeTableDTO.semester == '7th' ? 'selected' : ''}>7th</option>
+							<option value="8th"${timeTableDTO.semester == '8th' ? 'selected' : ''}>8th</option>
 					</select>
-						<span class="error">${requestScope.semester}</span></td>
+						<span class="error">${timeTableDTO.errorMessages['semester']}</span></td>
 				</tr>
 				<tr>
                 <th class="text-left"><label for="udate5">Exam Date <span
 							class="required">*</span> :</label></th>
                     <td><input type="text" readonly="readonly" id="udate5"
-                               placeholder="Select Exam Date" name="ExDate" value="${timeTableBean.examDate}" class="form-control">
-                        <span class="error">${requestScope.ExDate}</span></td>
+                               placeholder="Select Exam Date" name="ExDate" value="${timeTableDTO.examDate}" class="form-control">
+                        <span class="error">${timeTableDTO.errorMessages['ExDate']}</span></td>
                 </tr>
 				<tr>
 					<th align="left"><label for="ExTime">Exam Time <span
 							class="required">*</span> :</label></th>
 					<td><select name="ExTime" id="ExTime" class="form-control">
-							<option value="">Select Time</option>	<option value="08:00 AM to 11:00 AM"${timeTableBean.examTime == '08:00 AM to 11:00 AM' ? 'selected' : ''}>08:00 AM to 11:00 AM</option>
-							<option value="12:00 PM to 03:00 PM"${timeTableBean.examTime == '12:00 PM to 03:00 PM' ? 'selected' : ''}>12:00 PM to 03:00 PM</option>
-							<option value="04:00 PM to 07:00 PM"${timeTableBean.examTime == '04:00 PM to 07:00 PM' ? 'selected' : ''}>04:00 PM to 07:00 PM</option>
+							<option value="" >Select Time</option>	<option value="08:00 AM to 11:00 AM"${timeTableDTO.examTime == '08:00 AM to 11:00 AM' ? 'selected' : ''}>08:00 AM to 11:00 AM</option>
+							<option value="12:00 PM to 03:00 PM"${timeTableDTO.examTime == '12:00 PM to 03:00 PM' ? 'selected' : ''}>12:00 PM to 03:00 PM</option>
+							<option value="04:00 PM to 07:00 PM"${timeTableDTO.examTime == '04:00 PM to 07:00 PM' ? 'selected' : ''}>04:00 PM to 07:00 PM</option>
 					</select>
-						<span class="error">${requestScope.ExTime}</span></td>
+						<span class="error">${timeTableDTO.errorMessages['ExTime']}</span></td>
 				</tr>
 				<tr>
 					<th></th>

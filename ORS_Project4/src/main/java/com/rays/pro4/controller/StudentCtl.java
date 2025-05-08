@@ -1,8 +1,6 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -10,19 +8,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
-import com.rays.pro4.Bean.CollegeBean;
-import com.rays.pro4.Bean.StudentBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
-import com.rays.pro4.Util.ORSView;
-import com.rays.pro4.Util.DataTransferUtility;
 import com.rays.pro4.Model.CollegeModel;
-import com.rays.pro4.DTO.StudentDTO;
 import com.rays.pro4.Model.StudentModel;
+import com.rays.pro4.DTO.StudentDTO;
+import java.util.List;
 import com.rays.pro4.Util.DataUtility;
-import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;
+import com.rays.pro4.Util.ORSView;
+import com.rays.pro4.DTO.StudentDTO;
 import com.rays.pro4.validator.StudentValidator;
 
 /**
@@ -38,8 +34,6 @@ public class StudentCtl extends BaseCtl {
     private static Logger log = Logger.getLogger(StudentCtl.class);
     private final StudentModel model = new StudentModel();
     
-    
-    
     /**
      * Loads pre-load data
      *
@@ -51,7 +45,7 @@ public class StudentCtl extends BaseCtl {
 
         final CollegeModel collegeModel = new CollegeModel();
         try {
-            List<CollegeBean> collegeList = collegeModel.list();
+             List collegeList = collegeModel.list();
             request.setAttribute("collegeList", collegeList);
         } catch (final ApplicationException e) {
             log.error("Error getting college list during preload", e);
@@ -67,57 +61,34 @@ public class StudentCtl extends BaseCtl {
      * @return
      */
     @Override
-    protected boolean validate(HttpServletRequest request) {
+    protected boolean validate(HttpServletRequest request,StudentDTO dto) {
         log.debug("StudentCtl Method validate Started");
-        boolean pass = true;
-        StudentBean bean=new StudentBean();
-        bean.setFirstName(DataUtility.getString(request.getParameter("firstname")));
-        bean.setLastName(DataUtility.getString(request.getParameter("lastname")));
-        try {
-            bean.setDob(DataUtility.getDate(request.getParameter("dob")));
-        } catch (Exception e) {
-            request.setAttribute("dob", "Invalid Date Format");
-            pass=false;
-        }
-        bean.setMobileNo(DataUtility.getString(request.getParameter("mobile")));
-        bean.setEmail(DataUtility.getString(request.getParameter("email")));
-        bean.setCollegeId(DataUtility.getLong(request.getParameter("collegename")));
-
-        Map<String, String> map=StudentValidator.validate(bean);
-        if(!map.isEmpty()){
-            pass=false;
-            for(Map.Entry<String, String> entry : map.entrySet()){
-                request.setAttribute(entry.getKey(), entry.getValue());
-            }
-        }
-        if(!pass){
-            log.debug("StudentCtl Method validate Ended with error");
-        }
-        return pass;
+        
+       boolean pass = StudentValidator.validate(dto);
+       return pass;
     }
-    
+
     /**
-     * Populates bean object from request parameters.
+     * Populates DTO object from request parameters.
      *
      * @param request the request
+     * @param request the request
      */
-    protected void populateBean(HttpServletRequest request, StudentBean bean){
-
-        log.debug("StudentCtl Method populateBean Started");
-        bean.setFirstName(DataUtility.getString(request.getParameter("firstname")));
-        bean.setLastName(DataUtility.getString(request.getParameter("lastname")));
-        bean.setDob(DataUtility.getDate(request.getParameter("dob")));
-        bean.setMobileNo(DataUtility.getString(request.getParameter("mobile")));
-        bean.setEmail(DataUtility.getString(request.getParameter("email")));
-        bean.setCollegeId(DataUtility.getLong(request.getParameter("collegename")));
-        bean.setId(DataUtility.getLong(request.getParameter("id")));
-        bean.setCreatedBy(DataUtility.getString(request.getParameter("createdby")));
-        bean.setModifiedBy(DataUtility.getString(request.getParameter("modifiedby")));
-
-        log.debug("StudentCtl Method populateBean Ended");
+    protected void populateDTO(HttpServletRequest request, StudentDTO dto){
+        log.debug("StudentCtl Method populateDTO Started");
+        dto.setFirstName(DataUtility.getString(request.getParameter("firstname")));
+        dto.setLastName(DataUtility.getString(request.getParameter("lastname")));
+        dto.setDob(DataUtility.getDate(request.getParameter("dob")));
+        dto.setMobileNo(DataUtility.getString(request.getParameter("mobile")));
+        dto.setEmail(DataUtility.getString(request.getParameter("email")));
+        dto.setCollegeId(DataUtility.getLong(request.getParameter("collegename")));
+        dto.setId(DataUtility.getLong(request.getParameter("id")));
+        dto.setCreatedBy(DataUtility.getString(request.getParameter("createdby")));
+        dto.setModifiedBy(DataUtility.getString(request.getParameter("modifiedby")));
+        
+        log.debug("StudentCtl Method populateDTO Ended");
     }
-    
-    
+
     /**
      * Contains Display logics.
      *
@@ -134,27 +105,23 @@ public class StudentCtl extends BaseCtl {
 
         final long id = DataUtility.getLong(request.getParameter("id"));
         final String operation = DataUtility.getString(request.getParameter("operation"));
-        
+
         if (id > 0) {
             StudentDTO dto;
             try {
                 dto = model.findByPK(id);
                 if(dto == null){
                 	ServletUtility.setErrorMessage("Student not found", request);
-                }
-                 StudentBean bean= new StudentBean();
-                DataTransferUtility.copyDtoToBean(dto, bean);
-
-                ServletUtility.setBean(bean, request);
-
-            } catch (final ApplicationException e) {
+                } ServletUtility.setDto(dto, request);
+            }catch (final ApplicationException e) {
+                ServletUtility.setErrorMessage("Error fetching student details: " + e.getMessage(), request);
+                ServletUtility.forward(getView(), request, response);
                 log.error("Error finding student by ID", e);
-                handleDatabaseException(e, request, response);
           return;
             }
         }
-       ServletUtility.forward(getView(), request, response);        
-    }
+        ServletUtility.forward(getView(), request, response);
+    }    
 
     
     /**
@@ -166,11 +133,11 @@ public class StudentCtl extends BaseCtl {
      * @throws DuplicateRecordException the duplicate record exception
      * @throws ApplicationException the application exception
      */
-    private void saveStudent(StudentBean bean, StudentModel model, HttpServletRequest request)
+    private void saveStudent(StudentDTO dto, StudentModel model, HttpServletRequest request)
             throws DuplicateRecordException, ApplicationException {
         log.debug("saveStudent method start");
-        model.add(bean);
-        ServletUtility.setSuccessMessage(MessageConstant.STUDENT_ADD, request);
+        model.add(dto);       
+        ServletUtility.setSuccessMessage("Student Added Successfully", request);
         log.debug("saveStudent method end" );
     }
 
@@ -183,11 +150,11 @@ public class StudentCtl extends BaseCtl {
      * @throws DuplicateRecordException the duplicate record exception
      * @throws ApplicationException the application exception
      */
-    private void updateStudent(StudentBean bean, StudentModel model, HttpServletRequest request)
+    private void updateStudent(StudentDTO dto, StudentModel model, HttpServletRequest request)
             throws DuplicateRecordException, ApplicationException {
         log.debug("updateStudent method start");
-         model.update(bean.getDTO());
-        ServletUtility.setSuccessMessage(MessageConstant.STUDENT_UPDATE, request);
+         model.update(dto);
+        ServletUtility.setSuccessMessage("Student Update Successfully", request);
         log.debug("updateStudent method end");
     }
 
@@ -195,25 +162,31 @@ public class StudentCtl extends BaseCtl {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        log.debug("StudentCtl Method doPost Started");
+           log.debug("StudentCtl Method doPost Started");
+            StudentDTO dto = new StudentDTO();
+            String operation = DataUtility.getString(request.getParameter("operation"));
+            populateDTO(request, dto);
+            
+            try {
+            	
+               if (OP_SAVE.equalsIgnoreCase(operation) || OP_UPDATE.equalsIgnoreCase(operation)) {
+                    if (!validate(request,dto)) {
 
-        String operation = DataUtility.getString(request.getParameter("operation"));
-        StudentBean bean = new StudentBean();
-        populateBean(request, bean);
-
-        try {
-            if (OP_SAVE.equalsIgnoreCase(operation) || OP_UPDATE.equalsIgnoreCase(operation)) {
-                if(!validate(request)){
-                    ServletUtility.setBean(bean, request);
-                    ServletUtility.forward(getView(), request, response);
-                    return;
-                }
-                if (bean.getId() > 0) {
-                    updateStudent(bean, model, request);
-                } else {
-                    saveStudent(bean, model, request);
-                }
-                ServletUtility.forward(getView(), request, response);
+                        ServletUtility.setDto(dto, request);
+                        ServletUtility.forward(getView(), request, response);
+                        return;
+                    }
+                    if (dto.getId() > 0) {
+                         updateStudent(dto, model, request);
+                    } else {
+                        // Set createdBy, modifiedBy, createdDatetime, and modifiedDatetime here
+                        // Typically, you'd get the logged-in user's ID and the current timestamp
+                        // For example:
+                        // dto.setCreatedBy(loggedInUser.getId());
+                        // dto.setCreatedDatetime(new Timestamp(System.currentTimeMillis()));
+                         saveStudent(dto, model, request);
+                    }
+                    ServletUtility.redirect(ORSView.STUDENT_LIST_CTL, request, response);
                 return;
             } else if (OP_RESET.equalsIgnoreCase(operation)) {
                 ServletUtility.redirect(ORSView.STUDENT_CTL, request, response);
@@ -221,19 +194,20 @@ public class StudentCtl extends BaseCtl {
             }else if (OP_CANCEL.equalsIgnoreCase(operation)){
                 ServletUtility.redirect(ORSView.STUDENT_LIST_CTL, request, response);
                 return;
+
             }
-        } catch (final DuplicateRecordException e) {
-                ServletUtility.setBean(bean, request);
+           } catch ( DuplicateRecordException e) {
+                ServletUtility.setDto(dto, request);
                 ServletUtility.setErrorMessage("Student Email Id already exists", request);
         } catch (ApplicationException e) {
                 log.error("Application exception", e);
-                handleDatabaseException(e, request, response);
                 return;                
             }
         ServletUtility.forward(getView(), request, response);
 
         log.debug("StudentCtl Method doPost Ended");
     }
+
 
     /** 
 	 * Returns the VIEW page of this Controller

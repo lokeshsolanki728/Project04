@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Date;
+import java.util.Calendar;
 
 import org.apache.log4j.Logger;
 
@@ -17,6 +18,7 @@ import com.rays.pro4.Bean.UserBean;
 import com.rays.pro4.DTO.UserDTO;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DatabaseException;
+import java.security.SecureRandom;
 import com.rays.pro4.Exception.DuplicateRecordException;import com.rays.pro4.Util.EmailMessage;
 import com.rays.pro4.Util.HTMLUtility;
 import com.rays.pro4.Util.DataUtility;
@@ -35,6 +37,24 @@ public class UserModel extends BaseModel {
      */
      private String hashPassword(String password) {
         return BCrypt.hashpw(password, BCrypt.gensalt());
+    }
+
+    /**
+     * Generates a secure, random 32-character reset token.
+     * @return the generated reset token.
+     */
+    private String generateResetToken() {
+        SecureRandom random = new SecureRandom();
+        byte[] tokenBytes = new byte[24]; // 32 characters * 6 bits/character = 192 bits = 24 bytes
+        random.nextBytes(tokenBytes);
+        return java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(tokenBytes);
+    }
+
+    /**
+     * @param token
+     */
+    private String hashToken(String token) {
+        return BCrypt.hashpw(token, BCrypt.gensalt());
     }
 
     /**
@@ -192,7 +212,6 @@ public class UserModel extends BaseModel {
         }
         log.debug("Model findByPK End");
          return null;
-    }
 
     /**
      * Update a User
@@ -494,6 +513,7 @@ public class UserModel extends BaseModel {
             JDBCDataSource.closeConnection(conn);
         }
         log.debug("Model changePassword End");
+    }
     
 
     /**
@@ -553,31 +573,131 @@ public class UserModel extends BaseModel {
      * @throws Exception
      */
     public boolean resetPassword(String login) throws ApplicationException {
-
-       log.debug("Model resetPassword Started");
+        log.debug("Model resetPassword Started");
         boolean flag = false;
-         try (Connection conn = JDBCDataSource.getConnection();) {
-              UserDTO dto = findByLogin(login);
-             if (dto != null) {
-                  conn.setAutoCommit(false);
-                  try (PreparedStatement pstmt = conn.prepareStatement("UPDATE ST_USER SET PASSWORD = ? WHERE LOGIN = ?")) {
-                        String newPassword = generateRandomPassword();
-                        pstmt.setString(1, hashPassword(newPassword));
-                         pstmt.setString(2, login);
-                         pstmt.executeUpdate();
+        Connection conn = null;
+        try {
+            conn = JDBCDataSource.getConnection();
+            UserDTO dto = findByLogin(login);
+            if (dto != null) {
+                String token = generateResetToken();
+                String hashedToken = hashToken(token);
+                Calendar cal = Calendar.getInstance();
+                cal.add(Calendar.MINUTE, 30);
+                Timestamp expiryTime = new Timestamp(cal.getTime().getTime());
 
-               }
-                 flag = true;
+                conn.setAutoCommit(false);
+                try (PreparedStatement pstmt = conn.prepareStatement("UPDATE ST_USER SET reset_token_hash = ?, reset_token_expiry = ? WHERE LOGIN = ?")) {
+                    pstmt.setString(1, hashedToken);
+                    pstmt.setTimestamp(2, expiryTime);
+                    pstmt.setString(3, login);
+                    pstmt.executeUpdate();
+                    conn.commit();
+                }
+
+                String resetLink = "your_app_url/resetPassword?token=" + token; // You should replace your_app_url with the actual URL of your application.
+                sendMail(dto, "Password Reset Request", "Please click on the link below to reset your password: " + resetLink);
+                flag = true;
             }
         } catch (SQLException e) {
             log.error("Database Exception in : resetPassword", e);
             JDBCDataSource.trnRollback(conn);
             throw new ApplicationException("Exception : Exception in reset Password");
-
+        } finally {
+            JDBCDataSource.closeConnection(conn);
         }
         log.debug("Model resetPassword End");
         return flag;
     }
+    
+
+    /**
+     * Validates a password reset token and returns the corresponding user.
+     *
+     * @param token The reset token to validate.
+     * @return The UserDTO associated with the token if valid, null otherwise.
+     * @throws ApplicationException If there's an error during database interaction.
+     */
+    public UserDTO validateResetToken(String token) throws ApplicationException {
+        log.debug("Model validateResetToken Started");
+        UserDTO dto = null;
+        Connection conn = null;
+        try {
+            conn = JDBCDataSource.getConnection();
+            // Prepare SQL to find user by hashed token and ensure token is not expired
+            String sql = "SELECT ID, FIRST_NAME, LAST_NAME, LOGIN, PASSWORD, DOB, MOBILE_NO, ROLE_ID, GENDER, CREATED_BY, MODIFIED_BY, CREATED_DATETIME, MODIFIED_DATETIME, reset_token_expiry FROM ST_USER WHERE reset_token_hash = ? AND reset_token_expiry > ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, hashToken(token)); // Hash the incoming token for comparison
+                pstmt.setTimestamp(2, new Timestamp(System.currentTimeMillis())); // Current time for expiry check
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        dto = new UserDTO();
+                        populateBean(rs, dto);
+                        Timestamp tokenExpiry = rs.getTimestamp("reset_token_expiry");
+                        if (tokenExpiry != null && new Timestamp(System.currentTimeMillis()).before(tokenExpiry)) {
+                                                     if(BCrypt.checkpw(token,dto.getResetTokenHash()))
+                                                     {return dto;}
+                        }else{
+                           log.warn("Password reset token expired.");
+                           return null;
+                        }
+                    }else{
+                       log.warn("Password reset token is not exist");
+                       return null;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            log.error("Database Exception in validateResetToken: ", e);
+            throw new ApplicationException("Exception: Error validating reset token");
+        } finally {
+            JDBCDataSource.closeConnection(conn);
+        }
+        log.debug("Model validateResetToken End");
+        return dto; // Return null if token is invalid or expired
+    }
+        /**
+     * Updates the user's password if the provided reset token is valid.
+     *
+     * @param token The reset token.
+     * @param newPassword The new password to set.
+     * @return True if the password was updated successfully, false otherwise.
+     * @throws ApplicationException If there is an error during database interaction.
+     */
+    public boolean updatePasswordByToken(String token, String newPassword) throws ApplicationException {
+        log.debug("Model updatePasswordByToken Started");
+        Connection conn = null;
+        boolean success = false;
+        try {
+            conn = JDBCDataSource.getConnection();
+            UserDTO dto = validateResetToken(token); // Validate the token first
+            if (dto != null) {
+                conn.setAutoCommit(false);
+                // Update the password
+                try (PreparedStatement pstmt = conn.prepareStatement("UPDATE ST_USER SET PASSWORD = ?, reset_token_hash = NULL, reset_token_expiry = NULL WHERE ID = ?")) {
+                    pstmt.setString(1, hashPassword(newPassword));
+                    pstmt.setLong(2, dto.getId());
+                    pstmt.executeUpdate();
+                }
+                conn.commit();
+                success = true;
+            } else {
+                 success = false;
+                log.warn("Invalid or expired token during password update.");
+            }
+        } catch (SQLException e) {
+            log.error("Database Exception in updatePasswordByToken: ", e);
+             JDBCDataSource.trnRollback(conn);
+            throw new ApplicationException("Exception: Error updating password by token");
+        } finally {
+           if (conn!=null) {
+             JDBCDataSource.closeConnection(conn);
+           }
+        }
+        log.debug("Model updatePasswordByToken End");
+        return success;
+    }
+    
     
     /**
      * @param rs

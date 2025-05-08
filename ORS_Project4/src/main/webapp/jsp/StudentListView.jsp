@@ -4,9 +4,7 @@
 <%@page import="java.util.HashMap"%>
 <%@page import="com.rays.pro4.Model.StudentModel"%>
 <%@page import="com.rays.pro4.controller.StudentListCtl"%>
-<%@page import="com.rays.pro4.Bean.StudentBean"%>
-<%@page import="com.rays.pro4.Bean.CollegeBean"%>
-<%@page import="com.rays.pro4.controller.ORSView"%>
+<%@page import="com.rays.pro4.controller.ORSView"%>	
 <%@page import="com.rays.pro4.Util.HTMLUtility"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
@@ -21,20 +19,26 @@
 <link rel="stylesheet" href="${ctx}/css/style.css">
 </head>
 <body>
-<jsp:useBean id="cbean" class="com.rays.pro4.Bean.CollegeBean"
-	scope="request"></jsp:useBean>
-<jsp:useBean id="bean" class="com.rays.pro4.Bean.StudentBean"
-	scope="request"></jsp:useBean>
+<jsp:useBean id="dto" class="com.rays.pro4.DTO.StudentDTO" scope="request"></jsp:useBean>
+
 <form action="${ctx}${ORSView.STUDENT_LIST_CTL}" method="post">
 	<%@include file="Header.jsp"%>
 	<div class="container">
 		<h1 class="text-center">Student List</h1>
 		<div class="message-container">
-			<c:if test="${not empty requestScope.error}">
-				<div class="alert alert-danger">${requestScope.error}</div>
-			</c:if>
-			<c:if test="${not empty requestScope.success}">
-				<div class="alert alert-success">${requestScope.success}</div>
+		    <c:if test="${not empty requestScope.error}">
+		        <div class="alert alert-danger">${requestScope.error}</div>
+		    </c:if>
+		    <c:if test="${not empty requestScope.success}">
+		        <div class="alert alert-success">${requestScope.success}</div>		        
+		    </c:if>
+			 <c:if test="${not empty errorMessage}">
+		        <div class="alert alert-danger">${errorMessage}</div>		       
+		    </c:if>
+
+		     <c:if test="${not empty requestScope.message}">
+		        <div class="alert alert-success">${requestScope.message}</div>
+		    </c:if>
 			</c:if>
 		</div>
 		<c:set var="clist" value="${requestScope.CollegeList}" />
@@ -42,36 +46,38 @@
 		<c:set var="orderBy" value="${requestScope.orderBy}" />
 		<c:set var="sortOrder" value="${requestScope.sortOrder}" />
 		<c:set var="pageSize" value="${requestScope.pageSize}" />
-		<c:set var="index" value="${((pageNo - 1) * pageSize) + 1}" />
+		<c:set var="index" value="${((pageNo - 1) * pageSize) + 1}" />		
 		<c:set var="list" value="${requestScope.list}" />
-		<c:set var="studentBean" value="${bean}" />
+	    
 		<c:if test="${not empty list}">
 			<table class="search-table w-100">
-				<tr>					
+				<tr>
 					<td class="text-center">
-					    <label for="firstName">First Name :</label>
-					    <input type="text" id="firstName" name="firstName"
-					           placeholder="Enter First Name" class="form-control-inline"
-					           value="${param.firstName}">
-					    
-					    <label for="lastName">Last Name :</label>
-					    <input type="text" id="lastName" name="lastName"
-					           placeholder="Enter Last Name" class="form-control-inline"
-					           value="${param.lastName}">
+						<label for="firstName">First Name :</label> <input type="text"
+							id="firstName" name="firstName" placeholder="Enter First Name"
+							class="form-control-inline" value="${dto.firstName}">
+						<div class="error">${dto.errorMessages.get("firstName")}</div>
 
-					
-					    <label for="email">Email :</label>
-					    <input type="text" id="email" name="email"
-					           placeholder="Enter Email" class="form-control-inline" value="${param.email}">
-					           
-					      <label for="mobileNo">Mobile No :</label>
-					    <input type="text" id="mobileNo" name="mobileNo"
-					           placeholder="Enter Mobile No" class="form-control-inline"
-					           value="${param.mobileNo}">		    
+						<label for="lastName">Last Name :</label> <input type="text"
+							id="lastName" name="lastName" placeholder="Enter Last Name"
+							class="form-control-inline" value="${dto.lastName}">
+						<div class="error">${dto.errorMessages.get("lastName")}</div>
+
+
+						<label for="email">Email :</label> <input type="text"
+							id="email" name="email" placeholder="Enter Email"
+							class="form-control-inline" value="${dto.email}">
+						<div class="error">${dto.errorMessages.get("email")}</div>
+
+						<label for="mobileNo">Mobile No:</label> <input type="text"
+							id="mobileNo" name="mobileNo" placeholder="Enter Mobile No"
+							class="form-control-inline" value="${dto.mobileNo}">
+						<div class="error">${dto.errorMessages.get("mobileNo")}</div>	    
 					    <label for="collegename">College Name :</label>
 					    <select id="collegename" name="collegename" class="form-control-inline">
-							${HTMLUtility.getList("collegename", studentBean.collegeId, clist)}
+							${HTMLUtility.getList("collegename", dto.collegeId, clist)}
 						</select> 
+						<div class="error">${dto.errorMessages.get("collegeId")}</div>
 						<input type="submit" name="operation" class="btn btn-primary"
 							value="<%=StudentListCtl.OP_SEARCH%>">
 					    <input type="submit" name="operation" class="btn btn-secondary" value="<%=StudentListCtl.OP_RESET%>">
@@ -148,7 +154,7 @@
 				</c:if>
 			</table>
 		</c:if>
-		<c:if test="${empty list}">
+		<c:if test="${empty list && empty requestScope.error && empty requestScope.success && empty requestScope.message}">
 		    <div class="text-center">
 		        <h3>No Record Found</h3>
 		    </div>
