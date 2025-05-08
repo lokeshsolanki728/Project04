@@ -1,6 +1,5 @@
 package com.rays.pro4.controller;
 
-import com.rays.pro4.DTO.FacultyDTO;
 import java.io.IOException;
 import java.util.List;
 
@@ -10,7 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
-import com.rays.pro4.Bean.FacultyBean;
+import com.rays.pro4.DTO.FacultyDTO;
+import com.rays.pro4.Exception.DatabaseException;
 import com.rays.pro4.Util.FacultyValidator;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Model.FacultyModel;
@@ -25,7 +25,7 @@ import com.rays.pro4.controller.ORSView;
  * @author Lokesh SOlanki
  */
 @WebServlet(name = "FacultyListCtl", urlPatterns = { "/ctl/FacultyListCtl" })
-public class FacultyListCtl extends BaseCtl<FacultyBean> {
+public class FacultyListCtl extends BaseCtl<FacultyDTO> {
 
 	private static final long serialVersionUID = 1L;
 	/** The log. */
@@ -42,27 +42,26 @@ public class FacultyListCtl extends BaseCtl<FacultyBean> {
 	protected void preload(final HttpServletRequest request) {
 		log.debug("preload method of FacultyListCtl Started");
 		final int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));
-        FacultyBean bean = populateBean(request);
+        FacultyDTO dto = populateDTO(request);
 	}
 
 	/**
-	 * populateBean the bean
+	 * populateDTO the dto
 	 * @param request the request
-	 * @return the bean
+	 * @return the dto
 	 */
 	/**
-	 * Populates bean object from request parameters.
+	 * Populates DTO object from request parameters.
 	 * 
 	 * @param request the request
-	 * @return the college bean
+	 * @return the faculty dto
 	 */
-	@Override
-	protected FacultyBean populateBean(final HttpServletRequest request) {
-		final FacultyBean bean = new FacultyBean();
-        bean.setFirstName(DataUtility.getString(request.getParameter("firstName")));
-        bean.setLastName(DataUtility.getString(request.getParameter("lastName")));
-        bean.setEmailId(DataUtility.getString(request.getParameter("emailId")));
-		return bean;
+	protected FacultyDTO populateDTO(final HttpServletRequest request) {
+		final FacultyDTO dto = new FacultyDTO();
+        dto.setFirstName(DataUtility.getString(request.getParameter("firstName")));
+        dto.setLastName(DataUtility.getString(request.getParameter("lastName")));
+        dto.setEmailId(DataUtility.getString(request.getParameter("emailId")));
+		return dto;
 
 	}
 
@@ -76,11 +75,11 @@ public class FacultyListCtl extends BaseCtl<FacultyBean> {
 	 * @return the list
 	 * @throws ApplicationException the application exception
 	 */
-	private final List<FacultyBean> searchFaculty(final FacultyBean bean, final int pageNo, final int pageSize,
-                                                  final String orderBy, final String sortOrder)
+	private final List<FacultyDTO> searchFaculty(final FacultyDTO dto, final int pageNo, final int pageSize,
+            final String orderBy, final String sortOrder)
 			throws ApplicationException {
-		return model.search(bean, pageNo, pageSize,orderBy,sortOrder);
-	}
+		return model.search(dto, pageNo, pageSize,orderBy,sortOrder);
+	} 
 
 	/**
 	 * Validates the data send by the user.
@@ -108,13 +107,13 @@ public class FacultyListCtl extends BaseCtl<FacultyBean> {
 			throws ServletException, IOException {
 		log.debug("doGet method of FacultyCtl Started");
 		try {
-			FacultyBean bean = populateBean(request);
+			FacultyDTO dto = populateDTO(request);			
 			int pageNo = 1;
 			int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));
-			List<FacultyBean> list = searchFaculty(bean, pageNo, pageSize, "firstName", "asc");
-			if(list != null && list.size() == pageSize) {
-				request.setAttribute("nextPageExists", true);
-			}
+            String orderBy = DataUtility.getString(request.getParameter("orderBy")); String sortOrder = DataUtility.getString(request.getParameter("sortOrder")); List<FacultyDTO> list = searchFaculty(dto, pageNo, pageSize, orderBy, sortOrder);
+			
+			
+			
 			setListAndPagination(list, request, pageNo, pageSize);
 			
 		} catch (ApplicationException e) {
@@ -170,7 +169,8 @@ public class FacultyListCtl extends BaseCtl<FacultyBean> {
 		pageSize = (pageSize == 0) ? DataUtility.getInt(PropertyReader.getValue("page.size")) : pageSize;
 		String orderBy = "firstName";
 		String sortOrder = "asc";
-		String[] ids = request.getParameterValues("ids");
+        String[] ids = request.getParameterValues("ids");
+        FacultyDTO dto = populateDTO(request);
 		if(validate(request)){
 			if (OP_SEARCH.equalsIgnoreCase(op)) {
 				pageNo = 1;
@@ -186,11 +186,13 @@ public class FacultyListCtl extends BaseCtl<FacultyBean> {
 				} catch (ApplicationException e) {
 					handleDatabaseException(e, request, response);
 					return;
-				}
+                }
+                ServletUtility.setBean(dto,request);
 			}
-			FacultyBean bean = populateBean(request);
-			List<FacultyBean> list = showList(bean, request, response, pageNo, pageSize, orderBy, sortOrder);
-		if (OP_NEW.equalsIgnoreCase(op)) {
+
+          
+            List<FacultyDTO> list = showList(dto, request, response, pageNo, pageSize, orderBy, sortOrder);
+            if (OP_NEW.equalsIgnoreCase(op)) {
 			ServletUtility.redirect(ORSView.FACULTY_CTL, request, response);
 		} else if (OP_RESET.equalsIgnoreCase(op)) {
 			ServletUtility.redirect(ORSView.FACULTY_LIST_CTL, request, response);
@@ -226,16 +228,16 @@ public class FacultyListCtl extends BaseCtl<FacultyBean> {
 	 * @throws ServletException
 	 * @throws IOException
 	 */
-	private final void showList(final FacultyBean bean, final HttpServletRequest request, final HttpServletResponse response, final int pageNo, final int pageSize,
+	private final List<FacultyDTO> showList(final FacultyDTO dto, final HttpServletRequest request, final HttpServletResponse response, final int pageNo, final int pageSize,
                                   final String orderBy, final String sortOrder)
 			throws ServletException, IOException {
-
+        
 	
 
 		log.debug("showList Method Start");
-		List<FacultyBean> list = null;
+		List<FacultyDTO> list = null;
 		try {
-			list = searchFaculty(bean, pageNo, pageSize,orderBy,sortOrder);
+			list = searchFaculty(dto, pageNo, pageSize,orderBy,sortOrder);
 		} catch (ApplicationException e) {
 			handleDatabaseException(e, request, response);
 			return;
@@ -246,7 +248,7 @@ public class FacultyListCtl extends BaseCtl<FacultyBean> {
 		}
 		
 		setListAndPagination(list, request, pageNo, pageSize);
-		return list;
+		return list; 
 	}
 	/**
 	 * setListAndPagination method
@@ -255,7 +257,8 @@ public class FacultyListCtl extends BaseCtl<FacultyBean> {
 	 * @param pageNo pageNo
 	 * @param pageSize pageSize
 	 */
-	private final void setListAndPagination(final List list, final HttpServletRequest request, final int pageNo,final int pageSize) {
+	private final void setListAndPagination(final List<FacultyDTO> list, final HttpServletRequest request,
+            final int pageNo, final int pageSize) {
 		ServletUtility.setList(list, request);
 		ServletUtility.setPageNo(pageNo, request);
 		ServletUtility.setPageSize(pageSize, request);
