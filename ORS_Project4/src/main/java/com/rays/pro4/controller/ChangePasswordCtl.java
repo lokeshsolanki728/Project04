@@ -5,15 +5,13 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
-import com.rays.pro4.util.ChangePasswordValidator; 
-import com.rays.pro4.Bean.UserBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.DTO.UserDTO;
 import com.rays.pro4.Model.UserModel;
 
 import com.rays.pro4.Util.DataUtility;
+import javax.servlet.http.HttpSession;
 import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.ServletUtility;
 
@@ -25,7 +23,7 @@ import com.rays.pro4.Util.ServletUtility;
 * @author Lokesh SOlanki
 */
 @WebServlet(name = "ChangePasswordCtl", urlPatterns = { "/ctl/ChangePasswordCtl" })
-public class ChangePasswordCtl extends BaseCtl<UserBean>{
+public class ChangePasswordCtl extends BaseCtl<UserDTO>{
 
 	private static final long serialVersionUID = 1L;
 
@@ -37,16 +35,9 @@ public class ChangePasswordCtl extends BaseCtl<UserBean>{
 	/** The logger. */
 	private static Logger log = Logger.getLogger(ChangePasswordCtl.class);
 	
-	/**
-     * The model.
-     */
-    
-    
     /**
      * The model.
      */
-    
-    
 	private final UserModel model = new UserModel();
 
 	/**
@@ -59,7 +50,7 @@ public class ChangePasswordCtl extends BaseCtl<UserBean>{
 	protected boolean validate(final HttpServletRequest request) {
 
 	    log.debug("ChangePasswordCtl Method validate Started");
-	    final boolean pass = ChangePasswordValidator.validate(request);
+	    final boolean pass = com.rays.pro4.util.ChangePasswordValidator.validate(request);
 	    if (!pass) {
 	        log.debug("ChangePasswordCtl Method validate Ended with error");
 	    }
@@ -75,9 +66,8 @@ public class ChangePasswordCtl extends BaseCtl<UserBean>{
      * @return The UserBean populated with request parameters.
      */
     @Override
-    protected UserBean populateBean(HttpServletRequest request) {
+    protected UserDTO populateBean(HttpServletRequest request) {
 		log.debug("ChangePasswordCtl Method populateBean Started");
-		UserBean bean = new UserBean();
 		bean.setId(DataUtility.getLong(request.getParameter("id")));
 		bean.setPassword(DataUtility.getString(request.getParameter("oldPassword")));
 		bean.setNewPassword(DataUtility.getString(request.getParameter("newPassword")));
@@ -132,21 +122,14 @@ public class ChangePasswordCtl extends BaseCtl<UserBean>{
 	 * @throws ServletException     the servlet exception
 	 */
 	private void changePassword(final UserBean bean, final String newPassword, final HttpServletRequest request,
-			final HttpServletResponse response) throws ApplicationException, IOException, ServletException {
+	private void changePassword(final UserDTO userDto, final HttpServletRequest request,
+ final HttpServletResponse response) throws ApplicationException, ServletException, IOException {
 		log.debug("ChangePasswordCtl Method changePassword Started");
 		final HttpSession session = request.getSession();
-		final UserBean userBean = (UserBean) session.getAttribute("user");
-		if (userBean == null) {
-			ServletUtility.forward(getView(), request, response);
-			return;
-		}
-		final long id = userBean.getId();
-		final UserDTO dto = bean.getDTO();
 		try {
-			model.changePassword(id, dto.getPassword(), newPassword);
+			model.changePassword(userDto.getId(), userDto.getPassword(), userDto.getNewPassword());
 			ServletUtility.setSuccessMessage(MessageConstant.PASSWORD_CHANGE, request);
-			ServletUtility.forward(getView(), request, response);
-			log.debug("ChangePasswordCtl Method changePassword Ended");
+			log.debug("ChangePasswordCtl Method changePassword Ended"); 
 		} catch (final Exception e) {
 			log.error("ChangePasswordCtl Method changePassword error", e);
 			ServletUtility.setErrorMessage("Password change failed", request);
@@ -166,17 +149,22 @@ public class ChangePasswordCtl extends BaseCtl<UserBean>{
 	@Override
 	protected void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 		log.debug("ChangePasswordCtl Method doPost Started");
-		String op = DataUtility.getString(request.getParameter("operation"));
-		UserBean bean = populateBean(request);
-		String newPassword = bean.getNewPassword();
+		final String op = DataUtility.getString(request.getParameter("operation"));
+		final UserDTO userDto = populateBean(request);
+		
+		HttpSession session = request.getSession();
+		UserDTO sessionUserDto = (UserDTO) session.getAttribute("user");
+		if (sessionUserDto != null) {
+		    userDto.setId(sessionUserDto.getId());
+		}
 
 		try {
 			if (OP_SAVE.equalsIgnoreCase(op)) {
 				if (!validate(request)) {
 					ServletUtility.forward(getView(), request, response);
-					return;
+					return; 
 				}
-				changePassword(bean, newPassword, request, response);
+				changePassword(userDto, newPassword, request, response);
 			} else if (OP_CHANGE_MY_PROFILE.equalsIgnoreCase(op)) {
 				ServletUtility.redirect(ORSView.MY_PROFILE_CTL, request, response);
 				return;

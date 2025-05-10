@@ -47,8 +47,6 @@
 				</c:if> <c:if test="${not empty errorMessage}">
 					<div class="alert alert-danger" role="alert">${errorMessage}</div>
 				</c:if> <c:if test="${not empty error}">
-					<div class="alert alert-danger" role="alert">${error}</div>
-				</c:if>
 			</div>
 			<input type="hidden" name="collegeId" value="${dto.collegeId}">
 			<input type="hidden" name="id" value="${dto.id}"> <input type="hidden"

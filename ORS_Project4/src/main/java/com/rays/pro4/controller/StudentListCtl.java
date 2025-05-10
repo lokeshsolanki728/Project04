@@ -75,17 +75,22 @@ public class StudentListCtl extends BaseCtl {
         String sortOrder = DataUtility.getString(request.getParameter("sortOrder"));
         int pageNo = 1;
         int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));        
-
-        String op = DataUtility.getString(request.getParameter("operation"));  
+ 
         if(!isValidOrderByColumnListCtl(orderBy)){
             orderBy=null;
         }        
         final StudentDTO dto1 = populateDTO(request);
+
+        // Validate search parameters
+        if (!StudentValidator.validateSearch(dto1)) {
+            ServletUtility.setErrorMessage("Invalid search criteria format.", request);
+            ServletUtility.forward(getView(), request, response);
+            return;
+        }
+
         try {
 
             list = model.search(dto1, pageNo, pageSize,orderBy,sortOrder);
-
-            ServletUtility.setList(list, request);
 
             if (list == null || list.size() == 0) {
 

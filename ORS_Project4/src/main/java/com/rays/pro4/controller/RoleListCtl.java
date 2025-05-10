@@ -10,14 +10,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-
-import com.rays.pro4.Bean.BaseBean;
-import com.rays.pro4.Bean.RoleBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Model.RoleModel;
 import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.PropertyReader; 
+import com.rays.pro4.DTO.RoleDTO;
 import com.rays.pro4.Util.ServletUtility;
 
 
@@ -29,7 +27,7 @@ import com.rays.pro4.Util.ServletUtility;
  * @author Lokesh SOlanki
  */
 @WebServlet(name = "RoleListCtl", urlPatterns = { "/ctl/RoleListCtl" })
-public class RoleListCtl extends BaseCtl{
+public class RoleListCtl extends BaseCtl<RoleDTO>{
 
 	 /** The log. */
     private static Logger log = Logger.getLogger(RoleListCtl.class);
@@ -43,10 +41,10 @@ public class RoleListCtl extends BaseCtl{
 	 * @return the base bean
 	 */
     @Override
-    protected BaseBean populateBean(HttpServletRequest request) {
+    protected RoleDTO populateBean(HttpServletRequest request) {
         log.debug("populateBean method of RoleListCtl Started");
-        RoleBean bean = new RoleBean();      
-        bean.populate(request);
+        RoleDTO bean = new RoleDTO();      
+        bean.setName(DataUtility.getString(request.getParameter("name")));
         log.debug("populateBean method of RoleListCtl end");
         return bean;
     }
@@ -61,12 +59,12 @@ public class RoleListCtl extends BaseCtl{
     @Override
     protected void doGet(HttpServletRequest request,
                          HttpServletResponse response) throws ServletException, IOException {
-        log.debug("RoleListCtl doGet Start");
-        List<RoleBean> list = null;
+        log.debug("RoleListCtl doGet Start");       List<RoleDTO> list = null;
         final int pageNo = 1;
         pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));
 
-        final RoleBean bean = (RoleBean) populateBean(request);
+
+        final RoleDTO bean = (RoleDTO) populateBean(request);
        try {
         	list = model.search(bean, pageNo, pageSize);
             boolean next = model.search(bean, pageNo + 1, pageSize).size() > 0;
@@ -97,14 +95,13 @@ public class RoleListCtl extends BaseCtl{
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        log.debug("RoleListCtl doPost Start");
-        List<RoleBean> list = null;
+        log.debug("RoleListCtl doPost Start");        List<RoleDTO> list = null;
         int pageNo = DataUtility.getInt(request.getParameter("pageNo"));
 
         pageNo = (pageNo == 0) ? 1 : pageNo;
         pageSize = (pageSize == 0) ? DataUtility.getInt(PropertyReader.getValue("page.size")) : pageSize;
 
-        RoleBean bean = (RoleBean) populateBean(request);
+        RoleDTO dto = (RoleDTO) populateBean(request);
         String op = DataUtility.getString(request.getParameter("operation"));
 
         String[] ids = request.getParameterValues("ids");
@@ -128,8 +125,8 @@ public class RoleListCtl extends BaseCtl{
 
                     try {
                         for (String id : ids) {
-                            RoleBean rBean = new RoleBean();
-                            rBean.setId(DataUtility.getInt(id));
+                            RoleDTO rBean = new RoleDTO();
+                           rBean.setId(DataUtility.getInt(id));
                             model.delete(rBean);
                         }
                     } catch (ApplicationException e) {
@@ -144,7 +141,7 @@ public class RoleListCtl extends BaseCtl{
 
         }
             try {
-                list = model.search(bean, pageNo, pageSize);
+                list = model.search(bean, pageNo, pageSize); // Corrected call to search
                 request.setAttribute("nextlist", model.search(bean, pageNo + 1, pageSize).size() > 0);
             } catch (ApplicationException e) {
                 log.error(e);

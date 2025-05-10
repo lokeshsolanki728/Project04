@@ -19,7 +19,6 @@
         <script src="${ctx}/js/Checkbox11.js"></script>
     </head>
     <body>
-        <jsp:useBean id="bean" class="com.rays.pro4.Bean.CollegeBean" scope="request"></jsp:useBean>
         <form action="${ctx}${ORSView.COLLEGE_LIST_CTL}" method="POST">
             <%@ include file="Header.jsp"%>
             <c:set var="nextlist" value="${requestScope.nextlist}" />
@@ -49,7 +48,7 @@
                                 <select name="collegename" class="form-control-inline">
                                     <option value="">Select Name</option>
                                     <c:forEach items="${collegeList}" var="col" >
-                                        <option value="${col.id}" ${col.id == bean.id ? 'selected' : ''}>
+                                        <option value="${col.id}" ${col.id == requestScope.dto.id ? 'selected' : ''}>
                                             ${col.name}
                                         </option>
                                     </c:forEach>
@@ -57,7 +56,9 @@
                                 <label for="city">City :</label>
                                 <input type="text" id="city" name="city" placeholder="Enter City Name" class="form-control-inline"
                                        value="${param.city}">
-                                <input type="submit" name="operation" class="btn btn-primary ms-2" value="<c:out value="${CollegeListCtl.OP_SEARCH}" />">
+ <input type="hidden" name="orderBy" value="${orderBy}">
+ <input type="hidden" name="sortOrder" value="${sortOrder}">
+ <input type="submit" name="operation" class="btn btn-primary ms-2" value="<c:out value="${CollegeListCtl.OP_SEARCH}" />">
                                 <input type="submit" name="operation" class="btn btn-secondary ms-2" value="<c:out value="${CollegeListCtl.OP_RESET}" />">
                             </td>
                         </tr>

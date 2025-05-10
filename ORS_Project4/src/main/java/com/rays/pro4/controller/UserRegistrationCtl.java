@@ -12,7 +12,6 @@ import org.apache.log4j.Logger;
 import com.rays.pro4.Util.MessageConstant;
 
 import com.rays.pro4.DTO.UserDTO;
-import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Exception.DatabaseException;;
@@ -32,7 +31,7 @@ import com.rays.pro4.Util.PropertyReader;
 @WebServlet(name = "UserRegistrationCtl", urlPatterns = { "/UserRegistrationCtl" })
 public class UserRegistrationCtl extends BaseCtl<UserDTO> {
 
-	/** The Constant OP_SIGN_UP. */
+	/** The Constant OP_SIGN_UP. */ 
 	public static final String OP_SIGN_UP = "SignUp";
 
 	private static final long serialVersionUID = 1L;
@@ -117,7 +116,7 @@ public class UserRegistrationCtl extends BaseCtl<UserDTO> {
         final UserDTO bean = populateBean(request);
 
 		bean.setRoleId(2);
-        bean.setCreatedDatetime(DataUtility.getCurrentTimestamp());
+		bean.setCreatedDatetime(DataUtility.getCurrentTimestamp());
         bean.setModifiedDatetime(DataUtility.getCurrentTimestamp());
 		if (OP_SIGN_UP.equalsIgnoreCase(op)) {
              if (validate(request)) {

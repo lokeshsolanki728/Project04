@@ -10,7 +10,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import com.rays.pro4.DTO.CollegeDTO;
-import com.rays.pro4.Bean.CollegeBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DatabaseException;
 import com.rays.pro4.Exception.DuplicateRecordException;
@@ -116,10 +115,9 @@ public void delete(CollegeDTO dto) throws ApplicationException {
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     dto = new CollegeDTO();
-                    populateBean(rs, dto);
+ populateDTO(rs, dto);
                 }
                 rs.close();
-            }
         } catch (SQLException e) {
             log.error("Database Exception in find by Name ",e);
 			throw new ApplicationException("Exception : Exception in getting College by Name");
@@ -136,11 +134,10 @@ public void delete(CollegeDTO dto) throws ApplicationException {
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
 
-                   dto = new CollegeDTO();
+ dto = new CollegeDTO();
                    populateBean(rs,dto);
                 }
                 rs.close();
-              }
           } catch (SQLException e) {
               log.error("Database Exception in findByPK" + e);
               throw new ApplicationException("Exception: Error in getting College by PK - " + e.getMessage());
@@ -182,8 +179,8 @@ public void delete(CollegeDTO dto) throws ApplicationException {
         }
         log.debug("Model update End");
     }
-    public List search(CollegeBean bean) throws ApplicationException {
-        return search(bean, 0, 0, null, null);
+    public List search(CollegeDTO dto) throws ApplicationException {
+        return search(dto, 0, 0, null, null);
     }
     public List search(CollegeDTO dto, int pageNo, int pageSize, String orderBy, String sortOrder)
             throws ApplicationException {
@@ -204,8 +201,10 @@ public void delete(CollegeDTO dto) throws ApplicationException {
         if (orderBy != null && !orderBy.isEmpty()) {
         	sql.append(" ORDER BY ").append(orderBy);
             sql.append(" ").append("DESC".equalsIgnoreCase(sortOrder) ? "DESC" : "ASC");
-        } 
-         sql.append(" ORDER BY NAME ASC");
+        } else {
+            // Default sorting if no orderBy parameter is provided
+            sql.append(" ORDER BY NAME ASC");
+        }
 
         if (pageSize > 0) {
             pageNo = Math.max(1, pageNo);
@@ -226,7 +225,7 @@ public void delete(CollegeDTO dto) throws ApplicationException {
                 while (rs.next()) {
                  
                     populateBean(rs, dto);
-                    list.add(dto);
+ list.add(dto);
                 }
             }
         } catch (SQLException e) {
@@ -265,7 +264,7 @@ public void delete(CollegeDTO dto) throws ApplicationException {
         try (Connection conn = JDBCDataSource.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql.toString());
              ResultSet rs = pstmt.executeQuery()) {
-            while (rs.next()) {
+ while (rs.next()) {
                 CollegeDTO dto = new CollegeDTO();
                 populateBean(rs, dto);
                 list.add(dto);
@@ -286,7 +285,7 @@ public void delete(CollegeDTO dto) throws ApplicationException {
     }
     
 
-    private void populateBean(ResultSet rs, CollegeDTO dto) throws SQLException {
+ private void populateDTO(ResultSet rs, CollegeDTO dto) throws SQLException {
 		dto.setId(rs.getLong(1));
 		dto.setName(rs.getString(2));
 		dto.setAddress(rs.getString(3));

@@ -1,6 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page import="com.rays.pro4.controller.ORSView" %>
-<%@ page import="com.rays.pro4.controller.SubjectListCtl" %>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1" %>
 <html>
@@ -16,7 +15,7 @@
 
 <body>
     <%@include file="Header.jsp"%>
-    <jsp:useBean id="bean" class="com.rays.pro4.Bean.SubjectBean" scope="request"></jsp:useBean>
+    <jsp:useBean id="searchBean" class="com.rays.pro4.DTO.SubjectDTO" scope="request"></jsp:useBean>
     <form action="${ctx}${ORSView.SUBJECT_LIST_VIEW}" method="post">
         <div class="container">
             <h1 class="text-center">Subject List</h1>
@@ -48,13 +47,13 @@
                         <label for="subjectId">Subject Name :</label>
                             <select name="subjectId" id="subjectId" class="form-control-inline">
                                 <option value="">Select Subject</option>
-                                <c:forEach items="${slist}" var="s">
-                                    <option value="${s.id}" ${s.id == bean.id ? 'selected' : ''}>${s.subjectName}</option>
+                                <c:forEach items="${requestScope.slist}" var="s">
+                                    <option value="${s.id}" ${s.id == searchBean.id ? 'selected' : ''}>${s.subjectName}</option>
                                 </c:forEach>
                             </select>
                             <label for="courseId">Course Name :</label>
                             <select name="courseId" id="courseId" class="form-control-inline">
-                                <option value="">Select Course</option>
+                                <option value="">Select Course </option>
                                 <c:forEach items="${clist}" var="c">
                                     <option value="${c.id}" ${c.id == bean.courseId ? 'selected' : ''}>${c.courseName}</option>
                                 </c:forEach>
@@ -95,20 +94,20 @@
                 <table class="w-100">
                     <tr>
                         <td><input type="submit" name="operation" class="btn btn-secondary"
-                                value="<%=SubjectListCtl.OP_PREVIOUS%>" ${pageNo > 1 ? '' : 'disabled'}></td>
+                                value="Previous" ${pageNo > 1 ? '' : 'disabled'}></td>
                         <td><input type="submit" name="operation" class="btn btn-success"
-                                value="<%=SubjectListCtl.OP_NEW%>"></td>
+                                value="New"></td>
                         <td><input type="submit" name="operation" class="btn btn-danger"
-                                value="<%=SubjectListCtl.OP_DELETE%>"></td>
+                                value="Delete"></td>
                         <td class="text-right"><input type="submit" name="operation" class="btn btn-primary"
-                                value="<%=SubjectListCtl.OP_NEXT%>" ${nextPageSize != 0 ? '' : 'disabled'}></td>
+                                value="Next" ${nextPageSize != 0 ? '' : 'disabled'}></td>
                     </tr>
                 </table>
             </c:if>
             <c:if test="${empty list}">
                 <div class="text-center">
                     <input type="submit" name="operation" class="btn btn-primary"
-                        value="<%=SubjectListCtl.OP_BACK%>">
+                        value="Back">
                 </div>
             </c:if>
         </div>

@@ -13,10 +13,9 @@ import org.apache.log4j.Logger;
 
 import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.DTO.SubjectDTO;
-import com.rays.pro4.Bean.SubjectBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
-import com.rays.pro4.Bean.CourseBean;
+import com.rays.pro4.DTO.CourseDTO;
 import com.rays.pro4.Model.CourseModel;
 import com.rays.pro4.Model.SubjectModel;
 import com.rays.pro4.Util.DataUtility;
@@ -49,14 +48,14 @@ public class SubjectCtl extends BaseCtl{
      * @return the base bean
      */
     @Override
-    protected BaseBean populateBean(HttpServletRequest request) {
-    	log.debug("populateBean method start");
-        SubjectBean bean = new SubjectBean();
+    protected SubjectDTO populateDTO(HttpServletRequest request) {
+    	log.debug("populateDTO method start");
+        SubjectDTO bean = new SubjectDTO();
         bean.setId(DataUtility.getLong(request.getParameter("id")));
         bean.setCourseId(DataUtility.getLong(request.getParameter("courseId")));
         bean.setSubjectName(DataUtility.getString(request.getParameter("subjectName")));
         bean.setDescription(DataUtility.getString(request.getParameter("description")));
-        log.debug("populateBean method end");
+        log.debug("populateDTO method end");
         return bean;
     }
 	/**
@@ -68,7 +67,7 @@ public class SubjectCtl extends BaseCtl{
 	       log.debug("preload method of SubjectCtl Started");
 	       CourseModel courseModel = new CourseModel();
 	       try {
-	           List<CourseBean> courseList = courseModel.list();
+	           List<CourseDTO> courseList = courseModel.list();
 	           request.setAttribute("CourseList", courseList);
 	       } catch (ApplicationException e) {
 	           log.error("Error getting course list during preload", e);
@@ -125,29 +124,27 @@ public class SubjectCtl extends BaseCtl{
 	       long id = DataUtility.getLong(request.getParameter("id"));
 	       SubjectModel model = new SubjectModel();
 	       if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
-	           SubjectBean bean = (SubjectBean) populateBean(request);
+	           SubjectDTO dto = (SubjectDTO) populateDTO(request);
 	           try {
-	        	    SubjectDTO dto = bean.getDTO();
 	               if (id > 0) {
 	                   model.update(dto);
 	                   ServletUtility.setSuccessMessage("Data is successfully updated", request);
 	               } else {
 	                   long pk = model.add(dto);
-	                   bean.setId(pk);
 	                   ServletUtility.setSuccessMessage("Data is successfully saved", request);
+					   dto.setId(pk);
 	               }
 	           } catch (ApplicationException e) {
 	               log.error("Application exception", e);
 	               ServletUtility.handleException(e, request, response);
 	               return;
 	           } catch (DuplicateRecordException e) {
-	               ServletUtility.setBean(bean, request);
+	               ServletUtility.setBean(dto, request);
 	               ServletUtility.setErrorMessage("Subject Name already exists", request);
 	           }
 	       } else if (OP_DELETE.equalsIgnoreCase(op)) {
-	           SubjectBean bean = (SubjectBean) populateBean(request);
-	           try {
-	        	    SubjectDTO dto = bean.getDTO();
+	           SubjectDTO dto = (SubjectDTO) populateDTO(request);
+	           try { // This catch block needs to handle ApplicationException
 	               model.delete(dto.getId());
 	               ServletUtility.redirect(ORSView.SUBJECT_LIST_VIEW, request, response);
 	               return;

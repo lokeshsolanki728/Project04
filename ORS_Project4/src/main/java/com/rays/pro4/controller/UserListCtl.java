@@ -11,8 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 import com.rays.pro4.Bean.BaseBean;
-
-import com.rays.pro4.Bean.UserBean;
 import com.rays.pro4.DTO.UserDTO;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Model.RoleModel;
@@ -41,9 +39,9 @@ public class UserListCtl extends BaseCtl {
 	 * 
 	 */
 	@Override
-	protected BaseBean populateBean(HttpServletRequest request) {
+	protected UserDTO populateBean(HttpServletRequest request) {
 		log.debug("populateBean method of UserListCtl Started");
-		final UserBean bean = new UserBean();
+		final UserDTO bean = new UserDTO();
 		bean.populate(request);
 		log.debug("populateBean method of UserListCtl Ended");
 		return bean;
@@ -80,7 +78,7 @@ public class UserListCtl extends BaseCtl {
 		int pageNo = 1;
 		int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));
 
-		UserBean bean = (UserBean) populateBean(request);
+		UserDTO bean = populateBean(request);
 		String op = DataUtility.getString(request.getParameter("operation"));
         RoleModel roleModel = new RoleModel();
         try {
@@ -176,7 +174,7 @@ public class UserListCtl extends BaseCtl {
 				ServletUtility.setErrorMessage("Select at least one record", request);
 			}
 		}
-		UserBean bean = (UserBean) populateBean(request);
+		UserDTO bean = populateBean(request);
 		try {
 
 			list = model.search(bean, pageNo, pageSize);

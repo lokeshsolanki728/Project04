@@ -68,6 +68,7 @@ public class UserDTO extends BaseDTO {
         this.mobileNo = mobileNo;
     }
 
+    @Override
     public long getRoleId() {
         return roleId;
     }

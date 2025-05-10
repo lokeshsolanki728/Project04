@@ -11,11 +11,11 @@
 <html>
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
     <head>
-        <link rel="icon" type="image/png" href="${ctx}/img/logo.png" sizes="16*16" />
+        <link rel="icon" type="image/png" href="${ctx}/img/logo.png"\tsizes="16*16" />
         <title>
             <c:choose>
                 <c:when test="${not empty bean.id}">
-                    Update Course
+                    Update Course                </c:when>
                 </c:when>
                 <c:otherwise>
                     Add Course
@@ -24,7 +24,7 @@
         </title>
         <link rel="stylesheet" href="${ctx}/css/style.css" />
     </head>
-    <body>
+    <body style="background: #f5f5f5;">
     <jsp:useBean id="bean" class="com.rays.pro4.Bean.CourseBean" scope="request"></jsp:useBean>
     <form action="${ctx}${ORSView.COURSE_CTL}" method="post">
         <%@ include file="Header.jsp" %>
@@ -43,10 +43,10 @@
 					<div class="alert alert-danger" role="alert"><c:out value="${requestScope.error}"/></div>
 				</c:if>
             </div>
-            <input type="hidden" name="id" value="${bean.id}">
-            <input type="hidden" name="createdBy" value="${bean.createdBy}"/>
-            <input type="hidden" name="modifiedBy" value="${bean.modifiedBy}"/>
-            <input type="hidden" name="createdDatetime" value="${bean.createdDatetime}"/>
+            <input type="hidden" name="id" value="${dto.id}">
+            <input type="hidden" name="createdBy" value="${dto.createdBy}"/>
+            <input type="hidden" name="modifiedBy" value="${dto.modifiedBy}"/>
+            <input type="hidden" name="createdDatetime" value="${dto.createdDatetime}"/>
             <input type="hidden" name="modifiedDatetime" value="${bean.modifiedDatetime}"/>
             <table class="table table-borderless w-50 mx-auto">
                 <tr>
@@ -55,8 +55,8 @@
                     </th>
                     <td>
                         <input type="text" id="name" name="name" placeholder="Enter Course Name" class="form-control"
-                               value="<c:out value="${bean.name}"/>">
-                        <c:if test="${not empty errors.name}"> <input type="text" autofocus> </c:if>
+                               value="<c:out value="${dto.name}"/>">
+                        <span class="error-message"><c:out value="${dto.errorMessages.get(\"name\")}"/></span>
                         <span class="error-message"><c:out value="${errors.name}"/></span>
                     </td>
                 </tr>
@@ -67,25 +67,25 @@
                     <td>
                         <select id="duration" name="duration" class="form-control">
                             <option value="">Select Duration</option>
-                            <option value="6 Year" <c:if test="${bean.duration == '6 Year'}"> selected </c:if>>
+                            <option value="6 Year" <c:if test="${dto.duration == '6 Year'}"> selected </c:if>>
                                 6 Year
                             </option>
-                            <option value="5 Year" <c:if test="${bean.duration == '5 Year'}"> selected </c:if>>
+                            <option value="5 Year" <c:if test="${dto.duration == '5 Year'}"> selected </c:if>>
                                 5 Year
                             </option>
-                            <option value="4 Year" <c:if test="${bean.duration == '4 Year'}"> selected </c:if>>
+                            <option value="4 Year" <c:if test="${dto.duration == '4 Year'}"> selected </c:if>>
                                 4 Year
                             </option>
-                            <option value="3 Year" <c:if test="${bean.duration == '3 Year'}"> selected </c:if>>
+                            <option value="3 Year" <c:if test="${dto.duration == '3 Year'}"> selected </c:if>>
                                 3 Year
                             </option>
-                            <option value="2 Year" <c:if test="${bean.duration == '2 Year'}"> selected </c:if>>
+                            <option value="2 Year" <c:if test="${dto.duration == '2 Year'}"> selected </c:if>>
                                 2 Year
                             </option>
-                            <option value="1 Year" ${bean.duration == '1 Year' ? 'selected' : ''}>
+                            <option value="1 Year" <c:if test="${dto.duration == '1 Year'}"> selected </c:if>>
                                 1 Year
                             </option>
-                        </select>
+                        </select>                 <span class="error-message">${dto.errorMessages.get("duration")}</span>
                         <span class="error-message">${errors.duration}</span>
 					</td>
                 </tr>
@@ -95,8 +95,8 @@
                     </th>
                     <td>
                         <input type="text" id="description" name="description" placeholder="Enter Description"
-                               class="form-control" value="<c:out value="${bean.description}"/>">
-                        <span class="error-message"><c:out value="${errors.description}"/></span>
+                               class="form-control" value="<c:out value="${dto.description}"/>">\
+                        <span class="error-message"><c:out value="${dto.errorMessages.get(\"description\")}"/></span>
                     </td>
                 </tr>
                 <tr>
@@ -104,10 +104,10 @@
                     <td>
                          <div class="button-container">
                             <input type="submit" name="operation" class="btn btn-primary"
-                                   value="${empty bean.id ? CourseCtl.OP_SAVE : CourseCtl.OP_UPDATE}">
+                                   value="${empty dto.id ? CourseCtl.OP_SAVE : CourseCtl.OP_UPDATE}">
                             <input type="submit" name="operation" class="btn btn-secondary"
-                                   value="${empty bean.id ? CourseCtl.OP_RESET : CourseCtl.OP_CANCEL}">
-                            <c:if test="${not empty bean.id}">
+                                   value="${empty dto.id ? CourseCtl.OP_RESET : CourseCtl.OP_CANCEL}">
+                            <c:if test="${not empty dto.id}">
                                 <input type="submit" name="operation" class="btn btn-danger" value="${CourseCtl.OP_DELETE}">
                             </c:if>
                         </div>

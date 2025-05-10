@@ -1,9 +1,9 @@
-jsp
+
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ page import="com.rays.pro4.controller.TimetableListCtl" %>
 <%@ page import="com.rays.pro4.Util.HTMLUtility" %>
-<%@ page import="com.rays.pro4.controller.ORSView" %>
+<%@ page import="com.rays.pro4.controller.ORSView" %><%@ page import="com.rays.pro4.controller.TimeTableListCtl" %>
 <%@ page import="com.rays.pro4.DTO.TimeTableDTO" %>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1" %>
 <html>
@@ -32,8 +32,8 @@ jsp
                 $("#abcd").datepicker({
                     changeMonth: true,
                     changeYear: true,
-                    yearRange: '0:+10',
-                    dateFormat: 'dd-mm-yy',
+                    yearRange: '0:+2',
+                    dateFormat: 'mm/dd/yy',
                     beforeShowDay: disableSunday,
                     minDate: 0
                 });
@@ -41,14 +41,11 @@ jsp
 
              function confirmDelete() {
                 return confirm("Are you sure you want to delete the selected records?");
-            }
-            function submitForm() {
-        document.forms[0].submit(); // Submit the first form in the document
     }
         </script>
     </head>
     <body>
-        <jsp:useBean id="bean" class="com.rays.pro4.DTO.TimeTableDTO" scope="request"></jsp:useBean>
+        <jsp:useBean id="timeTableDTO" class="com.rays.pro4.DTO.TimeTableDTO" scope="request"></jsp:useBean>
         <%@include file="Header.jsp" %>
         <form action="${ctx}${ORSView.TIMETABLE_LIST_CTL}" method="post">
             <div class="container">
@@ -73,10 +70,10 @@ jsp
                         <tr>
                             <td class="text-center d-flex gap-3 justify-content-center align-items-center">
                                 <label for="clist">Course Name : </label>
-                                ${HTMLUtility.getList("clist", bean.getCourseId(), cList, "Select Course")}
+                                ${HTMLUtility.getList("clist", timeTableDTO.getCourseId(), cList, "Select Course")}
                                 
                                 <label for="slist">Subject Name :</label>
-                                    ${HTMLUtility.getList("slist", bean.getSubjectId(), sList,"Select Subject")}
+                                    ${HTMLUtility.getList("slist", timeTableDTO.getSubjectId(), sList,"Select Subject")}
                                
                                 <input type="submit" name="operation" value="${TimetableListCtl.OP_SEARCH}"
                                        class="btn btn-primary">
@@ -107,22 +104,49 @@ jsp
                                         </c:if>
                                     </a></th>
                                 <th>Semester.</th>
-                                <th>ExamDate.</th>
-                                <th>ExamTime.</th>
+                                <th>
+ <a href="${ctx}${ORSView.TIMETABLE_LIST_CTL}?orderBy=EXAM_DATE&sortOrder=${sortOrder eq 'asc' ? 'desc' : 'asc'}&pageNo=${pageNo}&pageSize=${pageSize}">ExamDate
+                                       <c:if test="${orderBy eq 'EXAM_DATE'}">
+ <c:choose>
+ <c:when test="${sortOrder eq 'asc'}"><i class="fas fa-arrow-up"></i></c:when>
+ <c:otherwise><i class="fas fa-arrow-down"></i></c:otherwise>
+ </c:choose>
+                                        </c:if>
+                                    </a>
+</th>
+ <th>
+ <a href="${ctx}${ORSView.TIMETABLE_LIST_CTL}?orderBy=EXAM_TIME&sortOrder=${sortOrder eq 'asc' ? 'desc' : 'asc'}&pageNo=${pageNo}&pageSize=${pageSize}">ExamTime
+                                       <c:if test="${orderBy eq 'EXAM_TIME'}">
+ <c:choose>
+ <c:when test="${sortOrder eq 'asc'}"><i class="fas fa-arrow-up"></i></c:when>
+ <c:otherwise><i class="fas fa-arrow-down"></i></c:otherwise>
+ </c:choose>
+                                        </c:if>
+                                    </a>
+</th>
                                 <th>Edit</th>
+                                
+ <th>
+ <a href="${ctx}${ORSView.TIMETABLE_LIST_CTL}?orderBy=SEMESTER&sortOrder=${sortOrder eq 'asc' ? 'desc' : 'asc'}&pageNo=${pageNo}&pageSize=${pageSize}">Semester
+                                       <c:if test="${orderBy eq 'SEMESTER'}">
+ <c:choose><c:when test="${sortOrder eq 'asc'}"><i class="fas fa-arrow-up"></i></c:when><c:otherwise><i class="fas fa-arrow-down"></i></c:otherwise></c:choose>
+                                        </c:if>
+                                    </a>
+</th>
+
                             </tr>
                         </thead>
                         <tbody>
-                            <c:forEach var="bean" items="${list}">
+                            <c:forEach var="entry" items="${list}">
                                 <tr class="text-center table-row">
-                                    <td><input type="checkbox" class="checkbox" name="ids" value="${bean.id}"></td>
+                                    <td><input type="checkbox" class="checkbox" name="ids" value="${entry.id}"></td>
                                     <td><c:out value="${index}"/> <c:set var="index" value="${index + 1}"/></td>
-                                    <td>${bean.getCourseName()}</td>
-                                    <td>${bean.getSubjectName()}</td>
-                                    <td>${bean.getSemester()}</td>
-                                    <td>${bean.getExamDate()}</td>
-                                    <td>${bean.getExamTime()}</td>
-                                    <td><a href="${ctx}/TimeTableCtl?id=${bean.getId()}" class="btn btn-link">Edit</a></td>
+                                    <td>${entry.getCourseName()}</td>
+                                    <td>${entry.getSubjectName()}</td>
+                                    <td>${entry.getSemester()}</td>
+                                    <td>${entry.getExamDate()}</td>
+                                    <td>${entry.getExamTime()}</td>
+                                    <td><a href="${ctx}/TimeTableCtl?id=${entry.getId()}" class="btn btn-link">Edit</a></td>
                                 </tr>
                             </c:forEach>
                         </tbody>
@@ -133,8 +157,7 @@ jsp
                             <td class="float-start"><input type="submit" name="operation"
                                                           value="${TimetableListCtl.OP_PREVIOUS}"
                                                           class="btn btn-secondary" ${pageNo == 1 ? 'disabled' : ''}></td>
-                            <td class="text-center"><input type="submit" name="operation"  onclick="return confirmDelete();" value="${TimetableListCtl.OP_DELETE}"
-
+                            <td class="text-center"><input type="submit" name="operation"  onclick="return confirmDelete();" value="${TimetableListCtl.OP_DELETE}" class="btn btn-danger">
 
                                        class="btn btn-danger"><input type="submit" name="operation" value="${TimetableListCtl.OP_NEW}"
                                        class="btn btn-success">
@@ -142,7 +165,7 @@ jsp
                             <td class="float-end"><input type="submit" name="operation"
                                                            value="<%=TimetableListCtl.OP_NEXT%>"
                                                            class="btn btn-primary"
-                                    ${list.size() < pageSize || next == 0 ? 'disabled' : ''}></td>
+                                    ${list.size() < pageSize ? 'disabled' : ''}></td>
                         </tr>
                     </table>
                 </c:if>

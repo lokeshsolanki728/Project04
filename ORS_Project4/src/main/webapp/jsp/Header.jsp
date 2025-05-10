@@ -1,7 +1,5 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ page import="com.rays.pro4.Bean.UserBean" %>
-<%@ page import="com.rays.pro4.Bean.RoleBean" %>
-<%@ page import="com.rays.pro4.controller.LoginCtl" %>
+<%@ page import="com.rays.pro4.controller.LoginCtl" %><%@ page import="com.rays.pro4.Bean.UserBean" %>
 <%@ page import="com.rays.pro4.controller.ORSView" %>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1" %>
 <%@ page import="com.rays.pro4.Util.PropertyReader" %>
@@ -18,7 +16,7 @@
             <c:choose>
                 <c:when test="${userLoggedIn}">
                     <c:set var="role" value="${sessionScope.role}"/>
-                    <c:set var="welcomeMsg" value="${welcomeMsg}${userBean.firstName} ${userBean.lastName} (${role})"/>
+                    <c:set var="welcomeMsg" value="${welcomeMsg}${userBean.firstName} ${userBean.lastName} (${role.name})"/>
                 </c:when>
                 <c:otherwise>
                     <c:set var="welcomeMsg" value="${welcomeMsg}${PropertyReader.getValue('GUEST_MESSAGE')}"/>
@@ -57,7 +55,7 @@
                         <li><a href="${ctx}${ORSView.CHANGE_PASSWORD_CTL}">Change Password</a></li>
                         <li><a href="${ctx}${ORSView.GET_MARKSHEET_CTL}">Get Marksheet</a></li>
                         <li><a href="${ctx}${ORSView.MARKSHEET_MERIT_LIST_CTL}">Marksheet MeritList</a></li>
-                        <c:if test="${userBean.roleId == RoleBean.ADMIN}">
+                        <c:if test="${userBean.roleId == 1}">
                             <li><a href="${ctx}${ORSView.MARKSHEET_CTL}">Add Marksheet</a></li>
                             <li><a href="${ctx}${ORSView.MARKSHEET_LIST_CTL}">Marksheet List</a></li>
                             <li><a href="${ctx}${ORSView.USER_CTL}">Add User</a></li>
@@ -79,6 +77,7 @@
                             <li><a target="blank" href="${ctx}${ORSView.JAVA_DOC_VIEW}">Java Doc</a></li>
                         </c:if>
                         <c:if test="${userBean.roleId == RoleBean.STUDENT}">
+                        <c:if test="${userBean.roleId == 2}">
                             <li><a href="${ctx}${ORSView.COLLEGE_LIST_CTL}">College List</a></li>
                             <li><a href="${ctx}${ORSView.STUDENT_LIST_CTL}">Student List</a></li>
                             <li><a href="${ctx}${ORSView.COURSE_LIST_CTL}">Course List</a></li>
@@ -86,12 +85,12 @@
                             <li><a href="${ctx}${ORSView.FACULTY_LIST_CTL}">Faculty List</a></li>
                             <li><a href="${ctx}${ORSView.TIMETABLE_LIST_CTL}">TimeTable List</a></li>
                         </c:if>
-                        <c:if test="${userBean.roleId == RoleBean.KIOSK}">
+                        <c:if test="${userBean.roleId == 3}">
                             <li><a href="${ctx}${ORSView.COLLEGE_LIST_CTL}">College List</a></li>
                             <li><a href="${ctx}${ORSView.TIMETABLE_LIST_CTL}">TimeTable List</a></li>
                             <li><a href="${ctx}${ORSView.COURSE_LIST_CTL}">Course List</a></li>
                         </c:if>
-                        <c:if test="${userBean.roleId == RoleBean.FACULTY}">
+                        <c:if test="${userBean.roleId == 4}">
                             <li><a href="${ctx}${ORSView.MARKSHEET_CTL}">Add Marksheet</a></li>
                             <li><a href="${ctx}${ORSView.MARKSHEET_LIST_CTL}">Marksheet List</a></li>
                             <li><a href="${ctx}${ORSView.COLLEGE_LIST_CTL}">College List</a></li>
@@ -103,7 +102,7 @@
                             <li><a href="${ctx}${ORSView.TIMETABLE_CTL}">Add TimeTable</a></li>
                             <li><a href="${ctx}${ORSView.TIMETABLE_LIST_CTL}">TimeTable List</a></li>
                         </c:if>
-                        <c:if test="${userBean.roleId == RoleBean.COLLEGE}">
+                        <c:if test="${userBean.roleId == 5}">
                             <li><a href="${ctx}${ORSView.MARKSHEET_CTL}">Add Marksheet</a></li>
                             <li><a href="${ctx}${ORSView.MARKSHEET_LIST_CTL}">Marksheet List</a></li>
                             <li><a href="${ctx}${ORSView.STUDENT_CTL}">Add Student</a></li>

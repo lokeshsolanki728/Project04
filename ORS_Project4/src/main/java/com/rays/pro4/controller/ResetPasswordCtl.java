@@ -18,6 +18,7 @@ import com.rays.pro4.Model.UserModel;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.DataValidator;
 import com.rays.pro4.Util.ServletUtility;
+import com.rays.pro4.controller.ORSView;
 
 @WebServlet(urlPatterns = {"/resetPassword"})
 public class ResetPasswordCtl extends BaseCtl {
@@ -34,7 +35,7 @@ public class ResetPasswordCtl extends BaseCtl {
 
         if (DataValidator.isNull(token)) {
             ServletUtility.setErrorMessage("Invalid or missing reset token.", request);
-            ServletUtility.forward(JWAView.ERROR_VIEW, request, response);
+            ServletUtility.forward(ORSView.ERROR_VIEW, request, response);
             return;
         }
 
@@ -43,17 +44,17 @@ public class ResetPasswordCtl extends BaseCtl {
         try {
             userDTO = model.validateResetToken(token);
         } catch (ApplicationException e) {
-            log.log(Level.SEVERE, "Application Exception in validateResetToken", e);
-            ServletUtility.handleException(e, request, response);
+            log.error("Application Exception in validateResetToken", e);
+            ServletUtility.setErrorMessage("Error validating reset token: " + e.getMessage(), request);
             return;
         }
 
         if (userDTO == null) {
             ServletUtility.setErrorMessage("Invalid or expired reset token.", request);
-            ServletUtility.forward(JWAView.ERROR_VIEW, request, response);
+            ServletUtility.forward(ORSView.ERROR_VIEW, request, response);
             return;
         }
-
+        request.setAttribute("loginId", userDTO.getLogin());
         request.setAttribute("token", token); // Pass the token to the view
         ServletUtility.forward(JWAView.RESETPASSWORD_VIEW, request, response);
 
@@ -71,17 +72,17 @@ public class ResetPasswordCtl extends BaseCtl {
         boolean isValid = true;
 
         if (DataValidator.isNull(newPassword)) {
-            ServletUtility.setErrorMessage("New Password is required", request);
+            request.setAttribute("newPassword", PropertyReader.getValue("error.require", "New Password"));
             isValid = false;
         }
 
         if (DataValidator.isNull(confirmPassword)) {
-            ServletUtility.setErrorMessage("Confirm Password is required", request);
+            request.setAttribute("confirmPassword", PropertyReader.getValue("error.require", "Confirm Password"));
             isValid = false;
         }
 
         if (!DataValidator.isNull(newPassword) && !DataValidator.isNull(confirmPassword) && !newPassword.equals(confirmPassword)) {
-            ServletUtility.setErrorMessage("New Password and confirm password should be same", request);
+            request.setAttribute("confirmPassword", PropertyReader.getValue("error.password.notmatch", ""));
             isValid = false;
         }
 
@@ -95,17 +96,17 @@ public class ResetPasswordCtl extends BaseCtl {
         try {
             if (model.updatePasswordByToken(token, newPassword)) {
                 ServletUtility.setSuccessMessage("Password changed successfully. Please login.", request);
-                ServletUtility.forward(JWAView.LOGIN_VIEW, request, response);
+                ServletUtility.redirect(ORSView.LOGIN_CTL, request, response);
                 return;
             }else{
                  ServletUtility.setErrorMessage("Failed to reset password. Invalid or expired token.", request);
             }
         } catch (ApplicationException e) {
             log.severe("Application Exception in updatePasswordByToken: " + e.getMessage());
-            ServletUtility.handleException(e, request, response);
+            ServletUtility.setErrorMessage("Error updating password: " + e.getMessage(), request);
             return;
         }
-         request.setAttribute("token", token); // Keep the token if possible
+        request.setAttribute("token", token); // Keep the token if possible
         ServletUtility.forward(JWAView.RESETPASSWORD_VIEW, request, response);
          log.info("ResetPasswordCtl doPost End");
     }

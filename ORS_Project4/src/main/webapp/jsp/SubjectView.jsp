@@ -1,4 +1,4 @@
-<%@page import="com.rays.pro4.Bean.SubjectBean"%>
+
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@page import="java.util.List"%>
@@ -22,13 +22,13 @@
 <link rel="stylesheet" href="${ctx}/css/style.css">
 </head>
 <body>	
-	<jsp:useBean id="bean" class="com.rays.pro4.Bean.SubjectBean"
+	<jsp:useBean id="dto" class="com.rays.pro4.DTO.SubjectDTO"
 		scope="request" />
 	<form action="${ctx}${ORSView.SUBJECT_CTL}" method="post">
 		<div class="container">
 			<h1 class="text-center">
 				<c:choose>
-					<c:when test="${not empty bean.id}">
+					<c:when test="${not empty dto.id}">
 						Update Subject
 					</c:when>
 					<c:otherwise>
@@ -45,19 +45,19 @@
 				</c:if>
 			</div>
 			<input type="hidden" name="id" value="${bean.id}">
-			<input type="hidden" name="createdby" value="${bean.createdBy}">
-			<input type="hidden" name="modifiedby" value="${bean.modifiedBy}">
+			<input type="hidden" name="createdby" value="${dto.createdBy}">
+			<input type="hidden" name="modifiedby" value="${dto.modifiedBy}">
 			<input type="hidden" name="createddatetime"
-				value="${bean.createdDatetime}">
+				value="${dto.createdDatetime}">
 			<input type="hidden" name="modifieddatetime"
-				value="${bean.modifiedDatetime}">
+				value="${dto.modifiedDatetime}">
 			<c:set var="CourseList" value="${requestScope.CourseList}" />
 			<table class="table table-borderless w-50">
 				<tr>
 					<th align="left"><label for="courseId">Course Name<span
 							class="required">*</span> :</label></th>
 					<td>${HTMLUtility.getList("courseId", bean.courseId, CourseList)}
-						<div class="error">${requestScope.courseName}</div></td>
+						<div class="error">${dto.collegeName}</div></td>
 				</tr>
 
 				<tr>
@@ -66,7 +66,7 @@
 					<td><input type="text" name="subjectName" id="name"
 						placeholder="Enter Subject Name" class="form-control"
 						value="${bean.subjectName}">
-						<div class="error">${requestScope.subjectName}</div></td>
+						<div class="error">${dto.subjectName}</div></td>
 				</tr>
 
 				<tr>
@@ -75,12 +75,12 @@
 					<td><input type="text" name="description" id="description"
 						placeholder="Enter Description" class="form-control"
 						value="${bean.description}">
-						<div class="error">${requestScope.description}</div></td>
+						<div class="error">${dto.description}</div></td>
 				</tr>
 				<tr>
 					<th></th>
 					<td><c:choose>
-							<c:when test="${not empty bean.id}">
+							<c:when test="${not empty dto.id}">
 								<input type="submit" name="operation" value="<%=SubjectCtl.OP_UPDATE%>">
 								<input type="submit" name="operation" value="<%=SubjectCtl.OP_CANCEL%>">
 							</c:when>

@@ -12,11 +12,9 @@ import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Model.CollegeModel;
 import com.rays.pro4.Model.StudentModel;
-import com.rays.pro4.DTO.StudentDTO;
 import java.util.List;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.PropertyReader;
-import com.rays.pro4.Util.ServletUtility;
 import com.rays.pro4.Util.ORSView;
 import com.rays.pro4.DTO.StudentDTO;
 import com.rays.pro4.validator.StudentValidator;
@@ -61,7 +59,7 @@ public class StudentCtl extends BaseCtl {
      * @return
      */
     @Override
-    protected boolean validate(HttpServletRequest request,StudentDTO dto) {
+ protected boolean validate(StudentDTO dto) {
         log.debug("StudentCtl Method validate Started");
         
        boolean pass = StudentValidator.validate(dto);
@@ -128,8 +126,8 @@ public class StudentCtl extends BaseCtl {
      * Save student.
      *
      * @param bean the bean
-     * @param model the model
-     * @param request the request
+ * @param model the model
+ * @param request the request
      * @throws DuplicateRecordException the duplicate record exception
      * @throws ApplicationException the application exception
      */
@@ -165,12 +163,13 @@ public class StudentCtl extends BaseCtl {
            log.debug("StudentCtl Method doPost Started");
             StudentDTO dto = new StudentDTO();
             String operation = DataUtility.getString(request.getParameter("operation"));
-            populateDTO(request, dto);
+
             
             try {
             	
                if (OP_SAVE.equalsIgnoreCase(operation) || OP_UPDATE.equalsIgnoreCase(operation)) {
-                    if (!validate(request,dto)) {
+                    if (!validate(dto)) {
+ populateDTO(request, dto);
 
                         ServletUtility.setDto(dto, request);
                         ServletUtility.forward(getView(), request, response);
@@ -178,12 +177,15 @@ public class StudentCtl extends BaseCtl {
                     }
                     if (dto.getId() > 0) {
                          updateStudent(dto, model, request);
-                    } else {
-                        // Set createdBy, modifiedBy, createdDatetime, and modifiedDatetime here
-                        // Typically, you'd get the logged-in user's ID and the current timestamp
-                        // For example:
-                        // dto.setCreatedBy(loggedInUser.getId());
+                    } else {                        
+                        // Set createdBy, modifiedBy, createdDatetime, and modifiedDatetime
+                        // Use placeholder values for now
+                        dto.setCreatedBy("admin"); // Placeholder
+                        dto.setModifiedBy("admin"); // Placeholder
+                        dto.setCreatedDatetime(new java.sql.Timestamp(System.currentTimeMillis())); // Placeholder
                         // dto.setCreatedDatetime(new Timestamp(System.currentTimeMillis()));
+                        dto.setModifiedDatetime(new java.sql.Timestamp(System.currentTimeMillis())); // Placeholder
+
                          saveStudent(dto, model, request);
                     }
                     ServletUtility.redirect(ORSView.STUDENT_LIST_CTL, request, response);

@@ -6,16 +6,14 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import com.rays.pro4.DTO.RoleDTO;
 import org.apache.log4j.Logger;
-import com.rays.pro4.Bean.RoleBean;
 import com.rays.pro4.DTO.UserDTO;
 import com.rays.pro4.Exception.DatabaseException;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Model.RoleModel;
 import com.rays.pro4.Model.UserModel;
-import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.DataValidator;
-import com.rays.pro4.Bean.UserBean;
 import com.rays.pro4.controller.ORSView;
 import com.rays.pro4.Util.ServletUtility;
 
@@ -25,7 +23,7 @@ import com.rays.pro4.Util.ServletUtility;
  * @author Lokesh SOlanki
  */
 @WebServlet(name = "LoginCtl", urlPatterns = { "/LoginCtl" })
-public class LoginCtl extends BaseCtl<UserBean> {
+public class LoginCtl extends BaseCtl<UserDTO> {
 	private static final long serialVersionUID = 1L;
 	public static final String OP_REGISTER = "Register";
 	public static final String OP_SIGN_IN = "SignIn";
@@ -64,10 +62,10 @@ public class LoginCtl extends BaseCtl<UserBean> {
      * @see com.rays.pro4.controller.BaseCtl#populateBean(javax.servlet.http.HttpServletRequest)
      */
     @Override
-    protected  UserBean populateBean(final HttpServletRequest request) {
+    protected  UserDTO populateBean(final HttpServletRequest request) {
         log.debug("LoginCtl Method populatebean Started"); 
-		UserBean bean = new UserBean();
-        bean.setLogin(DataUtility.getString(request.getParameter("login")));
+ UserDTO bean = new UserDTO();
+        bean.setLogin(request.getParameter("login"));
         bean.setPassword(DataUtility.getString(request.getParameter("password")));
         return bean;
     }
@@ -113,17 +111,15 @@ public class LoginCtl extends BaseCtl<UserBean> {
 	 * @throws ServletException the servlet exception
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	private final void login(final UserBean bean, final HttpServletRequest request,final HttpServletResponse response) throws ApplicationException, ServletException, IOException {	 
+	private final void login(final UserDTO bean, final HttpServletRequest request,final HttpServletResponse response) throws ApplicationException, ServletException, IOException {	 
 		log.debug("login method start");
 		
 		try {
             final javax.servlet.http.HttpSession session = request.getSession(true);
             UserDTO uDTO = model.authenticate(bean.getLogin(), bean.getPassword());
-            if (uDTO != null) {
-                UserBean userBean = new UserBean();
-                userBean.getDTO().copy(uDTO);
-                session.setAttribute("user", userBean);
-                final RoleBean rolebean = roleModel.findByPK(userBean.getRoleId());
+            if (uDTO != null) { 
+ session.setAttribute("user", uDTO);
+                final RoleBean rolebean = roleModel.findByPK(uDTO.getRoleId());
                 if (rolebean != null) {
                     session.setAttribute("role", rolebean);
                 }
@@ -155,7 +151,7 @@ public class LoginCtl extends BaseCtl<UserBean> {
      * @throws DuplicateRecordException the duplicate record exception
      * @throws ApplicationException the application exception
      */
-    private void signUp(UserBean bean, HttpServletRequest request)
+    private void signUp(UserDTO bean, HttpServletRequest request)
             throws ApplicationException {
         log.debug("save method start");
             ServletUtility.redirect(ORSView.USER_REGISTRATION_CTL, request, response);
@@ -183,10 +179,7 @@ public class LoginCtl extends BaseCtl<UserBean> {
  
 		log.debug("LoginCtl Method doPost Started");		
         UserDTO dto = new UserDTO();
-		final String operation = DataUtility.getString(request.getParameter("operation"));
-        UserBean bean = new UserBean();
-        bean=populateBean(request);
-
+		final String operation = DataUtility.getString(request.getParameter("operation")); 
         dto = bean.getDTO();
 
 		if (OP_SIGN_IN.equalsIgnoreCase(operation)) {

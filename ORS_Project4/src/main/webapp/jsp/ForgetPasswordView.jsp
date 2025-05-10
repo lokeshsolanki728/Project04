@@ -3,7 +3,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@page import="com.rays.pro4.controller.ORSView"%>
 <%@page import="com.rays.pro4.controller.ForgetPasswordCtl"%>
-<%@page import="com.rays.pro4.Bean.UserBean"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 
 <!DOCTYPE html>
@@ -15,10 +14,11 @@
 <link rel="stylesheet" href="${ctx}/css/style.css">
 </head>
 <body>
-	<jsp:useBean id="bean" class="com.rays.pro4.Bean.UserBean"
+	<jsp:useBean id="bean" class="com.rays.pro4.DTO.UserDTO"
 		scope="request"></jsp:useBean>
+	<c:set var="errors" value="${requestScope.errors}"/>
 	<%@ include file="Header.jsp"%>
-	<form action="${ctx}/resetPassword" method="post">
+	<form action="${ctx}/ForgetPasswordCtl" method="post">
 		<div class="container ">
 			<h1 class="text-center">Forgot your password ?</h1>
 			<p class="text-center">Submit your Email address to reset your password.</p>

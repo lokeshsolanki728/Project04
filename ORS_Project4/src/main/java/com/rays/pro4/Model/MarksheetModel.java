@@ -110,27 +110,6 @@ public class MarksheetModel extends BaseModel {
         log.debug("Model delete End");
     }
 
-   public void delete(MarksheetBean bean) throws ApplicationException {
-        log.debug("Model delete Started");
-        Connection conn = null; // Initialize conn here
-        try {   
-             conn = JDBCDataSource.getConnection();
-            conn.setAutoCommit(false);
-            try (PreparedStatement pstmt = conn.prepareStatement("DELETE FROM ST_MARKSHEET WHERE ID=?")) {
-                pstmt.setLong(1, bean.getId());
-                pstmt.executeUpdate();
-                conn.commit();
-            }
-        } catch (SQLException e) {
-             JDBCDataSource.trnRollback(conn);
-            log.error("Database Exception in delete Marksheet", e);
-            throw new ApplicationException("Exception : Exception in delete Marksheet");
-        } catch (Exception e) {
-            throw new ApplicationException("Exception : Exception in delete Marksheet");
-        }
-        log.debug("Model delete End");
-    }
-
     public MarksheetDTO findByRollNo(String rollNo) throws ApplicationException {
         log.debug("Model findByRollNo Started");
         MarksheetDTO dto = null;

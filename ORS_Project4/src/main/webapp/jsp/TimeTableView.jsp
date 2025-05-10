@@ -29,7 +29,7 @@
 
         $(function () {
             $("#udate5").datepicker({
-                changeMonth: true,
+                changeMonth: true, 
                 changeYear: true,
                 yearRange: '0:+2',
                 dateFormat: 'mm/dd/yy',
@@ -48,7 +48,7 @@
 		<%@include file="Header.jsp"%>
 		<c:set var="courseList" value="${requestScope.CourseList}" />
 		<c:set var="subjectList" value="${requestScope.SubjectList}" />
-		<div class="container">
+		<div class="container">	
 			<h1 class="text-center">
 				<c:choose>
 					<c:when test="${not empty bean.id && bean.id > 0}">
@@ -74,9 +74,9 @@
 			<input type="hidden" name="id" value="${timeTableDTO.id}"> <input
 				type="hidden" name="createdby" value="${timeTableDTO.createdBy}">
 			<input type="hidden" name="modifiedby" value="${timeTableDTO.modifiedBy}">
-			<input type="hidden" name="createddatetime"
-				value="${timeTableDTO.createdDatetime}"> <input type="hidden"
-				name="modifiedby" value="${timeTableDTO.modifiedDatetime}">
+			<input type="hidden" name="createddatetime" value="${timeTableDTO.createdDatetime}"> 
+			<input type="hidden" name="modifieddatetime" value="${timeTableDTO.modifiedDatetime}">
+			
 			<table class="table table-borderless w-50">
 				<tr>
 					<th class="text-left"><label for="courseId">Course <span class="required">*</span>:</label></th>
@@ -112,26 +112,26 @@
 				<tr>
                 <th class="text-left"><label for="udate5">Exam Date <span
 							class="required">*</span> :</label></th>
-                    <td><input type="text" readonly="readonly" id="udate5"
-                               placeholder="Select Exam Date" name="ExDate" value="${timeTableDTO.examDate}" class="form-control">
-                        <span class="error">${timeTableDTO.errorMessages['ExDate']}</span></td>
+                    <td><input type="text" readonly="readonly" id="udate5"	
+                               placeholder="Select Exam Date" name="examDate" value="${timeTableDTO.examDate}" class="form-control">
+                        <span class="error">${timeTableDTO.errorMessages['examDate']}</span></td>
                 </tr>
 				<tr>
 					<th align="left"><label for="ExTime">Exam Time <span
 							class="required">*</span> :</label></th>
-					<td><select name="ExTime" id="ExTime" class="form-control">
+					<td><select name="examTime" id="ExTime" class="form-control">
 							<option value="" >Select Time</option>	<option value="08:00 AM to 11:00 AM"${timeTableDTO.examTime == '08:00 AM to 11:00 AM' ? 'selected' : ''}>08:00 AM to 11:00 AM</option>
 							<option value="12:00 PM to 03:00 PM"${timeTableDTO.examTime == '12:00 PM to 03:00 PM' ? 'selected' : ''}>12:00 PM to 03:00 PM</option>
 							<option value="04:00 PM to 07:00 PM"${timeTableDTO.examTime == '04:00 PM to 07:00 PM' ? 'selected' : ''}>04:00 PM to 07:00 PM</option>
 					</select>
 						<span class="error">${timeTableDTO.errorMessages['ExTime']}</span></td>
-				</tr>
+				</tr>				
 				<tr>
 					<th></th>
 					<td>
 						<div class="button-container">
 							<c:choose>	
-								<c:when test="${not empty bean.id && bean.id > 0}">
+								<c:when test="${not empty timeTableDTO.id && timeTableDTO.id > 0}">
 									<input type="submit" name="operation" class="btn btn-primary"
 										value="<%=TimetableCtl.OP_UPDATE%>"> <input type="submit"
 										name="operation" class="btn btn-secondary"

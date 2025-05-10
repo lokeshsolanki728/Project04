@@ -1,5 +1,4 @@
---- a/ORS_Project4/src/main/webapp/jsp/CourseListView.jsp
-+++ b/ORS_Project4/src/main/webapp/jsp/CourseListView.jsp
+
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ page import="com.rays.pro4.controller.CourseListCtl"%>
 <%@ page import="com.rays.pro4.controller.ORSView"%>
@@ -9,8 +8,8 @@
 
 <html lang="en">
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
-<jsp:useBean id="bean" class="com.rays.pro4.Bean.CourseBean"
-	scope="request" />
+<jsp:useBean id="dto" class="com.rays.pro4.DTO.CourseDTO"
+	scope="request" ></jsp:useBean>
 <head>
 <link rel="icon" type="image/png" href="${ctx}/img/logo.png"
 	sizes="16*16" />
@@ -53,7 +52,7 @@
 					<tr>
 						<td class="text-center"><label for="name">Course
 								Name:</label> <input type="text" id="name" name="name" placeholder="Enter Course Name" class="form-control-inline" value="${param.name}"> 
-								<input type="submit" name="operation" value="${CourseListCtl.OP_SEARCH}" class="btn btn-primary"> 
+								<input type="submit" name="operation" value="<%=CourseListCtl.OP_SEARCH%>" class="btn btn-primary"> 
 								<input type="submit" name="operation" value="${CourseListCtl.OP_RESET}" class="btn btn-secondary"></td>
 					</tr>
 				</table>
@@ -77,8 +76,29 @@
                                     </c:if>
                                 </a>
                             </th>
-							<th>Duration</th>
-							<th>Description</th>
+							<th><a href="${ctx}${ORSView.COURSE_LIST_CTL}?orderBy=DURATION&sortOrder=${sortOrder eq 'asc' ? 'desc' : 'asc'}&pageNo=${pageNo}&pageSize=${pageSize}&name=${param.name}">Duration
+                                    <c:if test="${orderBy eq 'DURATION'}">
+                                        <c:choose>
+                                            <c:when test="${sortOrder eq 'asc'}">
+                                                <i class="fas fa-arrow-up"></i>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <i class="fas fa-arrow-down"></i>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </c:if>
+                                </a></th>
+							<th><a href="${ctx}${ORSView.COURSE_LIST_CTL}?orderBy=DESCRIPTION&sortOrder=${sortOrder eq 'asc' ? 'desc' : 'asc'}&pageNo=${pageNo}&pageSize=${pageSize}&name=${param.name}">Description
+                                 <c:if test="${orderBy eq 'DESCRIPTION'}">
+                                        <c:choose>
+                                            <c:when test="${sortOrder eq 'asc'}">
+                                                <i class="fas fa-arrow-up"></i>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <i class="fas fa-arrow-down"></i>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </c:if></a></th>
 							<th>Edit</th>
 						</tr>
 					</thead>
@@ -86,10 +106,10 @@
 						<c:forEach var="course" items="${list}" varStatus="loop">
 							<tr class="text-center table-row">
 								<td><input type="checkbox" class="checkbox" name="ids"
-									value="${course.id}"></td>
+									value="${course.id}" ></td>
 								<td>${index + loop.index}</td>
 								<td><c:out value="${course.name}" /></td>
-								<td><c:out value="${course.duration}" /></td>
+								<td><c:out value="${course.duration}"/></td>
 								<td><c:out value="${course.description}" /></td>
 								<td><a href="${ctx}${ORSView.COURSE_CTL}?id=${course.id}"
 									class="btn btn-link">Edit</a></td>
@@ -101,17 +121,17 @@
 					<tr>
 					<td class="float-start">
 						<input type="submit" name="operation"
-							class="btn btn-secondary" value="${CourseListCtl.OP_PREVIOUS}"
+							class="btn btn-secondary" value="<%=CourseListCtl.OP_PREVIOUS%>"
 							${pageNo == 1 ? 'disabled' : ''}>
 						</td>
 						<td class="float-center">
-							<input type="submit" name="operation" value="${CourseListCtl.OP_DELETE}"
+							<input type="submit" name="operation" value="<%=CourseListCtl.OP_DELETE%>"
 								class="btn btn-danger">
 						</td>
 						<td><input type="submit" name="operation"
-							value="${CourseListCtl.OP_NEW}" class="btn btn-success"></td>
+							value="<%=CourseListCtl.OP_NEW%>" class="btn btn-success"></td>
 						<td class="float-end">
-							<input type="submit" name="operation" value="${CourseListCtl.OP_NEXT}"
+							<input type="submit" name="operation" value="<%=CourseListCtl.OP_NEXT%>"
 								class="btn btn-primary"
 								${list.size() < pageSize || nextPage == 0 ? 'disabled' : ''}>
 						</td>

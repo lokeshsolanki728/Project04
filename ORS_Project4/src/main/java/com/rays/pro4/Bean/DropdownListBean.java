@@ -15,7 +15,7 @@ public interface DropdownListBean {
 	 * Returns key of list element
 	 * @return key
 	 */
-	public abstract String getkey();
+	public abstract String getKey();
 
 	/**
 	 * Returns display text of list element

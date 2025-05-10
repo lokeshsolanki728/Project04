@@ -10,11 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
-import com.rays.pro4.Bean.MarksheetBean;
-import com.rays.pro4.Bean.CourseBean;
-import com.rays.pro4.Model.CourseModel;
-import com.rays.pro4.Bean.SubjectBean;
-import com.rays.pro4.Bean.StudentBean;
 import com.rays.pro4.DTO.MarksheetDTO;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
@@ -23,7 +18,6 @@ import com.rays.pro4.Model.StudentModel;
 import com.rays.pro4.Util.DataValidator;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.validator.MarksheetValidator;
- 
 /**
  * Marksheet functionality Controller. Performs operation for add, update, delete
  * and get Marksheet
@@ -34,7 +28,7 @@ import com.rays.pro4.validator.MarksheetValidator;
  */
 
 @WebServlet(name = "MarksheetCtl", urlPatterns = { "/ctl/MarksheetCtl" })
-public class MarksheetCtl extends BaseCtl<MarksheetBean> {
+public class MarksheetCtl extends BaseCtl<MarksheetDTO> {
 
 	public static final String OP_SAVE = "Save";
 	public static final String OP_UPDATE = "Update";
@@ -46,7 +40,7 @@ public class MarksheetCtl extends BaseCtl<MarksheetBean> {
 	protected void preload(HttpServletRequest request) {
 		log.debug("MarksheetCtl preload method start");
 		StudentModel model = new StudentModel();
-		try {
+		try { 
 			List<StudentBean> list = model.list();
 			request.setAttribute("studentList", list);
 		} catch (ApplicationException e) {
@@ -59,8 +53,8 @@ public class MarksheetCtl extends BaseCtl<MarksheetBean> {
 	protected boolean validate(HttpServletRequest request) {
 		log.debug("MarksheetCtl validate method start");
 		HashMap<String, String> errors = new HashMap<String, String>();
-		MarksheetBean bean = populateBean(request);
-		boolean pass=MarksheetValidator.validate(bean, errors);
+		MarksheetDTO bean = populateBean(request);
+		boolean pass=MarksheetValidator.validate(bean, errors); // Ensure validate method in MarksheetValidator accepts MarksheetDTO
 		if (!pass) {
 			ServletUtility.setErrors(errors, request);
 		}
@@ -73,8 +67,8 @@ public class MarksheetCtl extends BaseCtl<MarksheetBean> {
 	@Override
 	protected MarksheetBean populateBean(HttpServletRequest request) {
 		log.debug("MarksheetCtl populateBean method start");
-		MarksheetBean bean = new MarksheetBean();
-		bean.setId(DataUtility.getLong(request.getParameter("id")));
+		MarksheetDTO bean = new MarksheetDTO(); // Change MarksheetBean to MarksheetDTO
+		bean.setId(DataUtility.getLong(request.getParameter("id"))); // Assuming ID is part of MarksheetDTO
 		bean.setRollNo(DataUtility.getString(request.getParameter("rollNo")));
 		bean.setStudentId(DataUtility.getLong(request.getParameter("studentId")));
 		bean.setPhysics(DataUtility.getInt(request.getParameter("physics")));
@@ -100,9 +94,7 @@ public class MarksheetCtl extends BaseCtl<MarksheetBean> {
 		if (id > 0 || op != null) {
 			MarksheetDTO dto;
 			try {
-				dto = model.findByPK(id);
-				MarksheetBean bean = new MarksheetBean();
-				bean.populateBean(dto);
+				dto = model.findByPK(id); // findByPK returns MarksheetDTO
 				
 				ServletUtility.setBean(bean, request);
 			} catch (ApplicationException e) {
@@ -127,14 +119,14 @@ public class MarksheetCtl extends BaseCtl<MarksheetBean> {
 		String op = DataUtility.getString(request.getParameter("operation"));
 		MarksheetModel model = new MarksheetModel();
 		long id = DataUtility.getLong(request.getParameter("id"));
-		MarksheetBean bean = (MarksheetBean) populateBean(request);
+		MarksheetDTO bean = (MarksheetDTO) populateBean(request); // Change MarksheetBean to MarksheetDTO and cast
 		HashMap<String, String> errors = new HashMap<String, String>();
 		if(!validate(request)){
 			ServletUtility.setBean(bean, request);
 			ServletUtility.forward(getView(), request, response);
 			return;
 		}
-
+ 
 		try {
 
 			if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {

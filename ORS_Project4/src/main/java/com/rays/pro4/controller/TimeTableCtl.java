@@ -1,11 +1,9 @@
 package com.rays.pro4.controller;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -13,7 +11,6 @@ import org.apache.log4j.Logger;
 
 import com.rays.pro4.DTO.BaseDTO;
 import com.rays.pro4.DTO.TimeTableDTO;
-import com.rays.pro4.Util.TimeTableValidator;
 
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
@@ -21,8 +18,6 @@ import com.rays.pro4.Model.CourseModel;
 import com.rays.pro4.Model.SubjectModel;
 import com.rays.pro4.Model.TimeTableModel;
 import com.rays.pro4.Util.DataUtility;
-import com.rays.pro4.Util.DataValidator;
-import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;
 
 /**
@@ -54,9 +49,7 @@ public class TimeTableCtl extends BaseCtl {
 	protected boolean validate(HttpServletRequest request) {
 		log.debug("TimeTableCtl Method validate Started");
 		boolean pass = true;
-		TimeTableDTO dto = populateDTO(request);
-		TimeTableValidator validator = new TimeTableValidator();
-		pass = validator.validate(dto);
+		TimeTableDTO dto = (TimeTableDTO) populateDTO(request);
 		if (!pass) {
 		    request.setAttribute("dto", dto);
 		}

@@ -5,7 +5,7 @@
 <html>
 
 <head>
-        <c:set var="ctx" value="${pageContext.request.contextPath}" />
+    <c:set var="ctx" value="${pageContext.request.contextPath}" />
         <link rel="icon" type="image/png" href="${ctx}/img/logo.png"
               sizes="16*16" />
         <title>User</title>
@@ -27,14 +27,13 @@
 </head>
 
 <body>
-        <jsp:useBean id="bean" class="com.rays.pro4.Bean.UserBean"
+        <jsp:useBean id="dto" class="com.rays.pro4.DTO.UserDTO"
                      scope="request"></jsp:useBean>
         <%@ include file="Header.jsp"%>
       <div class="container">
         <c:choose>
-                <c:when test="${not empty bean.id}">
+                <c:when test="${not empty dto.id}">
                     <h1 class="text-center">Update User</h1>
-                </c:when>
                 <c:otherwise>
                     <h1 class="text-center">Add User</h1>
                 </c:otherwise>
@@ -53,6 +52,7 @@
                
             </div>
             <form action="${ctx}/UserCtl" method="post"> <input type="hidden" name="id" value="${bean.id}"> <input type="hidden" name="createdBy" value="${bean.createdBy}"> <input type="hidden" name="modifiedBy" value="${bean.modifiedBy}"> <input type="hidden" name="createdDatetime" value="${bean.createdDatetime}"> <input type="hidden" name="modifiedDatetime" value="${bean.modifiedDatetime}"><c:set var="errors" value="${requestScope.errors}" />
+                <input type="hidden" name="id" value="${dto.id}">
                 <table class="table table-borderless w-50 mx-auto">
                   <tr>
                     <th style="width: 20%"><label for="firstName">First Name <span class="required">*</span> :</label></th>
@@ -69,12 +69,12 @@
                   <tr>
                     <th style="width: 20%"><label for="login">LoginId <span class="required">*</span> :</label></th>
                     <td><input type="text" name="login" id="login" placeholder="Enter EmailId" class="form-control"
-                      value="${bean.login}" <c:if test="${bean.id > 0}">readonly</c:if>> <span class="error-message">
+                      value="${dto.login}" <c:if test="${dto.id > 0}">readonly</c:if>> <span class="error-message">
                     ${errors.login}</span></td>
                   </tr>
-                  <c:if test="${bean.id == 0}">
+                  <c:if test="${dto.id == 0}">
                     <tr>
-                      <th style="width: 20%"><label for="password">Password <span class="required">*</span> :</label></th>
+                      <th style="width: 20%"><label for="password">Password <span class="required">*</span> :</label></th><td><input type="password" name="password" id="password" placeholder="Enter Password"
                       <td><input type="password" name="password" id="password" placeholder="Enter Password"
                         class="form-control"> <span class="error-message">${errors.password}</span></td>
                     </tr>
@@ -90,18 +90,18 @@
                     <th style="width: 20%"><label for="gender">Gender <span class="required">*</span> :</label></th>
                     <td>
                      <c:set var="genderMap" value="${requestScope.genderMap}" />
-                        ${HTMLUtility.getList("gender", bean.gender, genderMap)} <span
+                        ${HTMLUtility.getList("gender", dto.gender, genderMap)} <span
                             class="error-message">${errors.gender}</span>
                     </td>                  
                   </tr>
                   <tr>
                     <th style="width: 20%"><label for="roleId">Role <span class="required">*</span> :</label></th>
-                    <td>${HTMLUtility.getList("roleId", bean.roleId, requestScope.roleList)} <span
+                    <td>${HTMLUtility.getList("roleId", dto.roleId, requestScope.roleList)} <span
                       class="error-message">${errors.roleId}</span></td>
                   </tr>
                     <tr>
                         <th style="width: 20%"><label for="dob">Date Of Birth <span class="required">*</span> :</label></th>
-                        <td><input type="text" name="dob" id="dob" placeholder="Enter Date Of Birth" readonly="readonly" class="form-control" value="${bean.dob}">
+                        <td><input type="text" name="dob" id="dob" placeholder="Enter Date Of Birth" readonly="readonly" class="form-control" value="${dto.dob}">
                             <div class="error-message">${errors.dob}</div>                            
                         </td>
                     </tr>
@@ -115,7 +115,7 @@
                       <th></th>
                         <td>
                             <div class="button-container">
-                                <c:choose>
+                                <c:choose> <c:when test="${dto.id > 0}">
                                     <c:when test="${bean.id > 0}">
                                         <input type="submit" name="operation" value="Update" class="btn btn-primary">
                                         <input type="submit" name="operation" value="Cancel" class="btn btn-secondary">

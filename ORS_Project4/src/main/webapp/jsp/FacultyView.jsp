@@ -3,10 +3,7 @@
 <%@ taglib uri=\"http://java.sun.com/jsp/jstl/functions\" prefix=\"fn\" %>
 <%@ taglib uri=\"http://java.sun.com/jsp/jstl/fmt\" prefix=\"fmt\" %>
 <%@ page import=\"com.rays.pro4.controller.FacultyCtl\" %>
-<%@ page import=\"com.rays.pro4.controller.ORSView\" %>
-<%@ page import="com.rays.pro4.Bean.FacultyBean" %>
-<%@ page import="java.util.List" %>
-<%@ page import="com.rays.pro4.Bean.CollegeBean" %>
+<%@ page import=\"com.rays.pro4.DTO.FacultyDTO\" %>
 <%@ page language=\"java\" contentType=\"text/html; charset=ISO-8859-1\" pageEncoding=\"ISO-8859-1\" %>
 
 <html>
@@ -34,8 +31,8 @@
         });
     </script>
 </head>
-<body>
-    <jsp:useBean id="bean" class="com.rays.pro4.Bean.FacultyBean" scope="request" />
+<body>  
+    <jsp:useBean id="bean" class="com.rays.pro4.DTO.FacultyDTO" scope="request" />
     <%@ include file="Header.jsp" %>
 
     <form action="${ctx}${ORSView.FACULTY_CTL}" method="post">
@@ -48,11 +45,11 @@
             </h1>
 
             <div class="message-container">
-                <c:if test="${not empty requestScope.success}">
-                    <div class="alert alert-success">${requestScope.success}</div>
+                <c:if test="${not empty requestScope.successMessage}">
+                    <div class="alert alert-success">${requestScope.successMessage}</div>
                 </c:if>
-                <c:if test="${not empty requestScope.error}">
-                    <div class="alert alert-danger">${requestScope.error}</div>
+                <c:if test="${not empty requestScope.errorMessage}">
+                    <div class="alert alert-danger">${requestScope.errorMessage}</div>
                 </c:if>
             </div>
 
@@ -66,20 +63,20 @@
                 <tr>
                     <th class="text-left"><label for="firstname">First Name <span class="required">*</span>:</label></th>
                     <td><input type="text" id="firstname" name="firstname" placeholder="Enter First Name"
-                               class="form-control" value="${bean.firstname}" maxlength="45" />
-                        <span class="error-message">${errors.firstName}</span>
+                               class="form-control" value="${bean.firstName}" maxlength="45" />
+                        <span class="error-message">${requestScope.firstName}</span>
                     </td>
                 </tr>
                 <tr>
                     <th class="text-left"><label for="lastname">Last Name <span class="required">*</span>:</label></th>
                     <td><input type="text" id="lastname" name="lastname" placeholder="Enter Last Name"
                                class="form-control" value="${bean.lastName}" maxlength="45" />
-                        <span class="error-message">${errors.lastName}</span>
+                        <span class="error-message">${requestScope.lastName}</span>
                     </td>
                 </tr>
                 <tr>
                     <th class="text-left"><label for="gender">Gender <span class="required">*</span>:</label></th>
-                    <td>
+                    <td>  
                         <select id="gender" name="gender" class="form-control">
                             <option value="" selected>Select Gender</option>
                             <option value="Male" ${bean.gender == 'Male' ? 'selected' : ''}>Male</option>
@@ -96,7 +93,7 @@
                             <c:forEach var="college" items="${CollegeList}">
                                 <option value="${college.id}" ${bean.collegeId == college.id ? 'selected' : ''}>${college.name}</option>
                             </c:forEach>
-                        </select>
+                        </select> 
                         <span class="error-message">${errors.collegeId}</span>
                     </td>
                 </tr>
@@ -108,7 +105,7 @@
                             <c:forEach var="course" items="${CourseList}">
                                 <option value="${course.id}" ${bean.courseId == course.id ? 'selected' : ''}>${course.name}</option>
                             </c:forEach>
-                        </select>
+                        </select> 
                         <span class="error-message">${errors.courseId}</span>
                     </td>
                 </tr>
@@ -116,11 +113,11 @@
                     <th class="text-left"><label for="subjectId">Subject Name <span class="required">*</span>:</label></th>
                     <td>
                         <select id="subjectId" name="subjectId" class="form-control">
-                            <option value="" selected>Select Subject</option>
+                            <option value="" selected>Select Subject</option>  
  <c:forEach var="subject" items="${SubjectList}">
                                 <option value="${subject.id}" ${bean.subjectId == subject.id ? 'selected' : ''}>${subject.subjectName}</option>
                             </c:forEach>
-                        </select>
+                        </select> 
                         <span class="error-message">${errors.subjectId}</span>
                     </td>
                 </tr>
@@ -129,21 +126,21 @@
                     <td><input type="text" name="dob" id="date" placeholder="Enter Date Of Birth"
                                class="form-control" readonly="readonly"
                                value="<fmt:formatDate type='date' value='${bean.dob}' pattern='MM/dd/yyyy'/>" />
-                        <span class="error-message">${errors.dob}</span>
+                        <span class="error-message">${requestScope.dob}</span>
                     </td>
                 </tr>
                 <tr>
                     <th class="text-left"><label for="emailId">Login ID <span class="required">*</span>:</label></th>
                     <td><input type="text" id="emailId" name="emailId" class="form-control" maxlength="50"
-                               placeholder="Enter Email ID" value="${bean.emailID}" />
-                        <span class="error-message">${requestScope.emailId}</span>
+                               placeholder="Enter Email ID" value="${bean.emailId}" />
+                        <span class="error-message">${requestScope.emailId}</span> 
                   </td>
                 </tr>
                 <tr>
                     <th class="text-left"><label for="mobileno">Mobile No <span class="required">*</span>:</label></th>
                     <td><input type="text" id="mobileno" name="mobileno" class="form-control" maxlength="10"
                                placeholder="Enter Mobile No" value="${bean.mobileNo}" />
-                        <span class="error-message">${requestScope.mobileno}</span>
+                        <span class="error-message">${requestScope.mobileNo}</span> 
                     </td>
                 </tr>
                 <tr>

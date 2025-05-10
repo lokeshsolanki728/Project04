@@ -6,7 +6,6 @@ import com.rays.pro4.Util.PropertyReader;
 
 public class StudentValidator {
 
-    public static boolean validate(StudentDTO dto) {
 
         boolean pass = true;
 
@@ -59,7 +58,6 @@ public class StudentValidator {
      * @param dto the StudentDTO to validate
      * @return true if validation passes, false otherwise
      */
-    public static boolean validateSearch(StudentDTO dto) {
         boolean pass = true;
         
          if (DataValidator.isNotNull(dto.getFirstName()) && !DataValidator.isName(dto.getFirstName())) {

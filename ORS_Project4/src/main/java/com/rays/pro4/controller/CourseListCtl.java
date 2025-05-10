@@ -1,14 +1,11 @@
 package com.rays.pro4.controller;
 
 import com.rays.pro4.controller.ORSView;
-
 import java.util.List;
-
 import javax.servlet.ServletException;
+import com.rays.pro4.DTO.CourseDTO;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletResponse;
-import com.rays.pro4.Exception.DatabaseException;
-import com.rays.pro4.Bean.CourseBean;
 import com.rays.pro4.Exception.ApplicationException;
 import org.apache.log4j.Logger;
 
@@ -29,24 +26,28 @@ import javax.servlet.http.HttpServletRequest;
  * @author Lokesh SOlanki
  */
 @WebServlet(name = "CourseListCtl", urlPatterns = { "/ctl/CourseListCtl" })
-public class CourseListCtl extends BaseCtl<CourseBean> {
+public class CourseListCtl extends BaseCtl {
 
 	private static final long serialVersionUID = 1L;
 
 	/** The log. */
 	public static final Logger log = Logger.getLogger(CourseListCtl.class);
-	private final CourseModel model = new CourseModel();
+	private final CourseModel model = new CourseModel(); // Use final keyword
 
 	/**
-	 * Populates bean object from request parameters
+	 * Populates DTO object from request parameters
 	 * @param request the request
-	 * @return the course bean
+	 * @return the course DTO
 	 */
 	@Override
-	protected CourseBean populateBean(final HttpServletRequest request) {
-		final CourseBean bean = new CourseBean();
-		bean.populate(request);	
-		return bean;	
+	protected CourseDTO populateDTO(final HttpServletRequest request) {
+		final CourseDTO dto = new CourseDTO();
+		dto.setId(DataUtility.getLong(request.getParameter("id")));
+		dto.setName(DataUtility.getString(request.getParameter("name")));
+		dto.setDescription(DataUtility.getString(request.getParameter("description")));
+		dto.setDuration(DataUtility.getString(request.getParameter("duration")));
+		updateDTO(dto, request);
+		return dto;
 	}
 
 	/**
@@ -60,10 +61,10 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 	 * @return the list
 	 * @throws ApplicationException the application exception
 	 */
-	private List<CourseBean> searchCourse(final CourseBean bean, final int pageNo, final int pageSize,
+	private List<CourseDTO> searchCourse(final CourseDTO dto, final int pageNo, final int pageSize,
 			final String orderBy, final String sortOrder) throws ApplicationException {
 		log.debug("searchCourse method start");
-		List<CourseBean> list = model.search(bean, pageNo, pageSize, orderBy, sortOrder);
+		List<CourseDTO> list = model.search(dto, pageNo, pageSize, orderBy, sortOrder);
 		log.debug("searchCourse method end");
 		return list;
 	}
@@ -82,15 +83,15 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 	protected final void doGet(final HttpServletRequest request, final HttpServletResponse response)
 			throws ServletException, IOException {
 		log.debug("do get method of CourseListCtl Started");
-		List<CourseBean> list = null;
+		List<CourseDTO> list = null;
 		int pageNo = 1;
 		int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));
-		CourseBean bean = populateBean(request);
+		CourseDTO dto = populateDTO(request);
 		String orderBy = "name";
 		String sortOrder = "asc";
 		
-		try {
-			list = searchCourse(bean, pageNo, pageSize, orderBy, sortOrder);
+		try {	
+			list = searchCourse(dto, pageNo, pageSize, orderBy, sortOrder);
 
 			ServletUtility.setList(list, request);
 			ServletUtility.setPageNo(pageNo, request);
@@ -113,8 +114,16 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 	 */
 	@Override
 	protected final boolean validate(HttpServletRequest request) {
-		log.debug("validate Method Started");		
-		boolean pass=CourseValidator.validate(request);
+		log.debug("validate Method Started");
+		String op = DataUtility.getString(request.getParameter("operation"));
+		if (OP_SEARCH.equalsIgnoreCase(op)) {
+			CourseDTO dto = populateDTO(request);
+			boolean pass=CourseValidator.validate(dto);
+			if(!pass) return pass;
+		}
+
+
+		boolean pass=CourseValidator.validate(dto);
 		if(!pass) return pass;
 		log.debug("validate Method End");
 		return pass;
@@ -161,7 +170,7 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 			 return;
 		}
 		
-		List<CourseBean> list= null;
+		List<CourseDTO> list = null;
 		String op = DataUtility.getString(request.getParameter("operation"));
 		String[] ids = request.getParameterValues("ids");
 		String orderBy = "name";
@@ -170,11 +179,11 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 		int pageSize = DataUtility.getInt(request.getParameter("pageSize"));
 		pageNo = (pageNo == 0) ? 1 : pageNo;
 		pageSize = (pageSize == 0) ? DataUtility.getInt(PropertyReader.getValue("page.size")) : pageSize;
-		CourseBean bean = populateBean(request);
+		CourseDTO dto = populateDTO(request);
 		
 		
 		try {
-			
+
 			if (OP_SEARCH.equalsIgnoreCase(op)) {
 				pageNo = 1;
 			} else if (OP_NEXT.equalsIgnoreCase(op)) {
@@ -190,8 +199,8 @@ public class CourseListCtl extends BaseCtl<CourseBean> {
 			} else if (OP_DELETE.equalsIgnoreCase(op) && ids!=null) {
 				pageNo = 1;
 					delete(ids, request, response);
-			}
-				list = searchCourse(bean, pageNo, pageSize, orderBy, sortOrder);
+			}else if(OP_BACK.equalsIgnoreCase(op)){
+				list = searchCourse(dto, pageNo, pageSize, orderBy, sortOrder);
 				if(list==null || list.isEmpty()) {
 					ServletUtility.setErrorMessage(PropertyReader.getValue("error.record.notfound"), request);
 				}

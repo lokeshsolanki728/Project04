@@ -9,10 +9,9 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.rays.pro4.Bean.BaseBean;
 import org.apache.log4j.Logger;
 
-import com.rays.pro4.Bean.BaseBean;
-import com.rays.pro4.Bean.UserBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Model.RoleModel;
@@ -20,6 +19,7 @@ import com.rays.pro4.Model.UserModel;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;
+import com.rays.pro4.DTO.UserDTO;
 import com.rays.pro4.validator.UserValidator;
 
 @WebServlet(name = "UserCtl", urlPatterns = { "/ctl/UserCtl" })
@@ -53,12 +53,12 @@ public class UserCtl extends BaseCtl {
 
 		log.debug("UserCtl Method validate Ended");
 		return true;
-	}
+	}	
 	protected BaseBean populateBean(final HttpServletRequest request) {
-		log.debug("UserCtl Method populateBean Started");
+		log.debug("UserCtl Method populateBean Started for UserDTO");
 
-		final UserBean bean = new UserBean();
-		bean.setId(DataUtility.getLong(request.getParameter("id")));
+		final UserDTO bean = new UserDTO();
+		bean.setId(DataUtility.getLong(request.getParameter("id"))); // Assuming UserDTO also has an ID field
 		bean.setRoleId(DataUtility.getLong(request.getParameter("roleId")));
 		bean.setFirstName(DataUtility.getString(request.getParameter("firstName")));
 		bean.setLastName(DataUtility.getString(request.getParameter("lastName")));
@@ -71,7 +71,7 @@ public class UserCtl extends BaseCtl {
 		}
 		bean.setDob(DataUtility.getDate(request.getParameter("dob")));
 
-		log.debug("UserCtl Method populateBean Ended");
+		log.debug("UserCtl Method populateBean Ended for UserDTO");
 		return bean;
 	}
 
@@ -81,7 +81,6 @@ public class UserCtl extends BaseCtl {
 	protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
 			throws ServletException, IOException {
 		log.debug("UserCtl Method doGet Started");
-		UserBean bean = new UserBean();
 		
 		final long id = DataUtility.getLong(request.getParameter("id"));
 
@@ -93,9 +92,7 @@ public class UserCtl extends BaseCtl {
                     ServletUtility.redirect(ORSView.USER_LIST_CTL, request, response);
                     return;
                 } else {
-                    bean = new UserBean();
-                    setBean(userDTO, bean);
-                    ServletUtility.setBean(bean, request);
+                    ServletUtility.setBean(userDTO, request);
                 }
             } catch (final ApplicationException e) {
                 log.error("Application Exception", e);
@@ -125,15 +122,15 @@ public class UserCtl extends BaseCtl {
 
 		final String op = DataUtility.getString(request.getParameter("operation"));
 		final long id = DataUtility.getLong(request.getParameter("id"));
-		UserBean bean = (UserBean) populateBean(request);
+		UserDTO bean = (UserDTO) populateBean(request);
 
 		if (OP_SAVE.equalsIgnoreCase(op)) {
 			if (validate(request)) {
 				try {
 					if (id > 0) {
-						model.update(bean.getDTO());
+						model.update(bean);
 					} else {
-						model.add(bean.getDTO());
+						model.add(bean);
 					}
 					ServletUtility.setSuccessMessage(PropertyReader.getValue("success.save", "User"), request);
 				} catch (final ApplicationException e) {

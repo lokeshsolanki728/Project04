@@ -6,12 +6,10 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.rays.pro4.Bean.RoleBean;
 import com.rays.pro4.DTO.RoleDTO;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DatabaseException;
 import com.rays.pro4.Exception.DuplicateRecordException;
-import com.rays.pro4.Util.JDBCDataSource;
 
 /**
  * JDBC Implementation of Role Model.
@@ -20,6 +18,7 @@ import com.rays.pro4.Util.JDBCDataSource;
  *
  */
 import java.sql.SQLException;
+import com.rays.pro4.Util.JDBCDataSource;
 public class RoleModel extends BaseModel {
 
     private  long nextPK() throws DatabaseException {
@@ -75,14 +74,14 @@ public class RoleModel extends BaseModel {
         return pk;
     }
     
-    public void delete(RoleDTO bean) throws ApplicationException {
-         if(findByPK(bean.getId())==null){
+    public void delete(RoleDTO dto) throws ApplicationException {
+         if(findByPK(dto.getId())==null){
             throw new ApplicationException("Record not found");
         }
         try(Connection conn = JDBCDataSource.getConnection();) {
-            conn.setAutoCommit(false);
+ conn.setAutoCommit(false);
             try (PreparedStatement pstmt = conn.prepareStatement("DELETE FROM ST_ROLE WHERE ID=?")) {
-                pstmt.setLong(1, bean.getId());
+                pstmt.setLong(1, dto.getId());
                 pstmt.executeUpdate();
                 conn.commit();
             }
@@ -178,7 +177,7 @@ public class RoleModel extends BaseModel {
      * @return List
      * @throws ApplicationException
      */
-    public List search(RoleBean bean) throws ApplicationException {
+    public List search(RoleDTO bean) throws ApplicationException {
         return search(bean, 1, 0);
     }
 
@@ -191,7 +190,7 @@ public class RoleModel extends BaseModel {
      * @return List
      * @throws ApplicationException
      */
-    public List<RoleDTO> search(RoleBean bean, int pageNo, int pageSize) throws ApplicationException {
+    public List<RoleDTO> search(RoleDTO bean, int pageNo, int pageSize) throws ApplicationException {
         BaseModel.log.debug("Model search Started");
         StringBuilder sql = new StringBuilder("SELECT * FROM ST_ROLE WHERE 1=1");
         ArrayList<RoleDTO> list = new ArrayList<>();

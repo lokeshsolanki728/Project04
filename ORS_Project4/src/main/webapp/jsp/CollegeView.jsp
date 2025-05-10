@@ -9,7 +9,7 @@
 
 <head>
     <link rel="icon" type="image/png" href="${ctx}/img/logo.png" sizes="16x16" />
-    <title>
+   
         <c:choose>
             <c:when test="${not empty bean.id}">Update College</c:when>
             <c:otherwise>Add College</c:otherwise>
@@ -23,8 +23,6 @@
 <body>
     <form action="${ctx}${ORSView.COLLEGE_CTL}" method="POST">
         <%@ include file="Header.jsp" %>
-
-        <jsp:useBean id="bean" class="com.rays.pro4.Bean.CollegeBean" scope="request"></jsp:useBean>
 
         <c:set var="error" value="${requestScope.error}" scope="request" />
         <div class="container">
@@ -47,22 +45,21 @@
                     </div>
                 </c:if>
 			</div>
-            <input type="hidden" name="id" value="<c:out value="${bean.id}"/>" />
-            <input type="hidden" name="createdBy" value="<c:out value="${not empty bean.createdBy ? bean.createdBy : ''}"/>" />
-            <input type="hidden" name="modifiedBy" value="<c:out value="${not empty bean.modifiedBy ? bean.modifiedBy : ''}"/>" />
-            <input type="hidden" name="createdDatetime" value="<c:out value="${not empty bean.createdDatetime ? bean.createdDatetime : ''}"/>" />
-            <input type="hidden" name="modifiedDatetime" value="<c:out value="${not empty bean.modifiedDatetime ? bean.modifiedDatetime : ''}"/>" />
-            <c:set var="errors" value="${requestScope.errors}" />
+            <input type="hidden" name="id" value="${dto.id}" />
+            <input type="hidden" name="createdBy" value="${dto.createdBy}" />
+            <input type="hidden" name="modifiedBy" value="${dto.modifiedBy}" />
+            <input type="hidden" name="createdDatetime" value="${dto.createdDatetime}" />
+            <input type="hidden" name="modifiedDatetime" value="${dto.modifiedDatetime}" />
             <table class="table table-borderless w-50 mx-auto">
                 <tr>
                     <th class="text-left">
                         <label for="name">Name<span class="required">*</span></label>
                     </th>
                     <td><input type="text" id="name" name="name" placeholder="Enter College Name" class="form-control"
-                               value="<%=HTMLUtility.get(bean.getName())%>"
-                               <c:if test="${not empty errors.name}">autofocus</c:if>
+                               value="${dto.name}"
+                               <c:if test="${not empty dto.errors.name}">autofocus</c:if>
                                maxlength="50" />
-                        <span class="error-message"> ${errors.name}</span></td>
+                        <span class="error-message"> ${dto.errors.name}</span></td>
                 </tr>
                 <tr>
                     <th class="text-left">
@@ -78,8 +75,8 @@
                         <label for="state">State<span class="required">*</span></label>
                     </th>
                     <td><input type="text" id="state" name="state" class="form-control" placeholder="Enter State"
-                               value="<%=HTMLUtility.get(bean.getState())%>" maxlength="50" />
-                                <span class="error-message"> ${errors.state}</span></td>
+                               value="${dto.state}" maxlength="50" />
+                                <span class="error-message"> ${dto.errors.state}</span></td>
                 </tr>
                 <tr>
                     <th class="text-left">
@@ -87,22 +84,22 @@
                     </th>
                     <td><input type="text" id="city" name="city" class="form-control" placeholder="Enter City"
                                value="<%=HTMLUtility.get(bean.getCity())%>" maxlength="50" />
-                               <span class="error-message"> ${errors.city}</span></td>
+                               <span class="error-message"> ${dto.errors.city}</span></td>
                 </tr>
                 <tr>
                     <th class="text-left">
                         <label for="phoneNo">Phone No<span class="required">*</span></label>
                     </th>
-                    <td><input type="text" id="phoneNo" name="phoneNo" class="form-control" placeholder="Enter Phone No." value="<%=HTMLUtility.get(bean.getPhoneNo())%>" maxlength="15" />
-                        <span class="error-message"> ${errors.phoneNo}</span></td>
+                    <td><input type="text" id="phoneNo" name="phoneNo" class="form-control" placeholder="Enter Phone No." value="${dto.phoneNo}" maxlength="15" />
+                        <span class="error-message"> ${dto.errors.phoneNo}</span></td>
                 </tr>
                 <tr>
                     <th></th>
                     <td>
                         <div class="button-container">
                             <input type="submit" name="operation" class="btn btn-primary" value="<c:out value="${empty bean.id ? CollegeCtl.OP_SAVE : CollegeCtl.OP_UPDATE}" />" />
-                            <input type="submit" name="operation" class="btn btn-secondary" value="<c:out value="${empty bean.id ? CollegeCtl.OP_RESET : CollegeCtl.OP_CANCEL}" />" />
-                            <c:if test="${not empty bean.id}"> 
+                            <input type="submit" name="operation" class="btn btn-secondary" value="<c:out value="${empty dto.id ? CollegeCtl.OP_RESET : CollegeCtl.OP_CANCEL}" />" />
+                            <c:if test="${not empty dto.id}">
                                 <input type="submit" name="operation" class="btn btn-danger" value="<c:out value="${CollegeCtl.OP_DELETE}" />" />
                             </c:if>
                         </div>

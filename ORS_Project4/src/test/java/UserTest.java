@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-import com.rays.pro4.Bean.UserBean;
+import com.rays.pro4.DTO.UserDTO;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Model.UserModel;
@@ -37,7 +37,7 @@ public class UserTest {
     private static void authenticate() {
         try {
             UserModel model = new UserModel();
-            UserBean bean = new UserBean();
+ UserDTO dto = new UserDTO();
             String login = "test" + UUID.randomUUID().toString().substring(0, 5) + "@gmail.com";
             String password = "password";
             SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy");
@@ -45,14 +45,14 @@ public class UserTest {
             bean.setLastName("User");
             bean.setLogin(login);
             bean.setPassword(password);
-            bean.setDob(sdf.parse("01-01-1990"));
-            bean.setRoleId(1L);
-            bean.setGender("Male");
-            bean.setMobileNo("9999999999");
-            bean.setConfirmPassword(password);
-            model.add(bean);
+ dto.setDob(sdf.parse("01-01-1990"));
+ dto.setRoleId(1L);
+ dto.setGender("Male");
+ dto.setMobileNo("9999999999");
+ dto.setConfirmPassword(password);
+            model.add(dto);
 
-            UserBean authenticatedUser = model.authenticate(login, password);
+ UserDTO authenticatedUser = model.authenticate(login, password);
             Assert.assertNotNull(authenticatedUser);
             Assert.assertEquals(login, authenticatedUser.getLogin());
             System.out.println("Successfully login");
@@ -66,19 +66,19 @@ public class UserTest {
     private static void getList() {
         try {
             UserModel model = new UserModel();
-            List<UserBean> list = model.list(1, 10);
+ List<UserDTO> list = model.list(1, 10);
             Assert.assertTrue(list.size() > 0);
-            for (UserBean bean : list) {
-                Assert.assertNotNull(bean.getId());
-                System.out.println(bean.getId());
-                System.out.println(bean.getFirstName());
-                System.out.println(bean.getLastName());
-                System.out.println(bean.getLogin());
-                System.out.println(bean.getPassword());
-                System.out.println(bean.getDob());
-                System.out.println(bean.getRoleId());
-                System.out.println(bean.getUnSuccessfulLogin());
-                System.out.println(bean.getGender());
+            for (UserDTO dto : list) {
+                Assert.assertNotNull(dto.getId());
+ System.out.println(dto.getId());
+ System.out.println(dto.getFirstName());
+ System.out.println(dto.getLastName());
+ System.out.println(dto.getLogin());
+ System.out.println(dto.getPassword());
+ System.out.println(dto.getDob());
+ System.out.println(dto.getRoleId());
+ System.out.println(dto.getUnSuccessfulLogin());
+ System.out.println(dto.getGender());
                 System.out.println(bean.getLastLogin());
                 System.out.println(bean.getLock());
                 System.out.println(bean.getMobileNo());
@@ -96,20 +96,20 @@ public class UserTest {
     private static void getRoleid() {
         try {
             UserModel model = new UserModel();
-            UserBean bean = new UserBean();
-            bean.setRoleId(1L);
-            List<UserBean> list = model.getRoles(bean);
+ UserDTO dto = new UserDTO();
+ dto.setRoleId(1L);
+ List<UserDTO> list = model.getRoles(dto);
             Assert.assertTrue(list.size() >= 0);
-            for (UserBean userBean : list) {
-                System.out.println(userBean.getId());
-                System.out.println(userBean.getFirstName());
-                System.out.println(userBean.getLastName());
-                System.out.println(userBean.getLogin());
-                System.out.println(userBean.getPassword());
-                System.out.println(userBean.getDob());
-                System.out.println(userBean.getRoleId());
-                System.out.println(userBean.getUnSuccessfulLogin());
-                System.out.println(userBean.getGender());
+            for (UserDTO userDTO : list) {
+ System.out.println(userDTO.getId());
+ System.out.println(userDTO.getFirstName());
+ System.out.println(userDTO.getLastName());
+ System.out.println(userDTO.getLogin());
+ System.out.println(userDTO.getPassword());
+ System.out.println(userDTO.getDob());
+ System.out.println(userDTO.getRoleId());
+ System.out.println(userDTO.getUnSuccessfulLogin());
+ System.out.println(userDTO.getGender());
                 System.out.println(userBean.getLastLogin());
                 System.out.println(userBean.getLock());
             }
@@ -122,20 +122,20 @@ public class UserTest {
     private static void testSearch() {
         try {
             UserModel model = new UserModel();
-            UserBean bean = new UserBean();
-            List<UserBean> list = model.search(bean, 0, 10);
+ UserDTO dto = new UserDTO();
+ List<UserDTO> list = model.search(dto, 0, 10);
             Assert.assertTrue(list.size() >= 0);
 
-            for (UserBean userBean : list) {
-                System.out.println(userBean.getId());
-                System.out.println(userBean.getFirstName());
-                System.out.println(userBean.getLastName());
-                System.out.println(userBean.getLogin());
-                System.out.println(userBean.getPassword());
-                System.out.println(userBean.getDob());
-                System.out.println(userBean.getRoleId());
-                System.out.println(userBean.getUnSuccessfulLogin());
-                System.out.println(userBean.getGender());
+            for (UserDTO userDTO : list) {
+ System.out.println(userDTO.getId());
+ System.out.println(userDTO.getFirstName());
+ System.out.println(userDTO.getLastName());
+ System.out.println(userDTO.getLogin());
+ System.out.println(userDTO.getPassword());
+ System.out.println(userDTO.getDob());
+ System.out.println(userDTO.getRoleId());
+ System.out.println(userDTO.getUnSuccessfulLogin());
+ System.out.println(userDTO.getGender());
                 System.out.println(userBean.getLastLogin());
                 System.out.println(userBean.getLock());
             }
@@ -147,23 +147,23 @@ public class UserTest {
 
     private static void testUpdate() throws DuplicateRecordException, ParseException, ApplicationException {
         UserModel model = new UserModel();
-        UserBean bean = new UserBean();
+ UserDTO dto = new UserDTO();
         SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy");
         bean.setFirstName("Test");
         bean.setLastName("User");
         bean.setLogin("test" + UUID.randomUUID().toString().substring(0, 5) + "@gmail.com");
         bean.setPassword("password");
-        bean.setDob(sdf.parse("01-01-1990"));
-        bean.setRoleId(1L);
-        bean.setGender("Male");
-        bean.setMobileNo("9999999999");
-        bean.setConfirmPassword("password");
-        long pk = model.add(bean);
+ dto.setDob(sdf.parse("01-01-1990"));
+ dto.setRoleId(1L);
+ dto.setGender("Male");
+ dto.setMobileNo("9999999999");
+ dto.setConfirmPassword("password");
+ long pk = model.add(dto);
         try {
-             bean = model.findByPK(pk);
-            Assert.assertNotNull(bean);
+ dto = model.findByPK(pk);
+            Assert.assertNotNull(dto);
 
-            bean.setFirstName("Updated");
+ dto.setFirstName("Updated");
             bean.setLastName("Updated");
             bean.setLogin("updated" + UUID.randomUUID().toString().substring(0, 5) + "@gmail.com");
             bean.setPassword("updated");
@@ -189,24 +189,24 @@ public class UserTest {
     private static void testFindByPk() throws ParseException, DuplicateRecordException {
         try {
             UserModel model = new UserModel();
-            UserBean bean = new UserBean();
+ UserDTO dto = new UserDTO();
             SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy");
             bean.setFirstName("Test");
             bean.setLastName("User");
             bean.setLogin("test" + UUID.randomUUID().toString().substring(0, 5) + "@gmail.com");
             bean.setPassword("password");
-            bean.setDob(sdf.parse("01-01-1990"));
-            bean.setRoleId(1L);
-            bean.setGender("Male");
-            bean.setMobileNo("9999999999");
-            bean.setConfirmPassword("password");
-            long pk = model.add(bean);
+ dto.setDob(sdf.parse("01-01-1990"));
+ dto.setRoleId(1L);
+ dto.setGender("Male");
+ dto.setMobileNo("9999999999");
+ dto.setConfirmPassword("password");
+ long pk = model.add(dto);
            try{
-               UserBean retrievedBean = model.findByPK(pk);
+ UserDTO retrievedDTO = model.findByPK(pk);
             Assert.assertNotNull(retrievedBean);
             Assert.assertEquals(bean.getLogin(), retrievedBean.getLogin());
-            System.out.println(retrievedBean.getId());
-            System.out.println(retrievedBean.getFirstName());
+ System.out.println(retrievedDTO.getId());
+ System.out.println(retrievedDTO.getFirstName());
             System.out.println(retrievedBean.getLastName());
             System.out.println(retrievedBean.getLogin());
             System.out.println(retrievedBean.getPassword());
@@ -217,7 +217,7 @@ public class UserTest {
             System.out.println(retrievedBean.getLastLogin());
             System.out.println(retrievedBean.getLock());
            }catch (ApplicationException e){
-               e.printStackTrace();
+ e.printStackTrace();
                Assert.fail("Exception during findByPK: " + e.getMessage());
            }finally {
                model.delete(bean);
@@ -231,24 +231,24 @@ public class UserTest {
     private static void testLogin() throws ParseException, DuplicateRecordException {
         try {
             UserModel model = new UserModel();
-             UserBean bean = new UserBean();
+ UserDTO dto = new UserDTO();
             SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy");
             bean.setFirstName("Test");
             bean.setLastName("User");
             bean.setLogin("test" + UUID.randomUUID().toString().substring(0, 5) + "@gmail.com");
             bean.setPassword("password");
-            bean.setDob(sdf.parse("01-01-1990"));
-            bean.setRoleId(1L);
-            bean.setGender("Male");
-            bean.setMobileNo("9999999999");
-            bean.setConfirmPassword("password");
-            long pk = model.add(bean);
+ dto.setDob(sdf.parse("01-01-1990"));
+ dto.setRoleId(1L);
+ dto.setGender("Male");
+ dto.setMobileNo("9999999999");
+ dto.setConfirmPassword("password");
+ long pk = model.add(dto);
             try {
-                UserBean retrievedBean = model.findByLogin(bean.getLogin());
+ UserDTO retrievedDTO = model.findByLogin(dto.getLogin());
 
-                Assert.assertNotNull(retrievedBean);
-                Assert.assertEquals(bean.getLogin(), retrievedBean.getLogin());
-                System.out.println(retrievedBean.getId());
+                Assert.assertNotNull(retrievedDTO);
+                Assert.assertEquals(dto.getLogin(), retrievedDTO.getLogin());
+ System.out.println(retrievedDTO.getId());
                 System.out.println(retrievedBean.getFirstName());
                 System.out.println(retrievedBean.getLastName());
                 System.out.println(retrievedBean.getLogin());
@@ -260,7 +260,7 @@ public class UserTest {
                 System.out.println(retrievedBean.getLastLogin());
                 System.out.println(retrievedBean.getLock());
             }catch (ApplicationException e){
-                 e.printStackTrace();
+ e.printStackTrace();
                  Assert.fail("Exception during findByLogin: " + e.getMessage());
             }finally {
                 model.delete(bean);
@@ -273,20 +273,20 @@ public class UserTest {
 
     public static void testDelete() throws ApplicationException, ParseException, DuplicateRecordException {
         UserModel model = new UserModel();
-        UserBean bean = new UserBean();
+ UserDTO dto = new UserDTO();
         SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy");
         bean.setFirstName("Test");
         bean.setLastName("User");
         bean.setLogin("test" + UUID.randomUUID().toString().substring(0, 5) + "@gmail.com");
         bean.setPassword("password");
-        bean.setDob(sdf.parse("01-01-1990"));
-        bean.setRoleId(1L);
-        bean.setGender("Male");
-        bean.setMobileNo("9999999999");
-        bean.setConfirmPassword("password");
-        long pk = model.add(bean);
+ dto.setDob(sdf.parse("01-01-1990"));
+ dto.setRoleId(1L);
+ dto.setGender("Male");
+ dto.setMobileNo("9999999999");
+ dto.setConfirmPassword("password");
+ long pk = model.add(dto);
         try {
-
+ model.delete(dto);
             model.delete(bean);
             UserBean deletedBean = model.findByPK(pk);
             Assert.assertNull(deletedBean);
@@ -301,21 +301,21 @@ public class UserTest {
     public static void testInsert() throws ParseException, DuplicateRecordException {
         try {
             UserModel model = new UserModel();
-            UserBean bean = new UserBean();
+ UserDTO dto = new UserDTO();
             SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy");
             bean.setFirstName("Test");
             bean.setLastName("User");
             bean.setLogin("test" + UUID.randomUUID().toString().substring(0, 5) + "@gmail.com");
             bean.setPassword("password");
-            bean.setDob(sdf.parse("01-01-1990"));
-            bean.setRoleId(1L);
-            bean.setGender("Male");
-            bean.setMobileNo("9999999999");
-            bean.setConfirmPassword("password");
-            long pk = model.add(bean);
-            UserBean addedbean = model.findByPK(pk);
-            Assert.assertNotNull(addedbean);
-            Assert.assertEquals("Test", addedbean.getFirstName());
+ dto.setDob(sdf.parse("01-01-1990"));
+ dto.setRoleId(1L);
+ dto.setGender("Male");
+ dto.setMobileNo("9999999999");
+ dto.setConfirmPassword("password");
+ long pk = model.add(dto);
+ UserDTO addedDTO = model.findByPK(pk);
+            Assert.assertNotNull(addedDTO);
+            Assert.assertEquals("Test", addedDTO.getFirstName());
             Assert.assertEquals(bean.getLogin(), addedbean.getLogin());
             System.out.println("Test add succ");
             System.out.println("record insert");

@@ -15,7 +15,7 @@
 <form action="${ctx}${ORSView.CHANGE_PASSWORD_CTL}" method="post">
     <%@ include file="Header.jsp" %>
 
-    <jsp:useBean id="bean" class="com.rays.pro4.Bean.UserBean" scope="request"></jsp:useBean>
+    <jsp:useBean id="bean" class="com.rays.pro4.DTO.UserDTO" scope="request"></jsp:useBean>
     <c:set var="errors" value="${requestScope.errors}"/>
     <div class="message-container">
         <c:if test="${not empty success}">

@@ -1,7 +1,6 @@
 package com.rays.pro4.validator;
 
-import javax.servlet.http.HttpServletRequest;
-
+import com.rays.pro4.DTO.CollegeDTO;
 /**
  * CollegeList Validator class to validate CollegeList data.
  * 
@@ -18,7 +17,7 @@ public class CollegeListValidator {
      * @param request The HttpServletRequest object.
      * @return True if the request attributes are valid, false otherwise.
      */
-    public static boolean validate(final HttpServletRequest request) {
+    public static boolean validate(final CollegeDTO dto) {
         boolean pass = true;
 
         return pass;

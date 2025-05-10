@@ -14,6 +14,8 @@ import com.rays.pro4.Exception.DatabaseException;
 import com.rays.pro4.Util.FacultyValidator;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Model.FacultyModel;
+import com.rays.pro4.Model.CollegeModel;
+import com.rays.pro4.Model.CourseModel;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;
@@ -41,8 +43,18 @@ public class FacultyListCtl extends BaseCtl<FacultyDTO> {
 	@Override
 	protected void preload(final HttpServletRequest request) {
 		log.debug("preload method of FacultyListCtl Started");
-		final int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));
-        FacultyDTO dto = populateDTO(request);
+
+		CollegeModel collegeModel = new CollegeModel();
+		CourseModel courseModel = new CourseModel();
+
+		try {
+			List collegeList = collegeModel.list();
+			List courseList = courseModel.list();
+			request.setAttribute("CollegeList", collegeList);
+			request.setAttribute("CourseList", courseList);
+		} catch (ApplicationException e) {
+			log.error("Error loading College and Course lists in FacultyListCtl preload", e);
+		}
 	}
 
 	/**

@@ -3,7 +3,6 @@ package com.rays.pro4.controller;
 import com.rays.pro4.controller.ORSView;
 
 import com.rays.pro4.Bean.MarksheetBean;
-import com.rays.pro4.DTO.MarksheetDTO;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Model.MarksheetModel;
 import com.rays.pro4.Util.DataUtility;

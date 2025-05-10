@@ -1,6 +1,6 @@
-package com.rays.pro4.util;
+package com.rays.pro4.validator;
 
-import javax.servlet.http.HttpServletRequest;
+import com.rays.pro4.DTO.RoleDTO;
 
 /**
  * Role Validator class to validate Role data.
@@ -14,18 +14,18 @@ public class RoleValidator {
      * Validates the request attributes for Role data.
      *
      * @param request The HttpServletRequest object.
+     * @param dto The RoleDTO object to validate.
      * @return True if the request attributes are valid, false otherwise.
      */
-    public static boolean validate(final HttpServletRequest request) {
+    public static boolean validate(final RoleDTO dto) {
         boolean pass = true;
 
-        if (DataValidator.isNull(request.getParameter("name"))) {
-            request.setAttribute("name", PropertyReader.getValue("error.require", "Name"));
+        if (DataValidator.isNull(dto.getName())) {
             pass = false;
-        } else if (!DataValidator.isName(request.getParameter("name"))) {
-            request.setAttribute("name", PropertyReader.getValue("error.name", "Name"));
+        } else if (!DataValidator.isName(dto.getName())) {
             pass = false;
         }
+        
 
         if (DataValidator.isNull(request.getParameter("description"))) {
             request.setAttribute("description", PropertyReader.getValue("error.require", "Description"));

@@ -8,8 +8,6 @@ import java.sql.PreparedStatement;
 import org.apache.log4j.Logger;
 import com.rays.pro4.DTO.SubjectDTO;
 
-import com.rays.pro4.Bean.CourseBean;
-import com.rays.pro4.Bean.SubjectBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DatabaseException;
 import com.rays.pro4.Exception.DuplicateRecordException;
@@ -20,11 +18,6 @@ import java.sql.Timestamp;
 
 public class SubjectModel extends BaseModel {
 
-    private String subjectName;
-    private String description;
-    private long courseId;
-    private String courseName;
-    
     
 	
 	private static Logger log= Logger.getLogger(SubjectModel.class);

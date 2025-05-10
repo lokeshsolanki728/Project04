@@ -11,18 +11,16 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.rays.pro4.Bean.MarksheetBean;
-import com.rays.pro4.Bean.RoleBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Model.MarksheetModel;
-import com.rays.pro4.Model.RoleModel;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.DataValidator;
 import com.rays.pro4.Util.MessageConstant;
 import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;
 import com.rays.pro4.controller.ORSView;
+import com.rays.pro4.DTO.MarksheetDTO;
 
 /**
  * Marksheet List functionality Controller. Performs operation for list, search
@@ -39,7 +37,7 @@ import com.rays.pro4.controller.ORSView;
  * @author Lokesh Solanki
  */
 @WebServlet(name = "MarksheetListCtl", urlPatterns = { "/ctl/MarksheetListCtl" })
-public class MarksheetListCtl extends BaseCtl<MarksheetBean> {
+public class MarksheetListCtl extends BaseCtl<MarksheetDTO> {
 	private final MarksheetModel model = new MarksheetModel();
 	/** The log. */ 
 	private static final Logger log = Logger.getLogger(MarksheetListCtl.class);
@@ -47,8 +45,8 @@ public class MarksheetListCtl extends BaseCtl<MarksheetBean> {
 	@Override
 	protected MarksheetBean populateBean(HttpServletRequest request) {
 		log.debug("populateBean method start");
-		final MarksheetBean bean = new MarksheetBean();
-		bean.setId(DataUtility.getInt(request.getParameter("id")));
+		final MarksheetDTO bean = new MarksheetDTO();
+		bean.setId(DataUtility.getLong(request.getParameter("id")));
 		bean.setRollNo(DataUtility.getString(request.getParameter("rollNo")));
 		bean.setName(DataUtility.getString(request.getParameter("name")));
 		log.debug("populateBean method end");
@@ -81,7 +79,7 @@ public class MarksheetListCtl extends BaseCtl<MarksheetBean> {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		log.debug("doGet method started");
-		List<MarksheetBean> list=new ArrayList<>();
+		List<MarksheetDTO> list=new ArrayList<>();
         int pageNo = 1;
         int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));
 		try {
@@ -104,7 +102,7 @@ public class MarksheetListCtl extends BaseCtl<MarksheetBean> {
 
 	private void deleteMarksheet(String[] ids, HttpServletRequest request) throws ApplicationException {
 		log.debug("delete method start");
-		MarksheetBean deletebean = new MarksheetBean();
+		MarksheetDTO deletebean = new MarksheetDTO();
 		if (ids != null && ids.length > 0) {
 			for (String id : ids) {
 				deletebean.setId(DataUtility.getInt(id));
@@ -122,14 +120,14 @@ public class MarksheetListCtl extends BaseCtl<MarksheetBean> {
 		log.debug("doPost method start");
 		List list = null;
 		String[] ids = request.getParameterValues("ids");
-		int pageNo = DataUtility.getInt(request.getParameter("pageNo"));
-		int pageSize = DataUtility.getInt(request.getParameter("pageSize"));
+	\tint pageNo = DataUtility.getInt(request.getParameter(\"pageNo\")) == 0 ? 1 : DataUtility.getInt(request.getParameter(\"pageNo\"));
+	\tint pageSize = DataUtility.getInt(request.getParameter(\"pageSize\")) == 0 ? DataUtility.getInt(PropertyReader.getValue(\"page.size\")) : DataUtility.getInt(request.getParameter(\"pageSize\"));
 		pageNo = (pageNo == 0) ? 1 : pageNo;
 		pageSize = (pageSize == 0) ? DataUtility.getInt(PropertyReader.getValue("page.size")) : pageSize;
 		String operation = DataUtility.getString(request.getParameter("operation"));
-		MarksheetBean bean = (MarksheetBean) populateBean(request);
+	\tMarksheetDTO bean = populateBean(request);
 		if(OP_SEARCH.equalsIgnoreCase(operation)|| OP_NEXT.equalsIgnoreCase(operation)||OP_PREVIOUS.equalsIgnoreCase(operation)) {
-		if (OP_SEARCH.equalsIgnoreCase(operation)) {
+\t\t\tif (OP_SEARCH.equalsIgnoreCase(operation)) {
             pageNo = 1;
         } else if (OP_NEXT.equalsIgnoreCase(operation)) {
             pageNo++;

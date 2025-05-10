@@ -25,7 +25,7 @@ public class CourseModel extends BaseModel {
     /**
      * Adds a course to the database.
      *
-     * @param bean                          The CourseBean to add.
+     * @param dto The CourseDTO to add.
      * @return The primary key (id) of the newly added course.
      * @throws ApplicationException     If a general application exception occurs.
      * @throws DuplicateRecordException If a course with the same name already exists.
@@ -39,8 +39,8 @@ public class CourseModel extends BaseModel {
             CourseDTO duplicateCourse = findByName(dto.getName());
 
             if (duplicateCourse != null) throw new DuplicateRecordException("Course already exist");
-            pk = nextPK();           
-             bean.setId(pk);
+            pk = nextPK();
+            dto.setId(pk);
             conn.setAutoCommit(false);           
             try (PreparedStatement pstmt = conn
                     .prepareStatement("INSERT INTO ST_COURSE VALUES(?,?,?,?,?,?,?,?)")) {
@@ -53,17 +53,21 @@ public class CourseModel extends BaseModel {
                 pstmt.setTimestamp(7, dto.getCreatedDatetime());
                 pstmt.setTimestamp(8, dto.getModifiedDatetime());
                 pstmt.executeUpdate();               
-                conn.commit(); 
-               
-            }           
-           
-        }catch (SQLException e) {
-             log.error("Database Exception in add Course", e);
+                conn.commit();
+
+            }
+        } catch (SQLException e) {
             if(conn!=null)
-                conn.rollback();
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    log.error("Error during rollback in add Course", ex);
+                }
             
-            throw new ApplicationException("Exception: Exception in add Course " + e.getMessage());
+            throw new ApplicationException("Exception: Exception in add Course", e);
            
+        } finally {
+            JDBCDataSource.closeConnection(conn);
         }
         return pk;
     }
@@ -71,7 +75,7 @@ public class CourseModel extends BaseModel {
     /**
      * Deletes a course from the database.
      *
-     * @param bean                  The CourseBean object to be deleted.
+     * @param dto The CourseDTO object to be deleted.
      * @throws ApplicationException If a database error occurs.
      */
     public void delete(CourseDTO dto) throws ApplicationException, DatabaseException {
@@ -80,9 +84,9 @@ public class CourseModel extends BaseModel {
             conn.setAutoCommit(false); // Start transaction
             try (PreparedStatement pstmt = conn.prepareStatement("DELETE FROM ST_COURSE WHERE ID = ?")) {
                 pstmt.setLong(1, dto.getId());
-                 pstmt.executeUpdate();
-           }
-           
+                pstmt.executeUpdate();
+            }
+
             conn.commit(); // Commit transaction
         } catch (SQLException e) {
             log.error("Database Exception in delete Course", e);
@@ -94,7 +98,7 @@ public class CourseModel extends BaseModel {
     /**
      * Finds a course by its name.
      *
-     * @param name                    The name of the course to find.
+     * @param name The name of the course to find.
      * @return The CourseBean if found, otherwise null.
      * @throws ApplicationException     If a general application exception occurs.
      */
@@ -104,28 +108,19 @@ public class CourseModel extends BaseModel {
         CourseDTO dto = null;
         try (Connection conn = JDBCDataSource.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
-                pstmt.setString(1, name);                
-                 try (ResultSet rs = pstmt.executeQuery()) {
-                    while (rs.next()) {
-                        dto = new CourseDTO();
-                        dto.setId(rs.getLong(1));
-                        dto.setName(rs.getString(2));
-                        dto.setDescription(rs.getString(3));
-                        dto.setDuration(rs.getString(4));
-                        dto.setCreatedBy(rs.getString(5));
-                        dto.setModifiedBy(rs.getString(6));
-                        dto.setCreatedDatetime(rs.getTimestamp(7));
-                        dto.setModifiedDatetime(rs.getTimestamp(8));
+                pstmt.setString(1, name);
+                try (ResultSet rs = pstmt.executeQuery()) { 
+                    if (rs.next()) { 
+                         dto = populate(rs, new CourseDTO());
                     }
                 }
-        } catch (SQLException e) {  
-            log.error("Database Exception in find by name", e);
-            e.printStackTrace();      
-              throw new ApplicationException("Exception: Exception in getting Course by name" + e.getMessage());       
+        } catch (SQLException e) {
+            e.printStackTrace();
+              throw new ApplicationException("Exception: Exception in getting Course by name" + e.getMessage());
          }
         log.debug("Model findByName End");
         return dto;
-    }   
+    }
 
     /**
      * Updates a course in the database.
@@ -156,11 +151,16 @@ public class CourseModel extends BaseModel {
                 pstmt.executeUpdate();
                 conn.commit();
             }
-        }catch (SQLException e) {
-           conn.rollback();
         } catch (SQLException e) {
             log.error("Database Exception in update Course", e);
-            conn.rollback();
+            if(conn!=null)
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                     log.error("Error during rollback in update Course", ex);
+                }
+
+
             throw new ApplicationException("Exception in updating Course");
         }
 
@@ -169,7 +169,7 @@ public class CourseModel extends BaseModel {
     /**
      * Finds a course by its primary key (id).
      *
-     * @param pk                    The primary key (id) of the course to find.
+     * @param pk The primary key (id) of the course to find.
      * @return The CourseBean if found, otherwise null.
      * @throws ApplicationException If a general application exception occurs.
      */
@@ -181,30 +181,28 @@ public class CourseModel extends BaseModel {
         try (Connection conn = JDBCDataSource.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
             pstmt.setLong(1, pk);
-            try (ResultSet resultSet = pstmt.executeQuery()) {
-                if (resultSet.next()) {
-                   dto = populate(resultSet, new CourseDTO());
-                }
+            try (ResultSet rs = pstmt.executeQuery()) {                if (rs.next()) {                   dto = populate(rs, new CourseDTO());                }
             }
         } catch (SQLException e) {
              log.error("Database Exception in update Course", e);
             if(conn != null){
-               try{ conn.rollback();}catch(SQLException ex){
-                log.error("error in rollback", ex);
-               }
+ try {
+ conn.rollback();
+ } catch (SQLException ex) {
+ log.error("Error during rollback in findByPK", ex);
+ }
             }
-            
             throw new ApplicationException("Exception: Exception in getting Course by pk");
         }
         return dto;
     }
 
-    
-    
-    
+
+
+
     public List search(CourseDTO dto, int pageNo, int pageSize, String orderBy, String sortOrder) throws ApplicationException {
         log.debug("Model search Started");
-        StringBuffer sql = new StringBuffer("SELECT * FROM ST_COURSE WHERE 1=1");
+        StringBuilder sql = new StringBuilder("SELECT * FROM ST_COURSE WHERE 1=1");
         ArrayList<CourseDTO> list = new ArrayList<>();
         int index = 1;       
 
@@ -212,7 +210,7 @@ public class CourseModel extends BaseModel {
         sortOrder = (sortOrder == null || sortOrder.trim().isEmpty()) ? "ASC" : sortOrder;
         
         try (Connection conn = JDBCDataSource.getConnection()) {
-           if (bean != null) {
+           if (dto != null) {
                 if (dto.getId() > 0)
                     sql.append(" AND id = ?");
                 if (dto.getName() != null && !dto.getName().isEmpty()) {
@@ -233,11 +231,12 @@ public class CourseModel extends BaseModel {
                     }
                     if (dto.getName() != null && !dto.getName().isEmpty()) {
                         pstmt.setString(index, dto.getName() + "%");
+                        index++;
                     }
                 }
                 try (ResultSet rs = pstmt.executeQuery()) {
                    while (rs.next()) {
-                      list.add(populate(rs, new CourseDTO()));                    
+                      list.add(populate(rs, new CourseDTO()));
                    }
                }  
             }
@@ -248,7 +247,7 @@ public class CourseModel extends BaseModel {
         }
         log.debug("Model search End");
         return list;
-    }
+    }    
 
     
     public List list() throws ApplicationException {

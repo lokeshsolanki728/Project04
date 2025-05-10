@@ -194,23 +194,23 @@ public class StudentModel extends BaseModel{
 	/**
 	 * Search for students based on the provided criteria with pagination.
 	 *
-	 * @param bean     The StudentBean object containing search criteria.
+	 * @param dto     The StudentDTO object containing search criteria.
 	 * @param pageNo   The page number for pagination.
 	 * @param pageSize The page size for pagination.
-	 * @return A list of StudentBean objects matching the search criteria.
+	 * @return A list of StudentDTO objects matching the search criteria.
 	 * @throws ApplicationException If a database error occurs.
 	 * @throws DatabaseException 
 	 */
     public List<StudentDTO> search(StudentDTO dto, int pageNo, int pageSize, String orderBy, String sortOrder) throws ApplicationException {
 		log.debug("Model search Started");
-        StringBuffer sql = new StringBuffer("SELECT * FROM ST_STUDENT WHERE 1=1");
+        StringBuffer sql = new StringBuffer("SELECT ST_STUDENT.*, ST_COLLEGE.NAME FROM ST_STUDENT LEFT JOIN ST_COLLEGE ON ST_STUDENT.COLLEGE_ID = ST_COLLEGE.ID WHERE 1=1");
         ArrayList<StudentDTO> list = new ArrayList<>();
         int index = 1;
-        CollegeModel collegeModel = new CollegeModel();
         if (pageNo < 0) {pageNo = 1;}
         if (pageSize < 0) {
             pageSize = 10;
         }
+
         if (dto != null) {
             if (dto.getId() > 0) {sql.append(" AND id = ? ");}
             if (dto.getFirstName() != null && !dto.getFirstName().isEmpty()) {sql.append(" AND FIRST_NAME like ?");}
@@ -222,7 +222,6 @@ public class StudentModel extends BaseModel{
             }
         }
 
-		// Add sorting logic
         if (orderBy != null && !orderBy.isEmpty() && isValidOrderByColumn(orderBy)) {
             sql.append(" ORDER BY " + orderBy);
             if (sortOrder != null && sortOrder.equalsIgnoreCase("DESC")) {
@@ -232,11 +231,10 @@ public class StudentModel extends BaseModel{
             }
         }
 		if (pageSize > 0) {
-            pageNo = (pageNo - 1) * pageSize;
-            sql.append(" LIMIT " + pageNo + ", " + pageSize);
+            int offset = (pageNo - 1) * pageSize;
+            sql.append(" LIMIT ").append(offset).append(", ").append(pageSize);
         }
-
-		try (Connection conn = JDBCDataSource.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+		try (Connection conn = JDBCDataSource.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {		
 			index=1;
 			if (dto != null) {
                 if (dto.getId() > 0) {pstmt.setLong(index++, dto.getId());}
@@ -246,22 +244,12 @@ public class StudentModel extends BaseModel{
                 if (dto.getEmail() != null && !dto.getEmail().isEmpty()) {pstmt.setString(index++, dto.getEmail() + "%");}
                 if (dto.getCollegeId() > 0) {pstmt.setLong(index++, dto.getCollegeId());}
            
-
             }
             try(ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     dto = new StudentDTO();
                     populateDTO(rs, dto);                    
-                    list.add(dto);
-                }
-            // Iterate through the list to fetch and set college names
-            for (StudentDTO studentDTO : list) {
-                // Fetch the corresponding CollegeBean using the collegeId
-                CollegeDTO college = collegeModel.findByPK(studentDTO.getCollegeId());
-                if (college != null) {
-                    studentDTO.setCollegeName(college.getName());
-                }
-            }
+					list.add(dto);
             }   
         }catch (SQLException e){
 			log.error("Database Exception in search", e);
@@ -276,15 +264,15 @@ public class StudentModel extends BaseModel{
 	
 	public List<StudentDTO> list(int pageNo, int pageSize,String orderBy,String sortOrder) throws ApplicationException {
 		log.debug("Model list Started");
-		ArrayList<StudentDTO> list = new ArrayList<>();
-		StringBuffer sql = new StringBuffer("select * from ST_STUDENT");
+        ArrayList<StudentDTO> list = new ArrayList<>();
+        StringBuffer sql = new StringBuffer("SELECT ST_STUDENT.*, ST_COLLEGE.NAME FROM ST_STUDENT LEFT JOIN ST_COLLEGE ON ST_STUDENT.COLLEGE_ID = ST_COLLEGE.ID");
 		if (pageNo < 1) {
             pageNo = 0;
         }
         if (pageSize < 0) {
             pageSize = 10;
         }
-		if (pageSize > 0 ) {
+		if (pageSize > 0 ) { // Check if pageSize is greater than 0 to apply LIMIT
            pageNo = (pageNo - 1) * pageSize;        
             sql.append(" LIMIT " + pageNo + ", " + pageSize);
         }
@@ -299,7 +287,6 @@ public class StudentModel extends BaseModel{
                 else
                 {sql.append(" ASC");}
 
-        }
         try (Connection conn = JDBCDataSource.getConnection(); 
             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
             try (ResultSet rs = pstmt.executeQuery()) {

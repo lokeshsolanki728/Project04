@@ -6,24 +6,22 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import com.rays.pro4.Exception.ApplicationException;
 import org.apache.log4j.Logger;
-import com.rays.pro4.Bean.UserBean;
 import com.rays.pro4.Model.UserModel;
 import com.rays.pro4.Util.DataUtility;
-import com.rays.pro4.Util.PropertyReader;
-import com.rays.pro4.Util.DataValidator;
 import com.rays.pro4.Bean.RoleBean;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import com.rays.pro4.DTO.UserDTO;
 import com.rays.pro4.Util.ServletUtility;
 import com.rays.pro4.controller.ORSView;
 
 /**
  * Forget Password functionality Controller. Performs operation for Forget Password
- *
- * @author Lokesh Solanki
+*
+* @author Shashank Singh
  */
-@WebServlet(name = "ForgetPasswordCtl", urlPatterns = {"/ctl/ForgetPasswordCtl"})
-public class ForgetPasswordCtl extends BaseCtl<UserBean> {
+@WebServlet(name = "ForgetPasswordCtl", urlPatterns = {"/ForgetPasswordCtl"})
+public class ForgetPasswordCtl extends BaseCtl<UserDTO> {
 
     /** The log. */
     private static Logger log = Logger.getLogger(ForgetPasswordCtl.class);
@@ -38,7 +36,7 @@ public class ForgetPasswordCtl extends BaseCtl<UserBean> {
      * @return true, if successful
      */
     @Override
-    protected boolean validate(HttpServletRequest request) {
+    protected boolean validate(HttpServletRequest request) { 
         log.debug("validate method start");
 
         boolean pass = true;
@@ -54,18 +52,18 @@ public class ForgetPasswordCtl extends BaseCtl<UserBean> {
     /**
      * Populates bean object from request parameters.
      *
-     * @param request the request
+    * @param request the request
      * @return the user bean
      */
     @Override
-    protected UserBean populateBean(final HttpServletRequest request) {
+    protected UserDTO populateBean(final HttpServletRequest request) { 
         log.debug("ForgetPasswordCtl Method populateBean Started");
-        UserBean bean = new UserBean();
-        bean.populate(request);
+        UserDTO bean = new UserDTO(); 
+        bean.setLogin(DataUtility.getString(request.getParameter("login")));
 
         log.debug("ForgetPasswordCtl Method populatebean Ended");
 
-        return bean;
+        return bean; 
     }
 
     /**
@@ -80,13 +78,6 @@ public class ForgetPasswordCtl extends BaseCtl<UserBean> {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         log.debug("ForgetPasswordCtl Method doGet Started");
-        HttpSession session = request.getSession();
-        RoleBean role = (RoleBean) session.getAttribute("role");
-        if (session.getAttribute("user") != null && (role.getId() != RoleBean.STUDENT)) {
-
-            ServletUtility.redirect(ORSView.WELCOME_CTL, request, response);
-            return;
-        }
 
         ServletUtility.forward(getView(), request, response);
 
@@ -107,22 +98,25 @@ public class ForgetPasswordCtl extends BaseCtl<UserBean> {
 
         log.debug("ForgetPasswordCtl Method doPost Started");
         String op = DataUtility.getString(request.getParameter("operation"));
-        UserDTO dto = new UserDTO();
-        UserBean bean = populateBean(request);
+
+        UserDTO dto = populateBean(request);
+
+        if (OP_RESET.equalsIgnoreCase(op)) {
+            ServletUtility.redirect(ORSView.FORGET_PASSWORD_CTL, request, response);
+            return;
+        } else if (!validate(request)) {
+            ServletUtility.setBean(dto, request);
+            ServletUtility.forward(getView(), request, response);
+            return;
+        }
         try {
-            if (OP_RESET.equalsIgnoreCase(op)) {
-                ServletUtility.redirect(ORSView.FORGET_PASSWORD_CTL, request, response);
-            } else if (OP_GO.equalsIgnoreCase(op) && validate(request)) {
-                model.resetPassword(dto.getLogin());
-                ServletUtility.setSuccessMessage(PropertyReader.getValue("success.forget"), request);
-            }} catch (ApplicationException e) {
+            model.resetPassword(dto.getLogin());
+            ServletUtility.setSuccessMessage(PropertyReader.getValue("success.forget"), request);
+            ServletUtility.redirect(ORSView.LOGIN_CTL, request, response);
+        }
+ catch (ApplicationException e) {
             handleDatabaseException(e, request, response);
             return;
-        } finally {
-            if (!validate(request)) {
-                ServletUtility.setBean(bean,request);
-            }
-            ServletUtility.forward(getView(), request, response);
         }
     }
 

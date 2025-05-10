@@ -8,8 +8,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
-import com.rays.pro4.Bean.BaseBean;
-import com.rays.pro4.Bean.CollegeBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.DTO.BaseDTO;
 import com.rays.pro4.DTO.CollegeDTO;
@@ -52,18 +50,6 @@ public class CollegeCtl extends BaseCtl {
         dto.setCity(DataUtility.getString(request.getParameter("city")));
         dto.setPhoneNo(DataUtility.getString(request.getParameter("phoneNo")));
     }
-    @Override
-    protected CollegeBean populateBean(HttpServletRequest request) {
-        log.debug("CollegeCtl Method populateBean Started");
-        CollegeBean bean = new CollegeBean();
-        bean.setId(DataUtility.getLong(request.getParameter("id")));
-        bean.populate(request);  
-        log.debug("CollegeCtl Method populateBean Ended");
-        return bean;
-    }
-    @Override
-    protected BaseBean populateBean(HttpServletRequest request) {
-        return new CollegeBean();
     }
 
     @Override
@@ -78,7 +64,7 @@ public class CollegeCtl extends BaseCtl {
                     ServletUtility.redirect(ORSView.COLLEGE_LIST_CTL, request, response);
                     return;
                 }
-                 ServletUtility.setDTO(dto, request);         } catch (ApplicationException e) {
+ ServletUtility.setDTO(dto, request); } catch (ApplicationException e) {
                 handleDatabaseException(e, request, response);
                 return;
             }
@@ -90,41 +76,44 @@ public class CollegeCtl extends BaseCtl {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         log.debug("CollegeCtl Method doPost Started");
-        String op = DataUtility.getString(request.getParameter("operation"));
-        CollegeBean bean = (CollegeBean) populateBean(request);
+ String op = DataUtility.getString(request.getParameter("operation"));
 
-       if (validate(request)) {
+        if (OP_DELETE.equalsIgnoreCase(op)) {
+ long id = DataUtility.getLong(request.getParameter("id"));
+            try {
+ model.delete(id);
+                ServletUtility.setSuccessMessage(MessageConstant.COLLEGE_SUCCESS_DELETE, request);
+                ServletUtility.redirect(ORSView.COLLEGE_LIST_CTL, request, response);
+                return;
+            } catch (ApplicationException e) {
+ log.error("Application exception during delete", e);
+ handleDatabaseException(e, request, response);
+ return;
+            }
+        }
+
+        CollegeDTO dto = new CollegeDTO();
+ populateDTO(request, dto);
+
+        if (validate(request)) {
             try {
                 if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
-                    CollegeDTO dto = new CollegeDTO();
-                     long id = DataUtility.getLong(request.getParameter("id"));
-                    populateDTO(request, dto);
-                     if(OP_UPDATE.equalsIgnoreCase(op)){
-                       CollegeDTO  dtoExist = model.findByPK(id);
-
-                        dto.setCreatedBy(dtoExist.getCreatedBy());
-                        dto.setModifiedBy(request.getParameter("modifiedBy"));
-                        dto.setCreatedDatetime(dtoExist.getCreatedDatetime());
+ if (OP_UPDATE.equalsIgnoreCase(op)) {
+ CollegeDTO dtoExist = model.findByPK(dto.getId());
+ dto.setCreatedBy(dtoExist.getCreatedBy());
+ dto.setCreatedDatetime(dtoExist.getCreatedDatetime());
                         dto.setModifiedDatetime(new Timestamp(System.currentTimeMillis()));
-
-                    }else{
-                        dto.setCreatedBy(request.getParameter("createdBy"));
-                        dto.setModifiedBy(request.getParameter("modifiedBy"));
-                        dto.setCreatedDatetime(new Timestamp(System.currentTimeMillis()));
-                        dto.setModifiedDatetime(new Timestamp(System.currentTimeMillis()));
-                   if(OP_UPDATE.equalsIgnoreCase(op)){
                         model.update(dto);
                         ServletUtility.setSuccessMessage(MessageConstant.COLLEGE_UPDATE, request);
-                     } else {
-                         long pk = model.add(dto);
-                        bean.setId(pk);
+ } else {
+ model.add(dto); // add method populates id
                         ServletUtility.setSuccessMessage(MessageConstant.COLLEGE_ADD, request);
                     }
                 }else if (OP_CANCEL.equalsIgnoreCase(op)) {
                     ServletUtility.redirect(ORSView.COLLEGE_LIST_CTL, request, response);
                     return;
                 } else if (OP_RESET.equalsIgnoreCase(op)) { 
-                    ServletUtility.redirect(ORSView.COLLEGE_CTL, request, response);
+                    ServletUtility.redirect(ORSView.COLLEGE_CTL, request, response); // Corrected redirection for reset
                     return;
                 }
             } catch (ApplicationException e) {
@@ -132,7 +121,7 @@ public class CollegeCtl extends BaseCtl {
                 handleDatabaseException(e, request, response);
                 return;
             } catch (DuplicateRecordException e) {
-                ServletUtility.setBean(bean, request);
+                ServletUtility.setDTO(dto, request); // Set DTO in request for duplicate record error
                 ServletUtility.setErrorMessage(PropertyReader.getValue("error.college.exist"), request);
             }            
             ServletUtility.forward(getView(), request, response);     

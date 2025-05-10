@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-<%@page import="com.rays.pro4.controller.UserRegistrationCtl"%>
+<%@ page import="com.rays.pro4.controller.UserRegistrationCtl"%>
 <%@page import="com.rays.pro4.controller.ORSView"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
@@ -23,7 +23,7 @@
     <body>
 
         <jsp:useBean id="bean" class="com.rays.pro4.Bean.UserBean"
-			scope="request"></jsp:useBean>
+			scope="request"/>
         <%@include file="Header.jsp"%>
 
         <form action="<%=ORSView.USER_REGISTRATION_CTL%>" method="post">

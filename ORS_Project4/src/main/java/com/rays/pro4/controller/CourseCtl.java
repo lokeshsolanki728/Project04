@@ -9,20 +9,18 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.rays.pro4.Bean.CourseBean;
 import com.rays.pro4.DTO.CourseDTO;
 import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Model.CourseModel;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.ORSView;
-
 import com.rays.pro4.Util.PropertyReader;
 import com.rays.pro4.Util.ServletUtility;
 
 
 @WebServlet(name="CourseCtl", urlPatterns={"/ctl/CourseCtl"})
-public class CourseCtl extends BaseCtl<CourseBean>{
+public class CourseCtl extends BaseCtl<CourseDTO>{
 
 	private static final long serialVersionUID = 1L;
 	private static Logger log = Logger.getLogger(CourseCtl.class);
@@ -41,12 +39,15 @@ public class CourseCtl extends BaseCtl<CourseBean>{
 	@Override
 	protected boolean validate(final HttpServletRequest request) {
 		log.debug("CourseCtl validate started");
-		final boolean pass = com.rays.pro4.validator.CourseValidator.validate(request);
-
+		// Populate the DTO before validation
+		CourseDTO dto = populateDTO(request);
+		final boolean pass = com.rays.pro4.validator.CourseValidator.validate(dto);
 
 		log.debug("CourseCtl validate End");
 		return pass;
 	}
+
+
 
 	/**
 	 * Populates bean object from request parameters
@@ -55,17 +56,17 @@ public class CourseCtl extends BaseCtl<CourseBean>{
 	 * @return
 	 */
 	@Override
-    protected CourseBean populateBean(HttpServletRequest request) {
+    protected CourseDTO populateDTO(HttpServletRequest request) {
         log.debug("CourseCtl populateBean method start");
-        CourseBean bean = new CourseBean();
-        bean.setId(DataUtility.getLong(request.getParameter("id")));
-        bean.setName(DataUtility.getString(request.getParameter("name")));
-        bean.setDescription(DataUtility.getString(request.getParameter("description")));
-        bean.setDuration(DataUtility.getString(request.getParameter("duration")));
-        populate(bean, request);
+        CourseDTO dto = new CourseDTO();
+        dto.setId(DataUtility.getLong(request.getParameter("id")));
+        dto.setName(DataUtility.getString(request.getParameter("name")));
+        dto.setDescription(DataUtility.getString(request.getParameter("description")));
+        dto.setDuration(DataUtility.getString(request.getParameter("duration")));
+        updateDTO(dto, request);
 
 		log.debug("CourseCtl populate end");
-        return bean;
+        return dto;
 	}
 
 
@@ -87,19 +88,13 @@ public class CourseCtl extends BaseCtl<CourseBean>{
 		log.debug("CourseCtl Method doGet Started");
         String op = DataUtility.getString(request.getParameter("operation"));
 		long id = DataUtility.getLong(request.getParameter("id"));
-		CourseBean courseBean = new CourseBean();
+		CourseDTO dto = new CourseDTO();
         if(id>0 || op != null){
-           CourseDTO dto;
             try{
                 dto = model.findByPK(id);
-                if(dto==null) ServletUtility.redirect(ORSView.COURSE_LIST_CTL, request, response);
-                courseBean.setId(dto.getId());
-                courseBean.setName(dto.getName());
-                courseBean.setDescription(dto.getDescription());
-                courseBean.setDuration(dto.getDuration());
+                if(dto==null) ServletUtility.redirect(ORSView.COURSE_LIST_CTL, request, response);                
                 
-                ServletUtility.setBean(courseBean, request);
-                
+                ServletUtility.setDto(dto, request); // Make sure the DTO is set for the JSP
 
 
             }catch(ApplicationException e){
@@ -109,7 +104,7 @@ public class CourseCtl extends BaseCtl<CourseBean>{
             }
         }
 		else {
-			ServletUtility.setBean(courseBean, request);
+			ServletUtility.setDto(dto, request);
 		}
 		
 		ServletUtility.forward(getView(), request, response);
@@ -131,19 +126,18 @@ public class CourseCtl extends BaseCtl<CourseBean>{
 	protected final void doPost(final HttpServletRequest request, final HttpServletResponse response)
 			throws ServletException, IOException {
 		log.debug("CourseCtl Method doPost Started");
-		String op = DataUtility.getString(request.getParameter("operation"));
-		long id = DataUtility.getLong(request.getParameter("id"));
-		CourseBean bean = populateBean(request);
-		if(validate(request)){
+		final String op = DataUtility.getString(request.getParameter("operation"));
+		CourseDTO dto = populateDTO(request);
+		if(validate(request)){			
 			if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
 				try {
-	                CourseDTO courseDTO = bean.getDTO();
-	                if(id>0){
+	                CourseDTO courseDTO = dto;
+	                if(dto.getId() > 0){
 	                	model.update(courseDTO);
 	                	ServletUtility.setSuccessMessage("Course update Successfully", request);
 	                }else {
 	                	long pk = model.add(courseDTO);
-	                	bean.setId(pk);
+	                	dto.setId(pk); // Update the ID in the DTO
 	                	ServletUtility.setSuccessMessage("Course added Successfully", request);
 	                }
 	            }catch (ApplicationException e) {
@@ -153,9 +147,9 @@ public class CourseCtl extends BaseCtl<CourseBean>{
                     } else {
                         ServletUtility.setErrorMessage(PropertyReader.getValue("error.app.exception"), request);
                     }
-                    ServletUtility.setBean(bean, request);
+                    ServletUtility.setDto(dto, request); // Set the DTO back with errors
                     
-                    return;
+
 	            }
             }
 		    else if (OP_RESET.equalsIgnoreCase(op)) {
@@ -165,7 +159,7 @@ public class CourseCtl extends BaseCtl<CourseBean>{
 				ServletUtility.redirect(ORSView.COURSE_LIST_CTL, request, response);
 				return;
 			}
-			ServletUtility.setBean(bean, request);
+			ServletUtility.setDto(dto, request);
 		}
 	   
 

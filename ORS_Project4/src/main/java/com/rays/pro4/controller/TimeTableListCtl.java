@@ -10,22 +10,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.rays.pro4.Bean.BaseBean;
 import com.rays.pro4.DTO.TimeTableDTO;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Model.TimeTableModel;
 import com.rays.pro4.Util.DataUtility;
 import com.rays.pro4.Util.PropertyReader;
-import java.util.HashMap;
 import com.rays.pro4.validator.TimeTableValidator;
 import com.rays.pro4.Util.ServletUtility;
-
-/**
- * TimeTable List functionality Controller. Performs operation for list, search
- * and delete operations of TimeTable
- *
- * @author Lokesh Solanki
- */
 @WebServlet(name = "TimeTableListCtl", urlPatterns = { "/ctl/TimeTableListCtl" })
 public class TimeTableListCtl extends BaseCtl {
 
@@ -33,26 +24,9 @@ public class TimeTableListCtl extends BaseCtl {
     
     @Override
 	protected boolean validate(HttpServletRequest request){
-		log.debug("TimeTableCtl Method validate Started");
-		boolean pass = true;
-        TimeTableDTO dto = populateDTO(request);
-		TimeTableValidator validator = new TimeTableValidator();
-        if (dto.getErrorMessages() == null) {
-            dto.setErrorMessages(new HashMap<>());
-        }
-        
-        validator.validate(dto);
-        if (!dto.getErrorMessages().isEmpty()) {
-
-            pass = false;
-        }
-        ServletUtility.setBean(dto, request);
-		return pass;
+		return true; // Validation is typically handled in TimeTableCtl
 	}
-    
-    @Override
-    protected BaseBean populateDTO(HttpServletRequest request) {
-        TimeTableDTO dto = new TimeTableDTO();
+
 		dto.setCourseId(DataUtility.getLong(request.getParameter("courseId")));
 		dto.setSubjectId(DataUtility.getLong(request.getParameter("subjectId")));
 		dto.setSemester(DataUtility.getString(request.getParameter("semester")));
@@ -61,9 +35,6 @@ public class TimeTableListCtl extends BaseCtl {
     }
 
     /**
-     * Contains display logics.
-     */
-    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException{
         log.debug("doGet method of TimeTableListCtl Started");
@@ -72,6 +43,11 @@ public class TimeTableListCtl extends BaseCtl {
         int pageNo = 1;
         int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));
         TimeTableDTO dto = (TimeTableDTO) populateDTO(request);
+        if (!TimeTableValidator.validate(dto)) {
+            ServletUtility.setErrorMessage("Validation failed for search criteria.", request);
+            ServletUtility.forward(getView(), request, response);
+            return;
+        }
         try {
             
             list = model.search(dto, pageNo, pageSize);
@@ -90,9 +66,6 @@ public class TimeTableListCtl extends BaseCtl {
     }
 
     /**
-     * Contains Submit logics.
-     */
-    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         log.debug("TimeTableListCtl doPost Started");
@@ -103,6 +76,7 @@ public class TimeTableListCtl extends BaseCtl {
         pageNo = (pageNo == 0) ? 1 : pageNo;
         pageSize = (pageSize == 0) ? DataUtility.getInt(PropertyReader.getValue("page.size")) : pageSize;
         TimeTableDTO dto = (TimeTableDTO) populateDTO(request);
+        String op = DataUtility.getString(request.getParameter("operation"));
 
         try {
             if (OP_SEARCH.equalsIgnoreCase(op) || OP_NEXT.equalsIgnoreCase(op)
@@ -135,7 +109,6 @@ public class TimeTableListCtl extends BaseCtl {
             }
             
             list = model.search(dto, pageNo, pageSize);
-             String op = DataUtility.getString(request.getParameter("operation"));
             if (!OP_DELETE.equalsIgnoreCase(op) && (list == null || list.size() == 0)) {
                 ServletUtility.setErrorMessage(PropertyReader.getValue("record.notfound"), request);
             }
@@ -151,7 +124,6 @@ public class TimeTableListCtl extends BaseCtl {
         log.debug("doPost method of TimeTableListCtl Ended");
     }
 
-    @Override
     protected String getView() {
         return ORSView.TIMETABLE_LIST_VIEW;
     }

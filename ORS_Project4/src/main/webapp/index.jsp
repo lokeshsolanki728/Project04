@@ -1,29 +1,29 @@
-
-<%@page import="com.rays.pro4.Bean.UserBean"%>
+<%@page import="com.rays.pro4.DTO.UserDTO"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
-<%@page import="com.rays.pro4.Util.ServletUtility"%>
-<%@page import="com.rays.pro4.Bean.UserBean"%>
+<%@page import="com.rays.pro4.Util.ServletUtility"%> 
 <%@page import="com.rays.pro4.controller.ORSView"%>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="ISO-8859-1">
-<title>Welcome Page</title>
+
 <title>Online Result System</title>
 <link rel="icon" type="image/png"
 	href="<%=ORSView.APP_CONTEXT%>/img/logo.png" sizes="16x16" />
+
 </head>
+
 <body>
 
 	<br>
 	<br>
 	<%
-		UserBean userBean = (UserBean) session.getAttribute("user");
+		
 
-		boolean userLoggedIn = userBean != null;
+		UserDTO userDto = (UserDTO) session.getAttribute("user");
 
-		if (userLoggedIn) {
+		if (userDto != null) {
 			ServletUtility.forward(ORSView.WELCOME_VIEW, request, response);
 
 		}
@@ -42,6 +42,6 @@
 		<font size="10px" color="red"> <a
 			href="<%=ORSView.WELCOME_CTL%>">Online Result System</a></font>
 			
-	</h1>
+	</h1> 
 </body>
 </html>

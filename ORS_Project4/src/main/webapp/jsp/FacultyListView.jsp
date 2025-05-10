@@ -2,11 +2,15 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@page import="com.rays.pro4.controller.ORSView" %>
 <%@page import="com.rays.pro4.controller.FacultyListCtl" %>
-<%@page import="com.rays.pro4.Bean.FacultyBean" %>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
          pageEncoding="ISO-8859-1" %>
 <html>
 <head>
+<script>
+    function confirmDelete() {
+        return confirm("Are you sure you want to delete the selected records?");
+    }
+</script>
     <meta charset="UTF-8">
     <c:set var="ctx" value="${pageContext.request.contextPath}"/>
     <link rel="icon" type="image/png" href="${ctx}/img/logo.png" sizes="16*16"/>
@@ -22,13 +26,7 @@
 
 </head>
 <body class="bg-light main-body">
-<jsp:useBean id="facultyBean"
-             class="com.rays.pro4.Bean.FacultyBean" scope="request"></jsp:useBean>
-	<jsp:useBean id="collegeBean" class="com.rays.pro4.Bean.CollegeBean"
-		scope="request"></jsp:useBean> 
-	<jsp:useBean id="courseBean" class="com.rays.pro4.Bean.CourseBean"
-		scope="request"></jsp:useBean>
-		<%@include file="Header.jsp"%>
+<jsp:useBean id="facultyBean" class="com.rays.pro4.DTO.FacultyDTO" scope="request"/>		<%@include file="Header.jsp"%>
 	<form action="${ctx}${ORSView.FACULTY_LIST_CTL}" method="post">
 		<div class="container">
 			<h1 class="text-center">
@@ -37,13 +35,13 @@
 
 			<div class="message-container">
 				<c:if test="${not empty requestScope.error}">
-					<div class="alert alert-danger" role="alert">
-						${requestScope.error}
+					<div class="alert alert-danger" role="alert">				        
+						${requestScope.errorMessage}
 					</div>
 				</c:if>
 				<c:if test="${not empty requestScope.success}">
-					<div class="alert alert-success" role="alert">
-						${requestScope.success}
+					<div class="alert alert-success" role="alert">				        
+						${requestScope.successMessage}
 					</div>
 				</c:if>
 			</div>

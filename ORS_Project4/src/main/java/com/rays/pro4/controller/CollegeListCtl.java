@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.rays.pro4.Bean.CollegeBean;
+import com.rays.pro4.DTO.CollegeDTO;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Model.CollegeModel;
@@ -30,7 +30,7 @@ import java.io.IOException;
  * 
  */
 @WebServlet(name = "CollegeListCtl", urlPatterns = { "/ctl/CollegeListCtl" })
-public class CollegeListCtl extends BaseCtl<CollegeBean> {
+public class CollegeListCtl extends BaseCtl<CollegeDTO> {
 	
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(CollegeListCtl.class);	
@@ -64,30 +64,12 @@ public class CollegeListCtl extends BaseCtl<CollegeBean> {
 	 * @return the college bean
 	 */
 	@Override
-	protected CollegeBean populateBean(final HttpServletRequest request) {
-		log.debug("populateBean Method Started");
-		final CollegeBean bean = new CollegeBean();	
-		bean.populate(request);
-		return bean;
-	}
+	protected CollegeDTO populateDTO(HttpServletRequest request) {
+		CollegeDTO dto = new CollegeDTO();
+		dto.setName(DataUtility.getString(request.getParameter("collegename")));
+		dto.setCity(DataUtility.getString(request.getParameter("city")));
+	}	
 
-	/**
-	 * Search method.
-	 *
-	 * @param bean     the bean
-	 * @param pageNo   the page no
-	 * @param pageSize the page size
-	 * @param sortOrder 
-	 * @return the list
-	 * @throws ApplicationException the application exception
-	 */
-	private final List<CollegeBean> searchCollege(final CollegeBean bean, final int pageNo, final int pageSize,String orderBy, String sortOrder)
-		throws ApplicationException {
-		log.debug("searchCollege Method Started");
-		final List<CollegeBean> list =  model.search(bean, pageNo, pageSize,orderBy,sortOrder);		
-		log.debug("searchCollege Method End");
-		return list;
-	}
 	
 	/**
 	 * validate the data send by the user
@@ -97,11 +79,12 @@ public class CollegeListCtl extends BaseCtl<CollegeBean> {
 	@Override
 	protected boolean validate(HttpServletRequest request) {
 		log.debug("validate Method Started");
-		final boolean pass = CollegeListValidator.validate(request);		
-		if(!pass) {
-			log.debug("validate Method End with error");
-		}		
-		log.debug("validate Method End");		
+		// As per instruction 5, removing validation call if not needed for list operations.
+		// If validation for search criteria is needed, implement it in CollegeListValidator
+		// and validate the relevant parameters from the request or a populated DTO.
+		final boolean pass = true; 
+		log.debug("validate Method End");
+
 		return pass;
 	}
 
@@ -115,13 +98,13 @@ public class CollegeListCtl extends BaseCtl<CollegeBean> {
 	 */
 	@Override
 	protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
-			throws ServletException, IOException {
+		throws ServletException, IOException {
 		log.debug("CollegeListCtl Method doGet Started");
-		final CollegeBean bean = populateBean(request);
+		final CollegeDTO dto = populateDTO(request);
 		final int pageNo = 1;
 		final int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));
-        try {
-            
+		try {
+			String orderBy = DataUtility.getString(request.getParameter("orderBy")); String sortOrder = DataUtility.getString(request.getParameter("sortOrder")); // Ensure orderBy and sortOrder are used
             showList(bean, request, response, pageNo, pageSize,orderBy,sortOrder);
         
 		} catch (Exception e) {
@@ -143,18 +126,18 @@ public class CollegeListCtl extends BaseCtl<CollegeBean> {
 	private final void delete(final String[] ids, final HttpServletRequest request, final HttpServletResponse response)
 			throws ApplicationException {
 		log.debug("delete method start");
+		if (ids == null || ids.length == 0) {
+			ServletUtility.setErrorMessage(PropertyReader.getValue("error.select.one"), request);
+			return;
+		}
 		try {
-			if (ids != null && ids.length > 0) {
 			for (final String id : ids) {
-				model.delete(model.findByPK(DataUtility.getInt(id)));
+				model.delete(DataUtility.getLong(id)); // Instruction 1: Call delete by ID directly
 			}
 			ServletUtility.setSuccessMessage(MessageConstant.COLLEGE_SUCCESS_DELETE, request);
 			log.debug("delete method end");
-		}else {
-				throw new ApplicationException("Id cannot be null");
-			}
-		}catch(Exception e) {
-			ServletUtility.setErrorMessage(PropertyReader.getValue("error.select.one"), request);
+		} catch (ApplicationException e) { // Instruction 2: Catch ApplicationException
+			log.error("Error during college delete", e);
 		}
 	}
 
@@ -169,45 +152,37 @@ public class CollegeListCtl extends BaseCtl<CollegeBean> {
 	@Override protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
 		    throws ServletException, IOException {
 		        log.debug("CollegeListCtl doPost Start");
-		        List<CollegeBean> list = new ArrayList<CollegeBean>();
+		        List<CollegeDTO> list = new ArrayList<CollegeDTO>();
 		        int pageNo = DataUtility.getInt(request.getParameter("pageNo")) == 0 ? 1 : DataUtility.getInt(request.getParameter("pageNo"));
 		        int pageSize = DataUtility.getInt(request.getParameter("pageSize"))== 0 ? DataUtility.getInt(PropertyReader.getValue("page.size")) : DataUtility.getInt(request.getParameter("pageSize"));
 		        final String op = DataUtility.getString(request.getParameter("operation"));
 		        String[] ids = request.getParameterValues("ids");		
 				String orderBy = DataUtility.getString(request.getParameter("orderBy"));				
 				String sortOrder = DataUtility.getString(request.getParameter("sortOrder"));
-		        CollegeBean bean = (CollegeBean) populateBean(request);
+		        CollegeDTO dto = (CollegeDTO) populateDTO(request); // Use CollegeDTO
+				// Populate search criteria into the DTO
+				dto.setName(DataUtility.getString(request.getParameter("collegename"))); // Assuming collegename is the filter parameter name
+				dto.setCity(DataUtility.getString(request.getParameter("city")));
+				// Add other search criteria as needed
+
 		        try {
 		            if (OP_SEARCH.equalsIgnoreCase(op)) {
 		                pageNo = 1;
-		               if (DataUtility.getString(bean.getName()).length() == 0 && DataUtility.getString(bean.getCity()).length() == 0 && DataUtility.getString(bean.getState()).length() == 0) {
-		                    bean.setName(null);
-		                    bean.setCity(null);
-		                    bean.setState(null);
-		                    list = model.list(1, pageSize,orderBy,sortOrder);
-		                } else {
-		                   list = model.search(bean, pageNo, pageSize,orderBy,sortOrder);
-		                }
+						list = model.search(dto, pageNo, pageSize, orderBy, sortOrder); // Instruction 4: Simplify search logic
 		            } else if (OP_NEXT.equalsIgnoreCase(op)) {
 		                pageNo++;
-					    list = model.search(bean, pageNo, pageSize,orderBy,sortOrder);
+					    list = model.search(dto, pageNo, pageSize,  orderBy, sortOrder);
 		            } else if (OP_PREVIOUS.equalsIgnoreCase(op)) {
 		                pageNo--;
-					    list = model.search(bean, pageNo, pageSize,orderBy,sortOrder);
+					    list = model.search(dto, pageNo, pageSize,  orderBy, sortOrder);
 		            } else if (OP_NEW.equalsIgnoreCase(op)) {
 		                ServletUtility.redirect(ORSView.COLLEGE_CTL, request, response);
 		                return;
 		            } else if (OP_DELETE.equalsIgnoreCase(op)) {
 		                pageNo = 1;
-		                if(ids == null || ids.length == 0) ServletUtility.setErrorMessage("Select at least one record", request);
-		                else{
-		                	delete(ids, request, response);
-		                }
-		               
-		            } else {
-		                ServletUtility.setErrorMessage("Select at least one record", request);
-		            }
-		            if(!OP_DELETE.equalsIgnoreCase(op) || ids != null && ids.length > 0 ) {
+		                delete(ids, request, response); // Call the delete method
+						// After deletion, either show the updated list or handle the case where no records were selected
+						list = model.search(dto, pageNo, pageSize, orderBy, sortOrder); // Instruction 3: Show the updated list
 		            } else {
 		        showList(bean, request, response, pageNo, pageSize,orderBy,sortOrder);
 		        } catch (Exception e) {
@@ -230,12 +205,12 @@ public class CollegeListCtl extends BaseCtl<CollegeBean> {
 	 * @throws ServletException
 	 * @throws IOException
 	 */
-	private final void showList(final CollegeBean bean, final HttpServletRequest request, final HttpServletResponse response, final int pageNo, final int pageSize, String orderBy, String sortOrder) throws ServletException, IOException {
+	private final void showList(final CollegeDTO dto, final HttpServletRequest request, final HttpServletResponse response, final int pageNo, final int pageSize, String orderBy, String sortOrder) throws ServletException, IOException {
 		log.debug("showList Method Start");
-		List<CollegeBean> list = new ArrayList<CollegeBean>();
+		List<CollegeDTO> list = new ArrayList<CollegeDTO>(); // Instruction 6: Use CollegeDTO
 		try {
-			list = searchCollege(bean, pageNo, pageSize, orderBy, sortOrder);
-			final List<CollegeBean> nextList = searchCollege(bean, pageNo + 1, pageSize, orderBy, sortOrder);
+			list = model.search(dto, pageNo, pageSize, orderBy, sortOrder); // Use model.search directly
+			final List<CollegeDTO> nextList = model.search(dto, pageNo + 1, pageSize, orderBy, sortOrder); // Use model.search directly
 			request.setAttribute("nextlist", nextList.size());
 		
 			if (list == null || list.isEmpty()) {

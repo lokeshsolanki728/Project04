@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import com.rays.pro4.DTO.FacultyDTO;
 
-import com.rays.pro4.Bean.CollegeBean;
 import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Exception.DatabaseException;
 
@@ -310,7 +309,7 @@ public class FacultyModel extends BaseModel {
      * @return List
      * @throws ApplicationException
      */   
-    public List search(FacultyBean bean) throws ApplicationException {
+    public List search(FacultyDTO bean) throws ApplicationException {
         return search(bean, 1, 0);
     }
 
