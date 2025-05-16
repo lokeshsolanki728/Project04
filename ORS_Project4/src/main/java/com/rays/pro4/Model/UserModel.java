@@ -247,7 +247,7 @@ public class UserModel extends BaseModel {
                 pstmt.setString(index++, dto.getModifiedBy());
                 pstmt.setTimestamp(index++, dto.getModifiedDatetime());
                 pstmt.setLong(index, dto.getId());
-                pstmt.setLong(index, dto.getId());                
+                              
                 pstmt.executeUpdate();
                  conn.commit();
                 sendMail(dto, "User updated", "User Updated Successfully");
