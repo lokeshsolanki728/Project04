@@ -1,14 +1,17 @@
 package com.rays.proj4.Test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
-import com.rays.pro4.Bean.CollegeBean;
+import com.rays.pro4.DTO.CollegeDTO;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Exception.RecordNotFoundException;
@@ -22,152 +25,157 @@ import com.rays.pro4.Model.CollegeModel;
  * @author Lokesh SOlanki
  *
  */
+import org.junit.Test;
+
 public class CollegeModelTest {
     static CollegeModel model = new CollegeModel();
 
-    public static void main(String[] args) throws DuplicateRecordException, RecordNotFoundException {
-
-        testAdd();
-        testDelete();
-        searchFindByName();
-        searchFindByPk();
-        update();
-        search();
-        list();
+	public static CollegeDTO createCollegeDTO() {
+		CollegeDTO dto = new CollegeDTO();
+		dto.setName("TestCollege" + new Date().getTime());
+		dto.setAddress("TestAddress");
+		dto.setState("TestState");
+		dto.setCity("TestCity");
+		dto.setPhoneNo("1234567890");
+		dto.setCreatedBy("TestAdmin");
+		dto.setModifiedBy("TestAdmin");
+		dto.setCreatedDatetime(new Timestamp(new Date().getTime()));
+		dto.setModifiedDatetime(new Timestamp(new Date().getTime()));
+		return dto;
     }
 
-
-	private static void list() {
+	@Test
+	public void testAdd() throws DuplicateRecordException {
 		try {
-			CollegeBean bean = new CollegeBean();
-			List list = new ArrayList();
-			CollegeModel  model = new CollegeModel();
-			list = model.list(1,2);
-            assertNotNull(list);
-            assertEquals(true, list.size()>0);
-
-			Iterator it = list.iterator();
-			while (it.hasNext()) {
-				bean = (CollegeBean) it.next();
-			   assertNotNull(bean);
-			}
+			CollegeDTO dto = createCollegeDTO();
+			long pk = model.add(dto);
+			CollegeDTO addedDTO = model.findByPK(pk);
+			assertNotNull(addedDTO);
+			assertEquals(dto.getName(), addedDTO.getName());
 		} catch (ApplicationException e) {
-            e.printStackTrace();
-            assertEquals(false, true);
-        }
+			e.printStackTrace();
+			assertTrue(false);
+		}
 	}
 
-    private static void search() {
-        try {
-            CollegeBean bean = new CollegeBean();
-            List list = new ArrayList();
-            bean.setName("IIT");
-
-            CollegeModel model = new CollegeModel();
-            list = model.search(bean, 0, 0);
-            assertNotNull(list);
-            assertEquals(true, list.size() > 0);
-            Iterator it = list.iterator();
-            while (it.hasNext()) {
-                bean = (CollegeBean) it.next();
-                assertNotNull(bean);
-            }
-        } catch (ApplicationException e) {
-            e.printStackTrace();
-            assertEquals(false, true);
-        }
-
-    }
-
-    private static void update() throws DuplicateRecordException, RecordNotFoundException, ApplicationException {
-
-        CollegeBean bean = new CollegeBean();
-        long pk = testAdd();
-        bean = model.findByPK(pk);
-        bean.setName("AU University");
-        bean.setAddress("Lonavala");
-        model.update(bean);
-
-        CollegeBean updatedBean = model.findByPK(pk);
-        assertNotNull(updatedBean);
-        assertEquals("AU University", updatedBean.getName());
-
-    }
-
-    private static void searchFindByPk() throws DuplicateRecordException, RecordNotFoundException, ApplicationException {
-
-
-        long pk = testAdd();
-        CollegeBean bean = model.findByPK(pk);
-        assertNotNull(bean);
-        assertEquals(pk, bean.getId());
-
-    }
-
-    private static void searchFindByName() throws DuplicateRecordException, RecordNotFoundException, ApplicationException {
-
-        long pk = testAdd();
-        CollegeBean testBean = model.findByPK(pk);
-        CollegeBean bean = model.findByName(testBean.getName());
-
-        assertNotNull(bean);
-        assertEquals(testBean.getName(), bean.getName());
-
-
-    }
-
-    private static void testDelete() throws DuplicateRecordException, RecordNotFoundException, ApplicationException {
-
-        long pk = testAdd();
-        CollegeBean bean = new CollegeBean();
-        bean.setId(pk);
-        model.delete(bean);
-        try {
-            model.findByPK(pk);
-            assertEquals(true, false);
-        } catch (RecordNotFoundException e) {
-            assertEquals(true, true);
-        }
-
-    }
-
-    private static long testAdd() throws DuplicateRecordException {
+	@Test
+	public void testDelete() throws DuplicateRecordException, ApplicationException {
+		CollegeDTO dto = createCollegeDTO();
 		try {
-
-            CollegeBean bean = new CollegeBean();
-            bean.setName("JIT" + new Date().getTime());
-            bean.setAddress("Borawan");
-            bean.setState("mp");
-            bean.setCity("Khargone");
-            bean.setPhoneNo("767856545465");
-            bean.setCreatedBy("Admin");
-            bean.setModifiedBy("Admin");
-            bean.setCreatedDatetime(new Timestamp(new Date().getTime()));
-            bean.setModifiedDatetime(new Timestamp(new Date().getTime()));
-
-            long pk = model.add(bean);
-            CollegeBean addedBean = model.findByPK(pk);
-            assertNotNull(addedBean);
-            assertEquals("JIT" + bean.getName().substring(3), addedBean.getName());
-            return pk;
-        } catch (ApplicationException e) {
-            e.printStackTrace();
-            assertEquals(true, false);
-        }
-		return 0;
-    }
-    private static void testDelete1() {
-
-		try {
-			CollegeBean bean = new CollegeBean();
-			bean.setId(15L);
-			CollegeModel model = new CollegeModel();
-			model.delete(bean);
-			System.out.println("record delete");
-
-		} catch (Exception e) {
+			long pk = model.add(dto);
+			dto.setId(pk);
+			model.delete(dto);
+			CollegeDTO deletedDTO = model.findByPK(pk);
+			assertNull(deletedDTO);
+		} catch (RecordNotFoundException e) {
+			assertTrue(true);
+		} catch (ApplicationException e) {
 			e.printStackTrace();
+			assertTrue(false);
 		}
+	}
 
-	}   
+	@Test
+	public void testUpdate() throws DuplicateRecordException, ApplicationException {
+		try {
+			CollegeDTO dto = createCollegeDTO();
+			long pk = model.add(dto);
+			dto.setId(pk);
+			dto.setName("UpdatedCollege");
+			dto.setAddress("UpdatedAddress");
+			model.update(dto);
+
+			CollegeDTO updatedDTO = model.findByPK(pk);
+			assertNotNull(updatedDTO);
+			assertEquals("UpdatedCollege", updatedDTO.getName());
+			assertEquals("UpdatedAddress", updatedDTO.getAddress());
+		} catch (RecordNotFoundException e) {
+			e.printStackTrace();
+			assertTrue(false);
+		} catch (ApplicationException e) {
+			e.printStackTrace();
+			assertTrue(false);
+		}
+	}
+
+	@Test
+	public void testFindByPK() throws DuplicateRecordException, ApplicationException {
+		try {
+			CollegeDTO dto = createCollegeDTO();
+			long pk = model.add(dto);
+			CollegeDTO foundDTO = model.findByPK(pk);
+			assertNotNull(foundDTO);
+			assertEquals(pk, foundDTO.getId());
+		} catch (RecordNotFoundException e) {
+			e.printStackTrace();
+			assertTrue(false);
+		} catch (ApplicationException e) {
+			e.printStackTrace();
+			assertTrue(false);
+		}
+	}
+
+	@Test
+	public void testFindByName() throws DuplicateRecordException, ApplicationException {
+		try {
+			CollegeDTO dto = createCollegeDTO();
+			model.add(dto);
+			CollegeDTO foundDTO = model.findByName(dto.getName());
+			assertNotNull(foundDTO);
+			assertEquals(dto.getName(), foundDTO.getName());
+		} catch (RecordNotFoundException e) {
+			e.printStackTrace();
+			assertTrue(false);
+		} catch (ApplicationException e) {
+			e.printStackTrace();
+			assertTrue(false);
+		}
+	}
+
+	@Test
+	public void testSearch() {
+		try {
+			CollegeDTO dto = createCollegeDTO();
+			model.add(dto); // Add a test college
+
+			CollegeDTO searchDTO = new CollegeDTO();
+			searchDTO.setName("TestCollege"); // Search by part of the name
+
+			List<CollegeDTO> list = model.search(searchDTO, 0, 0);
+			assertNotNull(list);
+			assertTrue(!list.isEmpty());
+
+			boolean found = false;
+			for (CollegeDTO college : list) {
+				if (college.getName().startsWith("TestCollege")) {
+					found = true;
+					break;
+				}
+			}
+			assertTrue("Test college not found in search results", found);
+
+		} catch (ApplicationException e) {
+			e.printStackTrace();
+			assertTrue(false);
+		} catch (DuplicateRecordException e) {
+			e.printStackTrace();
+			assertTrue(false);
+		}
+	}
+
+	@Test
+	public void testList() {
+		try {
+			List<CollegeDTO> list = model.list(1, 10);
+			assertNotNull(list);
+			assertTrue(!list.isEmpty());
+
+			for (CollegeDTO college : list) {
+				assertNotNull(college);
+			}
+		} catch (ApplicationException e) {
+			e.printStackTrace();
+			assertTrue(false);
+		}
+	}
 }

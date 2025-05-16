@@ -4,9 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import com.rays.pro4.Bean.MarksheetBean;
 import com.rays.pro4.Bean.StudentBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.DTO.MarksheetDTO;
@@ -14,6 +11,7 @@ import com.rays.pro4.Exception.DatabaseException;
 import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Util.JDBCDataSource;
 
+import java.util.ArrayList;
 public class MarksheetModel extends BaseModel {
 
     @Override
@@ -122,7 +120,7 @@ public class MarksheetModel extends BaseModel {
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     dto = new MarksheetDTO();
-                    populateBean(rs, dto);
+                    populateDTO(rs, dto);
                 }
             }           
 
@@ -147,7 +145,7 @@ public class MarksheetModel extends BaseModel {
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     dto = new MarksheetDTO();
-                    populateBean(rs, dto);
+                    populateDTO(rs, dto);
                 }
             }
         } catch (SQLException e) {
@@ -171,7 +169,7 @@ public class MarksheetModel extends BaseModel {
         try {
             conn= JDBCDataSource.getConnection();
              conn.setAutoCommit(false);
-              PreparedStatement pstmt = conn.prepareStatement("UPDATE ST_MARKSHEET SET ROLL_NO=?, STUDENT_ID=?, NAME=?, PHYSICS=?, CHEMISTRY=?, MATHS=?, CREATED_BY=?, MODIFIED_BY=?, CREATED_DATETIME=?, MODIFIED_DATETIME=? WHERE ID=?");
+ PreparedStatement pstmt = conn.prepareStatement("UPDATE ST_MARKSHEET SET ROLL_NO=?, STUDENT_ID=?, NAME=?, PHYSICS=?, CHEMISTRY=?, MATHS=?, CREATED_BY=?, MODIFIED_BY=?, CREATED_DATETIME=?, MODIFIED_DATETIME=? WHERE ID=?");
             StudentModel sModel = new StudentModel();
             StudentDTO studentDTO = sModel.findByPK(dto.getStudentId());
             if (studentDTO == null) { //Corrected typo getStudentId
@@ -202,8 +200,8 @@ public class MarksheetModel extends BaseModel {
         log.debug("Model update End");
     }
 
-    public List search(MarksheetDTO dto, int pageNo, int pageSize) throws ApplicationException {
-        log.debug("Model search Started");
+    public List<MarksheetDTO> search(MarksheetDTO dto, int pageNo, int pageSize) throws ApplicationException {
+       log.debug("Model search Started");
         StringBuffer sql = new StringBuffer("SELECT * FROM ST_MARKSHEET WHERE 1=1");
         ArrayList<MarksheetDTO> list = new ArrayList<>();
          Connection conn = null;
@@ -277,7 +275,7 @@ public class MarksheetModel extends BaseModel {
         log.debug("Model search End");
         return list;
     }
-    private void populateBean(ResultSet rs, MarksheetDTO dto) throws SQLException {
+ private void populateDTO(ResultSet rs, MarksheetDTO dto) throws SQLException {
         dto.setId(rs.getLong(1));
         dto.setRollNo(rs.getString(2));
         dto.setStudentId(rs.getLong(3));

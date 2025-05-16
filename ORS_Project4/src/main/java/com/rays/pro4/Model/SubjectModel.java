@@ -7,7 +7,6 @@ import java.sql.PreparedStatement;
 
 import org.apache.log4j.Logger;
 import com.rays.pro4.DTO.SubjectDTO;
-
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DatabaseException;
 import com.rays.pro4.Exception.DuplicateRecordException;
@@ -50,7 +49,7 @@ public class SubjectModel extends BaseModel {
 
             if (rs.next()) {
                 dto = new SubjectDTO();
-                populateBean(rs, dto);
+                populateDTO(rs, dto);
             }
         } catch (Exception e) {
             throw new ApplicationException("Exception in getting subject by name " + e.getMessage());
@@ -156,7 +155,7 @@ public class SubjectModel extends BaseModel {
 
             if(rs.next()) {
                 dto = new SubjectDTO();
-                populateBean(rs, dto);
+                populateDTO(rs, dto);
             }
 		 }catch(Exception e) {
 			 throw new ApplicationException("Exception in getting subject by pk " + e.getMessage());
@@ -165,10 +164,10 @@ public class SubjectModel extends BaseModel {
 	 }
 	 
 
-	 public List search( SubjectBean bean) throws ApplicationException {
-		 return search(bean,0,0);
+	 public List search( SubjectDTO dto) throws ApplicationException {
+		 return search(dto,0,0);
 	 }
-	 public List search(SubjectBean bean, int pageNo, int pageSize) throws ApplicationException{	
+	 public List search(SubjectDTO dto, int pageNo, int pageSize) throws ApplicationException{	
 	    StringBuffer sql = new StringBuffer("SELECT * FROM ST_SUBJECT WHERE true");
 	     ArrayList<SubjectDTO> list = new ArrayList<SubjectDTO>();
 	     
@@ -182,23 +181,23 @@ public class SubjectModel extends BaseModel {
 	     try (Connection conn = JDBCDataSource.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql.toString()); ResultSet rs = pstmt.executeQuery()) {
 
-	         if (bean != null) {
-	             if (bean.getId() > 0) {
+	         if (dto != null) {
+	             if (dto.getId() > 0) {
 	                 sql.append(" AND ID = ?");
 	             }
-	             if (bean.getSubjectName() != null && bean.getSubjectName().length() > 0) {
+	             if (dto.getSubjectName() != null && dto.getSubjectName().length() > 0) {
 	                 sql.append(" AND Subject_Name like ?");
 	             }
-	             if (bean.getDescription() != null && bean.getDescription().length() > 0) {
+	             if (dto.getDescription() != null && dto.getDescription().length() > 0) {
 	                 sql.append(" AND Description like ?");
 	             }
-	             if (bean.getCourseId() > 0) {
+	             if (dto.getCourseId() > 0) {
 	                 sql.append(" AND Course_id = ?");
 	             }
-	             if (bean.getCourseName() != null && bean.getCourseName().length() > 0) {
+	             if (dto.getCourseName() != null && dto.getCourseName().length() > 0) {
 	                 sql.append(" AND course_Name like ?");
 	             }
-	         }
+             }
 
 	         if (pageSize > 0) {
 	             pageNo = (pageNo - 1) * pageSize;
@@ -207,22 +206,22 @@ public class SubjectModel extends BaseModel {
 	         
 	           int index = 1;
 
-	         if(bean.getId() > 0){
-	                pstmt.setLong(index++, bean.getId());
+	         if(dto.getId() > 0){
+	                pstmt.setLong(index++, dto.getId());
 	            }
-	         if (bean.getSubjectName() != null && bean.getSubjectName().length() > 0) {
+	         if (dto.getSubjectName() != null && dto.getSubjectName().length() > 0) {
 
-	             pstmt.setString(index++, bean.getSubjectName() + "%");
+	             pstmt.setString(index++, dto.getSubjectName() + "%");
 	         }
-	         if (bean.getDescription() != null && bean.getDescription().length() > 0) {
-	             pstmt.setString(index++, bean.getDescription() + "%");
+	         if (dto.getDescription() != null && dto.getDescription().length() > 0) {
+	             pstmt.setString(index++, dto.getDescription() + "%");
 	         }
-	         if (bean.getCourseId() > 0) {
-	             pstmt.setLong(index++, bean.getCourseId());
+	         if (dto.getCourseId() > 0) {
+	             pstmt.setLong(index++, dto.getCourseId());
 	         }
-	         if (bean.getCourseName() != null && bean.getCourseName().length() > 0) {
-	             pstmt.setString(index++, bean.getCourseName() + "%");
-	         }
+	         if (dto.getCourseName() != null && dto.getCourseName().length() > 0) {
+	             pstmt.setString(index++, dto.getCourseName() + "%");
+	         }	         
 	         while (rs.next()) {
                  SubjectDTO dto = new SubjectDTO();
                  populateBean(rs, dto);
@@ -257,7 +256,7 @@ public class SubjectModel extends BaseModel {
 	     try (Connection conn = JDBCDataSource.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql.toString());ResultSet rs = pstmt.executeQuery();){
 	        
 	         while (rs.next()) {
-	            SubjectDTO dto = new SubjectDTO(); populateBean(rs, dto); list.add(dto);
+	            SubjectDTO dto = new SubjectDTO(); populateDTO(rs, dto); list.add(dto);
 
 	        }
 	     } catch (Exception e) {
@@ -269,7 +268,7 @@ public class SubjectModel extends BaseModel {
         return "ST_SUBJECT";
     }
 
-    private void populateBean(ResultSet rs, SubjectDTO dto) throws SQLException {
+    private void populateDTO(ResultSet rs, SubjectDTO dto) throws SQLException {
         dto.setId(rs.getLong(1));
         dto.setSubjectName(rs.getString(2));
         dto.setDescription(rs.getString(3));
@@ -281,7 +280,4 @@ public class SubjectModel extends BaseModel {
         dto.setModifiedDatetime(rs.getTimestamp(9));
     }
 
-    public void delete(SubjectBean bean) throws ApplicationException {
-        delete(bean.getId());    
-    }
    }

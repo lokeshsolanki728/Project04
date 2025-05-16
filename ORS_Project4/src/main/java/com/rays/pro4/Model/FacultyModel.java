@@ -287,10 +287,10 @@ public class FacultyModel extends BaseModel {
 		try (Connection conn = JDBCDataSource.getConnection();
               PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
                try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    FacultyBean bean = new FacultyBean();
-                    populate(rs, bean);
-                    list.add(bean);
+                while (rs.next()) {                  
+                    FacultyDTO dto = new FacultyDTO();
+                    populate(rs, dto);
+                    list.add(dto);
                 }
             }
         } catch (SQLException e) {
@@ -324,34 +324,34 @@ public class FacultyModel extends BaseModel {
    public List search(FacultyDTO dto, int pageNo, int pageSize) throws ApplicationException {
         log.debug("Model search Started");
 		StringBuffer sql = new StringBuffer("SELECT * FROM ST_FACULTY WHERE 1=1");
-		ArrayList<FacultyBean> list=new ArrayList<>();
-        handlePageSizeAndNumber(pageNo,pageSize);
-        if (bean != null) {
-            if (bean.getId() > 0) {
+		ArrayList<FacultyDTO> list=new ArrayList<>();
+ handlePageSizeAndNumber(pageNo, pageSize);
+ if (dto != null) {
+ if (dto.getId() > 0) {
                 sql.append(" AND id = ?");
             }
-            if (bean.getCollegeId() > 0) {
+ if (dto.getCollegeId() > 0) {
                 sql.append(" AND college_Id = ?");
             }
-            if (bean.getFirstName() != null && !bean.getFirstName().isEmpty()) {
+ if (dto.getFirstName() != null && !dto.getFirstName().isEmpty()) {
                 sql.append(" AND FIRST_NAME like ?");
             }
-            if (bean.getLastName() != null && !bean.getLastName().isEmpty()) {
+ if (dto.getLastName() != null && !dto.getLastName().isEmpty()) {
                 sql.append(" AND LAST_NAME like ?");
             }
-            if (bean.getEmailId() != null && !bean.getEmailId().isEmpty()) {
+ if (dto.getEmailId() != null && !dto.getEmailId().isEmpty()) {
                 sql.append(" AND Email_Id like ?");
            }
-            if (bean.getGender() != null && !bean.getGender().isEmpty()) {
+ if (dto.getGender() != null && !dto.getGender().isEmpty()) {
                 sql.append(" AND Gender like ?");
             }
-            if (bean.getMobileNo() != null && !bean.getMobileNo().isEmpty()) {
+ if (dto.getMobileNo() != null && !dto.getMobileNo().isEmpty()) {
                sql.append(" AND Mobile_No like ?");
            }
-            if (bean.getCollegeName() != null && !bean.getCollegeName().isEmpty()) {
+ if (dto.getCollegeName() != null && !dto.getCollegeName().isEmpty()) {
                sql.append(" AND college_Name like ?");
            }
-            if (bean.getCourseId() > 0) {
+ if (dto.getCourseId() > 0) {
                sql.append(" AND course_Id = ?");
            }
             if (bean.getCourseName() != null && !bean.getCourseName().isEmpty()) {
@@ -410,9 +410,9 @@ public class FacultyModel extends BaseModel {
        }
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                  bean = new FacultyBean();
-                   populate(rs, bean);
-                    list.add(bean);
+                  FacultyDTO resultDto = new FacultyDTO();
+                   populate(rs, resultDto);
+                    list.add(resultDto);
                 }
              }
 		}catch(SQLException e) {

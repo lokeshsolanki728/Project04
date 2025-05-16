@@ -8,7 +8,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import com.rays.pro4.Bean.FacultyBean;
+import com.rays.pro4.DTO.FacultyDTO;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DatabaseException;
 import com.rays.pro4.Exception.DuplicateRecordException;
@@ -39,7 +39,7 @@ public class FacultyTest {
 	
     public static void testadd() throws DuplicateRecordException, ParseException {
         try {
-            FacultyBean bean = new FacultyBean();
+            FacultyDTO bean = new FacultyDTO();
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             bean.setFirstName("Rohan" + new Date().getTime());
             bean.setLastName("karma" + new Date().getTime());
@@ -59,7 +59,7 @@ public class FacultyTest {
             bean.setModifiedDatetime(new Timestamp(new Date().getTime()));
 
             long pk = model.add(bean);
-            FacultyBean addedBean = model.findByPK(pk);
+            FacultyDTO addedBean = model.findByPK(pk);
             org.junit.Assert.assertEquals(addedBean.getId(), pk);
         } catch (Exception e) {
             org.junit.Assert.fail("Exception in add test");
@@ -68,13 +68,13 @@ public class FacultyTest {
 
     public static void testDelete() {
         try {
-            FacultyBean bean = new FacultyBean();
-            List<FacultyBean> list = model.search(bean);
+            FacultyDTO bean = new FacultyDTO();
+            List<FacultyDTO> list = model.search(bean);
             if(list.size() == 0){
                 testadd();
                 list = model.search(bean);
             }
-            bean = list.get(0);
+            bean = list.get(0); 
             model.delete(bean);
             FacultyBean deletebean = model.findByPK(bean.getId());
             org.junit.Assert.assertNull(deletebean);
@@ -88,15 +88,15 @@ public class FacultyTest {
 
     public static void testUpdate() {
         try {
-            FacultyBean bean = new FacultyBean();
-            List<FacultyBean> list = model.search(bean);
+            FacultyDTO bean = new FacultyDTO();
+            List<FacultyDTO> list = model.search(bean);
             if(list.size() == 0){
                 testadd();
                 list = model.search(bean);
             }
             bean = list.get(0);
             bean.setFirstName("akash" + new Date().getTime());
-            model.update(bean);
+            model.update(bean); 
             FacultyBean updatedBean = model.findByPK(bean.getId());
             org.junit.Assert.assertEquals(updatedBean.getFirstName(), bean.getFirstName());
         } catch (ApplicationException e) {
@@ -111,14 +111,14 @@ public class FacultyTest {
 
     public static void testFindByPk() {
         try {
-            FacultyBean bean = new FacultyBean();
-             List<FacultyBean> list = model.search(bean);
+            FacultyDTO bean = new FacultyDTO();
+             List<FacultyDTO> list = model.search(bean);
             if(list.size() == 0){
                 testadd();
                 list = model.search(bean);
             }
             bean = list.get(0);
-            FacultyBean foundBean = model.findByPK(bean.getId());
+            FacultyDTO foundBean = model.findByPK(bean.getId());
             org.junit.Assert.assertEquals(foundBean.getId(), bean.getId());
         } catch (ApplicationException e) {
             org.junit.Assert.fail("Exception in findByPk test");
@@ -129,14 +129,14 @@ public class FacultyTest {
 
     public static void testFindByEmailId() {
         try {
-            FacultyBean bean = new FacultyBean();
-             List<FacultyBean> list = model.search(bean);
+            FacultyDTO bean = new FacultyDTO();
+             List<FacultyDTO> list = model.search(bean);
             if(list.size() == 0){
                 testadd();
                 list = model.search(bean);
             }
             bean = list.get(0);
-            FacultyBean foundBean = model.findByEmailId(bean.getEmailId());
+            FacultyDTO foundBean = model.findByEmailId(bean.getEmailId());
             org.junit.Assert.assertEquals(foundBean.getEmailId(), bean.getEmailId());
         } catch (ApplicationException e) {
             org.junit.Assert.fail("Exception in findByEmailId test");
@@ -146,8 +146,8 @@ public class FacultyTest {
     }
 
     public static void testList() {
-	 try{
-		FacultyBean bean = new FacultyBean();
+	 try{ 
+		FacultyDTO bean = new FacultyDTO();
 		 List list=new ArrayList();
 		 list=model.list(1,10);
 		 
@@ -161,8 +161,8 @@ public class FacultyTest {
 }
 
     public static void testsearch() {
-	try {
-		FacultyBean bean = new FacultyBean();
+	try { 
+		FacultyDTO bean = new FacultyDTO();
         List<FacultyBean> list2 = model.search(bean);
         if(list2.size() == 0){
             testadd();
@@ -172,7 +172,7 @@ public class FacultyTest {
 		
 		Iterator it = list.iterator();
 		while(it.hasNext()) {
-			bean= (FacultyBean) it.next();
+			bean= (FacultyDTO) it.next();
 			
 			System.out.println(bean.getId());
 			System.out.println(bean.getFirstName());

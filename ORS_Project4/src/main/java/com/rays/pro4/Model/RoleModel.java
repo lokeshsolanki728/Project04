@@ -100,7 +100,7 @@ public class RoleModel extends BaseModel {
         try (Connection conn = JDBCDataSource.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
             pstmt.setString(1, name);
-            try (ResultSet rs = pstmt.executeQuery()) {
+            try (ResultSet rs = pstmt.executeQuery()) {            
                 while (rs.next()) {
                     populateBean(rs, dto);
              }
@@ -122,7 +122,7 @@ public class RoleModel extends BaseModel {
             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
             pstmt.setLong(1, pk);
             try (ResultSet rs = pstmt.executeQuery()) {
-                 while(rs.next()) {
+                 while(rs.next()) {           
                     dto = new RoleDTO();
                  populateBean(rs, dto);
                 }
@@ -233,7 +233,7 @@ public class RoleModel extends BaseModel {
             try(ResultSet rs = pstmt.executeQuery()){
                 while (rs.next()) {
                     RoleDTO roleDTO = new RoleDTO();
-                    populateBean(rs, roleDTO);
+                    populateDTO(rs, roleDTO);
                     list.add(roleDTO);
                 }
             }
@@ -284,7 +284,7 @@ public class RoleModel extends BaseModel {
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     RoleDTO dto = new RoleDTO();
-                     populateBean(rs, dto);
+                     populateDTO(rs, dto);
                      list.add(dto);
                 }
             }
@@ -300,7 +300,7 @@ public class RoleModel extends BaseModel {
         return "ST_ROLE";
     }
 
-    private void populateBean(ResultSet rs, RoleDTO dto) throws SQLException {
+    private void populateDTO(ResultSet rs, RoleDTO dto) throws SQLException {
         dto.setId(rs.getLong(1));
         dto.setName(rs.getString(2));
         dto.setDescription(rs.getString(3));

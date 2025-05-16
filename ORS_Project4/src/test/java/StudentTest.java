@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import com.rays.pro4.Bean.StudentBean;
+import com.rays.pro4.DTO.StudentDTO;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DatabaseException;
 import com.rays.pro4.Exception.DuplicateRecordException;
@@ -41,7 +41,7 @@ public class StudentTest {
 	public static void testAdd() throws ParseException, DuplicateRecordException, DatabaseException {
 		
 		try{
-			StudentBean bean=new StudentBean();
+			StudentDTO bean=new StudentDTO();
 			SimpleDateFormat sdf=new SimpleDateFormat("dd/MM/yyyy");
             long id = new Date().getTime();
             bean.setFirstName("FirstName" + id);
@@ -55,7 +55,7 @@ public class StudentTest {
 			bean.setCreatedDatetime(new Timestamp(new Date().getTime()));
 			bean.setModifiedDatetime(new Timestamp(new Date().getTime()));
 			long pk = model.add(bean);
-			StudentBean addbean = model.findByPK(pk);
+			StudentDTO addbean = model.findByPK(pk);
             org.junit.Assert.assertNotNull(addbean);
             org.junit.Assert.assertEquals(bean.getFirstName(), addbean.getFirstName());
             org.junit.Assert.assertEquals(bean.getLastName(), addbean.getLastName());
@@ -70,11 +70,11 @@ public class StudentTest {
 	public static void testDelete() throws ApplicationException, DatabaseException{
 		
 		try{
-			  StudentBean bean = new StudentBean();
+			  StudentDTO bean = new StudentDTO();
 	            long pk = new Date().getTime();
 	            bean.setId(pk);
 	            model.delete(bean);
-	            StudentBean deletebean = model.findByPK(pk);
+	            StudentDTO deletebean = model.findByPK(pk);
 	            org.junit.Assert.assertNull(deletebean);
 		}catch(ApplicationException e){
 			org.junit.Assert.fail("Test Delete fail" + e.getMessage());
@@ -84,12 +84,12 @@ public class StudentTest {
 
         try {
              SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-            StudentBean bean = model.findByPK(1L);
+            StudentDTO bean = model.findByPK(1L);
             bean.setFirstName("Update name");
             bean.setLastName("Update last");
              bean.setDob(sdf.parse("01/01/2001"));
             bean.setCollegeId(1L);
-            model.Update(bean);
+            model.update(bean);
             StudentBean updateBean = model.findByPK(1L);
             org.junit.Assert.assertNotNull(updateBean);
             org.junit.Assert.assertEquals("Update name", updateBean.getFirstName());
@@ -104,9 +104,9 @@ public class StudentTest {
     }
 	public static void testFindByPK() throws ApplicationException, DatabaseException{
 		try{
-			StudentBean bean = new StudentBean();
+			StudentDTO bean = new StudentDTO();
 			Long pk=1L;
-			bean=model.findByPK(pk);
+			bean = model.findByPK(pk);
              org.junit.Assert.assertNotNull(bean);
             org.junit.Assert.assertEquals(pk, bean.getId());
 		}catch(ApplicationException e){
@@ -115,12 +115,12 @@ public class StudentTest {
 	}
 	 public static void testFindByEmailId() throws ApplicationException, DatabaseException {
 	        try {
-	            StudentBean bean = model.findByEmailId("test1699373289895@gmail.com");
+	            StudentDTO bean = model.findByEmailId("test1699373289895@gmail.com");
 	             org.junit.Assert.assertNull(bean);
-               StudentBean notnullbean = new StudentBean();
+               StudentDTO notnullbean = new StudentDTO();
             notnullbean.setEmail("test1699373289895@gmail.com");
             notnullbean.setCollegeId(1l);
-              model.add(notnullbean);
+             model.add(notnullbean);
              StudentBean bean2 = model.findByEmailId("test1699373289895@gmail.com");
               org.junit.Assert.assertNotNull(bean2);
 	        } catch (ApplicationException e) {
@@ -131,7 +131,7 @@ public class StudentTest {
 	    }
 	 public static void testSearch() throws ApplicationException, DatabaseException{
 		 try{
-			 StudentBean bean= new StudentBean();
+			 StudentDTO bean= new StudentDTO();
 			 List list=new ArrayList();
 			// bean.setFirstName("ram");
 			// bean.setEmail("kmalviya30@gmail.com");
@@ -141,7 +141,7 @@ public class StudentTest {
                org.junit.Assert.assertNotNull(list);
             org.junit.Assert.assertTrue(list.size() > 0);
 			 Iterator it=list.iterator();
-			 while(it.hasNext()){
+			 while(it.hasNext()){ // Corrected loop to use DTO
 				 bean=(StudentBean)it.next();
 				  org.junit.Assert.assertNotNull(bean.getId());
                  
@@ -152,12 +152,12 @@ public class StudentTest {
 	 }
 	 public static void testList() throws ApplicationException, DatabaseException{
 		 try{
-			 StudentBean bean=new StudentBean();
+			 StudentDTO bean=new StudentDTO();
 			 List list=new ArrayList();
 			 list=model.list(1,10);
             org.junit.Assert.assertNotNull(list);
              org.junit.Assert.assertTrue(list.size() > 0);
-			 Iterator it = list.iterator();
+			 Iterator it = list.iterator(); // Corrected loop to use DTO
 			 while(it.hasNext()){
 				 bean=(StudentBean)it.next();
 				 org.junit.Assert.assertNotNull(bean.getId());

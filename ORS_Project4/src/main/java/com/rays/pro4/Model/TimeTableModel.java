@@ -125,14 +125,14 @@ public class TimeTableModel extends BaseModel {
 
 	public void update(TimeTableDTO bean) throws ApplicationException, DuplicateRecordException {
 		log.debug("Model update Started");
-	    CourseModel cModel = new CourseModel();
-		CourseBean CourseBean = cModel.findByPK(bean.getCourseId());
+ CourseModel cModel = new CourseModel();
+ CourseDTO courseDTO = cModel.findByPK(bean.getCourseId());
 
 		SubjectModel smodel = new SubjectModel();
-		SubjectBean subjectBean = smodel.findByPK(bean.getSubjectId());
-		bean.setSubjectName(subjectBean.getName());
+ SubjectDTO subjectDTO = smodel.findByPK(bean.getSubjectId());
+		bean.setSubjectName(subjectDTO.getSubjectName());
 
-		bean.setCourseName(CourseBean.getName());
+		bean.setCourseName(courseDTO.getName());
         TimeTableDTO bean1 = checkByCourseDate(bean.getCourseId(), bean.getSemester(), new java.sql.Date(bean.getExamDate().getTime()));
         TimeTableDTO bean2 = checkBySemesterSubject(bean.getCourseId(), bean.getSubjectId(), bean.getSemester());
         if (bean1 != null || bean2 != null) {

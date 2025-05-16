@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.List;
 
-import com.rays.pro4.Bean.TimeTableBean;
+import com.rays.pro4.DTO.TimeTableDTO;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
 import com.rays.pro4.Model.TimeTableModel;
@@ -40,7 +40,7 @@ public class TimeTableTest {
 
     public static void testadd() throws ParseException {
         try {
-            TimeTableBean bean = new TimeTableBean();
+            TimeTableDTO bean = new TimeTableDTO();
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
             bean.setCourseId(new Date().getTime()/1000);
@@ -56,7 +56,7 @@ public class TimeTableTest {
             bean.setModifiedDatetime(new Timestamp(new Date().getTime()));
             long pk = model.add(bean);
 
-            TimeTableBean addedBean = model.findByPK(pk);
+            TimeTableDTO addedBean = model.findByPK(pk);
             assertNotNull(addedBean);
             assertEquals(bean.getCourseId(), addedBean.getCourseId());
             assertEquals(bean.getCourseName(), addedBean.getCourseName());
@@ -74,12 +74,12 @@ public class TimeTableTest {
 
     public static void testdelete() {
         try {
-            TimeTableBean bean = new TimeTableBean();
+            TimeTableDTO bean = new TimeTableDTO();
             long pk = 1L;
 
             bean.setId(pk);
             model.delete(bean);
-
+            
             TimeTableBean deleteBean = model.findByPK(pk);
             assertTrue(deleteBean == null);
 
@@ -91,7 +91,7 @@ public class TimeTableTest {
 
     public static void testupdate() throws ParseException, DuplicateRecordException {
         try {
-            TimeTableBean bean = new TimeTableBean();
+            TimeTableDTO bean = new TimeTableDTO();
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             bean.setCourseId(new Date().getTime()/1000);
             bean.setCourseName("Updated Course" + new Date().getTime()/1000);
@@ -106,11 +106,11 @@ public class TimeTableTest {
             bean.setModifiedDatetime(new Timestamp(new Date().getTime()));
             long pk = model.add(bean);
 
-            TimeTableBean updateBean = model.findByPK(pk);
+            TimeTableDTO updateBean = model.findByPK(pk);
 
             updateBean.setExamTime("Updated time");
             model.update(updateBean);
-
+            
             TimeTableBean updatedBean = model.findByPK(pk);
             assertEquals("Updated time", updatedBean.getExamTime());
 
@@ -122,7 +122,7 @@ public class TimeTableTest {
 
     public static void testfindBypk() {
         try {
-            TimeTableBean bean = new TimeTableBean();
+            TimeTableDTO bean = new TimeTableDTO();
             bean=model.findByPK(1);
             if(bean != null){
                 assertNotNull(bean);
@@ -136,7 +136,7 @@ public class TimeTableTest {
 
     public static void testlist() throws Exception {
         try {
-            TimeTableBean bean = new TimeTableBean();
+            TimeTableDTO bean = new TimeTableDTO();
             List list = new ArrayList();
             list = model.list(1, 10);
             assertTrue(list.size() > 0);
@@ -147,7 +147,7 @@ public class TimeTableTest {
     }
 
     public static void testsearch() throws ApplicationException {
-        TimeTableBean bean = new TimeTableBean();
+        TimeTableDTO bean = new TimeTableDTO();
         List list = new ArrayList();
         bean.setSubjectName("Subject");
         list = model.search(bean, 0, 0);

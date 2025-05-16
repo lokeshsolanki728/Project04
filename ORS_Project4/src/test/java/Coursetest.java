@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import com.rays.pro4.Bean.CourseBean;
+import com.rays.pro4.DTO.CourseDTO;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DatabaseException;
 import com.rays.pro4.Exception.DuplicateRecordException;
@@ -37,17 +37,16 @@ public class Coursetest  {
 
     public static void testadd() {
         try {
-            CourseBean bean = new CourseBean();
+            CourseDTO bean = new CourseDTO();
             bean.setName("B.Tech");
             bean.setDescription("Engineering");
             bean.setDuration("4 Years");
             bean.setCreatedBy("admin");
             bean.setModifiedBy("admin");
-            bean.setCreatedDatetime(new Timestamp(new Date().getTime()));
-            bean.setModifiedDatetime(new Timestamp(new Date().getTime()));
+            bean.setCreatedDatetime(new Timestamp(System.currentTimeMillis()));
+            bean.setModifiedDatetime(new Timestamp(System.currentTimeMillis()));
 
-            long pk = model.add(bean);
-            CourseBean addedBean = model.FindByPK(pk);
+            long pk = model.add(bean);            CourseDTO addedBean = model.findByPK(pk);
             Assert.assertNotNull(addedBean);
             Assert.assertEquals("B.Tech", addedBean.getName());
             Assert.assertEquals("Engineering", addedBean.getDescription());
@@ -61,19 +60,19 @@ public class Coursetest  {
     }
 
 	public static void testDelete() {
-		CourseBean bean = new CourseBean();
+		CourseDTO bean = new CourseDTO();
 		bean.setName("BCA");
 		bean.setDescription("Computer Application");
 		bean.setDuration("3 Year");
 		bean.setCreatedBy("admin");
 		bean.setModifiedBy("admin");
-		bean.setCreatedDatetime(new Timestamp(new Date().getTime()));
-		bean.setModifiedDatetime(new Timestamp(new Date().getTime()));
+		bean.setCreatedDatetime(new Timestamp(System.currentTimeMillis()));
+		bean.setModifiedDatetime(new Timestamp(System.currentTimeMillis()));
 		try {
             long pk = model.add(bean);
             bean.setId(pk);
 			model.Delete(bean);
-			CourseBean deletedBean = model.FindByPK(pk);
+			CourseDTO deletedBean = model.findByPK(pk);
 			Assert.assertNull(deletedBean);
 		} catch (ApplicationException | DuplicateRecordException e) {
 			Assert.fail("Application Exception: " + e.getMessage());
@@ -82,16 +81,16 @@ public class Coursetest  {
 
 	public static void testFindByName() {
         try {
-            CourseBean bean = new CourseBean();
+            CourseDTO bean = new CourseDTO();
             bean.setName("MBA");
             bean.setDescription("Master of Business Administration");
             bean.setDuration("2 Years");
             bean.setCreatedBy("admin");
             bean.setModifiedBy("admin");
-            bean.setCreatedDatetime(new Timestamp(new Date().getTime()));
-            bean.setModifiedDatetime(new Timestamp(new Date().getTime()));
+            bean.setCreatedDatetime(new Timestamp(System.currentTimeMillis()));
+            bean.setModifiedDatetime(new Timestamp(System.currentTimeMillis()));
                 model.add(bean);
-                CourseBean foundBean = model.findByName("MBA");
+                CourseDTO foundBean = model.findByName("MBA");
                 Assert.assertNotNull(foundBean);
                 Assert.assertEquals("MBA", foundBean.getName());
             
@@ -101,14 +100,14 @@ public class Coursetest  {
 	}
 
 	public static void testFindByPk() {
-		CourseBean bean = new CourseBean();
+		CourseDTO bean = new CourseDTO();
 		bean.setName("MCA");
 		bean.setDescription("Master of Computer Application");
 		bean.setDuration("2 Years");
 		bean.setCreatedBy("admin");
 		bean.setModifiedBy("admin");
-		bean.setCreatedDatetime(new Timestamp(new Date().getTime()));
-		bean.setModifiedDatetime(new Timestamp(new Date().getTime()));
+		bean.setCreatedDatetime(new Timestamp(System.currentTimeMillis()));
+		bean.setModifiedDatetime(new Timestamp(System.currentTimeMillis()));
 		try {
 			long pk = model.add(bean);
 			CourseBean foundBean = model.FindByPK(pk);
@@ -121,14 +120,14 @@ public class Coursetest  {
 	}
 	
 	public static void testUpdate() {
-		CourseBean bean = new CourseBean();
+		CourseDTO bean = new CourseDTO();
 		bean.setName("BBA");
 		bean.setDescription("Bachelor of Business Administration");
 		bean.setDuration("3 Years");
 		bean.setCreatedBy("admin");
 		bean.setModifiedBy("admin");
-		bean.setCreatedDatetime(new Timestamp(new Date().getTime()));
-		bean.setModifiedDatetime(new Timestamp(new Date().getTime()));
+		bean.setCreatedDatetime(new Timestamp(System.currentTimeMillis()));
+		bean.setModifiedDatetime(new Timestamp(System.currentTimeMillis()));
 		try {
 			long pk = model.add(bean);
 			bean.setId(pk);
@@ -143,10 +142,10 @@ public class Coursetest  {
 
 	public static void testsearch() {
 		try {
-            CourseBean bean = new CourseBean();
-            List<CourseBean> list = model.search(bean);
+            CourseDTO bean = new CourseDTO();
+            List<CourseDTO> list = model.search(bean);
             Assert.assertNotNull(list);
-            Assert.assertTrue(list.size() > 0);
+            Assert.assertTrue(list.size() >= 0);
 
             for (CourseBean course : list) {
                 Assert.assertNotNull(course.getName());

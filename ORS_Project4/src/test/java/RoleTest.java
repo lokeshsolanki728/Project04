@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import com.rays.pro4.Bean.RoleBean;
+import com.rays.pro4.DTO.RoleDTO;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DuplicateRecordException;
@@ -41,11 +41,11 @@ public class RoleTest {
 
     public static void testAdd() {
         try {
-            RoleBean bean = new RoleBean();
-            bean.setName("TestRole");
-            bean.setDescription("Test Description");
-            bean.setCreatedBy("Admin");
-            bean.setModifiedBy("Admin");
+            RoleDTO bean = new RoleDTO();
+            bean.setName("TestRole" + System.currentTimeMillis());
+            bean.setDescription("Test Description" + System.currentTimeMillis());
+            bean.setCreatedBy("admin");
+            bean.setModifiedBy("admin");
             bean.setCreatedDatetime(new Timestamp(new Date().getTime()));
             bean.setModifiedDatetime(new Timestamp(new Date().getTime()));
             long pk = model.add(bean);
@@ -65,11 +65,11 @@ public class RoleTest {
 
     public static void testDelete() throws ApplicationException {
 
-        try {
-            RoleBean bean = new RoleBean();
-            bean.setName("ToDelete");
-            bean.setDescription("ToDelete Description");
-            long pk = model.add(bean);
+        try {           
+            RoleDTO bean = new RoleDTO();
+            bean.setName("ToDelete"+ System.currentTimeMillis());
+            bean.setDescription("ToDelete Description"+ System.currentTimeMillis());
+            long pk = model.add(bean);          
             bean.setId(pk);
             model.delete(bean);
             RoleBean deletebean = model.findByPK(pk);
@@ -83,10 +83,16 @@ public class RoleTest {
 
     public static void testUpdate() {
         try {
-            RoleBean bean = model.findByName("TestRole");
+             RoleDTO bean = new RoleDTO();
+            bean.setName("UpdateRole"+ System.currentTimeMillis());
+            bean.setDescription("Update Description"+ System.currentTimeMillis());
+            long pk = model.add(bean);          
+            bean.setId(pk);
+
+
             bean.setName("UpdateRole");
             bean.setDescription("update Desc");
-            model.update(bean);
+            model.update(bean);           
             RoleBean updatebean = model.findByPK(bean.getId());
             assertEquals("UpdateRole", updatebean.getName());
         } catch (ApplicationException e) {
@@ -100,7 +106,11 @@ public class RoleTest {
 
     public static void testFindByPK() {
         try {
-            RoleBean bean = model.findByName("UpdateRole");
+            RoleDTO bean = new RoleDTO();
+            bean.setName("FindByPk" + System.currentTimeMillis());
+            bean.setDescription("FindByPk Description" + System.currentTimeMillis());
+            long pk = model.add(bean);
+            bean.setId(pk);
             RoleBean getBean = model.findByPK(bean.getId());
             assertNotNull(getBean);
             assertEquals(bean.getName(), getBean.getName());
@@ -113,7 +123,11 @@ public class RoleTest {
 
     public static void testFindByName() {
         try {
-            RoleBean bean = model.findByName("UpdateRole");
+            RoleDTO bean = new RoleDTO();
+            bean.setName("FindByName" + System.currentTimeMillis());
+            bean.setDescription("FindByName Description" + System.currentTimeMillis());
+            model.add(bean);
+            bean = model.findByName("FindByName" + System.currentTimeMillis());
             assertNotNull(bean);
             assertEquals("UpdateRole", bean.getName());
         } catch (ApplicationException e) {
@@ -124,7 +138,7 @@ public class RoleTest {
 
     public static void testSearch() {
         try {
-            RoleBean bean = new RoleBean();
+            RoleDTO bean = new RoleDTO();
             List list = new ArrayList();
             list = model.search(bean, 0, 0);
             assertFalse(list.isEmpty());

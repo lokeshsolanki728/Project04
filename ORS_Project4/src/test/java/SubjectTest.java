@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import com.rays.pro4.Bean.SubjectBean;
+import com.rays.pro4.DTO.SubjectDTO;
 import com.rays.pro4.Bean.CourseBean;
 import com.rays.pro4.Exception.ApplicationException;
 import com.rays.pro4.Exception.DatabaseException;
@@ -39,7 +39,7 @@ public class SubjectTest {
 	public static void testadd() throws DuplicateRecordException {
 
 		try {
-			SubjectBean bean = new SubjectBean();
+			SubjectDTO bean = new SubjectDTO();
 			bean.setSubjectName("Subject-" + new Date().getTime());
 			bean.setDescription("Description-" + new Date().getTime());
 			bean.setCourseId(1L);
@@ -50,7 +50,7 @@ public class SubjectTest {
 			bean.setModifiedDatetime(new Timestamp(new Date().getTime()));
 
 			long pk = model.add(bean);
-            SubjectBean addedBean = model.FindByPK(pk);
+            SubjectDTO addedBean = model.FindByPK(pk);
             assertEquals(bean.getSubjectName(), addedBean.getSubjectName());
 
 		} catch (ApplicationException | DuplicateRecordException e) {
@@ -61,12 +61,12 @@ public class SubjectTest {
 
 	public static void testDelete() throws ApplicationException {
 		try {
-            List<SubjectBean> list = model.list(1,10);
+            List<SubjectDTO> list = model.list(1,10);
             if(list.size() == 0){
                 testadd();
                 list = model.list(1,10);
             }
-            SubjectBean temp = list.get(0);
+            SubjectDTO temp = list.get(0);
 			SubjectBean bean = new SubjectBean();
 			bean.setId(temp.getId());
 			model.Delete(bean);			
@@ -81,11 +81,11 @@ public class SubjectTest {
 
 	public static void testFindByName() {
 		try {
-			SubjectBean bean = new SubjectBean();
-            List<SubjectBean> list = model.list(1,10);
+			SubjectDTO bean = new SubjectDTO();
+            List<SubjectDTO> list = model.list(1,10);
             if(list.size() == 0){
                 testadd();
-                list = model.list(1,10);
+                list = model.list(1,10); // This call might need adjustment based on SubjectModel's list method return type
             }
 
 			System.out.println(bean.getId());
@@ -97,7 +97,7 @@ public class SubjectTest {
 			System.out.println(bean.getCreatedDatetime());
 			System.out.println(bean.getModifiedBy());
 			System.out.println(bean.getModifiedDatetime());
-            bean = model.findByName(list.get(0).getSubjectName());
+            bean = model.findByName(list.get(0).getSubjectName()); // This call might need adjustment based on SubjectModel's findByName method return type
             assertEquals(bean.getSubjectName(),list.get(0).getSubjectName());
 		} catch (ApplicationException e) {
 			e.printStackTrace();
@@ -106,15 +106,15 @@ public class SubjectTest {
 
 	public static void testUpdate() throws ApplicationException, DuplicateRecordException {
 		try {
-            List<SubjectBean> list = model.list(1,10);
+            List<SubjectDTO> list = model.list(1,10);
             if(list.size() == 0){
                 testadd();
                 list = model.list(1,10);
             }
-			SubjectBean bean = model.FindByPK(list.get(0).getId());
+			SubjectDTO bean = model.FindByPK(list.get(0).getId());
             String oldSubjectName = bean.getSubjectName();
 			bean.setSubjectName("New-"+new Date().getTime());
-			model.update(bean);
+			model.update(bean); // This call might need adjustment based on SubjectModel's update method parameter type
             SubjectBean updated = model.FindByPK(bean.getId());
             assertEquals(updated.getSubjectName(),bean.getSubjectName());
             
@@ -130,14 +130,14 @@ public class SubjectTest {
 
 	public static void testFindByPk() throws ApplicationException {
 		try {
-            List<SubjectBean> list = model.list(1,10);
+            List<SubjectDTO> list = model.list(1,10);
             if(list.size() == 0){
                 testadd();
                 list = model.list(1,10);
             }
-			SubjectBean bean = new SubjectBean();
+			SubjectDTO bean = new SubjectDTO();
 			
-			bean = model.FindByPK(list.get(0).getId());
+			bean = model.FindByPK(list.get(0).getId()); // This call might need adjustment based on SubjectModel's FindByPK method return type
 			
 			System.out.println(bean.getId());
 			System.out.println(bean.getSubjectName());
@@ -155,7 +155,7 @@ public class SubjectTest {
 
 	public static void testsearch() throws DatabaseException {
 		try {
-			SubjectBean bean = new SubjectBean();
+			SubjectDTO bean = new SubjectDTO();
 			//bean.setSubjectName("Java");
 		    
 			//bean.setCourseId(2L);
@@ -167,7 +167,7 @@ public class SubjectTest {
 			Iterator it = list.iterator();
 			while (it.hasNext()) {
                 empty = false;
-				bean = (SubjectBean) it.next();
+				bean = (SubjectDTO) it.next(); // Cast to SubjectDTO
 				System.out.println(bean.getSubjectName());
 				System.out.println(bean.getDescription());
 			}
@@ -181,11 +181,11 @@ public class SubjectTest {
 
 	public static void testlist() throws Exception {
 		try {
-			SubjectBean bean = new SubjectBean();
+			SubjectDTO bean = new SubjectDTO();
 			List list = new ArrayList();
 			list = model.list(1, 10);
             assertEquals(true,list.size()>=0);
-			Iterator it = list.iterator();
+			Iterator<SubjectDTO> it = list.iterator(); // Use generic iterator
 			while (it.hasNext()) {
 				bean = (SubjectBean) it.next();
 				System.out.println(bean.getId());
